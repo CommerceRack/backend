@@ -1,0 +1,13 @@
+The master servers are ns4 and ns5
+
+They are configured differently from the rest of the servers, which run a cron script.  The primary servers must run the time servers as a service to take advantage of the /etc/ntp.conf and which server ranges to allow.
+
+# To check if the servers are set up properly
+cd /etc/init.d
+chkconfig --list ntpd
+
+# To turn on the service do the following
+chkconfig --levels 345 ntpd on
+
+
+# Be sure to use the ntp.conf file found here

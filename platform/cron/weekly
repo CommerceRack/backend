@@ -1,0 +1,4 @@
+#!/bin/bash
+/httpd/scripts/cron/clean-my-privates.pl
+
+

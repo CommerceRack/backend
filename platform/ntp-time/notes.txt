@@ -1,0 +1,7 @@
+The ntp.sh script runs in /root/bin/ on all servers
+
+The script can be changed here and pushed out to all machines
+
+Currently it queries ns4 and ns5 as the master servers, and their configs are in the master configs dir
+
+The script runs from cron hourly on all servers

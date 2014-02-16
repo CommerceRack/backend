@@ -1,0 +1,1656 @@
+package SITE::MSGS;
+
+use Storable;
+use strict;
+use lib "/backend/lib";
+require ZOOVY;
+require ZTOOLKIT;
+require DBINFO;
+require ZWEBSITE;
+require TOXML::SPECL3;
+
+@SITE::MSGS::MACROS = (
+	[ 50, '', 'Payment Specific: (only available within a specific payment message)' ],
+	[ 50,'%BILLADDR%','Customer\'s Billing Address'],
+	[ 50,'%SHIPADDR%','Customer\'s Shipping Address'],
+	[ 50,'%BILLPHONE%','Customer\'s Billing Phone'],
+	[ 50,'%SHIPPHONE%','Customer\'s Shipping Phone'],
+	[ 50,'%BILLEMAIL%','Customer\'s Billing Email'],
+	[ 50,'%CUSTOMER_REFERENCE%','Customers reference #'],
+	[ 50,'%MYNAME%','Company Name - from Zoovy account config'],
+	[ 50,'%MYEMAIL%','Company Support Email - from Zoovy account config'],
+	[ 50,'%MYPHONE%','Company Support Phone - from Zoovy account config'],
+	[ 50,'%PAYABLETO%','Who to make checks/money orders/wire transfers/etc. payable to'],
+	[ 50,'%ORDERID%','The Order ID (not available until the invoice stage)'],
+	[ 50,'%MYADDRESS%','Company Mailing Address - from Zoovy Account Config'],
+	[ 50,'%BALANCEDUE%','The total remaining amount due (minus any pre-authorized amounts)'],
+	[ 50,'%GRANDTOTAL%','The total amount of the order without a dollar sign ($)'],
+	[ 50,'%SUBTOTAL%','The subtotal (amount not including shipping+handling) of the order without a dollar sign'],
+	[ 50, '', 'Payment Account Data: (optional/may not always be included within a payment)' ],
+	[ 50,'%PAYMENT_FIXNOWURL%','The URL to "fix" a payment that had an error'],
+	[ 50,'%PAYMENT_TENDER%','Zoovy tender type ex:: CREDIT, GOOGLE'],
+	[ 50,'%PAYMENT_AMT%','Amount of payment (just numbers, no currency symbol)'],
+	[ 50,'%PAYMENT_AMT_CURRENCY%','The currency format ex: USD for US Dollars'],
+	[ 50,'%PAYMENT_AMT_PRETTY%','The amount of the payment formatted with currency symbol ex: $1.23'],
+	[ 50,'%PAYMENT_NOTE%','The note attached to the payment'],
+	[ 50,'%PAYMENT_DEBUG%','The debug note, or reason for failure, usually returned by the gateway, which may or may not be customer-comprehensible'],
+	[ 50,'%PAYMENT_UUID%','Zoovy\'s unique payment tracking number for this payment'],
+	[ 50,'%PAYMENT_TXN%','External gateway transaction'],
+	[ 50,'%PAYMENT_AUTH%','External gateway authorization'],
+	[ 50,'%PAYMENT_GC%','Giftcard Payment Only: Giftcard Masked'],
+	[ 50,'%PAYMENT_AO%','Amazon Payment Only: Amazon Order'],
+	[ 50,'%PAYMENT_BO%','Buy.com Payment Only: Buy.com Order'],
+	[ 50,'%PAYMENT_GO%','Google Payment Only: Google Order'],
+	[ 50,'%PAYMENT_EA%','Tender - E-Check Payment Only: Electronic Check Account'],
+	[ 50,'%PAYMENT_ER%','Tender - E-Check Payment Only: Electronic Check Routing'],
+	[ 50,'%PAYMENT_C4%','Tender - Credit Payment Only: Last 4 digits of the card'],
+	[ 50,'%PAYMENT_CM%','Tender - Credit Payment Only: Credit card masked'],
+	[ 50,'%PAYMENT_YY%','Tender - Credit Payment Only: Credit card expiration year'],
+	[ 50,'%PAYMENT_MM%','Tender - Credit Payment Only: Credit card month'],
+	[ 50,'%PAYMENT_PO%','Tender - Purchase Order: Purchase Order #'],
+	[ 50, '', 'Tender Specific: (special fields, only available with specific payment tender types)' ],
+	[ 50,'%CREDIT_TYPE%','The type of credit card. (ex: VISA, MasterCard)'],
+	[ 50,'%CREDIT_NUMBER%','Credit card number the customer entered, with only the last few numbers showing'],
+	[ 50,'%CREDIT_EXPMONTH%','Customer-entered credit card expiration month'],
+	[ 50,'%CREDIT_EXPYEAR%','Customer-entered credit card expiration year'],
+	);
+
+
+##
+## http://www.xe.com/symbols.php
+##
+%SITE::MSGS::CURRENCIES = (
+	'USD'=>{ pretty=>"US Dollar", region=>"United States", symbol=>"24" },
+	'CAN'=>{ pretty=>"Candian Dollar", region=>"Canada", symbol=>"24", },
+	'EUR'=>{ pretty=>"Euro", region=>"European Union", symbol=>"20ac" },
+	'GBP'=>{ pretty=>'Pounds', region=>'England (United Kingdom)', symbol=>"a3" },
+	'MXN'=>{ pretty=>'Pesos', region=>'Mexico', symbol=>"24" },
+	'AUD'=>{ pretty=>"Australian Dollar", region=>"Australia",  symbol=>"24" },
+	);
+
+
+##
+## http://www.loc.gov/standards/iso639-2/php/code_list.php
+##
+%SITE::MSGS::LANGUAGES = (
+#	ALB => { short=>'SQ', pretty=>'ALBANIAN', in=>'ALBANAIS', },
+	ARA => { short=>'AR', pretty=>'ARABIC', in=>'ARABE', },
+#	BEL => { short=>'BE', pretty=>'BELARUSIAN', in=>'BIORUSSE', },
+#	BUL => { short=>'BG', pretty=>'BULGARIAN', in=>'BULGARE', },
+#	CZE => { short=>'CS', pretty=>'CZECH', in=>'TCHUE', },
+#	HI => { short=>'ZH', pretty=>'CHINESE', in=>'CHINOIS', },
+#	WEL => { short=>'CY', pretty=>'WELSH', in=>'GALLOIS', },
+#	CZE => { short=>'CS', pretty=>'CZECH', in=>'TCHUE', },
+	DAN => { short=>'DA', pretty=>'DANISH', in=>'DANOIS', },
+	GER => { short=>'DE', pretty=>'GERMAN', in=>'ALLEMAND', },
+	DUT => { short=>'NL', pretty=>'DUTCH', in=>'FLAMAND', },
+#	GRE => { short=>'EL', pretty=>'GREEK MODERN', in=>'', },
+	ENG => { short=>'EN', pretty=>'ENGLISH', in=>'ANGLAIS', },
+#	EPO => { short=>'EO', pretty=>'ESPERANTO', in=>'ESPANTO', },
+#	EST => { short=>'ET', pretty=>'ESTONIAN', in=>'ESTONIEN', },
+#	FIN => { short=>'FI', pretty=>'FINNISH', in=>'FINNOIS', },
+#	FRE => { short=>'FR', pretty=>'FRENCH', in=>'FRANIS', },
+	FRE => { short=>'FR', pretty=>'FRENCH', in=>'FRANIS', },
+#	GEO => { short=>'KA', pretty=>'GEORGIAN', in=>'GRGIEN', },
+#	GER => { short=>'DE', pretty=>'GERMAN', in=>'ALLEMAND', },
+#	GLA => { short=>'GD', pretty=>'GAELIC', in=>'OSSAIS', },
+#	GLE => { short=>'GA', pretty=>'IRISH', in=>'IRLANDAIS', },
+#	GRE => { short=>'EL', pretty=>'GREEK', in=>'1453)', },
+#	HEB => { short=>'HE', pretty=>'HEBREW', in=>'HREU', },
+#	HIN => { short=>'HI', pretty=>'HINDI', in=>'HINDI', },
+#	SCR => { short=>'HR', pretty=>'CROATIAN', in=>'CROATE', },
+#	HUN => { short=>'HU', pretty=>'HUNGARIAN', in=>'HONGROIS', },
+#	ARM => { short=>'HY', pretty=>'ARMENIAN', in=>'ARMIEN', },
+#	ICE => { short=>'IS', pretty=>'ICELANDIC', in=>'ISLANDAIS', },
+#	IND => { short=>'ID', pretty=>'INDONESIAN', in=>'INDONIEN', },
+#	ICE => { short=>'IS', pretty=>'ICELANDIC', in=>'ISLANDAIS', },
+	ITA => { short=>'IT', pretty=>'ITALIAN', in=>'ITALIEN', },
+	JPN => { short=>'JA', pretty=>'JAPANESE', in=>'JAPONAIS', },
+#	GEO => { short=>'KA', pretty=>'GEORGIAN', in=>'GRGIEN', },
+#	KAZ => { short=>'KK', pretty=>'KAZAKH', in=>'KAZAKH', },
+	KOR => { short=>'KO', pretty=>'KOREAN', in=>'CORN', },
+#	KUR => { short=>'KU', pretty=>'KURDISH', in=>'KURDE', },
+#	LAO => { short=>'LO', pretty=>'LAO', in=>'LAO', },
+#	LIT => { short=>'LT', pretty=>'LITHUANIAN', in=>'LITUANIEN', },
+#	LTZ => { short=>'LB', pretty=>'LUXEMBOURGISH', in=>'LUXEMBOURGEOIS', },
+#	NOR => { short=>'NO', pretty=>'NORWEGIAN', in=>'NORVIEN', },
+#	PER => { short=>'FA', pretty=>'PERSIAN', in=>'PERSAN', },
+#	POL => { short=>'PL', pretty=>'POLISH', in=>'POLONAIS', },
+#	POR => { short=>'PT', pretty=>'PORTUGUESE', in=>'PORTUGAIS', },
+#	RUM => { short=>'RO', pretty=>'ROMANIAN', in=>'ROUMAIN', },
+#	RUM => { short=>'RO', pretty=>'ROMANIAN', in=>'ROUMAIN', },
+#	RUS => { short=>'RU', pretty=>'RUSSIAN', in=>'RUSSE', },
+#	SCC => { short=>'SR', pretty=>'SERBIAN', in=>'SERBE', },
+#	SCR => { short=>'HR', pretty=>'CROATIAN', in=>'CROATE', },
+#	SLV => { short=>'SL', pretty=>'SLOVENIAN', in=>'SLOVE', },
+	SPA => { short=>'ES', pretty=>'SPANISH', in=>'CASTILLAN', },
+#	SCC => { short=>'SR', pretty=>'SERBIAN', in=>'SERBE', },
+#	SWE => { short=>'SV', pretty=>'SWEDISH', in=>'SUOIS', },
+#	THA => { short=>'TH', pretty=>'THAI', in=>'THA', },
+#	TUR => { short=>'TR', pretty=>'TURKISH', in=>'TURC', },
+#	UKR => { short=>'UK', pretty=>'UKRAINIAN', in=>'UKRAINIEN', },
+#	VIE => { short=>'VI', pretty=>'VIETNAMESE', in=>'VIETNAMIEN', },
+#	WEL => { short=>'CY', pretty=>'WELSH', in=>'GALLOIS', },
+#	YID => { short=>'YI', pretty=>'YIDDISH', in=>'YIDDISH', },
+#	ZHA => { short=>'ZA', pretty=>'ZHUANG', in=>'CHUANG', },
+	CHI => { short=>'ZH', pretty=>'CHINESE', in=>'CHINOIS', },
+	);
+
+
+
+sub def { return (defined $_[0]) ? $_[0] : ''; }
+
+%SITE::MSGS::CATEGORIES = (
+	1=>'Inventory',
+	50=>'Payment Messages',
+	11=>'Special Pages',
+	15=>'Errors',
+	16=>'Checkout Errors',
+	20=>'Call Center',
+	);
+
+
+
+##
+## returns a single hashref, keyed by msgid, value is a hashref
+##		custom ones are merged with default ones.
+##
+sub fetch_msgs {
+	my ($self) = @_;
+
+	my ($udbh) = &DBINFO::db_user_connect($self->username());
+	my $pstmt = "select MSGTXT,MSGID,CUSTOM_CATEGORY,CUSTOM_TITLE,LANG,LUSER,CREATED_GMT from SITE_MSGS where MID=".int($self->{'_MID'})." and PRT=".int($self->{'_PRT'});
+	# print STDERR "$pstmt\n"; 
+	my $sth = $udbh->prepare($pstmt);
+	$sth->execute();
+	my %result = ();
+
+	foreach my $msgid (reverse sort keys %SITE::MSGS::DEFAULTS) {
+		$result{$msgid} = $SITE::MSGS::DEFAULTS{$msgid};
+		}
+
+	while ( my ($msgtxt,$msgid,$category,$title,$lang,$luser,$created_gmt) = $sth->fetchrow() ) {
+		# print "MSGID: $msgid\n";
+		my $hint = 'Custom Message';
+		if ($result{$msgid}->{'pretty'}) { $title =  $result{$msgid}->{'pretty'}; }
+		if ($result{$msgid}->{'cat'}) { $category =  $result{$msgid}->{'cat'}; }
+		if ($result{$msgid}->{'hint'}) { $hint =  $result{$msgid}->{'hint'}; }
+
+		$result{$msgid} = {
+			msg=>$msgtxt,
+			hint=>$hint,
+			cat=>$category,
+			pretty=>$title,
+			luser=>$luser,
+			created_gmt=>$created_gmt,
+			};		
+		}
+	$sth->finish();
+	
+	&DBINFO::db_user_close();
+	
+	return(\%result);
+	}
+
+
+
+
+%SITE::MSGS::DEFAULTS = (
+		'payment_header' => {
+			msg=> q~<p align="left">Please print this page for your records. If you have any questions please email %MYEMAIL%, or phone us at %MYPHONE%.</p>~,
+			hint=>'General instructions what to do after the order (printed with invoice).',
+			cat=>'50', 
+			pretty=>'Checkout invoice instructions', in=>'',
+			},
+
+
+
+		##
+		'payment_mixed_success' => {
+			msg=> q~<p align="left">Thank you for your order! Your order used more than one payment method, below is a summary of each method.</p>~,
+			hint=>'Checkout mixed payment success (0xx and 1xx result codes)',
+			cat=>'50', 
+			pretty=>'Mixed Payment successfully charged message.', in=>'',			
+			},
+		'payment_mixed_failure' => {
+			msg=> q~<p align="left">Thank you for your order! Your order used more than one payment method, and experienced at least one failure. Please review below.</p>~,
+			hint=>'Checkout credit charge success (non succes error codees)',
+			cat=>'50', 
+			pretty=>'Mixed Payment Method Failure', in=>'',			
+			},
+		'payment_paypal_success' => {
+			msg=> q~<p align="left">You have chosen to pay via the PayPal online payment system. You must now click the link below to pay for your order. 
+<p align="left">Your order will be shipped when PayPal has confirmed a payment named "Order %ORDERID%" to %PAYPALEMAIL%.</p>
+<p align="left">You will receive the URL below in email, but you should pay now by clicking on the "PayPal Click Here" button below.</p>
+<div align="center"><a href="%PAYNOWURL%" target="_blank"><img src="/media/graphics/general/pzazyzpzazl.gif" border="0" alt="Make payments with PayPal  - it's fast, free and secure!" width="150" height="52"></a></div>
+~,
+			hint=>'Displayed to Paypal users before they are sent to Paypal to pay.',
+			cat=>'50', 
+			pretty=>'Checkout paypal input message', in=>'',
+			},
+		'payment_wire_success' => {
+			msg=> '%PAYWIREINSTRUCTIONS%',
+			hint=>'Displayed to customers who have selected wire transfer',
+			cat=>'50', 
+			pretty=>'Checkout wire transfer message', in=>'',
+			},
+
+		'payment_custom_success' => {
+			msg=> q~<p align="left">You have chosen to pay via a custom method.</p><br>
+<p align="left">If you are the merchant, you really ought to configure this message to something other than it's default.</p>
+~,
+			hint=>'Displayed to customers who have selected the custom payment option for payment.',
+			cat=>'50', 
+			pretty=>'Checkout custom success message', in=>'',
+			},
+		'payment_cod_success' => {
+			msg=> q~<p align="left">You have chosen to pay by cashier's check or money order on delivery. 
+You must have the cashier's check or money order for the amount <b>$%GRANDTOTAL%</b> ready when your delivery arrives, 
+payable to <b>%PAYABLETO%</b>.  In the memo of the cashier's check or money order please put "Order %ORDERID%".</p>~,
+			hint=>'Displayed to customers who have selected COD.',
+			cat=>'50', 
+			pretty=>'Checkout COD message', in=>'',
+			},
+		'payment_ebay_success' => {
+			msg=> q~<p align="left">
+We have received and processed the payment for your eBay order for the amount of: $%GRANDTOTAL%
+The eBay/Paypal Transaction ID (if available) is: %PAYMENT_TXN%
+</p>~,
+			cat=>'50',
+			},
+		'payment_buy_success' => {
+			msg=> q~<p align="left">
+We have received and processed the payment for the amount of: $%GRANDTOTAL%
+The Buy.com Transaction ID (if available) is: %PAYMENT_TXN%
+</p>~,
+			cat=>'50',
+			},
+		'payment_chkod_success' => {
+			msg=> q~<p align="left">You have chosen to pay by personal or company check on delivery.  
+You must have the check for the amount <b>$%GRANDTOTAL%</b> ready when your delivery arrives, 
+payable to <b>%PAYABLETO%</b>.  In the memo of the check please put "Order %ORDERID%".</p>~,
+			hint=>'Displayed to customers who have selected Check on Delivery.',
+			cat=>'50', 
+			pretty=>'Checkout Check on Delivery message', in=>'',
+			},
+		'payment_mo_success' => {
+			msg=> q~<div align="left"><p>Your cashiers check or money order payment was received.</p></div>~,
+			hint=>'Checkout cash success',
+			cat=>'50', 
+			pretty=>'Displayed when a cashiers check or money order has been received.', in=>'',
+			},
+		'payment_mo_pending'=> {
+			cat=>50,
+			pretty=>q~Pending Cashiers Check Payment Message (EMAIL)~,
+			msg=>q~<p>You should prepare a cashiers check or money order for the amount $%GRANDTOTAL% payable to %PAYABLETO%.</p>
+
+<p>To speed processing of the order, please print "Order Number %ORDERID%" in the memo of the check.</p>
+
+<p>If payment is not received within 2 weeks, your order will be automatically cancelled.</p>
+
+<div>
+Please send the payment to:
+<b>%MYADDRESS%</b>
+</div>
+
+<p><i>%MYNAME% is not responsible for lost or stolen payments.</i></p>
+			~,
+			},
+		'payment_wire_pending'=> {
+			cat=>50,
+			pretty=>q~Pending Wire Transfer Message~,
+			msg=>q~<p>You send a wire transfer for the amount $%GRANDTOTAL%.
+Our account number is: [[PLEASE CONTACT US FOR ROUTING / ACCOUNT NUMBER]]
+
+<p>To speed processing of the order, please print "Order Number %ORDERID%" in the memo of the transfer.</p>
+
+<p>If payment is not received within 2 weeks, your order will be automatically cancelled.</p>
+
+			~,
+			},
+		'payment_paypalec_success'=> {
+			cat=>50,
+			pretty=>'Successful Paypal Express Checkout payment',
+			msg=>q~<p align="left">Thank you for your PayPal Express Checkout payment. </p><br>~,
+         },
+		'payment_cash_success' => {
+			msg=> q~<div align="left">
+<p>Your cash payment is appreciated.</p>
+~,
+			hint=>'Checkout cash success',
+			cat=>'50', 
+			pretty=>'Displayed when cash payment has been received (usually this is for point of sale).', in=>'',
+			},
+		'payment_cash_pending' => {
+			msg=> q~<div align="left">
+<p>You have chosen to pay by cash.  Please do not send cash by mail.
+This payment should be made in person at our location:</p>
+<b>%MYADDRESS%</b>
+<p><i>%MYNAME% is not responsible for lost or stolen payments.</i></p>
+</div>
+~,
+			hint=>'Checkout cash pending',
+			cat=>'50', 
+			pretty=>'Displayed when cash payment is waiting (usually this is only for point of sale)', in=>'',
+			},
+		'payment_pickup_success' => {
+			msg=> q~<p align="left">Your order during pickup was received. Thank you!</p>~,
+			hint=>'Displayed to customers who are paying at pickup',
+			cat=>'50', 
+			pretty=>'Checkout pickup success', in=>'',
+			},
+		'payment_pickup_pending' => {
+			msg=> q~<p align="left">You have chosen to pay upon pickup.  Thank you for your order, we look forward to seeing you!</p>~,
+			hint=>'Displayed to customers who are paying at pickup',
+			cat=>'50', 
+			pretty=>'Checkout pickup pending', in=>'',
+			},
+		'payment_check_pending' => {
+			msg=> q~<div align="left">
+<p>You have chosen to pay by check.  You must make the check for the amount <b>$%GRANDTOTAL%</b> payable to <b>%PAYABLETO%</b>, with "Order %ORDERID%" as the memo.</p>
+<p>We may hold your check for up to 10 days after it has been deposited to verify funds are received.</p>
+<p>If payment is not received within 2 weeks, your order will be automatically cancelled.</p>
+Please make the check payable to:<br>
+<b>%PAYABLETO%</b><br><br>
+Please send the check to:<br>
+<b>%MYADDRESS%</b>
+<p><i>%MYNAME% is not responsible for lost or stolen payments.</i></p>
+</div>~,
+			hint=>'Displayed to customers who are paying by check (includes name, address, mailing instructions).',
+			cat=>'50', 
+			pretty=>'Checkout check success', in=>'',
+			},
+		'payment_check_success' => {
+			msg=> q~<div align="left"><p>You paid by check.  Thank you!</p></div>~,
+			hint=>'Displayed to customers who are paying by check (includes name, address, mailing instructions).',
+			cat=>'50', 
+			pretty=>'Checkout check success', in=>'',
+			},
+		'payment_echeck_success' => {
+			msg=> q~<p align="left">Thank you for your order!</p>~,
+			hint=>'Success message for electronic check processed.',
+			cat=>'50', 
+			pretty=>'Checkout electronic check charge success', in=>'',
+			},
+		'payment_echeck_pending' => {
+			msg=> q~<p align="left">Thank you for your order!</p>~,
+			hint=>'Electronic check is pending.',
+			cat=>'50', 
+			pretty=>'Checkout electronic checkout payment is pending (funds waiting transfer)', in=>'',
+			},
+		'payment_po_success' => {
+			msg=> q~<p align="left">Thank you for your order!</p>~,
+			hint=>'Thank you displayed to PO users after PO is put in.',
+			cat=>'50', 
+			pretty=>'Checkout PO success message', in=>'',
+			},
+		'payment_po_pending' => {
+			msg=> q~<p align="left">You have chosen to pay by purchase order, 
+we will ship your order once we have confirmed your available credit limit. 
+If there is an issue we will contact you.</p>~,
+			hint=>'Thank you displayed to PO users after PO is put in.',
+			cat=>'50', 
+			pretty=>'Checkout PO success message', in=>'',
+			},
+		'payment_credit_success' => {
+			msg=> q~<p align="left">Thank you for your order!</p>~,
+			hint=>'Checkout credit charge success (0xx and 1xx result codes)',
+			cat=>'50', 
+			pretty=>'Credit card successfully charged message.', in=>'',
+			},
+		'payment_giftcard_success' => {
+			msg=> q~<p align="left">Thank you for your payment!</p>~,
+			hint=>'Checkout giftcard success (0xx and 1xx result codes)',
+			cat=>'50', 
+			pretty=>'Credit card successfully charged message.', in=>'',
+			},
+		'payment_credit_failure' => {
+			msg=> q~<p align="left">There was a problem processing your order.  Please email us at %MYEMAIL%, or phone us at %MYPHONE%.  %CCTXN%</p>
+<p align="left">%REASON%</p>~,
+			hint=>'Checkout credit charge failed (2xx and 3xx result codes)',
+			cat=>'50', 
+			pretty=>'Credit card failed charge.', in=>'',
+			},
+		'payment_amzspay_success' => {
+			msg=> q~<p align="left">You have chosen to pay via the PayPal online payment system. You must now click the link below to pay for your order. 
+<p align="left">Your order will be shipped when PayPal has confirmed a payment named "Order %ORDERID%" to %PAYPALEMAIL%.</p>
+<p align="left">You will receive the URL below in email, but you should pay now by clicking on the "PayPal Click Here" button below.</p>
+<div align="center"><a href="%PAYNOWURL%" target="_blank"><img src="/media/graphics/general/pzazyzpzazl.gif" border="0" alt="Make payments with PayPal  - it's fast, free and secure!" width="150" height="52"></a></div>
+~,
+			hint=>'Displayed to Paypal users before they are sent to Paypal to pay.',
+			cat=>'50', 
+			pretty=>'Checkout Amazon Simple Payments Invoice Message', in=>'',
+			},
+
+
+		## NOTE: had to symlink /graphics/general/paypal.gif since it 
+		##			is flagged as a spam/virus by:
+		##			Html.Phishing.Cur.Gen090.Sanesecurity.06081600:3:*:687474703a2f2f737461746963{-150}70617970616c
+		'payment_paypal_pending'=> {
+			cat=>50,
+			pretty=>'Pending Paypal Payment Message (EMAIL)',
+			msg=>q~
+<p>If you haven't already done so, please go to the following URL to pay for
+your order using PayPal:</p>
+
+<a href="%PAYNOWURL%" target="_blank">
+<img src="/media/graphics/general/pzazyzpzazl.gif" border="0" alt="Make payments with PayPal - it's fast, free and secure!" width="150" height="52"></a>
+
+<p>There is no cost to you to create a PayPal account, the entire process
+takes only a few minutes and only requires that you have a credit card
+account.  Your order will be shipped when PayPal has confirmed payment
+for order number %ORDERID% in the amount $%GRANDTOTAL% (please include your
+order number in the subject of your payment).</P>
+~,
+			},
+		'payment_cod_pending'=> {
+			cat=>50,
+			pretty=>q~Pending COD Payment Message (EMAIL)~,
+			msg=>q~The cashier check or money order you will present upon delivery must be
+payable to %PAYABLETO% for the amount $%GRANDTOTAL%.
+
+To speed processing of the order, please print "Order Number %ORDERID%" in
+the memo of the cashier check or money order.
+~,
+			},
+		'payment_chkod_pending'=> {
+			cat=>50,
+			pretty=>q~Pending Check OD Payment Message (EMAIL)~,
+			msg=>q~The check you will present upon delivery must be payable to %PAYABLETO%
+made for the amount $%GRANDTOTAL%.
+
+To speed processing of the order, please print "Order Number %ORDERID%"
+in the memo of the check.~,
+			},
+		'payment_check_pending'=> {
+			cat=>50,
+			pretty=>q~Pending Company Check Payment Message (EMAIL)~,
+			msg=>q~<p>You must make the check for the amount $%GRANDTOTAL% payable to %PAYABLETO%.</p>
+
+<p>To speed processing of the order, please print "Order Number %ORDERID%" in the memo of the check.</p>
+
+<p>If payment is not received within 2 weeks, your order will be automatically cancelled.</p>
+
+<div>
+Please send the payment to:
+<b>%MYADDRESS%</b>
+</div>
+
+<p><i>%MYNAME% is not responsible for lost or stolen payments.</i></p>
+			~,
+			},
+		'payment_other_pending'=> {
+			cat=>50,
+			pretty=>q~Other Pending Payment Message (EMAIL)~,
+			msg=>q~<p>Thank you for your order.</p>~,
+			},
+		'payment_credit_pending'=> {
+			cat=>50,
+			pretty=>'Pending Credit Payment Message',
+			msg=>q~<p align="left">You have chosen to pay via Credit Card.  Your Credit Card payment is considered Pending and funds have not been released at this time.</p><br>~,
+			},
+
+		'payment_paypalec_pending'=> {
+			cat=>50,
+			pretty=>'Pending Paypal Express Checkout payment',
+			msg=>q~<p align="left">You have chosen to pay via PayPal Express Checkout.  Your payment is considered Pending and funds have not been released at this time.</p><br>~,
+         },
+
+		'payment_giftcard_pending'=> {
+			cat=>50,
+			pretty=>'Pending Giftcard payment',
+			msg=>q~<p align="left">You have chosen to pay by use of Store Giftcard.  Your payment is considered Pending and your Giftcard has not been debited at this time.</p><br>~,
+         },
+
+		'payment_google_pending'=> {
+			cat=>50,
+			pretty=>'Pending Google Checkout Payment Message (EMAIL)',
+			msg=>q~<p>You have chosen to pay via Google Checkout.  Your payment is considered Pending and funds have not been released at this time<p>~,
+			},
+
+		'payment_layaway_pending'=> {
+			cat=>50,
+			pretty=>'Pending Layaway Payment Message (EMAIL)',
+			msg=>q~<p>You have chosen to pay via Layaway.  Your payment is considered Pending and funds have not been released at this time<p>~,
+			},
+
+
+		'payment_paypalec_denied'=> {
+			cat=>50,
+			pretty=>'Denied Paypal Express Checkout payment',
+			msg=>q~<p>The PayPal Express Checkout payment has been denied.  Please click the link below to correct your payment:</p>
+
+<a href="%PAYMENT_FIXNOWURL%">%PAYMENT_FIXNOWURL%</a>~
+         },
+
+		'payment_credit_denied'=> {
+			cat=>50,
+			pretty=>'Denied Credit Card  payment',
+			msg=>q~<p>Your Credit Card payment has been denied.  If you do not have a customer account, please contact %MYEMAIL% for assistance.  If you have an account with %MYNAME%, please click the link below and login to your account to correct your payment:</p>
+
+<a href="%PAYMENT_FIXNOWURL%">%PAYMENT_FIXNOWURL%</a>~
+         },
+
+		'payment_google_denied'=> {
+			cat=>50,
+			pretty=>'Denied Google Checkout Payment Message (EMAIL)',
+			msg=>q~<p>Your Google Checkout payment has been denied.  Please click the link below to correct your payment:</p>
+
+<a href="%PAYMENT_FIXNOWURL%">%PAYMENT_FIXNOWURL%</a>~
+			},
+
+		'payment_denied'=> {
+			cat=>50,
+			pretty=>'Denied Payment Message (EMAIL)',
+			msg=>q~<p>Your payment has been denied.  Please click the link below to correct your payment:</p>
+
+<a href="%PAYMENT_FIXNOWURL%">%PAYMENT_FIXNOWURL%</a>~
+			},
+
+		'invoice_has_balancedue'=> {
+			cat=>50,
+			pretty=>'Balance Due on Invoice Notification',
+			msg=>q~<p>The Balance due on Order %ORDERID% is %BALANCEDUE%.</p>~
+			},
+
+		'invoice_is_paidinfull'=> {
+			cat=>50,
+			pretty=>'Paid in Full Invoice Notification',
+			msg=>q~<p>The Balance due on %ORDERID% is Paid in Full .</p>~
+			},
+
+		'invoice_risk_approved'=> {
+			cat=>50,
+			pretty=>'Risk Approval Notification',
+			msg=>q~<p>This order has been flagged as 'Approved' by our Risk Management System.</p>~
+			},
+
+		'invoice_risk_review'=> {
+			cat=>50,
+			pretty=>'Risk Review Notification',
+			msg=>q~<p>This order has been flagged as 'Review' by our Risk Management System.</p>~
+			},
+
+
+		'invoice_risk_declined'=> {
+			cat=>50,
+			pretty=>'Risk Decline Notification',
+			msg=>q~<p>This order has been flagged as 'Declined' by our Risk Management System.</p>~
+			},
+
+
+		'payment_void'=> {
+			cat=>50,
+			pretty=>'Voided Payment Message',
+			msg=>q~<p>The payment of %PAYMENT_AMT_PRETTY% on %ORDERID% has been voided.</p>~
+			},
+
+
+		'payment_processing'=> {
+			cat=>50,
+			pretty=>'Payment Processing Message',
+			msg=>q~<p>Your Payment of %PAYMENT_AMT_PRETTY% is currently being processed for %ORDERID%.</p>~
+			},
+
+		'admin_payment_credit_denied'=> {
+			cat=>50,
+			pretty=>'Customer Admin Denied Payment Message',
+			msg=>q~<p>This payment was denied.  If you have an outstanding balance, please use the form above to add a payment.</p>~
+			},
+
+
+
+	#######################################
+
+		'chkout_error_invalid_password'=>{
+			msg=>'Password is required, or is too weak, or does not match.',
+			cat=>10,
+			},
+		'chkout_error_invalid_password2'=>{
+			msg=>'Retype Password is required and/or does not match Password.',
+			cat=>10,
+			},
+		'chkout_error_invalid_recovery_answer'=>{
+			msg=>'Password Recovery answer is required',
+			cat=>10,
+			},
+
+		'chkout_error_invalid_firstname'=>{
+			msg=>'You must provide a valid first name.',
+			cat=>10,
+			},
+		'chkout_error_invalid_lastname'=>{
+			msg=>'You must provide a valid last name.',
+			cat=>10,
+			},
+		'chkout_error_invalid_address1'=>{
+			msg=>'You must provide a valid address.',
+			cat=>10,
+			},
+		'chkout_error_pobox_not_allowed'=>{
+			msg=>'We do not deliver to P.O. Boxes.',
+			cat=>10,
+			},
+		'chkout_error_invalid_bill_city'=>{
+			msg=>'You must provide a valid city.',
+			cat=>10,
+			},
+		'chkout_error_invalid_ship_city'=>{
+			msg=>'You must provide a valid shipping city.',
+			cat=>10,
+			},
+		'chkout_error_invalid_ship_state'=>{
+			msg=>'You must provide a valid shipping state.',
+			cat=>10,
+			},
+		'chkout_error_invalid_bill_state'=>{
+			msg=>'You must provide a valid billing state.',
+			cat=>10,
+			},
+		'chkout_error_invalid_ship_zip'=>{
+			msg=>'You must provide a valid shipping posta/zip code.',
+			cat=>10,
+			},
+		'chkout_error_invalid_bill_zip'=>{
+			msg=>'You must provide a valid billing postal/zip code.',
+			cat=>10,
+			},
+		'chkout_error_phone_required'=>{
+			msg=>'You must provide a valid phone number.',
+			cat=>10,
+			},
+		'chkout_error_email_invalid'=>{
+			msg=>'You must provide a valid email address.',
+			cat=>10,
+			},
+		'page_forgot_login_msg'=>{
+			msg=>q~If you've forgotten your password, please enter your email address below.<br>
+<form action="%FORGET_URL%" method="post">
+<input type="hidden" name="verb" value="question">
+<input type="hidden" name="url" value="%REDIRECT_URL%">
+Login : <input type="text" class="zform_textbox" length="30" maxlength="60" name="login" value="%LAST_LOGIN_FROM_COOKIE%">
+<input type="submit" class="zform_button" name="submit" value="Go"><br>
+<div class="zhint">(This is usually your email address)</div>
+</form>~,
+			hint=>q~~,
+			cat=>11,
+			pretty=>'Forgot Password Login Version',
+			},
+		'page_customer_signup_notenabled'=>{
+			pretty=>'Customer Signup Not Enabled/Available',
+			msg=>q~We apologize, but we are not accepting new clients via our online signup form at this time.~,
+			hint=>q~Displayed to clients when they attempt to access /customer/signup and online customer signup is not enabled.~,
+			cat=>11,
+			},
+		'page_customer_signup_success'=>{
+			pretty=>'Customer Signup Success',
+			msg=>q~We have created an account, however it is not yet active, and depending on our business rules may be locked. You will need to wait for us to approve your account before your final pricing discount level is established.~,
+			hint=>q~Displayed to clients after a success at /customer/signup.~,
+			cat=>11,
+			},
+		'page_contact_success'=>{
+			msg=>q~
+<div id="page_contact_success_msg">Thank you, your message has been sent successfully</div>
+<div id="contact_success_sitebutton" align="center"><br><a href="%CONTINUE_URL%">
+<% element(TYPE=>"SITEBUTTON",button=>"continue_shopping",alt=>"Continue Shopping"); print(); %>
+</a><br></div>
+~,
+			hint=>q~This message is displayed when the user successfully executes the contact us form.~,
+			cat=>11,
+			pretty=>'Contact Us Success Message',
+			},
+		'chkout_amazoncba_success'=>{
+			pretty=>'Checkout By Amazon - Success Page',
+			hint=>'This is displayed when a customer complets an Checkout by Amazon, or Amazon Simple Pay purchase',
+			msg=>q~
+<div class="ztext">
+Thank you for placing your order via Checkout by Amazon. <br>
+Your Order Number is: %ORDERID%<br>
+<br>
+Your order status may take up to 6 hours to be processed and be available online, you will receive
+a notification when this order ships.<br>
+</div>
+~,
+			'cat'=>10,
+			},
+		## CATEGORY 1 is "SYSTEM MESSAGES"
+		'inv_cart_add_warning'=> {
+			msg=>q~<%
+/* SPECL code to display what happened */
+load("%%ACTUALQTY%%");
+goto(gt=>"0",label=>"REDUCEDQTY");
+:NOQTY();
+print("Item %%SKU%% not added to cart");
+stop();
+:REDUCEDQTY();
+print("Changed quantity of %%SKU%%, from %%REQUESTQTY%% to %%ACTUALQTY%%");
+stop();
+
+%><%
+
+/* SPECL code to display reason */
+strindex(haystack=>"%%SKU%%",needle=>":");
+goto(gt=>"0",label=>"HASOPTIONS");
+:NOOPTIONS();
+print(" due to availability.");
+stop();
+:HASOPTIONS();
+print(" for specific set of product options.");
+stop();
+
+%><%
+
+/* SPECL code to output the out of stock message (if appropriate) */
+load("%%ACTUALQTY%%");
+goto(eq=>"0",label=>"OUTOFSTOCK");
+print("");
+stop();
+:OUTOFSTOCK();
+sysmesg(id=>"inv_outofstock");
+default("");
+print();
+%>~,
+
+			hint=>'Displayed when an item is added to the cart and insufficient inventory is available or no inventory is available',
+			pretty=>'Inventory Add To Cart w/none-available',
+			in=>'textbox', size=>60, maxlength=>200, cat=>1,
+			},
+
+		'inv_available'=> { 
+			msg=>'Normally Ships Within 1-2 Days.', hint=>'', cat=>'1', 
+			pretty=>'Inventory Available Message', in=>'textbox', size=>45, maxlength=>120 
+			},
+		'inv_reserved'=> {
+			msg=>'This item is available in limited quantities.',
+			hint=>'', cat=>'1', 
+			pretty=>'Inventory Reserved Status Message', in=>'textbox',
+			},
+		'inv_safety'=> {
+			msg=>'Inventory totals may not reflect quantities.',
+			hint=>'', cat=>'1', 
+			pretty=>'Inventory Safety Status Message', in=>'textbox',
+			},
+		'inv_outofstock'=> {
+			msg=>'Currently out of stock.',
+			hint=>'', cat=>'1', 
+			pretty=>'Inventory Out of Stock Message', in=>'textbox',
+			},
+		'claim_message'=> {
+			msg=>q~Thank you for coming to our store.  To complete your purchase, please select "Add To Cart" below.~,
+			hint=>'', cat=>'1', 
+			pretty=>'Claim Page Message', in=>'textbox',
+			},
+		'product_blank_price_message'=> {
+			msg=>q~<p align="left">Not available for purchase</p>~,
+			hint=>'This message is displayed above the continue shopping/cancel button for products which have a blank price and are not purchasable (e.g. Call for Price).', 
+			cat=>'1', 
+			pretty=>'Product Blank Price Message', in=>'textbox',
+			},
+
+		## CATEGORY 10 is CHECKOUT
+
+		'chkout_choose_new' => {
+			msg=> q~<p align="left">If you have never made a purchase at this web site and have never subscribed to this store's mailing list, please choose this option.</p>~,
+			hint=>'CHOOSE PAGE: Create account instructions displayed during checkout', 
+			cat=>'10', 
+			pretty=>'CHOOSE PAGE TOP', in=>'',
+			},
+		'chkout_choose_existing' => {
+			msg=> q~<p align="left">If you have made a purchase at this web site or have subscribed to this store's mailing list, please choose this option</p>~,
+			hint=>'CHOOSE PAGE: Existing account instructions display during checkout',
+			cat=>'10', 
+			pretty=>'CHOOSE PAGE BOTTOM', in=>'',
+			},
+		'chkout_choose_usertxt' => {
+			msg=> q~~,
+			hint=>'This is normally blank, but you can but your own content in here.',
+			cat=>'10', 
+			pretty=>'CHOOSE PAGE USER Text', in=>'',
+			},
+		'chkout_login_public' => {
+			msg=> q~<p align="left">If you have an existing login and password with this store, please enter it now.  If you have never made a purchase at this web site before, please hit Previous/Back and go through checkout under "New Customers".</p>~,
+			hint=>'This is usually only displayed when a user enters an incorrect password.',
+			cat=>'10', 
+			pretty=>'Login page for public stores.', in=>'',
+			},
+		'chkout_login_restricted' => {
+			msg=> q~<p align="left">Please enter your login and password now.</p>~,
+			hint=>'This is displayed instead of the Create Account / Existing Account instructions above.',
+			cat=>'10', 
+			pretty=>'Login page for Member\'s Only and Private stores.', in=>'',
+			},
+		'chkout_shipping_billing' => {
+			msg=> q~<p align="center">Please enter your billing/shipping location.  This store's policy is that the shipping and billing addresses be the same.</p>~,
+			hint=>'',
+			cat=>'10', 
+			pretty=>'Checkout shipping and billing must match message.', in=>'',
+			},
+		'chkout_shipping' => {
+			msg=> q~<p align="center">Please enter the location this order will be shipped to.</p>~,
+			hint=>'',
+			cat=>'10', 
+			pretty=>'Checkout shipping location request.', in=>'',
+			},
+		'chkout_billing' => {
+			msg=> q~<p align="center">Please enter your billing address.</p>~,
+			hint=>'',
+			cat=>'10', 
+			pretty=>'Checkout billing location request.', in=>'',
+			},
+		'chkout_billing_footer' => {
+			msg=> q~<img src="/media/graphics/general/blank.gif" height="10" width="1">~,
+			hint=>'',
+			cat=>'10', 
+			pretty=>'Checkout billing location request.', in=>'',
+			},
+		'chkout_preflight' => {
+			msg=> q~<div align="center" class="ztxt"><b>Checkout</b></div>~,
+			hint=>'This is only displayed if you have a preflight stage to your checkout.',
+			cat=>'10', 
+			pretty=>'Checkout Preflight Top of Page.', in=>'',
+			},
+		'chkout_preflight_footer' => {
+			msg=> q~<img src="/media/graphics/general/blank.gif" height="10" width="1">~,
+			hint=>'This is only displayed if you have a preflight stage to your checkout.',
+			cat=>'10', 
+			pretty=>'Checkout Preflight Bottom of Page.', in=>'',
+			},
+		'chkout_confirm_notes'=>{
+			msg=>q~
+<div style="text-align:center; padding: 3px;" class="ztable_head">Order Notes</div>
+<div style="margin-bottom: 10px;" class="ztxt">
+Please include any special instructions or comments here:<br>
+<textarea cols="60" rows="4" name="chkout.order_notes"><% 
+/* note: it appears that the cart actually stores the order_notes data entity encoded. */
+loadurp("CART2::want/order_notes"); default(""); print(); 
+%></textarea>
+</div>
+~,
+			hint=>'Please make sure your form field is named order_notes',
+			cat=>'10', 
+			pretty=>'Checkout Order Notes Title', in=>'',			
+			},		
+		'chkout_confirm_insurance'=>{
+			msg=>q~<br><input type="checkbox" onChange="this.form.submit();" class="zcheckbox" %INS_CHECKED% name="ship.ins_purchased"> I would like to purchase optional shipping insurance (%INS_QUOTE%)<br>~,
+			hint=>'Please make sure your form field is named order_notes',
+			cat=>'10', 
+			pretty=>'Checkout Shipping Insurance Title', in=>'',			
+			},
+		'chkout_confirm' => {
+			msg=> q~<p align="left">Please review your order for accuracy.  Orders may be delayed or declined if your billing information does not match what's on file with your bank / credit card company.</p>~,
+			hint=>'',
+			cat=>'10', 
+			pretty=>'Checkout confirm order prompt.', in=>'',
+			},
+		'chkout_confirm_middle' => {
+			msg=> '',
+			hint=>'Special field used for additional instructions above order notes.',
+			cat=>'10', 
+			pretty=>'Checkout special prompt: confirm middle', in=>'',
+			},
+		'chkout_confirm_end' => {
+			msg=> '',
+			hint=>'Special field used for displaying additional post order instructions.',
+			cat=>'10', 
+			pretty=>'Checkout special prompt: confirm end', in=>'',
+			},
+		'chkout_confirm_specl' => {
+			msg=> '',
+			hint=>'CONFIRM SPECL: Additional layer of validation/flow control for
+checkout.<br>
+DO NOT USE THIS UNLESS INSTRUCTED TO BY TECHNICAL SUPPORT OR YOU COULD BREAK
+YOUR CHECKOUT.',
+			cat=>'10', 
+			pretty=>'Checkout special prompt: confirm specl', in=>'',
+			},
+		'chkout_login_exists' => {
+			msg=> q~That email address already exists as a user in our system, please go back and log in using that account.  In case you do not know your password, it has been automatically mailed to you.~,
+			hint=>'Message displayed when a duplicate account creation is attempte.',
+			cat=>'10', 
+			pretty=>'Login exists', in=>'',
+			},
+		'chkout_create_account' => {
+			msg=> q~<i>This allows you to check your order's status online and optionally receive periodic updates via email.</i>~,
+			hint=>'Message displayed which explains why user needs an account.',
+			cat=>'10', 
+			pretty=>'Account explanation', in=>'',
+			},
+		'chkout_new_customer' => {
+			msg=> q~<p align="center">This is some information we need to set up your new account with our store.</p>~,
+			hint=>'Message displayed to new users who are creating an account.',
+			cat=>'10', 
+			pretty=>'New customer message', in=>'',
+			},
+		'chkout_prohibited' => {
+			msg=>q~
+			<p align="center" class="zalert"><b>
+			CHECKOUT LOGIC ERROR: an unspecified fatal error has occurred within checkout.
+			</b></p>
+			~,
+			hint=>'this message is displayed when the buyer is prevented due to the ban list.',
+			cat=>'10',
+			pretty=>'Checkout Not Allowed',
+			},
+		'input_credit' => {
+			msg=> q~<div align="left"><p>Please review your billing information.  
+If the billing address does not match the information on file with your credit card company, 
+please go back and change it so that it matches.</p>
+<b>%BILLADDR%</b><br>Phone: <b>%BILLPHONE%</b></div>~,
+			hint=>'Instructions to make sure credit card works with AVS.',
+			cat=>'10', 
+			pretty=>'Checkout input credit message', in=>'',
+			},
+		'input_credit_onfile' => {
+			msg=> q~<div align="left">
+<p>We have the following credit card information on file for you.</p>
+<p><b>%CCTYPE% %CCNUMBER% expiring on %CCEXPMONTH%/%CCEXPYEAR%</b></p>
+<p>To use this credit card leave the text box below blank, or to use a different card enter it now.</p>
+</div>~,
+			hint=>'Additional instructions if the user has a credit card already on-file.',
+			cat=>'10', 
+			pretty=>'Checkout input credit on-file message', in=>'',
+			},
+
+		'input_echeck' => { 
+			msg=>q~<div align="left">
+<p>Please enter the relevant information for the check you want to use to pay for this order.</p>
+</div>~,
+			hint=>'Instructions for user inputting their check number.',
+			cat=>'10', 
+			pretty=>'Checkout electronic check prompt', in=>'',
+			},
+		'input_po' => {
+			msg=> q~<div align="left">
+<p>Please review your billing information and enter the purchase order number below.</p>
+<b>%BILLADDR%</b>
+<br>
+Phone: <b>%BILLPHONE%</b>
+</div>~,
+			hint=>'Displayed to users before they input their PO number.',
+			cat=>'10', 
+			pretty=>'Checkout PO input message', in=>'',
+			},
+
+);
+
+
+##
+## note: called by some MASON code in webdoc.
+##	doc 51020
+##
+sub webdoc_cart_macro_table {
+	my $out = '';
+	foreach my $k (sort keys %SITE::EMAIL::CART_MACROS) {
+		$out .= "<tr>";
+		$out .= "\t<td valign=top>".&ZOOVY::incode($k)."</td>\n";
+		$out .= "\t<td valign=top>".&ZOOVY::incode($SITE::EMAIL::CART_MACROS{$k})."</td>\n";
+		$out .= "</tr>\n";
+		}
+	$out = qq~<table>$out</table>\n\n~;
+	return($out);
+	}
+
+
+%SITE::MSGS::checkout_macros = (
+	'%CCTXN%'=>q~<% load($txn); print(); %>~,
+	'%CCNOTE%'=>q~<% load($note); load($debug); default(""); print(); %>~,
+	);
+
+##
+## NOTE: these are also used by SITE::EMAILS for ORDERS
+##
+%SITE::EMAIL::CART_MACROS = (
+
+		'%PRODUCT%'=>q~<% /* PRODUCT macro */ loadurp("FLOW::SKU"); default(""); print(); %>~,		
+		'%SDOMAIN%'=>q~<% /* SDOMAIN macro */ loadurp("FLOW::SDOMAIN"); default(""); print(); %>~,
+
+		#%BILLPHONE%	Customers Billing Phone
+		'%BILLPHONE%'=>q~<% /* BILLPHONE macro */ loadurp("CART2::bill/phone"); default(""); print(); %>~,
+
+		#%SHIPPHONE%	Customers Shipping Phone
+		'%SHIPPHONE%'=>q~<% /* SHIPPHONE macro */ loadurp("CART2::ship/phone"); default(""); print(); %>~,
+
+		#%BILLEMAIL%	Customers Billing Email
+		'%BILLEMAIL%'=>q~<% /* BILLEMAIL macro */ loadurp("CART2::bill/email"); default(""); print(); %>~,
+		'%BILLCOUNTRY%'=>q~<% /* BILLCOUNTRY macro */ loadurp("CART::run.deduce_bill_countrycode"); default("XY"); print(); %>~,
+
+		#%MYNAME%	Company Name - from Zoovy account config.
+		'%MYNAME%'=>q~<% /* MYNAME macro */ loadurp("PROFILE::zoovy:company_name"); default(""); print(); %>~,
+
+		#%MYEMAIL%	Company Support Email - from Zoovy account config.
+		'%MYEMAIL%'=>q~<% /* MYEMAIL macro */ loadurp("PROFILE::zoovy:support_email"); default(""); print(); %>~,
+
+		#%MYPHONE%	Company Support Phone - from Zoovy account config.
+		'%MYPHONE%'=>q~<% /* MYPHONE macro */ loadurp("PROFILE::zoovy:support_phone"); default(""); print(); %>~,
+
+		#%REASON%
+		'%REASON%'=>q~<% /* REASON macro */ loadurp("CART::chkout.resultmessage"); default(""); print(); %>~,
+
+		#%GRANDTOTAL%	The total amount of the order without a dollar sign ($)
+		'%GRANDTOTAL%'=>q~<% /* GRANDTOTAL macro */ loadurp("CART2::sum/order_total"); format(precision=>2); default(""); print(); %>~,
+		#%DISCOUNTS%
+		'%TOTAL_DISCOUNTS%'=>q~<% /* DISCOUNTS macro */ loadurp("CART::run.total_discounts"); default(""); print(); %>~,
+		'%EST_SHIP_YYYY_MM_DD%'=>q~<% /* EST_SHIP_YYYY_MM_DD macro */ loadurp("CART::run.est_ship_yyyy_mm_dd"); default(""); print(); %>~,
+		'%HAS_PREBACKDELAY_YN%'=>q~<% /* HAS_PREBACKDELAY_YN macro */ loadurp("CART::run.has_prebackdelay_yn"); default(""); print(); %>~,
+		'%HAS_DOWNLOAD_YN%'=>q~<% /* HAS_DOWNLOAD_YN macro */ loadurp("CART::run.has_download_yn"); default(""); print(); %>~,
+
+		'%GOOGLE_TRUSTED_STORES_ITEM_SPANS%'=>q~<%  /* generates pipe separated list of products in cart */
+pull(stack=>>$items,src=>"CART::STUFF");
+:ITEMS();
+pop(stack=>>$items,namespace=>"item");
+
+print("&lt;span class=&quot;gts-item&quot;&gt;");
+	print("&lt;span class=&quot;gts-i-name&quot;&gt;");
+		print($item.prod_name);
+	print("&lt;/span&gt;");
+	print("&lt;span class=&quot;gts-i-price&quot;&gt;");
+		print($item.price);
+	print("&lt;/span&gt;");
+	print("&lt;span class=&quot;gts-i-quantity&quot;&gt;");
+		print($item.qty);
+	print("&lt;/span&gt;");
+	print("&lt;span class=&quot;gts-i-prodsearch-id&quot;&gt;");
+		print($item.sku);
+	print("&lt;/span&gt;");
+	print("&lt;span class=&quot;gts-i-prodsearch-store-id&quot;&gt;");
+		loadurp("PROFILE::googlets:search_account_id"); default(""); print();
+	print("&lt;/span&gt;");
+	print("&lt;span class=&quot;gts-i-prodsearch-country&quot;&gt;");
+		print("US");
+	print("&lt;/span&gt;");
+	print("&lt;span class=&quot;gts-i-prodsearch-language&quot;&gt;");
+		print("US");
+	print("&lt;/span&gt;");
+print("&lt;/span&gt;\n");
+goto(ifempty=>$items,label=>"END");
+goto(label=>"ITEMS");
+:END();
+%>~,
+
+		#%SUBTOTAL%	The subtotal (amount not including shipping+handling) of the order without a dollar sign		
+		'%SUBTOTAL%'=>q~<% /* SUBTOTAL macro */ loadurp("CART2::sum/items_total"); format(precision=>2); default(""); print(); %>~,
+
+		# '%SHIPPING%'     => sprintf("%.2f",$cartref->{'ship.selected_price'}),
+		'%SHIPPING%'=>q~<% /* SHIPPING macro */ loadurp("CART2::sum/shp_total"); format(precision=>2); default(""); print(); %>~,
+
+		# '%TOTALTAX%'     => sprintf("%.2f",$cartref->{'data.tax_total'}),
+		'%TOTALTAX%'=>q~<% /* TOTALTAX macro */ loadurp("CART2::sum/tax_total"); format(precision=>2); default(""); print(); %>~,
+
+		#%CCTYPE%	Type of credit card the customer has entered
+		'%CCTYPE%'=>q~<% /* CCTYPE macro */ loadurp("CART::chkout.cc_number"); format(payment=>"cc_type"); default(""); print(); %>~,
+
+		#%CCNUMBER%	Credit card number the customer has entered, with only the last few numbers showing
+		'%CCNUMBER%'=>q~<% /* CCNUMBER macro */ loadurp("CART::chkout.cc_number"); format(payment=>"cc_masked"); default(""); print(); %>~,
+
+		#%CCEXPMONTH%	Customer-entered credit card expiration month
+		'%CCEXPMONTH%'=>q~<% /* CCEXPMONTH macro */ loadurp("CART::chkout.cc_exp_month"); default(""); print(); %>~,
+
+		#%CCEXPYEAR%	Customer-entered credit card expiration year				
+		'%CCEXPYEAR%'=>q~<% /* CCEXPYEAR macro */ loadurp("CART::chkout.cc_exp_year"); default(""); print(); %>~,
+
+		#%BILLADDR%	Customers Billing Address
+		'%BILLADDR%'=>q~<% /* BILLADDR macro */ 
+/* Full name */
+loadurp("CART2::bill/firstname"); default(""); print(); 
+loadurp("CART2::bill/middlename"); default(""); format(pretext=>" "); print(); 	
+loadurp("CART2::bill/lastname"); default(""); format(pretext=>" "); print(); 
+print("<br>");
+/* Company */
+loadurp("CART2::bill/company"); default(""); format(posttext=>"<br>"); print();
+/* Address1 */
+loadurp("CART2::bill/address1"); default(""); format(posttext=>"<br>"); print();
+loadurp("CART2::bill/address2"); default(""); format(posttext=>"<br>"); print();
+/* City state zip */
+
+loadurp("CART2::bill/city"); default(""); format(posttext=>" , "); print(); 
+loadurp("CART2::bill/region"); default(""); format(pretext=>" ",posttext=>". "); print();
+loadurp("CART2::bill/postal"); default(""); print();
+print("<br>");
+loadurp("CART2::bill/countrycode"); default(""); format(posttext=>"<br>"); print(); 
+%>~,
+
+		#%SHIPADDR%	Customers Shipping Address
+		'%SHIPADDR%'=>q~<% /* SHIPADDR macro */ 
+/* Full name */
+loadurp("CART2::ship/firstname"); default(""); print(); 
+loadurp("CART2::ship/middlename"); default(""); format(pretext=>" "); print(); 	
+loadurp("CART2::ship/lastname"); default(""); format(pretext=>" "); print(); 
+print("<br>");
+/* Company */
+loadurp("CART2::ship/company"); default(""); format(posttext=>"<br>"); print();
+/* Address1 */
+loadurp("CART2::ship/address1"); default(""); format(posttext=>"<br>"); print();
+loadurp("CART2::ship/address2"); default(""); format(posttext=>"<br>"); print();
+/* City state zip */
+loadurp("CART2::ship/city"); default(""); format(posttext=>", "); print();
+loadurp("CART2::ship/region"); default(""); format(posttext=>". "); print();
+loadurp("CART2::ship/postal"); default(""); print();
+print("<br>");
+loadurp("CART2::ship/countrycode"); default(""); format(posttext=>"<br>"); print(); 
+%>~,
+
+		#%PAYABLETO%	Who to make checks/money orders/wire transfers/etc. payable to.
+		'%PAYABLETO%'=>q~<% /* PAYABLETO macro */
+loadurp("WEBDB::payable_to"); default(""); 
+goto(nb=>$_,label=>"END");
+loadurp("PROFILE::zoovy:company_name"); default("");
+goto(nb=>$_,label=>"END");
+default("[Unknown]"); 
+:END();
+print();
+%>~,	
+
+		#%ORDERID%	The Order ID (not available until the invoice stage)
+		'%ORDERID%'      => q~<% /* ORDERID macro */ loadurp("CART2::our/orderid"); default("(order not yet created)"); print(); %>~,
+
+		#%MYADDRESS%	Company Mailing Address - from Zoovy Account Config
+		'%MYADDRESS%'	  => q~<% /* MYADDRESS macro */
+/* Company */
+loadurp("PROFILE::zoovy:company_name"); default(""); format(posttext=>"<br>"); print();
+/* Address1 */
+loadurp("PROFILE::zoovy:address1"); default(""); format(posttext=>"<br>"); print();
+loadurp("PROFILE::zoovy:address2"); default(""); format(posttext=>"<br>"); print();
+/* City state zip */
+loadurp("PROFILE::zoovy:city"); default(""); format(pretext=>" ",posttext=>", "); print();
+loadurp("PROFILE::zoovy:state"); default(""); format(pretext=>" ",posttext=>". "); print();
+loadurp("PROFILE::zoovy:zip"); default(""); print();
+print("<br>");
+%>~,
+
+		'%PAYPALEMAIL%'=>q~<% /* PAYPALEMAIL macro */ loadurp("WEBDB::paypal_email"); default(""); print(); %>~,
+		'%PAYNOWURL%'=>q~<% /* PAYNOWURL macro */
+loadurp("CART2::our/orderid"); default(""); 
+format(payment=>"paypal_url",order=>$_); 
+print(); 
+%>~,
+		'%PAYWIREINSTRUCTIONS%'=>q~<% /* PAYWIREINSTRUCTIONS macro */ loadurp("WEBDB::pay_wire_instructions"); default(""); print(); %>~,
+
+		'%ORDERSTATUSURL%'=>q~<% 
+	loadurp("URL::order_status_url"); default(""); print(); 
+	print("?");
+	print("email=");
+	loadurp("CART2::bill/email"); default(""); print(); 
+	print("&order_id=");
+	loadurp("CART2::our/orderid"); default(""); print();
+	print("&cartid=");
+	loadurp("CART2::cart/cartid");	default(""); print();
+%>~,
+
+		#'%META%'         => $cartref->{'meta'},
+		'%META%'=>q~<% /* META macro */ loadurp("CART2::cart/refer"); default(""); print(); %>~,
+		'%grandtotal%'=>q~<% /* grandtotal macro */ loadurp("CART2::sum/order_total"); format(money=>1); default(""); print(); %>~,
+
+		'%CARTID%'=>q~<% /* CARTID macro */ loadurp("CART2::cart/cartid"); default(""); print(); %>~,
+		'%CART_ITEMS%'=>q~<%  /* generates pipe separated list of products in cart */
+pull(stack=>>$items,src=>"CART::STUFF");
+:ITEMS();
+pop(stack=>>$items,namespace=>"item");
+print($item.stid);
+goto(ifempty=>$items,label=>"END");
+print("|");
+goto(label=>"ITEMS");
+:END();
+%>
+~,
+		);
+
+
+sub username { return($_[0]->{'_USERNAME'}); }
+sub profile { return($_[0]->{'_PROFILE'}); }
+sub prt { return($_[0]->{'_PRT'}); }
+sub lang { return($_[0]->{'_LANG'}); }
+
+
+##
+## VALID OPTIONS: 
+##
+## RAW = no interpolation will occur.
+##	CART = a reference to the cart we should use for interpolation
+##	WEBDB = a reference to the webdb file
+##	PRT = the partition in focus
+##
+sub new {
+	my ($class, $USERNAME, %options) = @_;
+
+	my $PROFILE = 'DEFAULT';
+	if ($options{'RAW'}) {
+		## for when we're editing messages
+		}
+	elsif (defined $options{'*SITE'}) {
+		## this is what makes us happy.
+		}
+	elsif (not defined $options{'*SITE'}) {
+		warn "SITE::msgs really likes it when it's passed a *SITE object: ".join("|",caller(0))."\n";
+		}
+
+	my $self = {};
+
+	if (not defined $options{'LANG'}) { $options{'LANG'} = 'ENG'; }
+	
+	$self->{'_LANG'} = $options{'LANG'};
+	$self->{'_MID'} = int(&ZOOVY::resolve_mid($USERNAME));
+	$self->{'_USERNAME'} = $USERNAME;
+	$self->{'_PROFILE'} = $PROFILE;	
+	$self->{'_PRT'} = int($options{'PRT'});	
+	if (defined $options{'RAW'}) { 
+		$self->{'_RAW'}++; 
+		$self->{'%VARS'} = {};
+		}
+	else {
+		if (defined $options{'*CART2'}) { $self->{'*CART2'} = $options{'*CART2'}; }
+		if (defined $options{'*SITE'}) { $self->{'*SITE'} = $options{'*SITE'}; }
+		}
+	
+	bless $self, 'SITE::MSGS';
+
+	if ($self->{'_RAW'}==0) {
+		## load $self->{'%VARS'}
+		# $self->refresh();
+		}
+
+#	use Data::Dumper; print Dumper($self);
+
+	return($self);
+	}
+
+
+sub cart2 { return($_[0]->{'*CART2'}); }
+sub site { return($_[0]->{'*SITE'}); }
+sub txspecl { return($_[0]->{'*SITE'}->txspecl()); }
+
+##
+##
+##
+sub getref {
+	my ($self, $msgid, $lang) = @_;
+
+	$msgid = lc($msgid);
+
+	my %result = ();
+	my $ref = $SITE::MSGS::DEFAULTS{$msgid};
+	if (defined $ref) { %result = %{$ref}; }
+
+	if (substr($msgid,0,1) eq '~') {
+		## custom field -- won't exist in $ref
+		$result{'cat'} = -1;
+		}
+
+	$result{'defaultmsg'} = $ref->{'msg'};
+	$result{'created_gmt'} = 0;
+	$result{'luser'} = '';
+
+	if (not defined $lang) { $lang = $self->{'_LANG'}; }
+
+
+	my $dbh = &DBINFO::db_user_connect($self->username());
+	my $qtMSGID = $dbh->quote($msgid);
+	my $qtLANG = $dbh->quote($lang);
+	my $PRT = int($self->{'_PRT'});
+
+	my $pstmt = "select MSGTXT,CREATED_GMT,LUSER,CUSTOM_CATEGORY,CUSTOM_TITLE from SITE_MSGS where MID=$self->{'_MID'} /* ".$self->username()." */ and PRT=$PRT and MSGID=".$qtMSGID." and LANG=".$qtLANG;
+	# print STDERR $pstmt."\n";
+	my $sth = $dbh->prepare($pstmt);
+	$sth->execute();
+	if ($sth->rows()) {
+		($result{'msg'},$result{'created_gmt'},$result{'luser'},my $category,my $title)  = $sth->fetchrow();
+		if (not defined $result{'cat'}) { $result{'cat'} = $category; }
+		if (not defined $result{'pretty'}) { $result{'pretty'} = "Custom: $title"; }
+		}
+	$sth->finish();
+	&DBINFO::db_user_close();
+
+	return(\%result);
+	}
+
+
+
+
+
+sub exists {
+	my ($self, $msgid) = @_;
+
+	my $webdbref = $self->site()->webdbref(); 
+
+	my $exists = 0;
+	if ((defined $webdbref) && (defined $webdbref->{'@SITEMSGS'})) {
+		## lookup from webdb file
+		foreach my $set (@{$webdbref->{'@SITEMSGS'}}) {
+#			print STDERR "CUSTOM SITEMSG: $set->{'id'} $set->{'msgtxt'}";
+			next unless ($set->{'id'} eq $msgid);
+			next unless ($set->{'lang'} = $self->{'_LANG'});
+			$exists |= 1;
+			}
+		}
+	else {
+		## hmm.. legacy method, go to database.
+		my $udbh = &DBINFO::db_user_connect($self->username());
+		my $qtMSGID = $udbh->quote($msgid);
+		my $qtLANG = $udbh->quote($self->{'_LANG'});
+		my $PRT = int($self->{'_PRT'});
+		my $pstmt = "select count(*) from SITE_MSGS where MID=$self->{'_MID'} /* ".$self->username()." */ and PRT=$PRT and MSGID=".$qtMSGID." and LANG=".$qtLANG;
+		# print STDERR $pstmt."\n";
+		my $sth = $udbh->prepare($pstmt);
+		$sth->execute();
+		my ($count) = $sth->fetchrow();
+		$sth->finish();
+		&DBINFO::db_user_close();
+		if ($count) { $exists |= 1; }
+		}
+
+
+	if (not $exists) {
+		if (defined $SITE::MSGS::DEFAULTS{ $msgid }->{'msg'}) { $exists |= 2; }
+		}
+	
+	return($exists);	
+	}
+
+
+##
+##
+##	$macroref 
+##		*NOTE: macros should *ALWAYS* be language independent.
+##		a hashref of shortcuts for common macros used in this message or specific to this message e.g.
+##		{ '%SKU%'=>value  }
+##
+##	%options
+##		not used yet, but we'll probably be able to override language this way.
+##
+sub get {
+	my ($self, $msgid, $macroref, %options) = @_;
+
+	$msgid = lc($msgid);
+
+
+	my $msgtxt = undef;
+	my $webdbref = $self->site()->webdbref(); 
+
+	if ((defined $webdbref) && (defined $webdbref->{'@SITEMSGS'})) {
+		## lookup from webdb file
+		foreach my $set (@{$webdbref->{'@SITEMSGS'}}) {
+			next unless ($set->{'id'} eq $msgid);
+			next unless ($set->{'lang'} = $self->{'_LANG'});
+			$msgtxt = $set->{'msgtxt'};
+			}
+		}
+	else {
+		## hmm.. legacy method, go to database.
+		my $udbh = &DBINFO::db_user_connect($self->username());
+		my $qtMSGID = $udbh->quote($msgid);
+		my $qtLANG = $udbh->quote($self->{'_LANG'});
+		my $PRT = int($self->{'_PRT'});
+		my $pstmt = "select MSGTXT from SITE_MSGS where MID=$self->{'_MID'} /* ".$self->username()." */ and PRT=$PRT and MSGID=".$qtMSGID." and LANG=".$qtLANG;
+		# print STDERR $pstmt."\n";
+		my $sth = $udbh->prepare($pstmt);
+		$sth->execute();
+		($msgtxt) = $sth->fetchrow();
+		$sth->finish();
+		&DBINFO::db_user_close();
+		}
+
+
+	if (not defined $msgtxt) {
+		$msgtxt = $SITE::MSGS::DEFAULTS{ $msgid }->{'msg'};		
+		}
+
+	if ($self->{'_RAW'}) {
+		## we don't interpolate in RAW mode
+		}
+	else {
+		# $msgtxt = &SITE::MSGS::interpolate($msgtxt,$self->{'%VARS'});
+
+		if ((index($msgtxt,'%')>=0) && (defined $macroref) && (ref($macroref) eq 'HASH')) {
+			## we have at least one macro (or we probably do), but we might be able to short circuit
+			##	using constants passed into this site msg.
+			$msgtxt = &interpolate_macroref($msgtxt,$macroref);
+			}
+
+		if (index($msgtxt,'%')>=0) {
+			## we *STILL* have at least one macro (or we probably do)
+			## this will go through and convert any macros e.g. %BILLEMAIL% to their
+			## respective specl command <% loadurp("CART::chkout.bill_email"); default(""); print(); %>
+			$msgtxt = &interpolate_macroref($msgtxt,\%SITE::EMAIL::CART_MACROS);
+			}
+
+		my @vars = ();		
+
+		($msgtxt) = $self->txspecl()->translate3($msgtxt, [], replace_undef=>0);
+		}
+
+	
+
+	return($msgtxt);
+	}
+
+
+
+
+
+sub show {
+	my ($self,$msgtxt) = @_;
+
+	if (index($msgtxt,'%')>=0) {
+		## we have at least one macro (or we probably do)
+		## this will go through and convert any macros e.g. %BILLEMAIL% to their
+		## respective specl command <% loadurp("CART::chkout.bill_email"); default(""); print(); %>
+		$msgtxt = &interpolate_macroref($msgtxt,\%SITE::EMAIL::CART_MACROS);
+		}
+
+	require TOXML::SPECL3;
+	my @vars = ();		
+
+	if (not defined $self->txspecl()) {
+		warn Carp::confess("CANNOT CALL TXSPECL (NOT DEFINED) -- YOU SHOULD REALLY DEFINE IT!");
+		die();
+		}
+	else {
+		($msgtxt) = $self->txspecl()->translate3($msgtxt, [], replace_undef=>0);
+		}
+	
+	return($msgtxt);
+	}
+
+
+
+sub interpolate_macroref { return(fast_interpolate_macroref(@_)); }
+
+##
+##
+##
+sub safe_interpolate_macroref {
+	my ($txt, $macroref) = @_;
+
+	foreach my $k (keys %{$macroref}) {
+		next unless (index($txt,$k)>=0);	## regex's are more expensive than index!
+		$txt =~ s/$k/$macroref->{$k}/gis;
+		}
+
+	return($txt);
+	}
+
+## wow.. that was easy once I figured it out.
+## 	and it doesn't replace macro's inside of itself.
+sub fast_interpolate_macroref {
+	my ($txt, $macroref) = @_;
+	## sometimes messages have a %%SKU%% or something in them.. wtf? no clue.
+	$txt =~ s/(\%\%?[A-Z\_]+\%\%?)/{((defined $macroref->{$1})?$macroref->{$1}:$1)}/oegis;
+	return($txt);
+	}
+
+#sub safeer_interpolate_macroref {
+#	my ($txt, $macroref) = @_;
+#	
+#	my %r = ();
+#	study($txt);
+#	while ($txt =~ m/(\%[A-Za-z\_]+\%)/gos) { 
+#		next if (not defined $macroref->{$1});
+#		$r{$1} = $macroref->{$1};
+#		};	
+#	foreach my $k (keys %r) {
+#		$txt =~ s/$k/$r{$k}/gis;
+#		}
+#	return($txt);
+#	}
+#
+#sub faster_interpolate_macroref {
+#	my ($txt, $macroref) = @_;
+#	
+##	my %r = ();
+#	my $copy = $txt;
+#	study($txt);
+#	my %found = ();
+#	while ($txt =~ m/(\%[AaBbCcDdEeFfGgHhIiJjKkLlMmNnOoPpQqRrSsTtUuVvWwXxYyZz\_]+\%)/gos) { 
+#		next if ($found{$1});
+#		next if (not defined $macroref->{$1});
+#		$copy =~ s/($1)/$macroref->{$1}/gs;
+#		$found{$1}++;
+#		};	
+#	return($copy);
+#	}
+
+
+##
+##
+##
+sub interpolate_macros {
+	my ($txt) = @_;
+
+	my %q = %SITE::EMAIL::CART_MACROS;
+	foreach my $k (keys %q) {
+		next unless (index($txt,$k)>=0);	## regex's are more expensive than index!
+		$txt =~ s/$k/$q{$k}/gis;
+		}
+
+	return($txt);
+	}
+
+
+
+##
+## create a custom message
+##
+sub create {
+	my ($self, $msgid, $lang, $luser, $title, $category) = @_;
+
+	my $udbh = &DBINFO::db_user_connect($self->username());
+	
+	if (1) {
+		my $pstmt =	&DBINFO::insert($udbh,'SITE_MSGS',{
+			'USERNAME'=>$self->username(),
+			'MID'=>$self->{'_MID'},
+			'PRT'=>$self->prt(),
+			'MSGID'=>lc($msgid),
+			'MSGTXT'=> '',
+			'CREATED_GMT'=>time(),
+			'LUSER'=>$luser,
+			'LANG'=>$lang,
+			'CUSTOM_TITLE'=>$title,
+			'CUSTOM_CATEGORY'=>$category,
+			},debug=>2,key=>['MID','PRT','MSGID','LANG'],update=>1);
+		print STDERR $pstmt."\n";
+		$udbh->do($pstmt);
+		}
+
+	$self->compile();
+	
+	&DBINFO::db_user_close();
+			
+
+	}
+
+
+
+##
+##
+##
+sub save {
+	my ($self, $msgid, $msgtxt, $lang, $luser) = @_;
+
+	$msgid = lc($msgid);
+
+#mysql> desc SITE_MSGS;
+#+-------------+------------------+------+-----+---------+----------------+
+#| Field       | Type             | Null | Key | Default | Extra          |
+#+-------------+------------------+------+-----+---------+----------------+
+#| ID          | int(10) unsigned | NO   | PRI | NULL    | auto_increment |
+#| USERNAME    | varchar(20)      | NO   |     | NULL    |                |
+#| MID         | int(10) unsigned | NO   | MUL | 0       |                |
+#| MSGSET      | varchar(8)       | NO   |     | NULL    |                |
+#| MSGID       | varchar(48)      | NO   |     | NULL    |                |
+#| MSGTXT      | mediumtext       | NO   |     | NULL    |                |
+#| CREATED_GMT | int(10) unsigned | YES  |     | 0       |                |
+#| LUSER       | varchar(10)      | NO   |     | NULL    |                |
+#+-------------+------------------+------+-----+---------+----------------+
+#8 rows in set (0.01 sec)
+
+	if (not defined $luser) { $luser = ''; }
+
+	my $dbh = &DBINFO::db_user_connect($self->username());
+
+	if (not defined $lang) { $lang = 'ENG'; }
+	my $qtLANG = $dbh->quote($lang);
+	my $pstmt = '';
+	my $result = undef;
+	if ($SITE::MSGS::DEFAULTS->{$msgid}->{'msg'} eq $msgtxt) {
+		## we should be doing a delete!
+		$pstmt = "delete from SITE_MSGS where MID=".int($self->{'_MID'})." and PRT=".int($self->{'_PRT'})." and MSGID=".$dbh->quote($msgid)." and LANG=$qtLANG";
+		$result = 0;
+		}
+	else {
+		$pstmt =	&DBINFO::insert($dbh,'SITE_MSGS',{
+			'USERNAME'=>$self->username(), 
+			'MID'=>$self->{'_MID'},
+			'PRT'=>$self->prt(),
+			'MSGID'=>lc($msgid),
+			'MSGTXT'=> $msgtxt,
+			'CREATED_GMT'=>time(),
+			'LUSER'=>$luser,
+			'LANG'=>$lang,
+			},debug=>2,key=>['MID','PRT','MSGID','LANG'],update=>1);
+		$result = 1;
+		}
+	$dbh->do($pstmt);
+
+	$self->compile();
+
+	&DBINFO::db_user_close();
+	return($result);
+	}
+
+
+
+sub compile {
+	my ($self) = @_;
+
+#+-------------+----------------------+------+-----+---------+----------------+
+#| Field       | Type                 | Null | Key | Default | Extra          |
+#+-------------+----------------------+------+-----+---------+----------------+
+#| ID          | int(10) unsigned     | NO   | PRI | NULL    | auto_increment |
+#| USERNAME    | varchar(20)          | NO   |     | NULL    |                |
+#| MID         | int(10) unsigned     | NO   | MUL | 0       |                |
+#| PRT         | smallint(5) unsigned | NO   |     | 0       |                |
+#| MSGID       | varchar(48)          | NO   |     | NULL    |                |
+#| LANG        | varchar(3)           | NO   |     | ENG     |                |
+#| MSGTXT      | mediumtext           | NO   |     | NULL    |                |
+#| CREATED_GMT | int(10) unsigned     | YES  |     | 0       |                |
+#| LUSER       | varchar(10)          | NO   |     | NULL    |                |
+#+-------------+----------------------+------+-----+---------+----------------+
+
+   my $dbh = &DBINFO::db_user_connect($self->username());
+	my $pstmt = "select MSGID,LANG,MSGTXT from SITE_MSGS where MID=".int($self->{'_MID'})." /* ".$self->username()."  */ and PRT=".int($self->{'_PRT'});
+	my $sth = $dbh->prepare($pstmt);
+	$sth->execute();
+	my @SET = ();
+	while ( my ( $msgid,$lang,$txt) = $sth->fetchrow() ) {		
+		push @SET, { id=>$msgid, lang=>$lang, msgtxt=>$txt };
+		}
+	$sth->finish();
+	&DBINFO::db_user_close();
+
+	my $webdbref = &ZWEBSITE::fetch_website_dbref($self->username(),$self->prt());
+	$webdbref->{'@SITEMSGS'} = \@SET;
+	&ZWEBSITE::save_website_dbref($self->username(),$webdbref,$self->prt());
+	}
+
+
+1;

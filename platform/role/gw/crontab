@@ -1,0 +1,13 @@
+## Log Rotate
+0 0 * * * /usr/sbin/logrotate /etc/logrotate.conf	
+
+## blackbox flight recorder
+#* * * * *       uptime >> /tmp/blackbox; cat /proc/net/snmp >> /tmp/blackbox
+#0 * * * *		 NOW=`date +%F.%H%M%S`;  mv /tmp/blackbox /tmp/blackbox-$NOW
+
+## date/time need to be sync
+0 * * * *  /root/configs/ntp-time/ntp.sh 1> /dev/null 2 > /dev/null
+
+## make sure we keep our dns up to date
+*/5 * * * *	/root/configs/dump-shm-files.pl 1> /dev/null 2> /dev/null
+

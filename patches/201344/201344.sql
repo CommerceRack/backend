@@ -1,0 +1,1 @@
+alter table EVENT_RECOVERY_TXNS Engine=MEMORY;

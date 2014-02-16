@@ -1,0 +1,74 @@
+# Firewall configuration written by system-config-firewall
+# Manual customization of this file is not recommended.
+
+*nat
+:PREROUTING ACCEPT [0:0]
+:POSTROUTING ACCEPT [0:0]
+:OUTPUT ACCEPT [0:0]
+-A POSTROUTING -o eth0 -j MASQUERADE 
+COMMIT
+
+*filter
+:INPUT ACCEPT [0:0]
+:FORWARD ACCEPT [0:0]
+:OUTPUT ACCEPT [0:0]
+-A INPUT -m state --state ESTABLISHED,RELATED -j ACCEPT
+-A INPUT -p icmp -j ACCEPT
+-A INPUT -i lo -j ACCEPT
+
+## LIMIT DOS ATTACK (USE ON GW BOX ONLY!)
+## -A INPUT -p tcp --dport 80 -m limit --limit 25/minute --limit-burst 100 -j ACCEPT
+
+## ALLOW DNS:
+## -A OUTPUT -p udp -o eth0 --dport 53 -j ACCEPT
+## -A INPUT -p udp -i eth0 --sport 53 -j ACCEPT
+
+##
+## ALLOW SMTP:
+## -A INPUT -i eth0 -p tcp --dport 25 -m state --state NEW,ESTABLISHED -j ACCEPT
+## -A OUTPUT -o eth0 -p tcp --sport 25 -m state --state ESTABLISHED -j ACCEPT
+
+## PORT FORWARD:
+## -t nat -A PREROUTING -p tcp -d 192.168.102.37 --dport 422 -j DNAT --to 192.168.102.37:22
+
+-A INPUT -m state --state NEW -m tcp -p tcp -s 192.168.2.0/24 --dport 22 -j ACCEPT
+-A INPUT -m state --state NEW -m tcp -p tcp --dport 80  -j ACCEPT
+-A INPUT -m state --state NEW -m tcp -p tcp --dport 443 -j ACCEPT
+
+## vstore services run at :81 and :82 (and eventually others)
+-A INPUT -m state --state NEW -m tcp -p tcp --dport 81:85 -j ACCEPT
+## www.zoovy.com, etc run at 91:95
+-A INPUT -m state --state NEW -m tcp -p tcp --dport 91:95 -j ACCEPT
+
+## ACTIVE FTP
+## why: the cranial fart nuggets at buy.com require *ACTIVE* FTP on our gateways
+## also: make sure we - modprobe nf_conntrace; modprobe nf_conntrack_ftp
+#-A INPUT -p tcp --dport 21 -j ACCEPT
+#-A INPUT -p tcp --sport 20 -m state --state ESTABLISHED,RELATED -j ACCEPT
+#-A INPUT -p tcp --dport 2370 -j ACCEPT
+#-A INPUT -p tcp --dport 55000:57999 -j ACCEPT
+
+## OUTPUT RULES FOR HTTP?
+##		-A OUTPUT -o lo -j ACCEPT
+## 	-A OUTPUT -o eth0 -p tcp --sport 80 -m state --state ESTABLISHED -j ACCEPT
+## 
+
+## Log Dropped Packets
+## 1. create a new chain
+## -N LOGGING
+## 2. Next, make sure all the remaining incoming connections jump to the LOGGING chain as shown below.
+## iptables -A INPUT -j LOGGING 
+## 3. Next, log these packets by specifying a custom .log-prefix..
+## iptables -A LOGGING -m limit --limit 2/min -j LOG --log-prefix "IPTables Packet Dropped: " --log-level 7
+## 4. Finally, drop these packets.
+## iptables -A LOGGING -j DROP
+
+## .. finally: deny it.
+-A INPUT -j REJECT --reject-with icmp-host-prohibited
+
+## enable NAT from eth1 to eth0
+-A FORWARD -i eth0 -o eth1 -m state --state RELATED,ESTABLISHED -j ACCEPT
+-A FORWARD -i eth1 -o eth0 -j ACCEPT
+## Reject everythign else
+-A FORWARD -j REJECT --reject-with icmp-host-prohibited
+COMMIT
