@@ -1,0 +1,26 @@
+/local/httpd/logs/nginx-*.log {
+	daily
+	rotate 3
+	compress
+	missingok
+	delaycompress
+	notifempty
+	dateext
+	sharedscripts
+	postrotate [ -f /var/run/nginx.pid ] && [ kill -USR1 `cat /var/run/nginx.pid` ]
+	endscript
+	}
+
+## note: this is functional until we get uwsgi modified to use a router and logrotate properly
+/local/httpd/logs/uwsgi-*.log {
+	daily
+	rotate 3
+	compress
+	missingok
+	delaycompress
+	notifempty
+	copytruncate
+	delaycompress
+	dateext
+	}
+
