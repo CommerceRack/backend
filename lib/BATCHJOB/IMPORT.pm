@@ -16,6 +16,7 @@ use Data::Dumper;
 ##		$bj = batch job BATCHJOB object.
 ##
 
+sub parse_csv { return(&ZCSV::parse_csv(@_)); }
 
 ##
 ##

@@ -338,7 +338,6 @@ sub handler {
 		my @warnings = ();
 
 		## if we ignore inventory, the we can 
-		my $lm = LISTING::MSGS->new($SITE::CART2->username());
 		my ($update) = INVENTORY2->new($SITE::CART2->username())->verify_cart2($SITE::CART2,'%GREF'=>$gref);
 
 		if (defined($update) && (scalar keys %{$update})) {

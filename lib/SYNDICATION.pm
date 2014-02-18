@@ -1463,12 +1463,6 @@ sub new {
 		warn "SYNDICATION::PROVIDERS store not set for $DST.\n";
 		}
 	
-	#if (substr($NS,0,1) eq '#') {
-	#	## we can pass "#1" in the NS to reference the profile for a given partition.
-	#	my $PRT = substr($NS,1);
-	#	$NS = &ZWEBSITE::prt_get_profile($USERNAME,int($PRT));
-	#	}
-
 	if (not defined $USERNAME) {
 		warn "requested SYNDICATION object without passing USER[$USERNAME]\n";
 		return(undef);
