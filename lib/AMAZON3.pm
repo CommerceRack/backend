@@ -5557,16 +5557,21 @@ sub fetch_userprt {
 	$USER{'PRT'} = $PRT;
 	$USER{'USERNAME'} = $USERNAME;
 	$USER{'MID'} = &ZOOVY::resolve_mid($USERNAME);
-	$USER{'PASSWORD'} = $so->get('.amz_password');
-	$USER{'USERID'} = $so->get('.amz_userid');
-	$USER{'AMAZON_TOKEN'} = $so->get('.amz_merchanttoken');
-	$USER{'AMAZON_MERCHANT'} = $so->get('.amz_merchantname');
-	$USER{'AMAZON_MWSTOKEN'} = $so->get('.amz_token');
-	my $amz_tokenref = ZTOOLKIT::parseparams($USER{'AMAZON_MWSTOKEN'});
+	$USER{'PASSWORD'} = $so->get('.amz_password');						## seller central password 
+	$USER{'USERID'} = $so->get('.amz_userid');							## seller central login id
+	$USER{'AMAZON_TOKEN'} = $so->get('.amz_merchanttoken');			## obtained from the seller central account.
+	$USER{'AMAZON_MERCHANT'} = $so->get('.amz_merchantname');		## plaintext company name (obtained from seller central)
+
+	## $USER{'AMAZON_MWSTOKEN'} = $so->get('.amz_token');					## ('.amz_token',sprintf("marketplaceId=%s&merchantId=%s",$MARKETPLACE_ID,$MERCHANT_ID)
+	my $amz_tokenref = ZTOOLKIT::parseparams( $so->get('.amz_token') );		## deprecated field: ('.amz_token',sprintf("marketplaceId=%s&merchantId=%s",$MARKETPLACE_ID,$MERCHANT_ID)
 	# The Marketplace ID is the logical location a seller's online business is registered in. (per amz)
 	## required for MWS
-	$USER{'AMAZON_MARKETPLACEID'} = $amz_tokenref->{'marketplaceId'}; 
-	$USER{'AMAZON_MERCHANTID'} = $amz_tokenref->{'merchantId'};			
+	$USER{'AMAZON_MARKETPLACEID'} = $so->get('.amz_marketplaceid') || $amz_tokenref->{'marketplaceId'}; 		## us seller central marketplace id
+	$USER{'AMAZON_MERCHANTID'} = $so->get('.amz_merchantid') || $amz_tokenref->{'merchantId'};					## 
+
+	## afaik: these are not currently used, but they are the mws public/secret keys
+	$USER{'AMAZON_MWS_ACCESS'} = $so->get('.amz_accesskey');
+	$USER{'AMAZON_MWS_SECRET'} = $so->get('.amz_secretkey');
 
 	return(\%USER);
 	}

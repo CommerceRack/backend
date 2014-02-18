@@ -11309,7 +11309,7 @@ sub adminSyndication {
 
 			$R{'private_label'} = $s{'.private_label'};
 			$R{'upc_creation'} = $s{'.upc_creation'};			
-			$R{'mws_token'} = $userref->{'AMAZON_MWSTOKEN'};
+			## $R{'mws_token'} = $userref->{'AMAZON_MWSTOKEN'};
 
 			my $MAP = $so->get('.shipping');
 			my $MAPREF = ZTOOLKIT::parseparams($MAP);
