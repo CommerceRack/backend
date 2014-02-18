@@ -1,0 +1,121 @@
+$VAR1 = {
+          'po-line' => [
+                       {
+                         'po-line-detail' => [
+                                             {
+                                               'po-line-status' => [
+                                                                   'NEW'
+                                                                 ],
+                                               'quantity' => [
+                                                             '1'
+                                                           ]
+                                             }
+                                           ],
+                         'po-line-header' => [
+                                             {
+                                               'line-number' => [
+                                                                '1'
+                                                              ],
+                                               'order-quantity' => [
+                                                                   '1'
+                                                                 ],
+                                               'shipping-and-handling' => [
+
+'10.00'
+                                                                        ],
+                                               'selling-price-each' => [
+
+'34.31'
+                                                                     ],
+                                               'commission' => [
+                                                               '5.83'
+                                                             ],
+                                               'item-name' => [
+                                                              'Sexy Light Me
+Up Ladybug Costume Adult Large'
+                                                            ],
+                                               'item-id' => [
+                                                            'DRG-6406L-C'
+                                                          ]
+                                             }
+                                           ]
+                       }
+                     ],
+          'location-id' => [
+                           '1506'
+                         ],
+          'channel' => [
+                       'VD'
+                     ],
+          'total-shipping-handling' => [
+                                       '10.00'
+                                     ],
+          'expected-ship-date' => [
+                                  '2012-10-23'
+                                ],
+          'po-date' => [
+                       '2012-10-20'
+                     ],
+          'po-time' => [
+                       '00:58:55'
+                     ],
+          'total-commission' => [
+                                '5.83'
+                              ],
+          'order-total-sell-price' => [
+                                      '34.31'
+                                    ],
+          'customer-email' => [
+                              '6ukypj_16q80k4m_67@seller.sears.com'
+                            ],
+          'balance-due' => [
+                           '38.48'
+                         ],
+          'customer-order-confirmation-number' => [
+                                                  '414163639'
+                                                ],
+          'shipping-detail' => [
+                               {
+                                 'ship-to-name' => [
+                                                   'KATY MCNULTY'
+                                                 ],
+                                 'shipping-method' => [
+                                                      'Ground'
+                                                    ],
+                                 'city' => [
+                                           'PACIFIC GROVE'
+                                         ],
+                                 'address' => [
+                                              '142 PACIFIC AVENUE'
+                                            ],
+                                 'phone' => [
+                                            '7074816323'
+                                          ],
+                                 'zipcode' => [
+                                              '93950'
+                                            ],
+                                 'state' => [
+                                            'CA'
+                                          ]
+                               }
+                             ],
+          'unit' => [
+                    '9301'
+                  ],
+          'po-status' => [
+                         'New'
+                       ],
+          'sales-tax' => [
+                         '2.49'
+                       ],
+          'site' => [
+                    'Sears'
+                  ],
+          'po-number-with-date' => [
+                                   '201210200441702'
+                                 ],
+          'po-number' => [
+                           '0441702'
+                         ]
+        };
+
