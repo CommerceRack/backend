@@ -14812,7 +14812,6 @@ sub adminDomain {
 	require DOMAIN;
 	require DOMAIN;
 	require DOMAIN::TOOLS;
-	require DOMAIN::REGISTER;
 	require DOMAIN::POOL;
 
 	my ($udbh) = &DBINFO::db_user_connect($self->username());
@@ -15048,52 +15047,45 @@ sub adminDomain {
 					}
 				}
 			elsif ($VERB eq 'DOMAIN-TRANSFER') {
-				if (DOMAIN::REGISTER::DomainAvailable($DOMAINNAME)) {
-					&JSONAPI::set_error(%R,'apperr',3921,"Sorry, but domain $DOMAINNAME is not registered [cannot be transferred], use REGISTER instead");
-					}
-				elsif (&DOMAIN::REGISTER::BelongsToRsp($DOMAINNAME)) {
-					## already belongs to us
-					# my ($BILL_ID) = &DOMAIN::REGISTER::verify_billing($self->username(),$DOMAINNAME);
-					#my ($D) = DOMAIN->create($self->username(),$DOMAINNAME,'REG_TYPE'=>'ZOOVY','REG_STATUS'=>"Billing Record: $BILL_ID");
-					#push @MSGS, "SUCCESS|+Performed simulated transfer for domain:$DOMAINNAME";
-					}
-				elsif (DOMAIN::REGISTER::is_locked($DOMAINNAME)) {
-					&JSONAPI::set_error(%R,'apperr',3921,"Domain is currently locked and cannot be transferred, please ask your current register to unlock it.");
-					}
-				else {
-					push @MSGS, "ERROR|+We are no longer allowing non-registered domains to be transferred, please use delegate instead";
-					}
+				push @MSGS, "ERROR|+DOMAIN-TRANSFER functionality no longer available.";
+				#if (DOMAIN::REGISTER::DomainAvailable($DOMAINNAME)) {
+				#	&JSONAPI::set_error(%R,'apperr',3921,"Sorry, but domain $DOMAINNAME is not registered [cannot be transferred], use REGISTER instead");
+				#	}
+				#elsif (&DOMAIN::REGISTER::BelongsToRsp($DOMAINNAME)) {
+				#	## already belongs to us
+				#	# my ($BILL_ID) = &DOMAIN::REGISTER::verify_billing($self->username(),$DOMAINNAME);
+				#	#my ($D) = DOMAIN->create($self->username(),$DOMAINNAME,'REG_TYPE'=>'ZOOVY','REG_STATUS'=>"Billing Record: $BILL_ID");
+				#	#push @MSGS, "SUCCESS|+Performed simulated transfer for domain:$DOMAINNAME";
+				#	}
+				#elsif (DOMAIN::REGISTER::is_locked($DOMAINNAME)) {
+				#	&JSONAPI::set_error(%R,'apperr',3921,"Domain is currently locked and cannot be transferred, please ask your current register to unlock it.");
+				#	}
+				#else {
+				#	push @MSGS, "ERROR|+We are no longer allowing non-registered domains to be transferred, please use delegate instead";
+				#	}
 				}
 			elsif ($VERB eq 'DOMAIN-REGISTER') {
+				push @MSGS, "ERROR|+DOMAIN-REGISTER functionality no longer available.";
 				## subdomain.domain.com
 				##	domain.com
 				##	somedomain.co.uk
-				my @parts = split(/\./,$ZOOVY::cgiv->{'DOMAIN'});
-				my $subdomain = shift @parts;
-				$DOMAINNAME = join(".",@parts);
+				#my @parts = split(/\./,$ZOOVY::cgiv->{'DOMAIN'});
+				#my $subdomain = shift @parts;
+				#$DOMAINNAME = join(".",@parts);
 
-				my @errors = &DOMAIN::TOOLS::valid_domain($DOMAINNAME);
-				if (scalar(@errors)==0) {
-					require DOMAIN::REGISTER;
-					if (not &DOMAIN::REGISTER::DomainAvailable($DOMAINNAME)) {
-						push @MSGS, "ERROR|+Sorry, the domain [$DOMAINNAME] is not available and has already been registered by somebody else, (if you are the owner perhaps you meant to do a transfer)";
-						}
-					}
+				#my @errors = &DOMAIN::TOOLS::valid_domain($DOMAINNAME);
+				#if (scalar(@errors)==0) {
+				#	require DOMAIN::REGISTER;
+				#	if (not &DOMAIN::REGISTER::DomainAvailable($DOMAINNAME)) {
+				#		push @MSGS, "ERROR|+Sorry, the domain [$DOMAINNAME] is not available and has already been registered by somebody else, (if you are the owner perhaps you meant to do a transfer)";
+				#		}
+				#	}
 
-				my $lm = LISTING::MSGS->new($self->username(),logfile=>'domains.log');
-				my ($RESULT) = DOMAIN::REGISTER::register($self->username(),$DOMAINNAME,'*LM'=>$lm,'reg_type'=>'new');
-				if (defined $RESULT) {
-					($D) = DOMAIN->create($self->username(),$DOMAINNAME,%{$RESULT});
-					#my ($BILL_ID) = DOMAIN::REGISTER::verify_billing($self->username(),$DOMAINNAME);
-					#$lm->pooshmsg("INFO|DOMAIN:$DOMAINNAME|+billing id: $BILL_ID");
-					#if ($BILL_ID>0) { 
-					#	push @MSGS, "SUCCESS|+Billing ID:$BILL_ID was created"; 
-					#	$VERB = 'CONFIG';
-					#	}
-					#else {
-					#	push @MSGS, "ISE|+Recurring Billing ID could not be created (this domain is not properly linked)";
-					#	}
-					}
+				#my $lm = LISTING::MSGS->new($self->username(),logfile=>'domains.log');
+				#my ($RESULT) = DOMAIN::REGISTER::register($self->username(),$DOMAINNAME,'*LM'=>$lm,'reg_type'=>'new');
+				#if (defined $RESULT) {
+				#	($D) = DOMAIN->create($self->username(),$DOMAINNAME,%{$RESULT});
+				#	}
 				}
 			elsif ($VERB eq 'DOMAIN-DELEGATE') {		
 				my $lm = LISTING::MSGS->new($self->username(),logfile=>'domains.log');
@@ -15110,7 +15102,7 @@ sub adminDomain {
 				}
 			elsif ($VERB eq 'DOMAIN-REMOVE') {
 				my $ALLOWED = 1;
-				if (&DOMAIN::REGISTER::BelongsToRsp($D->{'DOMAIN'})) { $ALLOWED = 0; }
+				#if (&DOMAIN::REGISTER::BelongsToRsp($D->{'DOMAIN'})) { $ALLOWED = 0; }
 				if ($self->LU()->is_support()) { $ALLOWED++; }
 
 				if (not $ALLOWED) {

@@ -115,7 +115,6 @@ foreach my $USERNAME (@{$CFG->users()}) {
 			my $SSL_KEY_FILE = sprintf("%s/%s.key",&ZOOVY::resolve_userpath($USERNAME),lc($HOSTDOMAIN));
 			next if (! -f $SSL_KEY_FILE);
 
-
 			my $SSL_KEY = File::Slurp::read_file($SSL_KEY_FILE);
 
 			my $IPADDR = $CFG->get("$HOSTDOMAIN","vip.private");
@@ -269,6 +268,10 @@ server {
 			close F;
 			}
 		}
+
+	## reset memcache since old domain caching uses that
+	my ($memd) = &ZOOVY::getMemd($USERNAME);
+	$memd->flush_all();
 
 	&DBINFO::db_user_close();
 	}
