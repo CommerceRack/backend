@@ -1080,7 +1080,10 @@ sub createMsg {
 	if ($options{'FROM'} ne '') { $FROM = $options{'FROM'}; }
 	## DO NOT USE our/email
 	## if ($FROM eq '') { $FROM = $SITE->Domain()->get('our/email'); }
-	if ($FROM eq '') { $FROM = $SITE->Domain()->get('our/support_email'); }
+	if ($FROM eq '') { 
+		my $D = $SITE->Domain();
+		if (defined $D) { $FROM = $D->get('our/support_email'); } 
+		}
 	if ($FROM eq '') { $FROM = $SITE->webdb()->{'from_email'}; }
 
 	if (index($FROM,',')>=10) { $FROM = substr($FROM,0,index($FROM,',')); }
