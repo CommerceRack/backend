@@ -66,6 +66,7 @@ close IN;
 ##
 ##
 foreach my $USERNAME (@{$CFG->users()}) {
+	next if ((defined $params{'user'}) && ($USERNAME ne uc($params{'user'})));
 	print "USER:$USERNAME\n";
 	my ($udbh) = &DBINFO::db_user_connect($USERNAME);
 
@@ -101,43 +102,49 @@ foreach my $USERNAME (@{$CFG->users()}) {
 		foreach my $HOST (keys %{$D->{'%HOSTS'}}) {
 			my $HOSTREF = $D->{'%HOSTS'}->{$HOST};
 
-			my ($HOSTDOMAIN) = lc(sprintf("%s.%s",$HOST, $D->{'DOMAIN'}));
-			my $IPADDR = $CFG->get("$HOSTDOMAIN","vip.private");
-
 			my @MSGS = ();
-			my $INT = $IPADDR; $INT =~ s/\.//gs;
-
+			my ($HOSTDOMAIN) = lc(sprintf("%s.%s",$HOST, $D->{'DOMAIN'}));
 			next if ($HOSTDOMAIN eq '');
-			next if ($INT eq '');
-			print "INT:$IPADDR ($HOSTDOMAIN)\n";
+			print "HELLO! $HOSTDOMAIN\n";
 
 			my $SSL_CRT_FILE = sprintf("%s/%s.crt",&ZOOVY::resolve_userpath($USERNAME),lc($HOSTDOMAIN));
-			if (! -f $SSL_CRT_FILE) { die("Need $SSL_CRT_FILE"); }
+			print "TRY: $SSL_CRT_FILE\n";
+			next if (! -f $SSL_CRT_FILE);
 
 			my $SSL_CERT = File::Slurp::read_file($SSL_CRT_FILE);
 			my $SSL_KEY_FILE = sprintf("%s/%s.key",&ZOOVY::resolve_userpath($USERNAME),lc($HOSTDOMAIN));
-			if (! -f $SSL_KEY_FILE) { die("Need $SSL_KEY_FILE"); }
+			next if (! -f $SSL_KEY_FILE);
+
 
 			my $SSL_KEY = File::Slurp::read_file($SSL_KEY_FILE);
-			my $NETSTAT_OUTPUT = '';
-			open IN, "/bin/netstat -e -Ieth0:$INT|";
-			while (<IN>) { $NETSTAT_OUTPUT .= $_; }
-			close IN;
 
-			if ($NETSTAT_OUTPUT !~ /inet addr\:/s) {
-				## Interface not configure!
-				print "ifconfig eth0:$INT $IPADDR\n";
-				system "/sbin/ifconfig eth0:$INT $IPADDR netmask 255.255.255.255 up\n";
-	
-				$NETSTAT_OUTPUT = '';
+			my $IPADDR = $CFG->get("$HOSTDOMAIN","vip.private");
+			if ($IPADDR) {
+				## this domain has it's own private ip address (not necessary since SNI), make sure it's active
+				my $INT = $IPADDR; $INT =~ s/\.//gs;
+				print "INT:$IPADDR ($HOSTDOMAIN)\n";
+
+				my $NETSTAT_OUTPUT = '';
 				open IN, "/bin/netstat -e -Ieth0:$INT|";
 				while (<IN>) { $NETSTAT_OUTPUT .= $_; }
 				close IN;
+
+				if ($NETSTAT_OUTPUT !~ /inet addr\:/s) {
+					## Interface not configure!
+					print "ifconfig eth0:$INT $IPADDR\n";
+					system "/sbin/ifconfig eth0:$INT $IPADDR netmask 255.255.255.255 up\n";
+	
+					$NETSTAT_OUTPUT = '';
+					open IN, "/bin/netstat -e -Ieth0:$INT|";
+					while (<IN>) { $NETSTAT_OUTPUT .= $_; }
+					close IN;
+					}
+	
+				if ($NETSTAT_OUTPUT !~ /inet addr\:/s) {
+					push @MSGS, "lo:$INT ip:$IPADDR is *STILL* not currently live.";
+					}
 				}
 
-			if ($NETSTAT_OUTPUT !~ /inet addr\:/s) {
-				push @MSGS, "lo:$INT ip:$IPADDR is *STILL* not currently live.";
-				}
 
 			## 
 			## SANITY: at this point IP address should be provisioned.
