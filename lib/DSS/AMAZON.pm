@@ -154,7 +154,7 @@ sub mws_headers {
 	my $AMZ_MERCHANTID = $userref->{'AMAZON_MERCHANTID'};
 
 	my ($CFG) = CFG->new();
-	my $host = CFG->get("amazon_mws","host");
+	my $host = $CFG->get("amazon_mws","host");
 	my $sk = $CFG->get('amazon_mws',"sk");
 	my $awskey = $CFG->get('amazon_mws',"aws_key");
 

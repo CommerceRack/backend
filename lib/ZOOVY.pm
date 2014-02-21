@@ -1288,7 +1288,7 @@ sub getMemd {
 			push @SERVERS, sprintf("%s:%s",$memcachecfg->{'host'},$memcachecfg->{'port'}|4000);
 			}
       if ((defined $memcachecfg->{'@try'}) && (ref($memcachecfg->{'@try'}) eq 'ARRAY')) {
-         foreach my $try ($memcachecfg->{'@try'}) {
+         foreach my $try (@{$memcachecfg->{'@try'}}) {
             push @SERVERS, $try;
             }
          }

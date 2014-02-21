@@ -108,13 +108,13 @@ foreach my $USERNAME (@{$CFG->users()}) {
 			print "HELLO! $HOSTDOMAIN\n";
 
 			my $SSL_CRT_FILE = sprintf("%s/%s.crt",&ZOOVY::resolve_userpath($USERNAME),lc($HOSTDOMAIN));
+			my ($CRTdev,$CRTino,$CRTmode,$CRTnlink,$CRTuid,$CRTgid,$CRTrdev,$CRTsize,$CRTatime,$CRTmtime,$CRTctime,$CRTblksize,$CRTblocks) = stat($SSL_CRT_FILE);
 			print "TRY: $SSL_CRT_FILE\n";
 			next if (! -f $SSL_CRT_FILE);
-
 			my $SSL_CERT = File::Slurp::read_file($SSL_CRT_FILE);
+
 			my $SSL_KEY_FILE = sprintf("%s/%s.key",&ZOOVY::resolve_userpath($USERNAME),lc($HOSTDOMAIN));
 			next if (! -f $SSL_KEY_FILE);
-
 			my $SSL_KEY = File::Slurp::read_file($SSL_KEY_FILE);
 
 			my $IPADDR = $CFG->get("$HOSTDOMAIN","vip.private");
@@ -206,15 +206,19 @@ foreach my $USERNAME (@{$CFG->users()}) {
 		 
 			# print Dumper($cert);
 			my $PEM_FILE = "$::PATH/$HOSTDOMAIN.pem";
-			my ($dev,$ino,$mode,$nlink,$uid,$gid,$rdev,$size,$atime,$mtime,$ctime,$blksize,$blocks) = stat($PEM_FILE);
+			my ($PEMdev,$PEMino,$PEMmode,$PEMnlink,$PEMuid,$PEMgid,$PEMrdev,$PEMsize,$PEMatime,$PEMmtime,$PEMctime,$PEMblksize,$PEMblocks) = stat($PEM_FILE);
 		
 			if ($ERROR) {
 				die("$ERROR\n");
 				}
 
+
+			
+
 			if (($SSL_KEY eq '') || ($SSL_CERT eq '')) {
+				## never write an empty file!
 				}
-			elsif (! -f $PEM_FILE) {
+			elsif ((! -f $PEM_FILE) || ($CRTctime > $PEMctime)) {
 				print "WRITING: $PEM_FILE\n";
 			 	open Fn, ">$PEM_FILE";
 	
@@ -234,6 +238,7 @@ foreach my $USERNAME (@{$CFG->users()}) {
 				close Fn;
 				}
 	
+			my ($CRT_DATE) = &ZTOOLKIT::pretty_date($CRTctime,1);
 			print "Append $NGINX_CONFIG_FILE data:$IPADDR\n";
 			open F, ">>$NGINX_CONFIG_FILE";
 			print F qq~
@@ -249,8 +254,12 @@ server {
 
 	## BEGIN SSL
 	## NOTE: nginx will make the IP below the *default* server for this ip address
+	## CRT: $CRT_DATE
 	ssl_certificate		$PEM_FILE;
 	ssl_certificate_key	$PEM_FILE;
+   ssl_ciphers     HIGH:!aNULL:!MD5;
+   ssl_prefer_server_ciphers       on;
+	ssl_session_cache builtin:1024 shared:$USERNAME:10m;
 
 	gzip on;
 	gzip_disable "MSIE [1-6]\.(?!.*SV1)";

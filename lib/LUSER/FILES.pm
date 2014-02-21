@@ -65,20 +65,21 @@ sub file_contents {
 	my ($self,$FILENAME) = @_;
 
 	my $BUFFER = '';
-	my $path = &ZOOVY::resolve_userpath($self->username()).'/PRIVATE';
+	my $path = &ZOOVY::resolve_userpath($self->username());
+	$FILENAME =~ s/[\.]+/./gs;
 
 	if ($FILENAME eq '') {
 		$BUFFER = "No filename specified";
 		}
-	elsif ($FILENAME =~ /[^A-Za-z0-9\-\.]/) {
-		$BUFFER = "Filename contains invalid characters.";
+	elsif ($FILENAME =~ /[^A-Za-z0-9\-\.\_]/) {
+		$BUFFER = "Filename PRIVATE/$FILENAME contains invalid characters.";
 		}
-	elsif (-f "$path/$FILENAME") {
+	elsif (! -f "$path/PRIVATE/$FILENAME") {
 		$BUFFER = "File PRIVATE/$FILENAME does not exist";
 		}
 	else {	
 		require File::Slurp;
-		$BUFFER = File::Slurp::read_file($path."/".$FILENAME);
+		$BUFFER = File::Slurp::read_file($path."/PRIVATE/".$FILENAME);
 		# open(FILE,$path."/".$FILENAME); $/ = ""; $BUFFER = <FILE>;  $/ = "\n"; close(FILE);
 		}
 
