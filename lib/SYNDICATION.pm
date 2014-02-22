@@ -1675,7 +1675,8 @@ sub syn_info {
 sub rootcat {
 	my ($self) = @_;
 	my ($D) = $self->DOMAIN();
-	return($D->get('our.rootcat'));
+	if (not defined $D) { return('.'); }
+	return($D->get('our.rootcat') || '.');
 	}
 
 ##

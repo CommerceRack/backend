@@ -181,7 +181,13 @@ sub calc {
 			}
 			
 
-		if (($m->{'rules'}>0) && (defined $price)) {
+		if (not defined $price) {
+			$CART2->is_debug() && $PKG->pooshmsg("RULES|+Rules were skipped because price was not set.");
+			}
+		elsif ($m->{'rules'}<=0) {
+			$CART2->is_debug() && $PKG->pooshmsg("RULES|+Rules are disabled");
+			}
+		else {
 			$CART2->is_debug() && $PKG->pooshmsg("RULES|+Starting Rules - price was:$price");
 			$price = &ZSHIP::RULES::do_ship_rules($CART2, $PKG, $m->{'id'}, $price);
 			if (not defined $price) {
