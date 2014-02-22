@@ -1623,22 +1623,22 @@ sub init {
 ##
 ## for internal testing
 ##
-sub init_test_harness {
-	my ($self, %options) = @_;
-	$self->{'APIVERSION'} = $options{'version'};	
-	$self->{'USERNAME'} = $options{'username'};
-	$self->{'PRT'} = $options{'prt'};
-	$self->{'SDOMAIN'} = $options{'domain'};
-	if ($options{'domain'}) {
-		$self->{'*SITE'} = SITE->new($options{'username'}, 'PRT'=>$options{'prt'}, 'DOMAIN'=>$options{'domain'});
-		}
-
-	if ($options{'admin'}) {
-		$self->{'*LU'} = LUSER->new_trusted($self->{'USERNAME'},'ADMIN',$options{'prt'});
-		}
-
-	return($self);
-	}
+#sub init_test_harness {
+#	my ($self, %options) = @_;
+#	$self->{'APIVERSION'} = $options{'version'};	
+#	$self->{'USERNAME'} = $options{'username'};
+#	$self->{'PRT'} = $options{'prt'};
+#	$self->{'SDOMAIN'} = $options{'domain'};
+#	if ($options{'domain'}) {
+#		$self->{'*SITE'} = SITE->new($options{'username'}, 'PRT'=>$options{'prt'}, 'DOMAIN'=>$options{'domain'});
+#		}
+#
+#	if ($options{'admin'}) {
+#		$self->{'*LU'} = LUSER->new_trusted($self->{'USERNAME'},'ADMIN',$options{'prt'});
+#		}
+#
+#	return($self);
+#	}
 
 
 ## 
@@ -3221,13 +3221,6 @@ sub handle {
 			# my $try_softauth = $self->webdb()->{'order_status_disable_login'};
 			elsif ( (($buyer_is_required & 2)==2) && ( $v->{'softauth'} eq 'order' ) ) {
 				}
-			#elsif ( (($buyer_is_required & 4)==4) && ( $v->{'softauth'} eq 'campaign' ) ) {
-			#	## softauth is requested, and allowed so lets try that.
-			#	#	if (&CUSTOMER::RECIPIENT::softauth_user($self->username(),$SITE::CART->prt(),$SITE::v->{'email'},$SITE::v->{'cpg'},$SITE::v->{'cpn'})) { 
-			#	#		$softauth_customer_id = &CUSTOMER::resolve_customer_id($self->username(), int($self->webdb()->{'+prt'}), ,$SITE::v->{'email'});
-			#	#	$login = $o->get_attrib('bill_email');
-			#	#	$SITE::CART->login($login,'',authenticated=>1);		
-			#	}
 			elsif ($self->apiversion() < 201314) {
 				&JSONAPI::set_error(\%R, 'warning', 89, 'Call(s) on stack requires customer authentication : Calls ['.join(';',@BUYER_REQUIRED).'] v.'.$self->apiversion());
 				}
@@ -3261,14 +3254,14 @@ sub handle {
 
 			my ($function, $params, $group, $permis) = @{$JSONAPI::CMDS{ $cmdline->[1]->{'_cmd'} }};
 			next if (not defined $function);
+
+			if (not defined $params->{'admin'}) { $params->{'admin'} = 0; }
+			if (not defined $params->{'buyer'}) { $params->{'buyer'} = 0; }
 			
 			my $cmdv = $cmdline->[1];
 			my $cmdr = $cmdline->[2];		## response (undef = good to go, defined = error)
 
-			if (not defined $permis->{'admin'}) { $permis->{'admin'} = $params->{'admin'}; }
-			if (not defined $permis->{'buyer'}) { $permis->{'buyer'} = $params->{'buyer'}; }
-
-			if ($permis->{'cart'}) {
+			if ($params->{'cart'}) {
 				if ($v->{'_cartid'} eq '') {
 					$cmdr = &JSONAPI::set_error($cmdr, 'apperr', 90, 'No _cartid parameter passed');
 					}
@@ -3278,24 +3271,41 @@ sub handle {
 				}
 			elsif ((defined $params->{'deprecated'}) && (int($params->{'deprecated'})>0) && (int($params->{'deprecated'}) < $self->apiversion())) {
 				$cmdr = &JSONAPI::set_error({}, 'apperr', 99, sprintf("API CMD '%s' is not available beyond release %d %s.",$cmdv->{'_cmd'},$params->{'deprecated'}));
-				# print STDERR "DEPRECATED CMDR: ".Dumper($cmdr)."\n";
 				}
 			else {
-				# print STDERR "NON DEPRECATED CMDR: ".Dumper($params)."\n";
 				}
 
-			if ((not defined $cmdr) && (($permis->{'admin'} & 1)==1)) { 
+			if ((not defined $cmdr) && (($params->{'admin'} & 1)==1)) { 
 				## requires hard auth
 				if (not $self->is_admin()) {
 					$cmdr = &JSONAPI::set_error($cmdr,'apperr',150,'Admin authentication is required');
 					}
+				else {
+					my $okay = 1;
+					##  my ($ACL) = &OAUTH::build_myacl($USERNAME,\@MYROLES);
+					my %R = ();
+					my $LU = $self->LU();
+					foreach my $perm_key (keys %{$permis}) {
+						next if (defined $cmdr);
+						my $perm_val = $permis->{$perm_key};
+						next if (not defined $perm_val);
+
+						if (not $LU->hasACL($perm_key,$perm_val)) { 
+							my $cmd = $cmdline->[1]->{'_cmd'};
+							my $PRETTY_KEY = $perm_key;
+							my $PRETTY_VAL = $OAUTH::ACL_PRETTY{$perm_val};
+							$cmdr =  &JSONAPI::set_error($cmdr,'apperr',151,"Permission $PRETTY_KEY:$PRETTY_VAL($perm_val) is required for $cmd");
+							}
+						}
+					}
+
 				}
 
-			if ((defined $cmdr) || (not defined $permis->{'buyer'})) {
+			if ((defined $cmdr) || (not defined $params->{'buyer'})) {
 				## shit already happened
 				## OR we don't need to check buyer permissions
 				}
-			elsif ($permis->{'buyer'}==1) { 
+			elsif ($params->{'buyer'}==1) { 
 				## allows requires hard auth only, so we can short circuit here
 				if (not $self->is_buyer()) {
 					$cmdr = &JSONAPI::set_error($cmdr,'apperr',89,'Buyer authentication is required'); 

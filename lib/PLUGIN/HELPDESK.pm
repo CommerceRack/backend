@@ -111,7 +111,8 @@ sub execute {
 	$CMD{'_prt'} = $jsonapi->prt();
 	$CMD{'_domain'} = $jsonapi->domain();
 	if (not defined $CMD{'_v'}) { $CMD{'_v'} = $jsonapi->apiversion(); }
-	$CMD{'_uuid'} = Data::GUID->new()->as_string();
+	## NOTE: these is an issue with RSA encryption (it only supports keylength - padding) so we shouldn't add any unnecessary characters
+	## $CMD{'_uuid'} = Data::GUID->new()->as_string();
 
 	my ($PUBLIC_KEY) = ZTOOLKIT::SECUREKEY::rsa_key($CMD{'_user'},"commercerack.com.pub");
 	my $rsa = Crypt::OpenSSL::RSA->new_public_key($PUBLIC_KEY);
@@ -122,7 +123,7 @@ sub execute {
 	$ECMD{'_payload'} = MIME::Base64::encode_base64($rsa->encrypt($json));
 
 	my $R = undef;
-	my @RESPONSES = @{&PLUGIN::HELPDESK::send_cmds( 'tcp://admin.zoovy.com:5555', [ \%CMD ])};
+	my @RESPONSES = @{&PLUGIN::HELPDESK::send_cmds( 'tcp://admin.zoovy.com:5555', [ \%ECMD ])};
 
 	if (scalar(@RESPONSES)==0) {
 		$R = &JSONAPI::set_error({},'apierr','7300','No response from API');
