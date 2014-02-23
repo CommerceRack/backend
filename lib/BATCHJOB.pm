@@ -384,7 +384,7 @@ sub update {
 		$options{'RECORDS_DONE'} = $options{'DONE'}; delete $options{'DONE'};
 		}
 	elsif (defined $options{'NOTES'}) {
-		$options{'OUTPUT_NOTES'} = $options{'NOTES'}; delete $options{'NOTES'};
+		## $options{'OUTPUT_NOTES'} = $options{'NOTES'}; delete $options{'NOTES'};
 		}
 
 	#if ($self->{'@slogs'}) {
@@ -432,7 +432,7 @@ sub read {
 	$RESPONSE{'records_warn'} = $self->{'RECORDS_WARN'};
 	$RESPONSE{'status_msg'} = $self->{'STATUS_MSG'};
 	$RESPONSE{'status'} = $self->{'STATUS'};
-	$RESPONSE{'notes'} = $self->{'OUTPUT_NOTES'};
+	## $RESPONSE{'notes'} = $self->{'OUTPUT_NOTES'};
 
 	return(%RESPONSE);	
 	}
