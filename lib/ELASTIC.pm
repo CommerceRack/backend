@@ -97,8 +97,8 @@ sub rebuild_private_index {
 	my ($es) = &ZOOVY::getElasticSearch($USERNAME);
 
 	if ($options{'NUKE'}) {
-		if ($es->index_exists("index"=>lc("$USERNAME.private"))) {
-			$es->delete_index("index"=>lc("$USERNAME.private"));
+		if ($es->indices->exists("index"=>lc("$USERNAME.private"))) {
+			$es->incides->delete("index"=>lc("$USERNAME.private"));
 			}
 
 		my %order_properties = (
@@ -212,7 +212,7 @@ sub rebuild_private_index {
 				}
 			}
 
-		$es->create_index(
+		$es->incides->create(
 			index => "$USERNAME.private",
 			mappings => { 
 				'order' => {
@@ -601,11 +601,11 @@ sub rebuild_product_index {
 		}
 	else {
 		my ($es) = &ZOOVY::getElasticSearch($USERNAME);
-		if ($es->index_exists("index"=>lc("$USERNAME.public"))) {
-			$es->delete_index("index"=>lc("$USERNAME.public"));
+		if ($es->indices->exists("index"=>lc("$USERNAME.public"))) {
+			$es->incides->delete("index"=>lc("$USERNAME.public"));
 			}
 
-		my ($result) = $es->create_index(\%public);
+		my ($result) = $es->incides->create(\%public);
 		open F, ">".&ZOOVY::resolve_userpath($USERNAME)."/public-index.dmp";
 		print F Dumper(\%public);
 		close F;
