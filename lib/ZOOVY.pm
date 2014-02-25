@@ -22,7 +22,7 @@ use Redis;
 ##		use JSON.pm
 ##		use URI::Escape 
 ## use ElasticSearch;
-use ElasticSearch;
+use Elasticsearch;
 
 #use Cache::Memcached;
 #use Any::Cache::Memcached;
@@ -1184,12 +1184,12 @@ sub getElasticSearch {
 		$HOST = '127.0.0.1'; # &ZOOVY::resolve_cluster($USERNAME);
 		}
 	
-	my $es = ElasticSearch->new(	
-		servers		=> sprintf(lc('%s:9200'),$HOST),  # default '127.0.0.1:9200'
-	  transport	 => 'httplite',						# default 'http'
+	my $es = Elasticsearch->new(	
+		nodes		=> [ sprintf(lc('%s:9200'),$HOST) ],  # default '127.0.0.1:9200'
+#	  transport	 => 'httplite',						# default 'http'
 #		  max_requests => 10_000,					  # default 10_000
 #		  trace_calls  => 'log_file',
-		no_refresh	=> 1
+#		no_refresh	=> 1
 		);
 
 	return($es);
