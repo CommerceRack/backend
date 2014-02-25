@@ -8,7 +8,6 @@ use Data::Dumper;
 
 use lib "/httpd/modules";
 use ZOOVY;
-use ZACCOUNT;
 use ZTOOLKIT;
 use PRODUCT::FLEXEDIT;
 use ELASTIC;
@@ -20,14 +19,7 @@ if ($USERNAME eq '') {
 
 my @USERS = ();
 push @USERS, $ARGV[0];
-#my $CLUSTER = &ZOOVY::resolve_cluster($USERNAME);
-#if (uc($CLUSTER) eq uc($USERNAME)) {
-#	@USERS = @{&ZACCOUNT::list_users('CLUSTER'=>$CLUSTER,"LIVE"=>1)};
-#	}
-#else {
-#	push @USERS, $USERNAME;
-#	}
-#
+
 foreach my $USERNAME (@USERS) {
 	print "USERNAME: $USERNAME\n";
 	print Dumper(&ELASTIC::rebuild_product_index($USERNAME));
