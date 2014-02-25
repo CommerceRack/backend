@@ -349,7 +349,7 @@ use strict;
 	'adminSOGCreate'=>  [ \&JSONAPI::adminSOG, { 'auth'=>1, }, 'auth' ],
 	'adminSOGDelete'=>  [ \&JSONAPI::adminSOG, { 'auth'=>1, }, 'auth' ],
 
-	'adminImageList'=>[ \&JSONAPI::adminImageList,  { 'admin'=>1, }, 'admin',  { 'IMAGE'=>'L '} ],
+	'adminImageList'=>[ \&JSONAPI::adminImageList,  { 'admin'=>1, }, 'admin',  { 'IMAGE'=>'L'} ],
 	'adminImageDetail'=>[ \&JSONAPI::adminImageDetail,  { 'admin'=>1, }, 'admin', { 'IMAGE'=>'R' }  ],
 	'adminImageFolderList'=>[ \&JSONAPI::adminImageFolderList,  { 'admin'=>1, }, 'admin', { 'IMAGE'=>'L'} ],
 	'adminImageFolderCreate'=>[ \&JSONAPI::adminImageFolderCreate,  { 'admin'=>1, }, 'admin', { 'IMAGE'=>'C' } ],
