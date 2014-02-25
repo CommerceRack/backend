@@ -32,105 +32,6 @@ $SEARCH::ELASTIC_RESULTS = 500;
 
 sub init {};
 
-##
-## builds a dictionary for a specific catalog (if requested)
-##
-#sub build_dictionary {
-#	my ($USERNAME, $CATALOG, $PRT) = @_;
-#
-#	$CATALOG = uc($CATALOG);
-#	$CATALOG =~ s/[^A-Z0-9]//gs;
-#	my %DICTIONARY = ();
-#
-#	require Date::Calc;
-#	my @files = ();
-#	my $path = &ZOOVY::resolve_userpath($USERNAME);
-#	foreach my $i (0 .. 3) {
-#		my @when = Date::Calc::Add_Delta_YM(Date::Calc::Today(),0,0-$i);
-#		my $file = sprintf("%s/IMAGES/SEARCH-%s-%04d%02d.csv",$path,$CATALOG,$when[0],$when[1]);
-#		push @files, $file;
-#		}
-#
-#	my %COUNT_CACHE = ();
-#	require Text::CSV_XS;
-#	foreach my $file (@files) {
-#		next if (not -f $file);
-#		# print "FILE: $file\n";
-#		my $csv = Text::CSV_XS->new ({ binary => 1, eol => $/, sep_char=>"\t" });
-#		open my $io, "<", $file or die "$file: $!";
-#		while (my $row = $csv->getline($io)) {
-#			my ($date,$mode,$keywords,$count,$ip,$cart,$domain,$prt) = @{$row};
-#			next if ($count==0);	# skip words with zero results
-#
-#			$keywords = lc($keywords);
-#			$COUNT_CACHE{$keywords} = $count;
-#			my $copy = substr($keywords,0,5);
-#			$DICTIONARY{ $copy }->{$keywords}++;
-#			while (length($copy)>1) {
-#				$copy = substr($copy,0,-1);
-#				$DICTIONARY{ $copy }->{$keywords}++;
-#				}
-#			}
-#		close $io;
-#		}
-#
-#	# print Dumper(\%DICTIONARY);
-#
-#	##
-#	## SANITY: at this point %DICTIONARY is populated with the key being a search term
-#	##				and value is a hashref keyed by term, value being a count of occurances
-#	##
-#	##	now we got through each key, find the most relevant words that return values
-#	##
-#	my $tmpfile = "/tmp/SEARCH-$USERNAME-$CATALOG-LOOKUP.cdb";
-#	my $savefile = &ZOOVY::resolve_userpath($USERNAME)."/SEARCH-$CATALOG-LOOKUP.cdb";
-#	my %CAT;
-#	my $cdb = tie %CAT, 'CDB_File', $savefile;
-#	my %COUNT_CACHE = ();
-#	foreach my $indx (keys %CAT) {
-#		foreach my $term (split(/\|/,$CAT{$indx})) {
-#			my ($k,$v) = split(/\:/,$term);
-#			# print "Loading $k=$v\n";
-#			$COUNT_CACHE{$k} = $v;
-#			}
-#		}
-#	untie %CAT;
-#	undef $cdb;
-#	
-#	my $gen = new CDB_File::Generator($savefile,$tmpfile);
-#	foreach my $indx (keys %DICTIONARY) {
-#		my $count = 0;
-#		my @TERMS = ();
-#		foreach my $term (&ZTOOLKIT::value_sort($DICTIONARY{$indx},'numerically')) {
-#		#	if (not defined $COUNT_CACHE{$term}) {
-#		#		my ($outref) = &SEARCH::search($USERNAME,MODE=>'AND',KEYWORDS=>$term,CATALOG=>$CATALOG,speed=>1,PRT=>$PRT);
-#		#		$COUNT_CACHE{$term} = scalar(@{$outref});
-#		#		}
-#			if ($COUNT_CACHE{$term}>0) {
-#				push @TERMS, $term; $count++;
-#				}
-#			last if ($count>=10);
-#			}
-#
-#		# print Dumper($indx,\@TERMS);
-#		if (scalar(@TERMS)>0) {
-#			## writes a string like:    key1:count|key2:count|key3:count
-#			my $str = ''; foreach my $term (@TERMS) { $str .= "$term:$COUNT_CACHE{$term}|"; } chop($str);
-#			# print "Adding[$indx]=$str\n";
-#			$gen->add($indx, $str);
-#			}
-#		undef @TERMS;
-#		}
-#	$gen->finish();
-#
-#	&ZOOVY::log($USERNAME,undef,'SEARCH.INDEX',"Rebuilt Catalog $CATALOG keys: ".scalar(keys %COUNT_CACHE).". ","INFO");
-#
-#	undef %COUNT_CACHE;
-#	undef $gen;
-#	undef %DICTIONARY;
-#	}
-#
-
 
 
 ##
@@ -1271,11 +1172,15 @@ sub finder {
 	   my $results = undef;
 		print STDERR "DOING ELASTIC B\n";
 		eval { 
-			$results = $es->search( 'index'=>"$USERNAME.public", 
-				filter=> { 
-					"terms" => { "pogs"=>\@SOGS, "execution"=>"and" } 
+			$results = $es->search( 
+				'index'=>"$USERNAME.public", 
+				'body'=>{
+					filter=> { 
+						"terms" => { "pogs"=>\@SOGS, "execution"=>"and" } 
+						}
+					,size=>$SEARCH::ELASTIC_RESULTS 
 					}
-				, size=>$SEARCH::ELASTIC_RESULTS );
+				);
 				};
 		if (not defined $results) {
 			push @{$TRACELOG}, "SEARCH ERROR: $@";
@@ -1554,60 +1459,6 @@ sub search {
 	$CATREF->{'USERNAME'} = $USERNAME;
 
 	my $pidsfound = {};
-#	if ($catalog eq 'SUBSTRING') {
-#		push @TRACELOG, "Using a substring match";
-#		my ($pids) = &SEARCH::substring_search($USERNAME,$keywords,%options);
-#		if ((defined $pids) && (ref($pids) eq 'ARRAY')) { 
-#			foreach my $pid (@{$pids}) { $pidsfound->{$pid}++; }
-#			}
-#		}
-#	if ($catalog eq 'COMMON') {
-#		push @TRACELOG, "Using COMMON elastic search";
-#		my ($pids) = &SEARCH::search_elastic($USERNAME,$keywords,\@TRACELOG,%options);
-#		if ((defined $pids) && (ref($pids) eq 'ARRAY')) { 
-#			foreach my $pid (@{$pids}) { $pidsfound->{$pid}++; }
-#			}
-#		push @TRACELOG, "Matched: ".join(",",@{$pids});
-#		}
-	##
-	## NOTE: this will break beachmart, because he uses a FINDER with advanced search parameters, so we can't always
-	##			use a finder handler. fuck fuck fuck.
-	##
-#	elsif (($catalog eq 'FINDER') && ($mode ne 'STRUCTURED')) {
-#		## note: finder is actually called directly from SITE::Vstore, but we have a hook here for the debugger.
-#		push @TRACELOG, "Using a catalog $catalog (NON-STRUCTURED) for matches";
-#		die();
-#
-#		my $cgi_vars = &ZTOOLKIT::parseparams($keywords);
-#		push @TRACELOG, 'VARIABLES: '.Dumper($cgi_vars);
-#		$options{'@TRACELOG'} = \@TRACELOG;
-#		my ($pids) = &SEARCH::finder($USERNAME,$cgi_vars,%options);
-#		if ((defined $pids) && (ref($pids) eq 'ARRAY')) { 
-#			foreach my $pid (@{$pids}) { $pidsfound->{$pid}++; }
-#			}
-#		$SPEED = $SPEED | 1; 	# finders do their own category redux.
-#
-#		my ($iso) = $options{'ISOLATION_LEVEL'};
-#		if (defined $iso) {
-#			if (not defined $iso) { 
-#				push @TRACELOG, "DEFAULTING ISOLATION LEVEL TO 10";
-#				$iso = 10; 
-#				}
-#
-#			my ($NC) = $options{'*NC'};
-#			if (not defined $NC) { $NC = NAVCAT->new($USERNAME,PRT=>$options{'PRT'},cache=>1); }
-#
-#			my $okaytoshowref = $NC->okay_to_show($USERNAME,undef,'.',$iso);
-#			foreach my $pid (keys %{$pidsfound}) {
-#				if (not defined $okaytoshowref->{$pid}) {
-#					push @TRACELOG, "Unfortunately product $pid was removed from result set because isolation level $options{'ISOLATION_LEVEL'} prt=$options{'PRT'}";
-#					delete $pidsfound->{$pid};
-#					}
-#				}
-#			push @TRACELOG, "Have ".scalar(keys %{$pidsfound})." products returned.";
-#			}
-#
-#		}
 	push @TRACELOG, "Using a catalog $catalog (MODE:$mode) for matches $keywords";
 
 #$VAR1 = {
@@ -1812,7 +1663,10 @@ sub search {
 		print STDERR "DOING ELASTIC A\n";
 	   my $results = undef;
 		eval {
-		 	$results = $es->search( 'index'=>"$USERNAME.public", %params);
+		 	$results = $es->search( 
+				'index'=>"$USERNAME.public", 
+				'body'=>\%params 
+				);
 			};
 		#open F, ">>/tmp/elastic";
 		#print F Dumper($USERNAME,\%params);
@@ -2273,7 +2127,7 @@ sub search_elastic {
 	push @{$tracelogref}, 'FILTERED QUERY STRING: '.Dumper($filtered_query_string);
 
 	print STDERR "DOING ELASTIC C\n";
-   my $results = $es->search( 'index'=>"$USERNAME.public", query=> { query_string=>{ query => $keywords } }, size=>$options{'_size'} );
+   my $results = $es->search( 'index'=>"$USERNAME.public", 'body'=>{ query=> { query_string=>{ query => $keywords } }, size=>$options{'_size'} } );
 	print STDERR "DONE ELASTIC C\n";
 
 	# print Dumper($results->{'hits'});	
@@ -2308,13 +2162,13 @@ sub search_structured {
 	push @{$tracelogref}, "Filtered-query-string is: $filtered_query_string\n";
 
 	my %params = ();
-	$params{'index'} = "$USERNAME.public";
+	# $params{'index'} = "$USERNAME.public";
 	$params{'query'} = {
 						query_string=>{ fields=>['pogs'], query => $filtered_query_string }
                   };
 	$params{'size'} = $SEARCH::ELASTIC_RESULTS;
 	print STDERR "DOING ELASTIC D\n";
-   my $results = $es->search(%params);
+   my $results = $es->search( 'index'=>"$USERNAME.public", 'body'=>\%params );
 	print STDERR "DONE ELASTIC D\n";
 	
 	if ($DEBUG) {
@@ -2419,16 +2273,16 @@ sub do_search_structured {
 	#				&SEARCH::cdb_prod_matches($resultref,\%thisSet);
 	#				$pidsref = [ keys %thisSet ];
 	#				}
-#			   my ($results) = $es->search( 'index'=>"$USERNAME.public", 
-#								# query=> { query_string=>{ fields=>["pogs"], query => $word } }
-#							filter=> { "terms" => { "pogs"=>[$word] } }
-#							, size=>1000 );
 		$word = sprintf("%s",uc($word));
 		print STDERR "ELASTIC WORD: $word\n";
 		print STDERR "DOING ELASTIC E\n";
-	   my $results = $es->search( 'index'=>"$USERNAME.public", 
-			filter=> { "terms" => { "pogs"=>[ $word ] } }, 
-			size=>$SEARCH::ELASTIC_RESULTS );		## this was MUCH BIGGER
+	   my $results = $es->search( 
+			'index'=>"$USERNAME.public", 
+			'body'=>{
+				filter=> { "terms" => { "pogs"=>[ $word ] } }, 
+				size=>$SEARCH::ELASTIC_RESULTS 
+				}
+				);		## this was MUCH BIGGER
 				my @PIDS = ();
 				if ($results->{'hits'}->{'total'}>0) {
 					foreach my $hit (@{$results->{'hits'}->{'hits'}}) {

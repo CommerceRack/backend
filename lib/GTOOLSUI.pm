@@ -750,7 +750,7 @@ sub search {
 				$Q = undef;
 				}
 			else {
-				$Q->{'index'} = lc("$USERNAME.public");
+				## $Q->{'index'} = lc("$USERNAME.public");
 				foreach my $k (keys %{$Q}) {
 					if (substr($k,0,1) eq '_') { 
 						push @MSGS, "INFO|+removed key '$k' because it started with an underscore and is not valid (just being helpful)";
@@ -770,7 +770,7 @@ sub search {
 			## print STDERR Dumper($Q,\@MSGS);
 	
 			if ((defined $Q) && (defined $es)) {
-			   eval { $results = $es->search(%{$Q}); };
+			   eval { $results = $es->search( 'index'=>lc("$USERNAME.public"), 'body'=>$Q ); };
 				if ($@) {
 					push @MSGS, "ERROR|Elastic Search Error:$@";
 					}

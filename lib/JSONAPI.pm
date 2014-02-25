@@ -411,6 +411,14 @@ use strict;
 	'adminCustomerOrganizationRemove'=>[\&JSONAPI::adminCustomerOrganization, { 'admin'=>1, }, 'admin', { 'CUSTOMER'=>'R' } ],
 	'adminNewsletterList' =>[  \&JSONAPI::appNewsletterList,  { 'admin'=>1, }, 'admin', ],
 
+	## Email/Blast
+	'adminBlastMsgList'=>[\&JSONAPI::adminBlastMsg, { 'admin'=>1, }, 'admin', { 'BLAST'=>'L' } ],
+	'adminBlastMsgDetail'=>[\&JSONAPI::adminBlastMsg, { 'admin'=>1, }, 'admin', { 'BLAST'=>'R' } ],
+	'adminBlastMsgCreate'=>[\&JSONAPI::adminBlastMsg, { 'admin'=>1, }, 'admin', { 'BLAST'=>'C' } ],
+	'adminBlastMsgUpdate'=>[\&JSONAPI::adminBlastMsg, { 'admin'=>1, }, 'admin', { 'BLAST'=>'U' } ],
+	'adminBlastMsgRemove'=>[\&JSONAPI::adminBlastMsg, { 'admin'=>1, }, 'admin', { 'BLAST'=>'D' } ],
+	'adminBlastMsgSend'=>[\&JSONAPI::adminBlastMsg, { 'admin'=>1, }, 'admin', { 'BLAST'=>'R' } ],
+
 	## WMS
 	'adminWarehouseMacro'=>[\&JSONAPI::adminWarehouse, { 'admin'=>1, }, 'admin', { 'WMS'=>'S' } ],
 	'adminWarehouseDetail'=>[\&JSONAPI::adminWarehouse, { 'admin'=>1, }, 'admin', { 'WMS'=>'S' } ],
@@ -3503,63 +3511,6 @@ sub helpWiki {
 	my ($self, $v) = @_;
 	my %R = ();
 
-	#if ($v->{'_cmd'} eq 'helpWiki') {
-		
-		#	my %params = (
-		#		'index'=>'webdoc',
-		#		'query'=>{ query_string=>{ query=>$v->{'keywords'} } },
-		#		# explain=>1
-		#		);
-		#	if ($v->{'keywords'} =~ /^[\d]+$/) {
-		#		## this appears to be a number
-		#		}
-		#
-		#	my ($es) = &ZOOVY::getElasticSearch("",'server'=>"db1");
-		#	if (not defined $es) { 
-		#		&JSONAPI::set_error(\%R,'iseerr',501,'Elastic Search on DB1 is offline');
-		#		}
-		#	elsif (not &JSONAPI::validate_required_parameter(\%R,$v,'keywords')) {
-		#		}
-		#
-		#	if (not &JSONAPI::hadError(\%R)) {
-		#		my $results = $es->search(%params);
-		#		my @RESULTS = ();
-		#		foreach my $HIT (@{$results->{'hits'}->{'hits'}}) {
-		#			# print Dumper($HIT);
-		#			my $body = $HIT->{'_source'}->{'body'};
-		#			my $title = 'Title Not Available';
-		#			if ($body =~ /<h1>(.*?)<\/h1>/) { $title = $1; }
-		#			push @RESULTS, { 'docid'=>$HIT->{'_id'}, 'score'=>$HIT->{'_score'}*100, 'title'=>$title, 'summary'=>'.. (coming soon) ..' };
-		#			}
-		#		$R{'@RESULTS'} = \@RESULTS;
-		#		&JSONAPI::append_msg_to_response(\%R,'success',0);				
-		#		}
-	#	}
-	#elsif ($v->{'_cmd'} eq 'helpWikiGet') {
-		#my $body = '';
-		#my $file = $v->{'docid'}; 
-		#$file =~ s/[^a-z0-9\_\-]+/X/gs;	
-	
-		#$file = "/httpd/static/webdoc/$file.html";
-		#if (-f "/httpd/static/webdoc/$file._html") {
-		#	## load the compiled version (if available)
-		#	$file = "/httpd/static/webdoc/$file._html";
-		#	}
-	
-		#if (not &JSONAPI::validate_required_parameter(\%R,$v,'docid')) {
-		#	}
-		#elsif (! -f $file) {
-		#	&JSONAPI::set_error(\%R,'iseerr',404,'Document not available or does not exist.');
-		#	}
-		#else {
-		#	open F, "<$file";
-		#	$/ = undef; while (<F>) { $body .= $_; }  $/ = "\n";
-		#	close F;
-		#	$R{'body'} = $body;
-		#	}
-
-	#	}
-
 	my %params = ();
 	foreach my $k (keys %{$v}) {
 		next if (substr($k,0,1) eq '_');
@@ -3755,58 +3706,6 @@ sub authNewAccountCreate {
 	if (&JSONAPI::hadError(\%R)) {
 		&JSONAPI::set_error(\%R,"apperr",6000,"Sorry, online signup not currently available.");
 		}
-
-	
-	#if (not &JSONAPI::hadError(\%R)) {
-	#	## insert the lead [verify db handle is good]
-	#	if (not defined $opid) { $opid = 'NONE'; }
-	#	if (not defined $src) { $src = 'APP'; }
-	#	if (not defined $v->{'firstname'}) { $v->{'firstname'} = ''; }
-	#	if (not defined $v->{'lastname'}) { $v->{'lastname'} = ''; }
-	#	if (not defined $meta) { $meta = ''; }
-	#	if (not defined $v->{'phone'}) { $v->{'phone'} = ''; }
-	#	if (not defined $v->{'email'}) { $v->{'email'} = ''; }
-	#
-	#	my $LEADID = 0;
-	#	if (1) {	
-	#		require ZSETUP;
-	#		my ($result) = &ZSETUP::createuser('LEADID'=>$LEADID,'PACKAGE'=>'ANYONE','DURATION'=>-1);
-	#		if (not defined $result) {
-	#			&JSONAPI::set_error(\%R,"iseerr",6000,"SIGNUP-SANITY: No response from ZSETUP");
-	#			}
-	#		elsif (not defined $result->{'USERNAME'}) {
-	#			&JSONAPI::set_error(\%R,"iseerr",6000,"SIGNUP-SANITY: No USERNAME returned in result");
-	#			}
-	#		else {
-	#			my $USERNAME = $self->{'USERNAME'} = $result->{'USERNAME'};
-	#			my $LUSER = $self->{'LUSER'} = 'admin';
-	#			
-#
-#				# my ($CLIENTINFO) = OAUTH::lookup_client($ENV{'HTTP_X_CLIENTID'});
-#				my ($CLIENTINFO) = $self->clientinfo();
-#				$R{'userid'} = sprintf("%s\@%s",$LUSER,$USERNAME);
-#				$R{'deviceid'} = &OAUTH::device_initialize($USERNAME,$LUSER,$IP,'Primary Device');
-#				$R{'authtoken'} = &OAUTH::create_authtoken($USERNAME,$LUSER,$CLIENTINFO,$R{'deviceid'});
-#				$R{'clientid'} = $CLIENTINFO->{'clientid'};
-#				$R{'username'} = $USERNAME;
-#				&JSONAPI::append_msg_to_response(\%R,'success',0);		
-#				}
-#
-#			if (not &JSONAPI::hadError(\%R)) {
-#				my $USERNAME = $result->{'USERNAME'};
-#				my $PRT = 0;
-#
-#				## register an ACCOUNT.CREATE event (whatever that does)			
-#				&ZOOVY::add_event($USERNAME,"ACCOUNT.CREATE");
-#
-#				my %options = ();
-#				require DOMAIN::POOL;
-#				my ($DOMAINNAME) = &DOMAIN::POOL::reserve($USERNAME,$PRT,%options);
-#				$R{'domain'} = $DOMAINNAME;
-#				}
-#			}
-#
-#		}
 
 	return(\%R);
 	}
@@ -4917,9 +4816,9 @@ sub adminOrderList {
 		if (not &hadError(\%R)) {
 			## try
 			my %params = %{$v->{'ELASTIC'}};
-			$params{'index'} = sprintf("%s.private",$self->username());
+			# $params{'index'} = sprintf("%s.private",$self->username());
 
-			eval { %R = %{$es->search(%params)} };
+			eval { %R = %{$es->search('index'=>sprintf("%s.private",$self->username()), 'body'=>$v->{'ELASTIC'})} };
 			# open F, ">/tmp/foo";	print F Dumper(\%params,\%R);	close F;
 
 			if (scalar(keys %R)==0) {
@@ -8970,6 +8869,107 @@ sub adminTicket {
 	
    return($R);
 	}
+
+
+
+
+=pod
+
+<API id="adminBlastMsgList">
+<output id="@MSGS"></output>
+</API>
+
+<API id="adminBlastMsgDetail">
+<input id="MSGID"></input>
+<output id="%MSG"></output>
+</API>
+
+<API id="adminBlastMsgCreate">
+<input id="MSGID"></input>
+</API>
+
+<API id="adminBlastMsgUpdate">
+<input id="MSGID"></input>
+</API>
+
+<API id="adminBlastMsgRemove">
+<input id="MSGID"></input>
+</API>
+
+<API id="adminBlastMsgSend">
+<input id="FORMAT">HTML5|LEGACY</input>
+<input id="MSGID">ORDER.CREATED</input>
+<input id="RECIPIENT">EMAIL|CUSTOMER|GCN|APNS|ADN</input>
+<input id="EMAIL" optional="1" hint="only if RECIPIENT=EMAIL">user@domain.com</input>
+<input id="
+</API>
+
+
+=cut
+
+sub adminBlastMsg {
+	my ($self, $v) = @_;
+
+	my %R = ();
+
+	my ($MID) = &ZOOVY::resolve_mid($self->username());
+	my $PRT = int($self->prt());
+	my ($udbh) = &DBINFO::db_user_connect($self->username());
+	if ($v->{'_cmd'} eq 'adminBlastMsgList') {
+		my @MSGS = ();
+		my $pstmt = "select MSGID,FORMAT,OBJECT,CREATED_TS,MODIFIED_TS,LUSER from SITE_EMAILS where MID=$MID and PRT=$PRT";
+		my $sth = $udbh->prepare($pstmt);
+		$sth->execute();
+		while ( my $row = $sth->fetchrow_hashref() ) {
+			push @MSGS, $row;
+			}
+		$sth->finish();
+		$R{'@MSGS'} = \@MSGS;
+		}
+	elsif (not &JSONAPI::validate_required_parameter(\%R,$v,'MSGID')) {
+		
+		
+		}
+	elsif ($v->{'_cmd'} eq 'adminBlastMsgDetail') {
+		my $pstmt = "select * from SITE_EMAILS where MID=$MID and PRT=$PRT and MSGID=".$udbh->quote($v->{'MSGID'});
+		$R{'%MSG'} = $udbh->selectrow_hashref($pstmt);
+		$R{'%META'} = JSON::XS->new()->decode($R{'%MSG'}->{'METAJSON'});
+		delete $R{'%MSG'}->{'METAJSON'};
+		}
+	elsif (($v->{'_cmd'} eq 'adminBlastMsgCreate') || ($v->{'_cmd'} eq 'adminBlastMsgUpdate')) {
+		my %params = ();
+		$params{'USERNAME'} = $self->username();
+		$params{'MID'} = $self->mid();
+		$params{'PRT'} = $self->prt();
+		$params{'MSGID'} = uc($v->{'MSGID'});
+		$params{'OBJECT'} = $v->{'OBJECT'};
+		$params{'SUBJECT'} = $v->{'UBJECT'};
+		$params{'BODY'} =  $v->{'BODY'};
+		$params{'METAJSON'} = JSON::XS->new()->encode($v->{'%META'} || {});
+		$params{'CREATED_GMT'} = time();
+		$params{'LUSER'} = $self->luser();
+		$params{'LANG'} = 'EN';
+		my $VERB = ($v->{'_cmd'} eq 'adminBlastMsgCreate')?'insert':'update';
+		my $pstmt =	&DBINFO::insert($udbh,'SITE_EMAILS',\%params,debug=>2,key=>['MID','PRT','MSGID','LANG'],sql=>1,verb=>$VERB);
+		$udbh->do($pstmt);
+		}
+	elsif ($v->{'_cmd'} eq 'adminBlastMsgRemove') {
+		my $pstmt = "delete from SITE_EMAILS where MID=$MID and PRT=$PRT and MSGID=".$udbh->quote($v->{'MSGID'});
+		$udbh->do($pstmt);
+		}
+	elsif ($v->{'_cmd'} eq 'adminBlastMsgSend') {
+		my ($blast) = BLAST->new( $self->username(), $self->prt() );
+		## my ($rcpt) = $blast->recipient('CUSTOMER',$CID,{'%GIFTCARD'=>$GCOBJ});
+		my ($rcpt) = $blast->recipient('EMAIL',$v->{'EMAIL'},{});
+		my ($msg) = $blast->msg($v->{'FORMAT'},$v->{'MSGID'});
+		$blast->send( $rcpt, $msg );
+		}
+	&DBINFO::db_user_close();
+
+	return(\%R);
+	}
+
+
 
 
 =pod
@@ -18409,7 +18409,7 @@ sub appPublicSearch {
 		if (defined $v->{'type'}) { $params{'type'} = $v->{'type'}; }
 		# $params{'type'} = ['product','sku'];
 
-		$params{'index'} = sprintf("%s.public",lc($self->username()));
+		## $params{'index'} = sprintf("%s.public",lc($self->username()));
 		if (defined $v->{'query'}) { $params{'query'} = $v->{'query'};	}
 		if (defined $v->{'filter'}) {	$params{'filter'} = $v->{'filter'};	}
 
@@ -18466,7 +18466,11 @@ sub appPublicSearch {
 
 		if (not &hadError(\%R)) {
 			## try
-			eval { %R = %{$es->search(%params)} };
+			eval { 
+				%R = %{
+					$es->search('index'=>sprintf("%s.public",lc($self->username())), 'body'=>\%params)
+					} 
+				};
 			# open F, ">/tmp/foo";	print F Dumper(\%params,\%R);	close F;
 
 		   if ($@) {
@@ -22168,7 +22172,7 @@ sub adminPrivateSearch {
 		if (defined $v->{'type'}) { $params{'type'} = $v->{'type'}; }
 		# $params{'type'} = ['product','sku'];
 
-		$params{'index'} = sprintf("%s.private",lc($self->username()));
+		## $params{'index'} = sprintf("%s.private",lc($self->username()));
 		if (defined $v->{'query'}) { $params{'query'} = $v->{'query'};	}
 		if (defined $v->{'filter'}) {	$params{'filter'} = $v->{'filter'};	}
 
@@ -22197,7 +22201,7 @@ sub adminPrivateSearch {
 		if (not &hadError(\%R)) {
 
 			## try
-			eval { %R = %{$es->search(%params)} };
+			eval { %R = %{$es->search('index'=>sprintf("%s.private",lc($self->username())), 'body'=>\%params)} };
 			# open F, ">/tmp/foo";	print F Dumper(\%params,\%R);	close F;
 
 		   if (not $@) {
@@ -23407,7 +23411,7 @@ sub adminDebugSearch {
 			}
 
 		if (defined $Q) {
-			$Q->{'index'} = lc("$USERNAME.public");
+			## $Q->{'index'} = lc("$USERNAME.public");
 			foreach my $k (keys %{$Q}) {
 				if (substr($k,0,1) eq '_') { 
 					&JSONAPI::set_error(\%R,'warn',2392,"removed key '$k' because it started with an underscore and is not valid (just being helpful)");
@@ -23426,7 +23430,7 @@ sub adminDebugSearch {
 
 		my $results = undef;	
 		if ((defined $Q) && (defined $es)) {
-		   eval { $results = $es->search(%{$Q}); };
+		   eval { $results = $es->search('index'=>lc("$USERNAME.public"), 'body'=>$Q); };
 			if ($@) {
 				&JSONAPI::set_error(\%R,'apperr',2394,"Elastic Search Error:$@");
 				}

@@ -14,18 +14,18 @@ require CART2;
 
 
 
-sub private_search {
-
-	my $USERNAME = 'kcint';
-	my ($es) = &ZOOVY::getElasticSearch($USERNAME);
-	my %params = ();
-	$params{'index'} = sprintf("%s.private",lc($USERNAME));
-	# $params{'query'} = { "query_string"=>{ "query"=>"350595101128" } };
-	$params{'query'} = { "query_string"=>{ "query"=>"2012-10-115155" } };
-	
-	print Dumper($es->search(%params));
-
-	}
+#sub private_search {
+#
+#	my $USERNAME = 'kcint';
+#	my ($es) = &ZOOVY::getElasticSearch($USERNAME);
+#	my %params = ();
+#	$params{'index'} = sprintf("%s.private",lc($USERNAME));
+#	# $params{'query'} = { "query_string"=>{ "query"=>"350595101128" } };
+#	$params{'query'} = { "query_string"=>{ "query"=>"2012-10-115155" } };
+#	
+#	print Dumper($es->search(%params));
+#
+#	}
 
 
 #sub reindex_orders {
