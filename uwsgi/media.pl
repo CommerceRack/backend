@@ -51,7 +51,7 @@ my $app = sub {
 		$path =~ s/^\/media\//\//o;
 		$IS_MEDIA_REQUEST++;
 		}
-	elsif ($req->uri()->server_name() =~ /^static---/) {
+	elsif ($req->uri()->host() =~ /^static---/) {
 		## this handles a few backwards compat situations.
 		$IS_MEDIA_REQUEST++;
 		}
