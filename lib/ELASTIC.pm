@@ -602,10 +602,10 @@ sub rebuild_product_index {
 	else {
 		my ($es) = &ZOOVY::getElasticSearch($USERNAME);
 		if ($es->indices->exists("index"=>lc("$USERNAME.public"))) {
-			$es->incides->delete("index"=>lc("$USERNAME.public"));
+			$es->indices->delete("index"=>lc("$USERNAME.public"));
 			}
 
-		my ($result) = $es->incides->create(\%public);
+		my ($result) = $es->indices->create(\%public);
 		open F, ">".&ZOOVY::resolve_userpath($USERNAME)."/public-index.dmp";
 		print F Dumper(\%public);
 		close F;
