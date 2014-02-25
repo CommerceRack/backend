@@ -58,6 +58,12 @@ sub add_products {
 
 	my ($es) = $options{'*es'};
 	if (not defined $es) { $es = &ZOOVY::getElasticSearch($USERNAME); }
+
+    my $bulk = Elasticsearch::Bulk->new(
+		'es'=> $es,
+      'index'=>lc("$USERNAME.public"),
+		# 'type'    => 'product'
+	    );
 	
 	my ($FIELDSREF,$IMAGE_FIELDSREF) = &PRODUCT::FLEXEDIT::elastic_fields($USERNAME,'gref'=>$options{'gref'});
 
@@ -65,6 +71,7 @@ sub add_products {
 		next if (not defined $P);
 		my $ES_PAYLOADS = $P->elastic_index( $FIELDSREF, $IMAGE_FIELDSREF );
 
+#		$bulk->index( 
 
 		if (defined $es) {
 			## ES requires we specify a command ex: 'index'
@@ -214,58 +221,60 @@ sub rebuild_private_index {
 
 		$es->incides->create(
 			index => "$USERNAME.private",
-			mappings => { 
-				'order' => {
-					'date_detection' => 'false',
-					'dynamic'=>'strict',
-					'properties'=>\%order_properties,
+			'body'=>{
+				'mappings' => { 
+					'order' => {
+						'date_detection' => 'false',
+						'dynamic'=>'strict',
+						'properties'=>\%order_properties,
+						},
+					'order/address'=>{
+						'date_detection' => 'false',
+						'dynamic'=>'strict',
+						'_parent'=>{ 'type'=>'order', },
+						'properties'=>\%address_properties,
+						},
+					'order/shipment'=>{
+						'date_detection' => 'false',
+						'dynamic'=>'strict',
+						'_parent'=>{ 'type'=>'order', },
+						'properties'=>\%shipment_properties,
+						},
+					'order/payment'=>{
+						'date_detection' => 'false',
+						'dynamic'=>'false',
+						'_parent'=>{ 'type'=>'order', },
+						'properties'=>\%payment_properties,
+						},
+					'order/item'=>{
+						'date_detection' => 'false',
+						'dynamic'=>'strict',
+						'_parent'=>{ 'type'=>'order' },
+						'properties'=>\%item_properties,
+						},	
 					},
-				'order/address'=>{
-					'date_detection' => 'false',
-					'dynamic'=>'strict',
-					'_parent'=>{ 'type'=>'order', },
-					'properties'=>\%address_properties,
-					},
-				'order/shipment'=>{
-					'date_detection' => 'false',
-					'dynamic'=>'strict',
-					'_parent'=>{ 'type'=>'order', },
-					'properties'=>\%shipment_properties,
-					},
-				'order/payment'=>{
-					'date_detection' => 'false',
-					'dynamic'=>'false',
-					'_parent'=>{ 'type'=>'order', },
-					'properties'=>\%payment_properties,
-					},
-				'order/item'=>{
-					'date_detection' => 'false',
-					'dynamic'=>'strict',
-					'_parent'=>{ 'type'=>'order' },
-					'properties'=>\%item_properties,
-					},
-				},
-			settings=>{
-				analysis => {
-					analyzer => {
-						#ascii_html => {
-						#	type => 'custom',
-						#	tokenizer => 'standard',
-						#	filter => [ qw( standard lowercase asciifolding stop ) ],
-						#	char_filter => ['html_strip'],
-						#	},
-						default => {
- 							tokenizer	=> 'standard',
-							char_filter => ['html_strip'],
-							filter		=> [qw(standard lowercase stop asciifolding)],
-							},
-						'lcKeyword' => {
-							'tokenizer' => 'keyword',
-							'filter' => [ 'asciifolding', 'lowercase' ],
-							},
-						'urlemail' => {
-							'tokenizer' => 'uax_url_email',
-							},
+				'settings'=>{
+					analysis => {
+						analyzer => {
+							#ascii_html => {
+							#	type => 'custom',
+							#	tokenizer => 'standard',
+							#	filter => [ qw( standard lowercase asciifolding stop ) ],
+							#	char_filter => ['html_strip'],
+							#	},
+							default => {
+ 								tokenizer	=> 'standard',
+								char_filter => ['html_strip'],
+								filter		=> [qw(standard lowercase stop asciifolding)],
+								},
+							'lcKeyword' => {
+								'tokenizer' => 'keyword',
+								'filter' => [ 'asciifolding', 'lowercase' ],
+								},
+							'urlemail' => {
+								'tokenizer' => 'uax_url_email',
+								},
+							}
 						}
 					}
 				}
@@ -605,7 +614,7 @@ sub rebuild_product_index {
 			$es->indices->delete("index"=>lc("$USERNAME.public"));
 			}
 
-		my ($result) = $es->indices->create(\%public);
+		my ($result) = $es->indices->create('index'=>lc("$USERNAME.public"),'body'=>\%public);
 		open F, ">".&ZOOVY::resolve_userpath($USERNAME)."/public-index.dmp";
 		print F Dumper(\%public);
 		close F;
