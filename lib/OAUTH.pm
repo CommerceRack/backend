@@ -10,7 +10,7 @@ $YAML::Syck::ImplicitBinary++;
 $YAML::Syck::ImplicitUnicode++;
 $YAML::Syck::SingleQuote++;		# do not fucking enable this. it has issues with cr/lf 183535
 
-use lib "/backend/lib";
+use lib "/httpd/modules";
 require DBINFO;
 require ZTOOLKIT;
 require DOMAIN::TOOLS;
@@ -54,7 +54,10 @@ sub lookup_client {
 	'INVENTORY',
 	'PRODUCT',
 	'IMAGE',
+
 	'SYNDICATION',
+	'PROJECT',
+
 	'DASHBOARD',
 	'DOMAIN',
 	'EBAY',
@@ -79,6 +82,7 @@ sub lookup_client {
 	'U' => 'Update',
 	'L' => 'List',
 	'S' => 'Search',
+	'D' => 'Delete',
 	);
 
 sub list_roles {
@@ -95,30 +99,34 @@ sub list_roles {
 	push @ROLES, {
 		'id'=>'BOSS', 'title'=>'Owner/Operator', 'detail'=>'Reserved for admin user (can perform ownership transfer)',
 		'%objects'=>{
-			'ORG'=>{ 'C'=>'+', 'U'=>'+', 'R'=>'+', 'L'=>'+', 'S'=>'+' },
-			'DASHBOARD'=>{ 'C'=>'+', 'U'=>'+', 'R'=>'+', 'L'=>'+', 'S'=>'+' },
-			'REPORTS'=>{ 'C'=>'+', 'U'=>'+', 'R'=>'+', 'L'=>'+', 'S'=>'+' },
+			'DOMAIN'=>{ 'L'=>'+' },
+			'ORG'=>{ 'C'=>'+', 'U'=>'+', 'R'=>'+', 'L'=>'+', 'S'=>'+', 'D'=>'+' },
+			'DASHBOARD'=>{ 'C'=>'+', 'U'=>'+', 'R'=>'+', 'L'=>'+', 'S'=>'+', 'D'=>'+' },
+			'REPORTS'=>{ 'C'=>'+', 'U'=>'+', 'R'=>'+', 'L'=>'+', 'S'=>'+', 'D'=>'+' },
 			},
 		};
 	push @ROLES, { 
 		'id'=>'SUPER', 'title'=>'Supervisor', 'detail'=>'Access to all areas (except ownership transfer)',
 		'%objects'=>{
-			'ORDER'=>{ 'C'=>'+', 'U'=>'+', 'R'=>'+', 'L'=>'+', 'S'=>'+' },
-			'INVENTORY'=>{ 'C'=>'+', 'U'=>'+', 'R'=>'+', 'L'=>'+', 'S'=>'+' },
-			'PRODUCT'=>{ 'C'=>'+', 'U'=>'+', 'R'=>'+', 'L'=>'+', 'S'=>'+' },
-			'DASHBOARD'=>{ 'C'=>'+', 'U'=>'+', 'R'=>'+', 'L'=>'+', 'S'=>'+' },
-			'REPORTS'=>{ 'C'=>'+', 'U'=>'+', 'R'=>'+', 'L'=>'+', 'S'=>'+' },
+			'DOMAIN'=>{ 'L'=>'+' },
+			'ORDER'=>{ 'C'=>'+', 'U'=>'+', 'R'=>'+', 'L'=>'+', 'S'=>'+', 'D'=>'+' },
+			'INVENTORY'=>{ 'C'=>'+', 'U'=>'+', 'R'=>'+', 'L'=>'+', 'S'=>'+', 'D'=>'+' },
+			'PRODUCT'=>{ 'C'=>'+', 'U'=>'+', 'R'=>'+', 'L'=>'+', 'S'=>'+', 'D'=>'+' },
+			'DASHBOARD'=>{ 'C'=>'+', 'U'=>'+', 'R'=>'+', 'L'=>'+', 'S'=>'+', 'D'=>'+' },
+			'REPORTS'=>{ 'C'=>'+', 'U'=>'+', 'R'=>'+', 'L'=>'+', 'S'=>'+', 'D'=>'+' },
 			},
 		};
 	push @ROLES, { 
 		'id'=>'WS1', 'title'=>'Warehouse Shipper', 'detail'=>'Picks, Ships, adds Tracking',
 		'%objects'=>{
+			'DOMAIN'=>{ 'L'=>'+' },
 			'ORDER'=>{ 'U'=>'+', 'R'=>'+', 'L'=>'+', 'S'=>'+' },
 			},
 		};
 	push @ROLES, { 
 		'id'=>'WI1', 'title'=>'Warehouse Inventory', 'detail'=>'Inventory Updates',
 		'%objects'=>{
+			'DOMAIN'=>{ 'L'=>'+' },
 			'INVENTORY'=>{'R'=>'+','U'=>'+','C'=>'+','L'=>'+','S'=>'+'},
 			'PRODUCT'=>{'R'=>'+','L'=>'+'},
 			},
@@ -126,6 +134,7 @@ sub list_roles {
 	push @ROLES, { 
 		'id'=>'WR1', 'title'=>'Warehouse Returns', 'detail'=>'Processes RMA/Tickets',
 		'%objects'=>{
+			'DOMAIN'=>{ 'L'=>'+' },
 			'ORDER'=>{'R'=>'+','C'=>'+','L'=>'+'},
 			'INVENTORY'=>{'R'=>'+','C'=>'+','L'=>'+','S'=>'+'},
 			'PRODUCT'=>{'R'=>'+','L'=>'+'},
@@ -136,6 +145,7 @@ sub list_roles {
 		'title'=>'Customer Service: Trusted', 
 		'detail'=>'Looks up orders, tickets, customers, processes payment, issues credits, changes order contents and pricing.',
 		'%objects'=>{
+			'DOMAIN'=>{ 'L'=>'+' },
 			'ORDER'=>{'R'=>'+','C'=>'+','L'=>'+','S'=>'+'},
 			'INVENTORY'=>{'R'=>'+','C'=>'+','L'=>'+','S'=>'+'},
 			'PRODUCT'=>{'R'=>'+','L'=>'+','S'=>'+'},
@@ -146,6 +156,7 @@ sub list_roles {
 		'title'=>'Customer Service: Call Center', 
 		'detail'=>'Looks up orders, tickets, customers, no payment processing/credits, notes and flagging only.',
 		'%objects'=>{
+			'DOMAIN'=>{ 'L'=>'+' },
 			'ORDER'=>{'R'=>'+','C'=>'+','L'=>'+'},
 			'INVENTORY'=>{'R'=>'+','C'=>'+','L'=>'+','S'=>'+'},
 			'PRODUCT'=>{'R'=>'+','L'=>'+'},
@@ -156,6 +167,7 @@ sub list_roles {
 		'title'=>'Retail Lead', 
 		'detail'=>'Operate point of sale, supervisor overrides on price',
 		'%objects'=>{
+			'DOMAIN'=>{ 'L'=>'+' },
 			'ORDER'=>{'R'=>'+','C'=>'+','L'=>'+'},
 			'INVENTORY'=>{'R'=>'+','C'=>'+','L'=>'+','S'=>'+'},
 			'PRODUCT'=>{'R'=>'+','L'=>'+'},
@@ -164,6 +176,7 @@ sub list_roles {
 	push @ROLES, { 
 		'id'=>'RO1', 'title'=>'Retail Operator', 'detail'=>'Operate point of sale',
 		'%objects'=>{
+			'DOMAIN'=>{ 'L'=>'+' },
 			'ORDER'=>{'R'=>'+','C'=>'+','L'=>'+'},
 			'INVENTORY'=>{'R'=>'+','L'=>'+','S'=>'+'},
 			'PRODUCT'=>{'R'=>'+','L'=>'+'},
@@ -173,6 +186,7 @@ sub list_roles {
 		'id'=>'TS1', 'title'=>'Vendor/Contractor (Read Only)',
 		'detail'=>'Gives readonly order, inventory, and product access',
 		'%objects'=>{
+			'DOMAIN'=>{ 'L'=>'+' },
 			'ORDER'=>{'R'=>'+','L'=>'+'},
 			'INVENTORY'=>{'R'=>'+','S'=>'+'},
 			'PRODUCT'=>{'R'=>'+'},
@@ -181,6 +195,7 @@ sub list_roles {
 	push @ROLES, { 
 		'id'=>'AD1', 'title'=>'App/Web Developer', 'detail'=>'Access to hosting, dns, etc. but no product or orders',
 		'%objects'=>{
+			'DOMAIN'=>{ 'L'=>'+' },
 			'ORDER'=>{'R'=>'+','L'=>'+'},
 			'INVENTORY'=>{'R'=>'+','S'=>'+'},
 			'PRODUCT'=>{'R'=>'+'},
@@ -189,6 +204,7 @@ sub list_roles {
 	push @ROLES, { 
 		'id'=>'XXX', 'title'=>'Catalog Manager', 'detail'=>'Access to create, update products, categories.',
 		'%objects'=>{
+			'DOMAIN'=>{ 'L'=>'+' },
 			'ORDER'=>{'R'=>'+','C'=>'+','L'=>'+'},
 			'INVENTORY'=>{'R'=>'+','C'=>'+','L'=>'+','S'=>'+'},
 			'PRODUCT'=>{'R'=>'+','L'=>'+'},
@@ -197,6 +213,7 @@ sub list_roles {
 	push @ROLES, { 
 		'id'=>'XYZ', 'title'=>'Marketplace Manager', 'detail'=>'Access to manage syndication, marketplace settings.',
 		'%objects'=>{
+			'DOMAIN'=>{ 'L'=>'+' },
 			'ORDER'=>{'R'=>'+','C'=>'+','L'=>'+'},
 			'INVENTORY'=>{'R'=>'+','C'=>'+','L'=>'+','S'=>'+'},
 			'PRODUCT'=>{'R'=>'+','L'=>'+'},
@@ -219,18 +236,19 @@ sub list_roles {
 sub serialize_acl { my ($ACL) = @_; return(YAML::Syck::Dump($ACL)); }
 sub deserialize_acl { my ($YAML_ACL) = @_; return(YAML::Syck::Load($YAML_ACL)); }
 
-
+##
+##
+##
 sub build_myacl {
 	my ($USERNAME,$MYROLES) = @_;
 
 	my %MYACL = ();
-
 	my $ALLROLES = &OAUTH::list_roles($USERNAME);	
 	foreach my $role ( @{$MYROLES} ) {
 		$MYACL{'_ROLES'}->{$role}++;
 		if ($role eq 'BOSS') {
 			foreach my $object (@OAUTH::OBJECTS) {
-				$MYACL{ $object } = { 'R'=>'+', 'C'=>'+', 'U'=>'+', 'L'=>'+', 'S'=>'+' };
+				$MYACL{ $object } = { 'R'=>'+', 'C'=>'+', 'U'=>'+', 'L'=>'+', 'S'=>'+',, 'D'=>'+' };
 				}
 			}
 		#elsif (not defined $MYACL{$role}) {

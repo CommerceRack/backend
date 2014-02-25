@@ -3283,8 +3283,14 @@ sub handle {
 				else {
 					my $okay = 1;
 					##  my ($ACL) = &OAUTH::build_myacl($USERNAME,\@MYROLES);
+				
 					my %R = ();
 					my $LU = $self->LU();
+	
+					open F, ">/tmp/foo";
+					print F Dumper($LU)."\n";
+					close F;
+	
 					foreach my $perm_key (keys %{$permis}) {
 						next if (defined $cmdr);
 						my $perm_val = $permis->{$perm_key};
@@ -19856,7 +19862,6 @@ sub buyerWalletAdd {
 	else {
 		my %params = ();
 		$params{'CC'} = $v->{'CC'};
-		$params{'CC'} =~ s/[^\d]//gs;
 		$params{'YY'} = $v->{'YY'};
 		$params{'MM'} = $v->{'MM'};
 		$params{'IP'} = $ENV{'REMOTE_ADDR'};
@@ -20669,11 +20674,8 @@ sub buyerOrder {
 			foreach my $k (keys %{$v}) {
 				if ($k =~ /^payment\.(.*?)$/) { $paymentvars{uc($1)} = $v->{$k}; }
 				}
-
-
 			## TODO: check payment variables
 			if ($v->{'TN'} eq 'CREDIT') {
-				if ($paymentvars{'CC'}) { $paymentvars{'CC'} =~ s/[^\d]+//gs; } # remove non numeric characters from the credit card
 				my ($cc_verify_errors) = &ZPAY::verify_credit_card($paymentvars{'CC'},$paymentvars{'MM'},$paymentvars{'YY'});
 				if ($cc_verify_errors ne '') { 
 					&JSONAPI::append_msg_to_response(\%R,"youerr",34001,sprintf("TENDER:CREDIT error: %s %s",$cc_verify_errors));

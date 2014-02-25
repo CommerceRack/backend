@@ -6,6 +6,11 @@ use CFG;
 use DBINFO;
 use Digest::MD5;
 
+#
+# version=init create 'PATCH_HISTORY' table
+# 
+#
+#
 
 my %params = ();
 foreach my $arg (@ARGV) {

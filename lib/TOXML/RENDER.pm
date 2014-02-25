@@ -5036,7 +5036,11 @@ sub loadURP {		## sub loadurp is really loadURP (you're here)
 				return($PG->get($tag));
 				}
 			},			
-		'PROFILE'=>sub { return($SITE->nsref()->{$_[0]}); },
+		'PROFILE'=>sub { 
+			if (not defined $SITE) { return(''); }
+			if (not defined $SITE->nsref()) { return(''); }
+			return($SITE->nsref()->{$_[0]}); 
+			},
 		'INVENTORY'=>sub {
 			# elsif ($src =~ m/^INVENTORY(\[[A-Za-z0-9_\#\:]+\])?\:\:(INSTOCK|RESERVED|AVAILABLE)$/o) {
 			## INVENTORY::INSTOCK will load the current SKU in focus
