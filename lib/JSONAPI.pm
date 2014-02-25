@@ -7285,6 +7285,14 @@ sub adminProduct {
 				elsif (($VERB eq 'SET-SCHEDULE') || ($VERB eq 'SET-SCHEDULE-PROPERTIES')) {
 					## as of 201342 it's SET-SCHEDULE-PROPERTIES
 					my $SCHEDULEID = $params->{'schedule'};
+
+               if ($params->{'price'}) {
+                  ## JT: i think this is a bug, it should be SET-SCHEDULE-PRICE correct?
+                  my $PRICE = $params->{'price'};
+                  my $KEY = sprintf('zoovy:schedule_%s',lc($SCHEDULEID));
+                  $P->store($KEY,$PRICE);
+                  }
+
 					if ($SCHEDULEID eq '*') {
 						$P->store('zoovy:qty_price', $params->{'qtyprice'});
 						}
