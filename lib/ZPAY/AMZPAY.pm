@@ -2,7 +2,6 @@ package ZPAY::AMZPAY;
 
 use strict;
 use Data::Dumper qw();
-use Storable qw();
 use MIME::Base64 qw();
 use XML::Simple qw();
 use lib "/backend/lib";

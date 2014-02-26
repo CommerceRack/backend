@@ -10,7 +10,6 @@ use base "ZPAY::PAYPALEC";
 
 use strict;
 use Data::Dumper;
-use Storable;
 use lib "/backend/lib";
 require ZOOVY;
 require ZPAY::PAYPAL;

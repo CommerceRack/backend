@@ -1,6 +1,5 @@
 package ZSHIP::RULES;
 
-use Storable qw(freeze thaw store retrieve);
 use Data::GUID;
 use Data::Dumper;
 use strict;
