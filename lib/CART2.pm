@@ -13420,7 +13420,7 @@ sub elastic_index {
 			{
 			type              => "order",
 			id                => "$OID",
-			data=>\%properties,
+			'source'=>\%properties,	# was 'data' in elastic 0.xx
 			};
 		}
 	
@@ -13451,7 +13451,7 @@ sub elastic_index {
 				type              => "order/address",
 				id                => "$OID.$group",
 				parent => "$OID",
-				data=>\%properties,
+				'source'=>\%properties, # was 'data' in elastic 0.xx
 				};
 			}
 		}
@@ -13473,7 +13473,7 @@ sub elastic_index {
 				type              => "order/item",
 				id                => "$OID.$item->{'uuid'}",
 				parent => "$OID",
-				data=>\%properties,
+				'source'=>\%properties, # was 'data' in elastic 0.xx
 				};
 			}
 		}
@@ -13495,7 +13495,7 @@ sub elastic_index {
 				type              => "order/payment",
 				id                => "$OID.$payment->{'uuid'}",
 				parent => "$OID",
-				data=>\%store,
+				'source'=>\%store,	# was 'data' in elastic 0.xx
 				};
 			}
 		}
@@ -13517,11 +13517,13 @@ sub elastic_index {
 				type              => "order/shipment",
 				id                => "$OID.$i",
 				parent => "$OID",
-				data=>\%store,
+				'source'=>\%store, # was 'data' in elastic 0.xx
 				};
 			}
 		}
 
+
+	
 	print STDERR "ELASTIC START $USERNAME $OID\n";
 	my ($es) = $options{'*es'};
 	if (not defined $es) { $es = &ZOOVY::getElasticSearch($USERNAME); }
@@ -13532,17 +13534,19 @@ sub elastic_index {
 			);
 		}
 
-	if (defined $es) {
+	my $bulk = Elasticsearch::Bulk->new('es'=>$es,'index'=>lc("$USERNAME.private"));
+	if (defined $bulk) {
 		## ES requires we specify a command ex: 'index'
-		my @ES_BULK_ACTIONS = ();
+		# my @ES_BULK_ACTIONS = ();
 		foreach my $payload (@ES_PAYLOADS) {
-			push @ES_BULK_ACTIONS, { 'index'=>$payload };
+			$bulk->index($payload);	
+			# push @ES_BULK_ACTIONS, { 'index'=>$payload };
 			}
-		my $result = $es->bulk({
-			index	=> lc("$USERNAME.private"),		## we specify this at the top, so we don't need to in each payload
-			actions=>\@ES_BULK_ACTIONS,
-			replication=>'async',
-			});
+		#my $result = $es->bulk({
+		#	index	=> lc("$USERNAME.private"),		## we specify this at the top, so we don't need to in each payload
+		#	actions=>\@ES_BULK_ACTIONS,
+		#	replication=>'async',
+		#	});
 		# print STDERR Dumper(\@ES_BULK_ACTIONS,$result);
 		}
 

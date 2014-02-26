@@ -59,36 +59,33 @@ sub add_products {
 	my ($es) = $options{'*es'};
 	if (not defined $es) { $es = &ZOOVY::getElasticSearch($USERNAME); }
 
-    my $bulk = Elasticsearch::Bulk->new(
-		'es'=> $es,
-      'index'=>lc("$USERNAME.public"),
-		# 'type'    => 'product'
-	    );
-	
+	my ($bulk) = Elasticsearch::Bulk->new('es'=>$es,'index'=>lc("$USERNAME.public"));
 	my ($FIELDSREF,$IMAGE_FIELDSREF) = &PRODUCT::FLEXEDIT::elastic_fields($USERNAME,'gref'=>$options{'gref'});
 
 	foreach my $P (@{$PRODUCTSAR}) {
 		next if (not defined $P);
 		my $ES_PAYLOADS = $P->elastic_index( $FIELDSREF, $IMAGE_FIELDSREF );
 
-#		$bulk->index( 
-
-		if (defined $es) {
+		if (defined $bulk) {
 			## ES requires we specify a command ex: 'index'
 			my @ES_BULK_ACTIONS = ();
 			foreach my $payload (@{$ES_PAYLOADS}) {
-				push @ES_BULK_ACTIONS, { 'index'=>$payload };
+				# push @ES_BULK_ACTIONS, { 'index'=>$payload };
+				if (defined $payload->{'data'}) { warn "payload contains legacy ->data attribute\n"; }
+				$bulk->index($payload)
 				}
 
-			my $result = $es->bulk({
-				index	=> lc("$USERNAME.public"),		## we specify this at the top, so we don't need to in each payload
-				actions=>\@ES_BULK_ACTIONS,
-				replication=>'async',
-				});
-			# print STDERR Dumper(\@ES_BULK_ACTIONS,$result);
+
+			#my $result = $es->bulk({
+			#	index	=> lc("$USERNAME.public"),		## we specify this at the top, so we don't need to in each payload
+			#	actions=>\@ES_BULK_ACTIONS,
+			#	replication=>'async',
+			#	});
+			## print STDERR Dumper(\@ES_BULK_ACTIONS,$result);
 			}
 
 		}
+	$bulk->flush();
 	}
 
 
@@ -105,7 +102,7 @@ sub rebuild_private_index {
 
 	if ($options{'NUKE'}) {
 		if ($es->indices->exists("index"=>lc("$USERNAME.private"))) {
-			$es->incides->delete("index"=>lc("$USERNAME.private"));
+			$es->indices->delete("index"=>lc("$USERNAME.private"));
 			}
 
 		my %order_properties = (

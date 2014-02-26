@@ -256,7 +256,7 @@ sub elastic_index {
 	push @ES_PAYLOADS, {
 		'type'=>'product',
 		'id'=>"$PID",
-		data=>\%prodstore
+		'source'=>\%prodstore	## was 'data' in elastic 0.xx
 		};
 
 	my @STORE_IMAGES;
@@ -404,7 +404,7 @@ sub elastic_index {
 		push @ES_PAYLOADS, {
 			'type'=>'sku',
 			'id'=>"$sku",
-			data=>$STORE_SKUS{$sku}
+			'source'=>$STORE_SKUS{$sku}	# was 'data'=> in elastic 0.xx
 			};
 		}
 
