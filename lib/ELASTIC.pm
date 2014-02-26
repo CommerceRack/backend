@@ -217,7 +217,7 @@ sub rebuild_private_index {
 				}
 			}
 
-		$es->incides->create(
+		$es->indices->create(
 			index => "$USERNAME.private",
 			'body'=>{
 				'mappings' => { 
