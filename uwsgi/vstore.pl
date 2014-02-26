@@ -732,9 +732,9 @@ Disallow: /
 		$DNSINFO = $SITE->dnsinfo();
 		my $SDOMAIN = $SITE->sdomain();
 
-		require UTILITY::SITEMAP;
+		require BATCHJOB::UTILITY::SITEMAP;
 		my ($USERNAME) = $SITE->username();
-		my $staticfile = &UTILITY::SITEMAP::sitemap_file($USERNAME, $DNSINFO->{'DOMAIN'}, $SENDER);
+		my $staticfile = &BATCHJOB::UTILITY::SITEMAP::sitemap_file($USERNAME, $DNSINFO->{'DOMAIN'}, $SENDER);
 
 		if (-f $staticfile) {
 			$SITE::HANDLER = [ 'FILE', { 'FILE'=>$staticfile, 'Content-Type'=>'text/html' } ];
