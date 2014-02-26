@@ -33,7 +33,7 @@ if ($params{'verb'} eq 'status') {
 	my $sth = $udbh->prepare($pstmt);
 	$sth->execute();
 	while ( my ($JOBID,$USERNAME) = $sth->fetchrow() ) {
-		print "/httpd/modules/batch.pl user=$USERNAME jobid=$JOBID verb=run\n";
+		print "/backend/utils/batch.pl user=$USERNAME jobid=$JOBID verb=run\n";
 		}
 	$sth->finish();
 	&DBINFO::db_user_close();
@@ -110,7 +110,7 @@ if ($params{'verb'} eq 'queue') {
 
 		if ($ref->{'STATUS'} eq 'NEW') {
 			## NEW jobs go into a queue
-			my $CMD = "/httpd/modules/batch.pl user=$USERNAME verb=run exec=$EXEC jobid=$ID ";
+			my $CMD = "/backend/utils/batch.pl user=$USERNAME verb=run exec=$EXEC jobid=$ID ";
 			if (-f '/usr/bin/nice') {
 				## making it nice!
 				$CMD = "/usr/bin/nice -n 10 $CMD";
@@ -132,7 +132,7 @@ $CMD 1>> $tmpdir/job-$ID.txt 2>&1
 if [ "\$?" -eq 0 ]; then
 	## 0 = crashed
 	/bin/mv $tmpdir/job-$ID.txt $tmpdir/job-$ID.crashed
-	/httpd/modules/batch.pl verb=crash user=$USERNAME jobid=$ID
+	/backend/utils/batch.pl verb=crash user=$USERNAME jobid=$ID
 else
 	## 1 = success
 	/bin/rm -f $tmpdir/job-$ID.txt
@@ -153,7 +153,7 @@ fi;
 
 
 if ($params{'verb'} eq 'run') {
-	## /httpd/modules/batch.pl user=fkaufmann verb=run exec= jobid=400000
+	## /backend/utils/batch.pl user=fkaufmann verb=run exec= jobid=400000
 	my ($ID) = $params{'jobid'};
 	if ($ID==0) { $ID = $params{'id'}; }	
 	my ($USERNAME) = $params{'user'};
