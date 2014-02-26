@@ -11,6 +11,7 @@ use strict;
 use Data::GUID qw();
 use POSIX qw();
 use YAML::Syck qw();
+use Elasticsearch::Bulk;
 $YAML::Syck::ImplicitBinary++;
 $YAML::Syck::ImplicitUnicode++;
 $YAML::Syck::SingleQuote++;		# do not fucking enable this. it has issues with cr/lf 183i535

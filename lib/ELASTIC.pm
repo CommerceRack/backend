@@ -3,6 +3,7 @@ package ELASTIC;
 use strict;
 
 use Data::Dumper;
+use Elasticsearch::Bulk;
 use lib "/backend/lib";
 require PRODUCT::FLEXEDIT;
 require PRODUCT;
