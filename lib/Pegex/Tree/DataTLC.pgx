@@ -1,0 +1,54 @@
+## A simple grammar for the data-tlc language.
+## For parser implementation that use this grammar, see ./parse.pl perl code.
+
+## If you want to read this syntax and understand what's going on below, read this tutorial first:
+## http://search.cpan.org/~ingy/Pegex-0.21/lib/Pegex/Tutorial/JSON.pod
+## https://github.com/ingydotnet/pegex-pm/blob/master/examples/calculator1.pl
+
+%grammar data-tlc
+%version 1.0
+
+## ** DATA-TLC**
+## data-tlc is either 'if-statement', 'bind-statement' or 'command', separated by semi-solons (;)
+## the last semi-colon is optional (in Pegex %% defines that optional alternation)
+data-tlc: (jscomment | if-statement | bind-statement | command)+ %% <lb>*
+
+
+## ** BIND-STATEMENT **
+## bind $var 'something';    (jsonpath lookup)
+## bind $var $someothervar;  (jsonpath lookup)
+## bind $var ~tag;           (returns tag id/path)
+## bind ~tag '#tagid';       jQuery('#tagid')
+## bind ~tag $tagid          jQuery($tagid)
+bind-statement: /~bind~/ (variable | tag) /~/ (variable | scalar | tag)
+
+
+## ** IF-STATEMENT **
+## if(cond) {{ command1 }} else {{ command2 }}
+if-statement: /~if~/ /<LPAREN>~/ command /~<RPAREN>~/ block (/~else~/ block)?
+block: /{{~/ (block | command)+ %% /~<SEMI>~/ /~}}/ 
+
+
+## ** COMMAND **
+## module_name#command_name --opts=...
+command: /~ (([A-Za-z0-9_]+)#)?([A-Za-z0-9_]+) ~/ value* % /~/
+
+
+## ** DATA TYPES **
+value: longopt | variable | integer | scalar | boolean | tag | hexcolor
+
+longopt: /--([a-zA-Z]+)=/ value | /--([a-zA-Z]+)/
+variable: /\$([A-Za-z_][A-Za-z0-9_]*)/
+integer: /~(<DASH>?<DIGIT>+)~/
+scalar: /'([^']*)'/         # not yet allows escaped single quotes inside
+boolean: /(true|false)/
+
+## ~tag is a reference to a jquery object 
+## tag table should maintain reference to tags on DOM
+tag: /\~([A-Za-z0-9\-_]+)/
+
+hexcolor: /#([A-Fa-f0-9]{6})/
+## ** END DATA TYPES **
+
+jscomment: /<SLASH><STAR>.*?<STAR><SLASH>/
+lb: /~<SEMI>~/|/~<EOL>~/
