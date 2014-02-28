@@ -278,33 +278,9 @@ navigateTo('/biz/vstore/builder/index.cgi?ACTION=CHOOSERSAVE&FL=$DOCID&_SREF=$SR
 		elsif ($STARS>10) {
 			$about .= "<table border=0 cellpadding=0 cellspacing=0 width=100%><tr><td>Not Rated (Custom)</td></tr></table>";
 			}
-
-		my @icons = ();
-		my $PROPERTIES = $inforef->{'PROPERTIES'};
-		if ($FORMAT eq 'EMAIL') {
-			}
-		elsif ($FORMAT eq 'LAYOUT') {
-			if ($PROPERTIES & 2) { push @icons, "dynamicimage.gif"; }
-			if ($PROPERTIES & 4) { push @icons, "thumbnails.gif"; }
-			}
-		elsif ($FORMAT eq 'WIZARD') {
-			if ($PROPERTIES & 2) { push @icons, "standard.gif"; }
-			if ($PROPERTIES & 4) { push @icons, "header.gif"; }
-			if ($PROPERTIES & 8) { push @icons, "detaildesc.gif"; }
-			if ($PROPERTIES & 16) { push @icons, "flash.gif"; }
-			}
-
-
-		my $properties = '<table border=0 cellspacing=1 cellpadding=0><tr>';
-		foreach my $icon (@icons) {
-			$properties .= "<td><img src=\"/images/toxmlicons/$icon\"></td>";
-			}
-		$properties .= "</tr></table>";
 		
-		if ((defined $inforef->{'IMAGES'}) && ($inforef->{'IMAGES'}>0)) { 
-			$properties .= "<table border=0 cellspacing=1 cellpadding=0><tr><td><img src=\"/images/toxmlicons/image.gif\"> x $inforef->{'IMAGES'}</td></tr></table>";
-			}
 		# use Data::Dumper; $properties .= Dumper(\@icons);
+		my $properties = '';
 		if ($is_selected) { $properties .= "<b>Currently Selected</b><br>$cb<br>"; }
 		else { $properties .= "<table border=0 cellspacing=0 cellpadding=0><tr><td>$cb</td><td>Favorite</td></tr></table>\n"; }
 
@@ -313,9 +289,11 @@ navigateTo('/biz/vstore/builder/index.cgi?ACTION=CHOOSERSAVE&FL=$DOCID&_SREF=$SR
 		if ($is_selected) { $class = 'rs'; }
 
 		my $buttons = qq~
-		<button class="button" onClick="
+<!--
+<button class="button" onClick="
 detailDialog =  jQuery('#$DIVID').dialog({ autoOpen: true, closeOnEscape: true,  modal: true, width:550 });
 ">Details</button>
+-->
 		<button class="button" onClick="
 	jQuery('#setupContent').empty(); 
 	return navigateTo('/biz/vstore/builder/index.cgi?ACTION=CHOOSERSAVE&FL=$DOCID&_SREF=$SREFstr');
@@ -361,21 +339,21 @@ detailDialog =  jQuery('#$DIVID').dialog({ autoOpen: true, closeOnEscape: true, 
 	push @icons, { txt=>'Wiki', link=>'', img=>'wiki.gif' };
 	push @icons, { txt=>'Web 2.0/AJAX', link=>'', img=>'web20.gif' };
 
-	my $legend = '';
-	foreach my $ref (@icons) {
-		$legend .= qq~<tr><td><img src="/images/toxmlicons/$ref->{'img'}" width=17 height=17></td><td>~;
-		if ($ref->{'link'}) { $legend .= qq~<a href="$ref->{'link'}">~; }
-		$legend .= $ref->{'txt'};
-		if ($ref->{'link'}) { $legend .= "</a>"; }
-		$legend .= "</td></tr>\n"; 
-		}
-
 	$GTOOLS::TAG{'<!-- OURTABLE -->'} = &TOXML::CHOOSER::buildTable(\@header,\@rows,rowid=>5,rowclass=>6,height=>400);
-	$GTOOLS::TAG{'<!-- ICONLEGEND -->'} = $legend;
 
 	$GTOOLS::TAG{'<!-- WARNING -->'} = join("<br>WARNING: ",@WARNINGS);
 
-	$/ = undef; my $data = <TOXML::CHOOSER::DATA>; $/ = "\n";
+	my $data = q~
+<!-- begin toxml chooser -->
+
+<div id="dialogs-hidden" style="display: none">
+<!-- DETAILS -->
+</div>
+
+<!-- OURTABLE -->
+							
+<!-- end TOXML chooser -->
+	~;
 
 	$data = &ZTOOLKIT::interpolate(\%GTOOLS::TAG,$data);
 
@@ -513,85 +491,7 @@ $body
 
 
 
-
-##
-## showDetail displays the detail about a specific docid.
-##
-#sub showDetails {
-#	my ($USERNAME,$t) = @_;
-#
-#	return($html);
-#	}
-
-
-
-
 1;
 
 __DATA__
 
-<!-- begin toxml chooser -->
-
-<script type="text/javascript">
-var detailDialog;	
-var fmt = '<!-- FORMAT -->';
-
-
-// when a favorite checkbox is clicked.
-function setCbState(cb) {
-
-	var docid = cb.name;
-	c = jQuery(adminApp.u.jqSelector('#',docid));
-	cb = jQuery(cb);
-	var api = { '_cmd':'adminTOXMLSetFavorite','format':fmt,'docid':docid };
-
-   if (cb.attr('checked')) {
-      c.addClass('rx');
-		api.favorite = true;
-		adminApp.model.addDispatchToQ(api,'passive'); adminApp.model.dispatchThis('passive');
-      // ajaxNotify('TOXML/Remember?format='+fmt+'&docid='+escape(cb.name),'');
-      }
-   else {
-		c.removeClass('rx');
-		api.favorite = false;
-		adminApp.model.addDispatchToQ(api,'passive'); adminApp.model.dispatchThis('passive');
-      // ajaxNotify('TOXML/Forget?format='+fmt+'&docid='+escape(cb.name),'');
-      }
-   }
-
-
-
-
-</script>
-
-<div id="dialogs-hidden" style="display: none">
-<!-- DETAILS -->
-
-</div>
-
-<table>
-<tr>
-	<td valign='top'>
-	<!-- OURTABLE -->
-	</td>
-	<td valign='top'>
-
-		<table cellspacing="0" cellpadding="2" width="150">
-			<tr class="table_colhead">
-				<td colspan="2"><span class="text_colhead">Legend</span></td>
-			</tr>
-			<!-- ICONLEGEND -->
-			<tr>
-				<td colspan="2"><span class="small">Note - image size are always displayed as width by
-				height</span></td>
-			</tr>
-			<tr>
-				<td colspan="2"><br><div class="warning"><!-- WARNING --></span></td>
-			</tr>
-		</table>
-			
-	</td>
-</tr>
-</table>
-							
-<!-- end TOXML chooser -->

@@ -45,6 +45,7 @@ sub lookup_client {
 @OAUTH::OBJECTS = (
 	'ORG',		# organization
 	'CONFIG',	# partition configuration 
+
 	'NAVCAT',
 	'ORDER',		# RCULS
 	'ORDER/PAYMENT',
@@ -53,8 +54,11 @@ sub lookup_client {
 	'INVENTORY',
 	'PRODUCT',
 	'IMAGE',
+
 	'SYNDICATION',
 	'PROJECT',
+	'BLAST', 'RSS', 'REPORT', 'WMS',
+
 	'DASHBOARD',
 	'DOMAIN',
 	'EBAY',
@@ -71,7 +75,6 @@ sub lookup_client {
 	'JOB',
 	'HELP',
 	'LEGACY',
-	'WMS',
 	);
 
 %OAUTH::ACL_PRETTY = (
