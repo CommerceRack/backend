@@ -665,7 +665,7 @@ foreach my $USERNAME (@USERS) {
 			}
 		elsif ($P->fetch('amz:ts')==0) {
 			## NOTE: CHILDREN **MIGHT** NEED TO IGNORE THE amz:ts setting, it's not important.
-			$plm->pooshmsg(sprintf("STOP|PID:%s|+NOT ALLOWED TO SEND DUE TO amz:ts=%d",$P->pid(),$P->fetch('amz:ts')));
+			$plm->pooshmsg(sprintf("ISE|PID:%s|+NOT ALLOWED TO SEND DUE TO amz:ts=%d",$P->pid(),$P->fetch('amz:ts')));
 			$PROCESS{$SKU}->{'*P'} = $P;
 			$PROCESS{$SKU}->{'ORIGIN'} = 'TS:0';
 			# $PROCESS{$SKU}->{'ERROR'} = sprintf("NOT ALLOWED TO SEND DUE TO amz:ts=%d",$P->fetch('amz:ts'));
