@@ -245,7 +245,7 @@ my $app = sub {
 	
 			if (not defined $LOOKUP) {
 				## nothing in memcache.. check our embedded list of offenders.
-				my ($RESULT) = SITE::whatis($IP,$ENV{'HTTP_USER_AGENT'},$ENV{'SERVER_NAME'},$ENV{'REQUEST_URI'}); 
+				my ($RESULT) = SITE::whatis($IP,$ENV{'HTTP_USER_AGENT'},$ENV{'HTTP_HOST'},$ENV{'REQUEST_URI'}); 
 	
 				if ($RESULT eq 'SAFE') { $RESULT = '*PASS'; }
 				elsif ($RESULT eq 'DENY') { $RESULT = 'KILL'; }
@@ -262,7 +262,7 @@ my $app = sub {
 
 				if (defined $RESULT) {
 					## make sure we don't have to read from the file again.
-					$SITE::DESIGNATION = [ $RESULT, "SITE-WHATIS: $IP,$ENV{'HTTP_USER_AGENT'},$ENV{'SERVER_NAME'},$ENV{'REQUEST_URI'}" ];
+					$SITE::DESIGNATION = [ $RESULT, "SITE-WHATIS: $IP,$ENV{'HTTP_USER_AGENT'},$ENV{'HTTP_HOST'},$ENV{'REQUEST_URI'}" ];
 					$MEMD->set("IP:$IP",$RESULT,3600);
 					}
 				}
@@ -345,8 +345,8 @@ my $app = sub {
 		($SITE) = SITE->new($DNSINFO->{'USERNAME'}, '%DNSINFO'=>$DNSINFO );
 
 		$SITE->{'_is_site'} |= 0xFF; 	## this is ALWAYS *IS* SITE = true
-		$SITE->{'+server'} =  $ENV{'SERVER_NAME'};
-		$SITE->{'+server'} =  (defined $ENV{'SERVER_NAME'})?lc($ENV{'SERVER_NAME'}):'';
+		$SITE->{'+server'} =  $ENV{'HTTP_HOST'};
+		$SITE->{'+server'} =  (defined $ENV{'HTTP_HOST'})?lc($ENV{'HTTP_HOST'}):'';
 		## server_name is our first hint at what we're doing.
 		##		www.domain.com -- etc.
 
@@ -390,8 +390,8 @@ my $app = sub {
 		my $LOGREF = undef;
 		if (&ZOOVY::servername() eq 'dev') { $LOGREF = []; }
 
-		if ( $ENV{'SERVER_NAME'} =~ /^([a-z0-9\-]+)\.app-hosted\.com$/) {
-			 $ENV{'SERVER_NAME'} = &ZWEBSITE::checkout_domain_to_domain( $ENV{'SERVER_NAME'});
+		if ( $ENV{'HTTP_HOST'} =~ /^([a-z0-9\-]+)\.app-hosted\.com$/) {
+			 $ENV{'HTTP_HOST'} = &ZWEBSITE::checkout_domain_to_domain( $ENV{'HTTP_HOST'});
 			}
 	
 		if ($SITE->{'+uri'} =~ /\.html$/o) {
@@ -630,7 +630,7 @@ my $app = sub {
 
 		$BODY = (qq~
 <html>
-<h1>$ENV{'SERVER_NAME'}</h1>
+<h1>$ENV{'HTTP_HOST'}</h1>
 <hr>
 <i>we apologize, but this website is no longer available.</i>
 </html>
@@ -732,9 +732,9 @@ Disallow: /
 		$DNSINFO = $SITE->dnsinfo();
 		my $SDOMAIN = $SITE->sdomain();
 
-		require BATCHJOB::UTILITY::SITEMAP;
+		require UTILITY::SITEMAP;
 		my ($USERNAME) = $SITE->username();
-		my $staticfile = &BATCHJOB::UTILITY::SITEMAP::sitemap_file($USERNAME, $DNSINFO->{'DOMAIN'}, $SENDER);
+		my $staticfile = &UTILITY::SITEMAP::sitemap_file($USERNAME, $DNSINFO->{'DOMAIN'}, $SENDER);
 
 		if (-f $staticfile) {
 			$SITE::HANDLER = [ 'FILE', { 'FILE'=>$staticfile, 'Content-Type'=>'text/html' } ];
@@ -978,8 +978,8 @@ sub legacyResponseHandler {
 				}
 			else {
 				$SITE::DEBUG && warn("404 on http://$SITE::request_uri (unable to load merchant db)");
-			 	$SITE->pageid( '?REDIRECT/302|no webdb keys: '.$ENV{'REMOTE_ADDR'}.' '.$ENV{'SERVER_NAME'}.$ENV{'REQUEST_URI'} );
-				$SITE::REDIRECT_URL = 'http://www.zoovy.com/?nowebdb-from-'.&ZOOVY::servername().'-'.$ENV{'SERVER_NAME'};
+			 	$SITE->pageid( '?REDIRECT/302|no webdb keys: '.$ENV{'REMOTE_ADDR'}.' '.$ENV{'HTTP_HOST'}.$ENV{'REQUEST_URI'} );
+				$SITE::REDIRECT_URL = 'http://www.zoovy.com/?nowebdb-from-'.&ZOOVY::servername().'-'.$ENV{'HTTP_HOST'};
 				}
 			}
 
@@ -1138,6 +1138,8 @@ sub legacyResponseHandler {
 			if (not $SITE::CART2->exists()) { $SITE::CART2 = undef; }
 			$SITE::DEBUG && warn('Getting CART_ID from URL (environment variable)');
 			}
+
+
 
 		##
 		## now, use session s=/c= if you got it.
@@ -3411,7 +3413,7 @@ sub legacyCookies {
 	$js_cookies .= qq~<!--\n~;
 	$js_cookies .= qq~today = new Date();\n~;
 	foreach my $cookie (@cookies) {
-		my $domain = (defined $ENV{'SERVER_NAME'})?lc($ENV{'SERVER_NAME'}):'';;
+		my $domain = (defined $ENV{'HTTP_HOST'})?lc($ENV{'HTTP_HOST'}):'';;
 		$domain =~ s/.*(\.[a-z0-9\-]+\.[a-z][a-z][a-z]+)\.?$/$1/s; ## www.domainname.com -> .domainname.com / www.domainname.info -> .domainname.info
 		$domain =~ s/.*(\.[a-z0-9\-]+\.[a-z0-9\-]+\.[a-z][a-z])\.?$/$1/s; ## www.domainname.co.uk -> .domainname.co.uk
 		my %defaults = (
@@ -3448,6 +3450,7 @@ sub legacyCookies {
 		my $secure	 = $params{'secure'} ? "; secure" : '';
 		my $httponly	 = $params{'httponly'} ? "; httponly" : '';
 		$js_cookies .= qq~document.cookie = "$esc_name=$esc_value; expires=" + expires.toGMTString() + "; domain=$params{'domain'}; path=$params{'path'}$secure$httponly";\n~;
+		$js_cookies .= "// hello\n";
 
 		$HEADERS->push_header('Set-cookie'=>  CGI::cookie(%set_cookie));
 

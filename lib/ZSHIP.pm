@@ -1504,11 +1504,6 @@ sub zip_state {
 	## File name for zips < 10000 is ZIP0.db
 	## zips >= 10000 and < 20000 is ZIP10000.db
 	## zips >= 20000 and < 30000 is ZIP20000.db ... etc.
-#	my $file = '/httpd/static/ZIPS'.(int($zip/10000)*10000).'.db';
-#	if (tie (%zips, 'DB_File', $file, O_NONBLOCK|O_RDONLY)) {
-#		if (defined $zips{$zip}) { $state = $zips{$zip}; }
-#		untie %zips;
-#		}
 	if (tie %zips, 'CDB_File', '/httpd/static/zips.cdb') {
 		if (defined $zips{$zip}) { $state = $zips{$zip}; } else { warn "zip:$zip is not valid\n"; }
 		untie %zips;
