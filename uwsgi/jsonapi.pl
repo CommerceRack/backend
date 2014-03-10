@@ -361,10 +361,10 @@ my $app = sub {
 		if (defined $R) {
 			## this is the *NORMAL* path -- the next set of lines should never really be run, ever. (i'm not sure why they exist)
 			}
-      elsif ($JSAPI->is_admin()) {
-        ## don't load site parameters when it's an admin session.
-        ## because we have things like partition which are set as part of the admin session.        
-        }
+      #elsif ($JSAPI->is_admin()) {
+      #  ## don't load site parameters when it's an admin session.
+      #  ## because we have things like partition which are set as part of the admin session.        
+      #  }
 		#elsif (defined $DNSINFO) {
       #   ## NOTE: THIS IS NOT RUN ON AN ADMIN SITE.
 		#	## we're dealing with a site.

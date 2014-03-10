@@ -3270,8 +3270,11 @@ sub handle {
 			my $cmdr = $cmdline->[2];		## response (undef = good to go, defined = error)
 
 			if ($params->{'cart'}) {
-				if ($v->{'_cartid'} eq '') {
-					$cmdr = &JSONAPI::set_error($cmdr, 'apperr', 90, 'No _cartid parameter passed');
+				if ($cmdv->{'_cartid'} eq '') {
+					$cmdr = &JSONAPI::set_error($cmdr, 'apperr', 90, 'No _cartid parameter passed!');
+					open F, ">/tmp/x";
+					print F Dumper($cmdline);
+					close F;
 					}
 				}			
 
@@ -4816,9 +4819,13 @@ sub adminOrderList {
 		if (not &hadError(\%R)) {
 			## try
 			my %params = %{$v->{'ELASTIC'}};
-			# $params{'index'} = sprintf("%s.private",$self->username());
 
-			eval { %R = %{$es->search('index'=>sprintf("%s.private",$self->username()), 'body'=>$v->{'ELASTIC'})} };
+			## these became nested one level deeper in es v1.0
+			if (defined $params{'query'}) { $params{'body'}->{'query'} = $params{'query'}; delete $params{'query'}; }
+			if (defined $params{'filter'}) { $params{'body'}->{'filter'} = $params{'filter'}; delete $params{'filter'}; }
+			$params{'index'} = sprintf("%s.private",$self->username());
+
+			eval { %R = %{$es->search(%params)} };
 			# open F, ">/tmp/foo";	print F Dumper(\%params,\%R);	close F;
 
 			if (scalar(keys %R)==0) {
@@ -7285,14 +7292,6 @@ sub adminProduct {
 				elsif (($VERB eq 'SET-SCHEDULE') || ($VERB eq 'SET-SCHEDULE-PROPERTIES')) {
 					## as of 201342 it's SET-SCHEDULE-PROPERTIES
 					my $SCHEDULEID = $params->{'schedule'};
-
-               if ($params->{'price'}) {
-                  ## JT: i think this is a bug, it should be SET-SCHEDULE-PRICE correct?
-                  my $PRICE = $params->{'price'};
-                  my $KEY = sprintf('zoovy:schedule_%s',lc($SCHEDULEID));
-                  $P->store($KEY,$PRICE);
-                  }
-
 					if ($SCHEDULEID eq '*') {
 						$P->store('zoovy:qty_price', $params->{'qtyprice'});
 						}
@@ -8907,7 +8906,7 @@ sub adminTicket {
 <API id="adminBlastMsgSend">
 <input id="FORMAT">HTML5|LEGACY</input>
 <input id="MSGID">ORDER.CREATED</input>
-<input id="RECIPIENT">EMAIL|CUSTOMER|GCN|APNS|ADN</input>
+<input id="RECIEVER">EMAIL|CUSTOMER|GCN|APNS|ADN</input>
 <input id="EMAIL" optional="1" hint="only if RECIPIENT=EMAIL">user@domain.com</input>
 <input id="
 </API>
@@ -8941,7 +8940,10 @@ sub adminBlastMsg {
 	elsif ($v->{'_cmd'} eq 'adminBlastMsgDetail') {
 		my $pstmt = "select * from SITE_EMAILS where MID=$MID and PRT=$PRT and MSGID=".$udbh->quote($v->{'MSGID'});
 		$R{'%MSG'} = $udbh->selectrow_hashref($pstmt);
-		$R{'%META'} = JSON::XS->new()->decode($R{'%MSG'}->{'METAJSON'});
+		$R{'%MSG'}->{'%META'} = {};
+		if ($R{'%MSG'}->{'METAJSON'} ne '') { 
+			$R{'%MSG'}->{'%META'} = JSON::XS->new()->decode($R{'%MSG'}->{'METAJSON'});
+			}
 		delete $R{'%MSG'}->{'METAJSON'};
 		}
 	elsif (($v->{'_cmd'} eq 'adminBlastMsgCreate') || ($v->{'_cmd'} eq 'adminBlastMsgUpdate')) {
@@ -8951,9 +8953,13 @@ sub adminBlastMsg {
 		$params{'PRT'} = $self->prt();
 		$params{'MSGID'} = uc($v->{'MSGID'});
 		$params{'OBJECT'} = $v->{'OBJECT'};
-		$params{'SUBJECT'} = $v->{'UBJECT'};
+		$params{'SUBJECT'} = $v->{'SUBJECT'};
 		$params{'BODY'} =  $v->{'BODY'};
-		$params{'METAJSON'} = JSON::XS->new()->encode($v->{'%META'} || {});
+		my %META = ();
+		foreach my $k (keys %{$v}) {
+			if ($k =~ /^\%META\.(.*?)/) { $META{$1} = $v->{$k}; }
+			}
+		$params{'METAJSON'} = JSON::XS->new()->encode(\%META);
 		$params{'CREATED_GMT'} = time();
 		$params{'LUSER'} = $self->luser();
 		$params{'LANG'} = 'EN';
@@ -8966,11 +8972,44 @@ sub adminBlastMsg {
 		$udbh->do($pstmt);
 		}
 	elsif ($v->{'_cmd'} eq 'adminBlastMsgSend') {
+		require BLAST;
 		my ($blast) = BLAST->new( $self->username(), $self->prt() );
 		## my ($rcpt) = $blast->recipient('CUSTOMER',$CID,{'%GIFTCARD'=>$GCOBJ});
-		my ($rcpt) = $blast->recipient('EMAIL',$v->{'EMAIL'},{});
-		my ($msg) = $blast->msg($v->{'FORMAT'},$v->{'MSGID'});
-		$blast->send( $rcpt, $msg );
+		my ($rcpt) = undef;
+		if (not &JSONAPI::validate_required_parameter(\%R,$v,'RECEIVER',['EMAIL','GCM','APNS'])) {
+			}
+		elsif ($v->{'RECEIVER'} eq 'EMAIL') {
+			if (not &JSONAPI::validate_required_parameter(\%R,$v,'EMAIL')) {
+				}
+			elsif (not &ZTOOLKIT::validate_email($v->{'EMAIL'})) {
+				&JSONAPI::set_error(\%R,'apperr',83482,'EMAIL parameter appears to be invalid');
+				}
+			else {
+				($rcpt) = $blast->recipient('EMAIL',$v->{'EMAIL'},{});
+				}
+			}
+		elsif (($v->{'RECEIVER'} eq 'CUSTOMER') && (not &JSONAPI::validate_required_parameter(\%R,$v,'CID'))) {
+			($rcpt) = $blast->recipient('CUSTOMER',$v->{'CUSTOMER'},{});
+			}
+
+		if (defined $rcpt) {} elsif (&JSONAPI::hadError(\%R)) {} else { &JSONAPI::set_error(\%R,'iseerr',83483,'RECEIVER is invalid/unknown'); }
+
+		if (not defined $v->{'FORMAT'}) { $v->{'FORMAT'} = 'AUTO'; }
+		my $msg = undef;
+		if (&JSONAPI::hadError(\%R)) {
+			}
+		elsif (not &JSONAPI::validate_required_parameter(\%R,$v,'FORMAT',['AUTO','HTML5'])) {
+			}
+		else {
+			($msg) = $blast->msg($v->{'FORMAT'},$v->{'MSGID'});
+			}
+
+		if (defined $msg) {} elsif (&JSONAPI::hadError(\%R)) {} else { &JSONAPI::set_error(\%R,'iseerr',83484,'MSG is invalid/unknown'); }
+
+		if (defined $msg) {
+			$blast->send( $rcpt, $msg );
+			}
+
 		}
 	&DBINFO::db_user_close();
 
@@ -17115,9 +17154,6 @@ sub cartDetail {
 			$CART2->__SYNC__(); 
 			}
 		}
-	#elsif (not defined $self->cart2($cartid,'create'=>1)) {
-	#	&JSONAPI::set_error(\%R, 'apperr', 94838,sprintf("cart '%s' not initialized for cartDetail",$cartid));		
-	#	}
 	elsif (not &JSONAPI::validate_required_parameter(\%R,$v,'_cartid')) {
 		## yeah, umm.. so if you could just pass that, that'd be ummm.. great.
 		}
@@ -18418,8 +18454,8 @@ sub appPublicSearch {
 		# $params{'type'} = ['product','sku'];
 
 		## $params{'index'} = sprintf("%s.public",lc($self->username()));
-		if (defined $v->{'query'}) { $params{'query'} = $v->{'query'};	}
-		if (defined $v->{'filter'}) {	$params{'filter'} = $v->{'filter'};	}
+		if (defined $v->{'query'}) { $params{'body'}->{'query'} = $v->{'query'};	}
+		if (defined $v->{'filter'}) {	$params{'body'}->{'filter'} = $v->{'filter'};	}
 
 		## size            => $no_of_results
 		if (defined $v->{'size'}) {	$params{'size'} = $v->{'size'};	}
@@ -18466,8 +18502,9 @@ sub appPublicSearch {
 #        timeout         => '10s'
 #        version         => 0 | 1
 
-		if (defined $params{'filter'}) {}
-		elsif (defined $params{'query'}) {}
+		if (defined $params{'body'}) {
+			## require body->query or body->filter
+			}
 		else {
 			&JSONAPI::append_msg_to_response(\%R,"apperr",18233,"search mode:$v->{'mode'} requires either query and/or filter parameter.");
 			}
@@ -18476,10 +18513,9 @@ sub appPublicSearch {
 			## try
 			eval { 
 				%R = %{
-					$es->search('index'=>sprintf("%s.public",lc($self->username())), 'body'=>\%params)
+					$es->search('index'=>sprintf("%s.public",lc($self->username())), %params)
 					} 
 				};
-			# open F, ">/tmp/foo";	print F Dumper(\%params,\%R);	close F;
 
 		   if ($@) {
 				&JSONAPI::append_msg_to_response(\%R,"iseerr",18235,"elastic ise: $@");	
@@ -22180,9 +22216,9 @@ sub adminPrivateSearch {
 		if (defined $v->{'type'}) { $params{'type'} = $v->{'type'}; }
 		# $params{'type'} = ['product','sku'];
 
-		## $params{'index'} = sprintf("%s.private",lc($self->username()));
-		if (defined $v->{'query'}) { $params{'query'} = $v->{'query'};	}
-		if (defined $v->{'filter'}) {	$params{'filter'} = $v->{'filter'};	}
+		$params{'index'} = sprintf("%s.private",lc($self->username()));
+		if (defined $v->{'query'}) { $params{'body'}->{'query'} = $v->{'query'};	}
+		if (defined $v->{'filter'}) {	$params{'body'}->{'filter'} = $v->{'filter'};	}
 
 		## size            => $no_of_results
 		if (defined $v->{'size'}) {	$params{'size'} = $v->{'size'};	}
@@ -22209,7 +22245,7 @@ sub adminPrivateSearch {
 		if (not &hadError(\%R)) {
 
 			## try
-			eval { %R = %{$es->search('index'=>sprintf("%s.private",lc($self->username())), 'body'=>\%params)} };
+			eval { %R = %{$es->search(%params)} };
 			# open F, ">/tmp/foo";	print F Dumper(\%params,\%R);	close F;
 
 		   if (not $@) {

@@ -59,6 +59,8 @@ sub lookup_client {
 	'PROJECT',
 	'BLAST', 'RSS', 'REPORT', 'WMS',
 
+	'PLATFORM',
+	'TICKET','CAMPAIGN',
 	'DASHBOARD',
 	'DOMAIN',
 	'EBAY',

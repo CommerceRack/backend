@@ -197,10 +197,10 @@ foreach my $USERNAME (@{$CFG->users()}) {
 				}	
 			elsif ($SSL_KEY eq '') {
 				}
-			elsif ($SSL_KEY !~ /-----END RSA PRIVATE KEY-----/) {
+			elsif ($SSL_KEY !~ /-----END (RSA )?PRIVATE KEY-----/) {
 				$ERROR = "$HOSTDOMAIN KEY MISSING ----END";
 				}
-			elsif ($SSL_KEY !~ /-----BEGIN RSA PRIVATE KEY-----/) {
+			elsif ($SSL_KEY !~ /-----BEGIN (RSA )?PRIVATE KEY-----/) {
 				$ERROR = "$HOSTDOMAIN KEY MISSING ----BEGIN";
 				}
 		 

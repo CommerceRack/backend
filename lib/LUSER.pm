@@ -94,9 +94,6 @@ sub is_admin {
 	my ($self) = @_;
 	
 	my $is_admin = (($self->{'IS_ADMIN'} eq 'Y')?1:0);
-	if (not $is_admin) {
-		if ($self->{'CACHED_FLAGS'} =~ /,_ADMIN,/) { $is_admin |= 1; }
-		}
 	if ($self->is_support()) { $is_admin |= 2; }
 	if (uc($self->luser()) eq 'ADMIN') { return(4); }
 
@@ -326,16 +323,6 @@ sub save {
 		my $udbh = &DBINFO::db_user_connect($self->username());
 		my $DATA = &encodeini($self->{'dataref'});
 
-		#if (($self->{'HAS_EMAIL'} eq 'Y') && ($self->{'dataref'}->{'zoovy:email'} eq '')) {
-		#	## they have zoovymail enabled AND their email address is blank!
-		#	if ($self->{'IS_MASTER'}) { 
-		#		$self->{'EMAIL'} = "admin\@".$self->{'USERNAME'}.".zoovy.com";
-		#		}
-		#	else {
-		#		$self->{'EMAIL'} = $self->{'LUSER'}."\@".$self->{'USERNAME'}.".zoovy.com"; 
-		#		}
-		#	}
-
 		my $LUSER = $self->{'LUSER'};
 		if ($LUSER eq 'ADMIN') { $LUSER = undef; }
 		if ($LUSER eq 'SUPPORT') { $LUSER = undef; }
@@ -416,9 +403,6 @@ sub flags {
 		my ($globalref) = &ZWEBSITE::fetch_globalref($self->username());
 		$self->{'CACHED_FLAGS'} = sprintf(",%s,",$globalref->{'cached_flags'});
 		}	
-	#elsif (substr($self->{'CACHED_FLAGS'},0,1) ne ',') {		
-	#	$self->{'CACHED_FLAGS'} = sprintf(",%s,",$self->{'CACHED_FLAGS'});
-	#	}
 	print STDERR "FLAGS: $self->{'CACHED_FLAGS'}\n";
 	return($self->{'CACHED_FLAGS'}); 
 	}
@@ -438,9 +422,9 @@ sub domain {
 
 sub authinfo {
 	my ($self) = @_;
-
 	return( $self->mid(), $self->username(), $self->luser(), $self->flags(), $self->prt(), '');
 	}
+
 
 sub new_oauth {
 	my ($class,$USERNAME,$AUTHTOKEN) = @_;
@@ -469,10 +453,8 @@ sub new_trusted {
 	my ($class,$USERNAME,$SUBUSER,$PRT) = @_;
 
 	$SUBUSER = uc($SUBUSER);
-	#if ($SUBUSER eq '') { $SUBUSER = 'ADMIN'; }
-	#if (($SUBUSER eq 'SUPPORT') || ($SUBUSER eq 'ADMIN') || ($SUBUSER =~ /^ZOOVY\//)) { $SUBUSER = 'ADMIN'; }
-
 	$USERNAME =~ s/[\W]+//gs;  #sanitize username
+
 	my ($MID) = &ZOOVY::resolve_mid($USERNAME);
 	my $self = undef;
 
@@ -483,7 +465,7 @@ sub new_trusted {
 		}
 	elsif ($SUBUSER eq 'ADMIN') {
 		my ($udbh) = &DBINFO::db_user_connect($USERNAME);
-		my $pstmt = "select DATA,CACHED_FLAGS from ZUSERS where MID=".$MID." /* $USERNAME */";
+		my $pstmt = "select DATA from ZUSERS where MID=".$MID." /* $USERNAME */";
 		print STDERR "$pstmt\n";
 		$self = $udbh->selectrow_hashref($pstmt);
 		&DBINFO::db_user_close();
@@ -505,7 +487,6 @@ sub new_trusted {
 			## master login
 			$self->{'LUSER'} = $SUBUSER;
 			$self->{'UID'} = 0;
-			if ($self->{'CACHED_FLAGS'} =~ /,ZM/) { $self->{'HAS_EMAIL'} = 'Y'; }
 			push @MYROLES, 'BOSS';
 			}
 		else {

@@ -494,8 +494,6 @@ sub _is_preview { return( $_[0]->{'_is_preview'} ) };
 sub _is_site { return( $_[0]->{'_is_site'} ) };
 sub _is_newsletter { return( $_[0]->{'_is_newsletter'} ) };
 
-
-
 ##
 ## structure of DNSINFO
 ##
@@ -917,39 +915,17 @@ sub URLENGINE {
 
 	# $SITE::DEBUG && print STDERR  "URLENGINE->".join("|",caller(0))."\n";
 	if (defined $self->{'*URLS'}) {
-
 		}
-	elsif ($self->_is_newsletter()) {
-		$self->{'*URLS'} = SITE::URLS->new(
-			$self->username(),
-			'prt'=>$self->prt(),
-			'*SITE'=>$self,
-			'secure'=>0,
-			'cookies'=>0,
-			'sessions'=>0,
-			);
-		}
-#	elsif ($self->_is_app()) {
-#		## the ultimate short circuit (to eventually phase out url rewrites)
-#		$self->{'*URLS'} = SITE::URLS->new(
-#			$self->username(),
-#			'prt'=>$self->prt(),
-#			'secure'=>0,
-#			'cookies'=>1,
-#			'sessions'=>0,
-#			'is_app'=>1,
-#			);
-#		}
 	else {
-		my $has_cookies = undef;
-		if (defined $SITE::c) { $has_cookies = ((defined $SITE::c->{$self->our_cookie_id()})?1:0) };
+		# my $has_cookies = undef;
+		#if (defined $SITE::c) { $has_cookies = ((defined $SITE::c->{$self->our_cookie_id()})?1:0) };
 
 		$self->{'*URLS'} = SITE::URLS->new(
 			$self->username(),
 			'prt'=>$self->prt(),
 			'*SITE'=>$self,
 			'secure'=>$self->_is_secure(),
-			'cookies'=>$has_cookies,
+			'cookies'=>1, 
 			);
 		}
 	return($self->{'*URLS'});
@@ -1548,20 +1524,6 @@ sub generate_js_cookies_script { my ($self) = @_;  return($self->{'__JSCOOKIES__
 sub request_login {
 	return (&ZTOOLKIT::def($SITE::CART2->in_get('customer/login')));
 	}
-
-## Returns the current or most recent login
-#sub last_login {
-#	if (not defined $SITE::CART2) { return undef; }
-#	return();
-#	
-#	#my $login = $SITE::CART2->in_get('customer/login');
-#	#if ((not defined $login) && (defined $SITE::c->{"$SITE::merchant_id-login"})) {
-#	#	$login = $SITE::c->{"$SITE::merchant_id-login"};
-#	#	if ($login eq "$SITE::merchant_id-login") { $login = undef; }
-#	#	}
-#	#return $login;
-#	}
-
 
 
 

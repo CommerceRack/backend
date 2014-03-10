@@ -7,7 +7,7 @@ use Data::Dumper;
 use Carp;
 use Digest::MD5;
 use Data::GUID;
-use lib '/httpd/modules';
+use lib '/backend/lib';
 require ZWEBSITE;
 require PRODUCT;
 require PRODUCT::FLEXEDIT;

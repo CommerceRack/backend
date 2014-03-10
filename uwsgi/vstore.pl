@@ -114,7 +114,7 @@ my $app = sub {
 	my $SITE = undef;
 	$SITE::HANDLER = undef;
 	$SITE::CART2 = undef;
-	$SITE::DESIGNATION = undef;
+	my $DESIGNATION = undef;
 	my $URI = $req->uri();
 	my ($HOSTDOMAIN) =  $URI->host();
 
@@ -123,7 +123,6 @@ my $app = sub {
 	foreach my $k (keys %{$psgienv}) { 
 		if ($k eq uc($k)) { 
 			$ENV{$k} = $env->{$k}; 
-			## print STDERR "K:$k V:$ENV{$k}\n";
 			}
 		}
 	if (defined $ENV{'HTTP_X_REAL_IP'}) {
@@ -197,33 +196,33 @@ my $app = sub {
 	
 		## PHASE1: some initialization stuff
 		my $IP = $ENV{'REMOTE_ADDR'};
-		if (defined $SITE::DESIGNATION) {
+		if (defined $DESIGNATION) {
 			}
 		elsif ($PATH_INFO =~ /\.([Jj][Ss]|[Gg][Ii][Ff]|[Pp][Nn][Gg]|[Cc][Ss][Ss]|[Ii][Cc][Oo]|[Jj][Pp][Gg])$/) {
 			## well known file type (always okay)
 			# we don't record history on these types of static files.
-			$SITE::DESIGNATION = [ '*PASS', 'allowed filetype' ];
+			$DESIGNATION = [ '*PASS', 'allowed filetype' ];
 			}
 		elsif (not defined $IP) {
 			}
 		elsif ($ENV{'HTTP_USER_AGENT'} =~ /80legs/) {
 			## yeah, fuck these guys .. watch this, i can ddos a site too
-			$SITE::DESIGNATION = [ 'KILL', '80legs' ];
+			$DESIGNATION = [ 'KILL', '80legs' ];
   	    	}
 		elsif ($PATH_INFO =~ /^[\/]+(jquery|ajax|media)/) {
-			$SITE::DESIGNATION = [ '*PASS', '' ];
+			$DESIGNATION = [ '*PASS', '' ];
 			}
 		elsif ($PATH_INFO =~ /\/(jquery|jsonsapi|ajax|media)\/$/) {
 			## /s=www.toynk.com/jquery/
-			$SITE::DESIGNATION = [ '*PASS', '' ];
+			$DESIGNATION = [ '*PASS', '' ];
 			}
 		elsif ($SITE::Vstore::DISABLE_BOT_DETECTION) {
-			$SITE::DESIGNATION = [ 'SAFE' ];
+			$DESIGNATION = [ 'SAFE' ];
 			}
 		elsif (($PATH_INFO eq '/robots.txt') || ($PATH_INFO eq '/sitemap.xml')) {
 			## yipes, it's a robot!
 			# we don't record history on these types of static files.
-			$SITE::DESIGNATION = [ 'BOT', $PATH_INFO ];
+			$DESIGNATION = [ 'BOT', $PATH_INFO ];
 			if (defined $MEMD) {
 				$MEMD->set("IP:$IP","BOT",3600*3);
 				}
@@ -236,7 +235,7 @@ my $app = sub {
 				}
 
 			if (defined $LOOKUP) {
-				$SITE::DESIGNATION = [ $LOOKUP, "IP-LOOKUP: $IP" ];
+				$DESIGNATION = [ $LOOKUP, "IP-LOOKUP: $IP" ];
 				if (defined $MEMD) {
 					## refresh the timeout
 					$MEMD->set("IP:$IP",$LOOKUP,300);
@@ -245,7 +244,7 @@ my $app = sub {
 	
 			if (not defined $LOOKUP) {
 				## nothing in memcache.. check our embedded list of offenders.
-				my ($RESULT) = SITE::whatis($IP,$ENV{'HTTP_USER_AGENT'},$ENV{'HTTP_HOST'},$ENV{'REQUEST_URI'}); 
+				my ($RESULT) = SITE::whatis($IP,$ENV{'HTTP_USER_AGENT'},$ENV{'SERVER_NAME'},$ENV{'REQUEST_URI'}); 
 	
 				if ($RESULT eq 'SAFE') { $RESULT = '*PASS'; }
 				elsif ($RESULT eq 'DENY') { $RESULT = 'KILL'; }
@@ -262,14 +261,14 @@ my $app = sub {
 
 				if (defined $RESULT) {
 					## make sure we don't have to read from the file again.
-					$SITE::DESIGNATION = [ $RESULT, "SITE-WHATIS: $IP,$ENV{'HTTP_USER_AGENT'},$ENV{'HTTP_HOST'},$ENV{'REQUEST_URI'}" ];
+					$DESIGNATION = [ $RESULT, "SITE-WHATIS: $IP,$ENV{'HTTP_USER_AGENT'},$ENV{'SERVER_NAME'},$ENV{'REQUEST_URI'}" ];
 					$MEMD->set("IP:$IP",$RESULT,3600);
 					}
 				}
 	
 			}
 
-		if (defined $SITE::DESIGNATION) {
+		if (defined $DESIGNATION) {
 			}
 		elsif ($SITE::Vstore::DISABLE_BOT_DETECTION) {
 			}
@@ -292,17 +291,17 @@ my $app = sub {
 	
 			if ($i20>60) {
 				## raised from 40 to 60 on 2/22/12
-				$SITE::DESIGNATION = [ "KILL", "I20:$i20" ];
+				$DESIGNATION = [ "KILL", "I20:$i20" ];
 				}
 			elsif ($i20>30) {
 				## raised from 10 to 12 on 11/29/12
 				## raised from 12 to 15 on 12/5/12
 				## raised from 15 to 20 on 12/8/12
 				## raised from 20 to 30 on 2/22/12
-				$SITE::DESIGNATION = [ "BOT", "I20:$i20" ];
+				$DESIGNATION = [ "BOT", "I20:$i20" ];
 				}
 			elsif ($i60>80) {
-				$SITE::DESIGNATION = [ "BOT", "I60:$i60" ];
+				$DESIGNATION = [ "BOT", "I60:$i60" ];
 				}
 	
 			($HISTORY) = sprintf("%s|%s\n%s",$TS,substr($PATH_INFO,0,35),substr($HISTORY,0,5000));	# always truncate history at 4k.
@@ -310,26 +309,26 @@ my $app = sub {
 				print STDERR "COULD NOT STORE HISTORY\n";
 				}
 	
-			if ($SITE::DESIGNATION) {
-				my $STATS = "i20:$i20 i60:$i60 [$SITE::DESIGNATION->[0] $SITE::DESIGNATION->[1]]";
+			if ($DESIGNATION) {
+				my $STATS = "i20:$i20 i60:$i60 [$DESIGNATION->[0] $DESIGNATION->[1]]";
 				print STDERR "IP:$IP $STATS\n";
 				}
 			}
 
-		if ($SITE::DESIGNATION->[0] eq 'SCAN') {
+		if ($DESIGNATION->[0] eq 'SCAN') {
 			my ($sec,$min,$hour,$mday,$mon,$year,$wday,$yday,$isdst) = localtime(time());
 			## security scans are allowed between before 7am and after 8pm
-			if ($hour > 7 && $hour < 20) { $SITE::DESIGNATION->[0] = 'KILL'; }
+			if ($hour > 7 && $hour < 20) { $DESIGNATION->[0] = 'KILL'; }
 			}
 
-		if ($SITE::DESIGNATION->[0] eq 'KILL') {
+		if ($DESIGNATION->[0] eq 'KILL') {
 			$HTTP_RESPONSE = 500;
 			}
-		if ($SITE::DESIGNATION eq 'BOT') { 
+		if ($DESIGNATION eq 'BOT') { 
 			open F, "</proc/loadavg"; my ($line) = <F>; close F;
 			my ($AVG1) = split(/[\s\t]+/,$line);
 			if ($AVG1>7) { 	
-				$SITE::DESIGNATION = 'KILL'; 
+				$DESIGNATION = 'KILL'; 
 				}
 			}
 		}
@@ -345,8 +344,8 @@ my $app = sub {
 		($SITE) = SITE->new($DNSINFO->{'USERNAME'}, '%DNSINFO'=>$DNSINFO );
 
 		$SITE->{'_is_site'} |= 0xFF; 	## this is ALWAYS *IS* SITE = true
-		$SITE->{'+server'} =  $ENV{'HTTP_HOST'};
-		$SITE->{'+server'} =  (defined $ENV{'HTTP_HOST'})?lc($ENV{'HTTP_HOST'}):'';
+		$SITE->{'+server'} =  $ENV{'SERVER_NAME'};
+		$SITE->{'+server'} =  (defined $ENV{'SERVER_NAME'})?lc($ENV{'SERVER_NAME'}):'';
 		## server_name is our first hint at what we're doing.
 		##		www.domain.com -- etc.
 
@@ -361,9 +360,9 @@ my $app = sub {
 		$SITE->{'+secure'} |= ($h->header('X-SSL-Cipher') ne '') ? 1 : 0;
 
 		$ENV{'HTTPS'} = ($SITE->{'+secure'})?'on':'';			## FOR SITE::URL / IMAGE::URL **VERY IMPORTANT**
+
 		$SITE->{'+uri/_'} = $SITE->{'+uri'} = $req->path_info();
 		if ($SITE->{'+uri'} =~ /\/c[=\~](.*?)\//) {
-			# print STDERR "GRABBED SDOMAIN FROM URI: $SITE->{'+uri'}\n";
 			$SITE->{'+uri/cartid'} = $1;
 			$SITE->{'+uri'} =~ s/\/c[=\~](.*?)\//\//;	# strip /s=1234234
 			}
@@ -388,16 +387,12 @@ my $app = sub {
 
 
 		my $LOGREF = undef;
-		if (&ZOOVY::servername() eq 'dev') { $LOGREF = []; }
 
-		if ( $ENV{'HTTP_HOST'} =~ /^([a-z0-9\-]+)\.app-hosted\.com$/) {
-			 $ENV{'HTTP_HOST'} = &ZWEBSITE::checkout_domain_to_domain( $ENV{'HTTP_HOST'});
+		if ( $ENV{'SERVER_NAME'} =~ /^([a-z0-9\-]+)\.app-hosted\.com$/) {
+			 $ENV{'SERVER_NAME'} = &ZWEBSITE::checkout_domain_to_domain( $ENV{'SERVER_NAME'});
 			}
 	
 		if ($SITE->{'+uri'} =~ /\.html$/o) {
-			if (defined $LOGREF) {
-				print STDERR Dumper($LOGREF);
-				}
 			}
 
 		if (defined $DNSINFO) {	
@@ -413,21 +408,16 @@ my $app = sub {
 			$SITE->{'+broked+'} = 'DNSINFO NOT DEFINED';
 			}
 		# $SITE->{'REMOTE_ADDR'} = $r->connection()->remote_ip();
-		# print STDERR Dumper($SITE,$LOGREF);
 		$SITE->uri($SITE->{'+uri'});	
 
 		if (defined $SITE) {
-			$SITE->client_is( $SITE::DESIGNATION->[0] );
+			$SITE->client_is( $DESIGNATION->[0] );
 			}
 		else {
-			print STDERR "*WARN NO SITE OBJECT == DESIGNATION: $SITE::DESIGNATION->[0]\n";
+			print STDERR "*WARN NO SITE OBJECT == DESIGNATION: $DESIGNATION->[0]\n";
 			}
 		}
 
-
-
-	my $LOGREF = undef;
-	## if ($SITE->_is_zoovy_ip()) { $LOGREF = []; }
 
 	if (defined $LOGREF) { push @{$LOGREF}, "+URI: ".$SITE->uri(); }
 	
@@ -492,7 +482,7 @@ my $app = sub {
 		}
 
 	if (not defined $SITE::HANDLER) {
-		print STDERR sprintf("HOST:%s TAIL:%s MECHANT:%s PRT:%d SDOMAIN:%s IP:%s DEN:%s\n",$SITE->domain_host(), $SITE->domain_only(),$SITE->username(),$SITE->prt(),$SITE->sdomain(),$SITE->ip_address,$SITE::DESIGNATION->[0]);
+		print STDERR sprintf("HOST:%s TAIL:%s MECHANT:%s PRT:%d SDOMAIN:%s IP:%s DEN:%s\n",$SITE->domain_host(), $SITE->domain_only(),$SITE->username(),$SITE->prt(),$SITE->sdomain(),$SITE->ip_address,$DESIGNATION->[0]);
 		}
 
 	## 
@@ -630,7 +620,7 @@ my $app = sub {
 
 		$BODY = (qq~
 <html>
-<h1>$ENV{'HTTP_HOST'}</h1>
+<h1>$ENV{'SERVER_NAME'}</h1>
 <hr>
 <i>we apologize, but this website is no longer available.</i>
 </html>
@@ -923,8 +913,7 @@ sub legacyResponseHandler {
 	#	}
 
 	## Get the info from cookies
-	# $SITE::c = { map { $_ => $cgi->cookie($_), lc($_) => $cgi->cookie($_) } $cgi->cookie() };
-	$SITE::c = $req->cookies();
+	## $SITE::c = $req->cookies();
 	$SITE::pbench = undef;
 
 	##
@@ -977,9 +966,9 @@ sub legacyResponseHandler {
 				$SITE->pageid( sprintf('?ERROR/Specified partition #%d has not been configured!', $SITE->prt()) );
 				}
 			else {
-				$SITE::DEBUG && warn("404 on http://$SITE::request_uri (unable to load merchant db)");
-			 	$SITE->pageid( '?REDIRECT/302|no webdb keys: '.$ENV{'REMOTE_ADDR'}.' '.$ENV{'HTTP_HOST'}.$ENV{'REQUEST_URI'} );
-				$SITE::REDIRECT_URL = 'http://www.zoovy.com/?nowebdb-from-'.&ZOOVY::servername().'-'.$ENV{'HTTP_HOST'};
+				$SITE::DEBUG && warn("404 (unable to load merchant db)");
+			 	$SITE->pageid( '?REDIRECT/302|no webdb keys: '.$ENV{'REMOTE_ADDR'}.' '.$ENV{'SERVER_NAME'}.$ENV{'REQUEST_URI'} );
+				$SITE::REDIRECT_URL = 'http://www.zoovy.com/?nowebdb-from-'.&ZOOVY::servername().'-'.$ENV{'SERVER_NAME'};
 				}
 			}
 
@@ -1046,15 +1035,14 @@ sub legacyResponseHandler {
 	
 		## always check the cookie first.
 		my $session = '';
-		if ((not defined $SITE::c->{$SITE->our_cookie_id()}) || ($SITE::c->{$SITE->our_cookie_id()} eq '')) {
+		if ((not defined $req->cookies()->{ $SITE->our_cookie_id() }) || ($req->cookies()->{$SITE->our_cookie_id()} eq '')) {
 			}
-		elsif (substr($SITE::c->{$SITE->our_cookie_id()},0,1) eq '*') {
+		elsif (substr($req->cookies()->{$SITE->our_cookie_id()},0,1) eq '*') {
 			## *|t.1348081180|s.newdev
-			print STDERR Carp::cluck("cookie ".$SITE->our_cookie_id()." == '*' is really bad, not setting session -- ".Dumper($SITE::c));
+			print STDERR Carp::cluck("cookie ".$SITE->our_cookie_id()." == '*' is really bad, not setting session -- ".Dumper($req->cookies()));
 			}
 		else {
-			# print STDERR Dumper($SITE::c,$SITE::c->{"$SITE::merchant_id-secure"}); die();
-			$session = $SITE::c->{$SITE->our_cookie_id()};
+			$session = $req->cookies()->{$SITE->our_cookie_id()};
 			}
 		
 		my %SESSION_DATA = ();
@@ -1089,7 +1077,7 @@ sub legacyResponseHandler {
 			$SITE->cart2($SITE::CART2); ## LINK
 			}
 
-		$SITE::DEBUG && warn "Ccookie/session sayz: $cart_id";
+		$SITE::DEBUG && warn "Cookie/session sayz: $cart_id";
 
 		## now.. 
 		## if the referrer is a speciality domain, OR .zoovy.com - trust the session c= (yeah I know this duct tape)
@@ -1132,14 +1120,11 @@ sub legacyResponseHandler {
 			}
 		elsif (($SITE->_is_secure()) && ($cart_id ne '')) {
 			## on secure pages -- cookies NEVER WIN!
-			# print STDERR "CARTID: $cart_id\n";
 			$SITE::CART2 = CART2->new_persist($SITE->username(),$SITE->prt(),$cart_id);
 			$SITE->cart2($SITE::CART2); ## LINK
 			if (not $SITE::CART2->exists()) { $SITE::CART2 = undef; }
 			$SITE::DEBUG && warn('Getting CART_ID from URL (environment variable)');
 			}
-
-
 
 		##
 		## now, use session s=/c= if you got it.
@@ -2494,28 +2479,8 @@ var pr_style_sheet="http://cdn.powerreviews.com/aux/$pwrgid/$pwrmid/css/powerrev
 		
 		## the cart page should always kill frames
 		if ($SITE::OVERRIDES{'dev.killframes'}) { $SITE::target = '_top'; }
-				
-		########################################
-		## BROWSER CACHE		
-		## This sets BROWSER cache settings.  Default to cache
-		## the whole "nocache" stuff was not used, and was removed 6/6/09 BH 
-		# $SITE::nocache = 0;	## hmm.. changed this setting from 1 to 0 on 8/5/05 bh
-		#if (defined $SITE::v->{'nocache'}) {
-		#	## If we have a cgi param telling us not to cache, then don't
-		#	$SITE::nocache = $SITE::v->{'nocache'};
-		#	## Set the cookie so nocache is persistent
-		#	push @{$SITE::SREF->{'@cookies'}}, {'name' => "$SITE->username()-nocache", 'value' => $SITE::nocache, 'hours' => 3};
-		#	}
-		#elsif (defined $SITE::c->{"$SITE->username()-nocache"}) {
-		## If we have a cookie, use it
-		# $SITE::nocache = $SITE::c->{"$SITE->username()-nocache"};
-		# push @{$SITE::SREF->{'@cookies'}}, {'name' => "$SITE->username()-nocache", 'value' => $SITE::nocache, 'hours' => 3};
-		#	}		
-		#$SITE::DEBUG && warn("nocache is '$SITE::nocache'");
 		}
 	
-	
-
 	# $SITE->pageid( '?ERROR/somethign when horribly wrong' );
 	
 	#################################################################################
@@ -2910,12 +2875,10 @@ DN:[~.$SITE->client_is().qq~] MVS[$AB] CLUSTER=[$ZOOVY::LAST_CLUSTER]\n-->\n~ };
 
 
 	# &DBINFO::db_user_close($SITE->username());
-	unlink($SITE::DEBUG_FILE);
+	# unlink($SITE::DEBUG_FILE);
 	
 	$SITE::v               = {};
 	$SITE::v_mixed         = {};
-	$SITE::nonsecure_url   = '';
-	$SITE::secure_url      = '';
 	$SITE::target          = '_self';
 	$SITE::HAVE_GLOBAL_DB_HANDLE = undef;
 	undef $SITE::REDIRECT_URL;
@@ -3413,7 +3376,7 @@ sub legacyCookies {
 	$js_cookies .= qq~<!--\n~;
 	$js_cookies .= qq~today = new Date();\n~;
 	foreach my $cookie (@cookies) {
-		my $domain = (defined $ENV{'HTTP_HOST'})?lc($ENV{'HTTP_HOST'}):'';;
+		my $domain = (defined $ENV{'SERVER_NAME'})?lc($ENV{'SERVER_NAME'}):'';;
 		$domain =~ s/.*(\.[a-z0-9\-]+\.[a-z][a-z][a-z]+)\.?$/$1/s; ## www.domainname.com -> .domainname.com / www.domainname.info -> .domainname.info
 		$domain =~ s/.*(\.[a-z0-9\-]+\.[a-z0-9\-]+\.[a-z][a-z])\.?$/$1/s; ## www.domainname.co.uk -> .domainname.co.uk
 		my %defaults = (
@@ -3450,7 +3413,6 @@ sub legacyCookies {
 		my $secure	 = $params{'secure'} ? "; secure" : '';
 		my $httponly	 = $params{'httponly'} ? "; httponly" : '';
 		$js_cookies .= qq~document.cookie = "$esc_name=$esc_value; expires=" + expires.toGMTString() + "; domain=$params{'domain'}; path=$params{'path'}$secure$httponly";\n~;
-		$js_cookies .= "// hello\n";
 
 		$HEADERS->push_header('Set-cookie'=>  CGI::cookie(%set_cookie));
 

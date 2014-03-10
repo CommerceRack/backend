@@ -10,6 +10,16 @@ sub got_if_statement {
   {type => "IF", When => $list->[0], IsTrue => $list->[1], IsFalse => $list->[2] ? $list->[2][0] : undef }; 
 }
 
+sub got_while_statement {
+  my ($self, $list) = @_;
+  {type => "WHILE", When => $list->[0], Loop => $list->[1] }; 
+}
+
+sub got_foreach_statement {
+  my ($self, $list) = @_;
+  {type => "FOREACH", Set => $list->[0], Members => $list->[1], Loop => $list->[2] }; 
+}
+
 sub got_block {
   my ($self, $list) = @_;
   {type => "Block", statements => $list->[0] }; 
@@ -18,6 +28,11 @@ sub got_block {
 sub got_bind_statement {
   my ($self, $list) = @_;
   {type => "BIND", Set => $list->[0], Src => $list->[1]}; 
+}
+
+sub got_set_statement {
+  my ($self, $list) = @_;
+  {type => "SET", Set => $list->[0], Src => $list->[1], args => $list->[2]}; 
 }
 
 sub got_command {

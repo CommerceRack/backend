@@ -20,7 +20,6 @@ require ZOOVY;
 require ZWEBSITE;
 require LUSER;
 require SITE;
-require SITE::EMAILS;
 
 no warnings 'once'; # Keeps perl from bitching about variables used only once.
 use lib "/backend/lib";
@@ -79,9 +78,6 @@ require PROJECT;
   	'/biz/vstore/checkout/index.cgi'=>[ '/httpd/htdocs/biz/vstore/advwebsite', \&GTOOLSUI::advwebsite, ],
   	'/biz/vstore/builder/index.cgi'=>[ '/httpd/htdocs/biz/vstore/builder', \&GTOOLSUI::builder, ],
   	'/biz/vstore/builder/details.cgi'=>[ '/httpd/htdocs/biz/vstore/builder', \&GTOOLSUI::builder_details, ],
-#	'/biz/vstore/navcats/index.cgi'=>[ '/httpd/htdocs/biz/vstore/navcats', \&GTOOLSUI::navcats, ],
-#	'/biz/setup/navcats/index.cgi'=>[ '/httpd/htdocs/biz/vstore/navcats', \&GTOOLSUI::navcats, ],
-  	'/biz/vstore/builder/emails/index.cgi'=>[ '/httpd/htdocs/biz/vstore/builder/emails', \&GTOOLSUI::builder_emails, ],
   	'/biz/vstore/builder/themes/index.cgi'=>[ '/httpd/htdocs/biz/vstore/builder/themes', \&GTOOLSUI::builder_themes, ],
   	'/biz/vstore/password/index.cgi'=>[ '/httpd/htdocs/biz/vstore/password', \&GTOOLSUI::password, ],
   	'/biz/setup/password/index.cgi'=>[ '/httpd/htdocs/biz/vstore/password', \&GTOOLSUI::password, ],
@@ -279,189 +275,6 @@ sub password {
 			],
 		);
 	}
-
-
-sub builder_emails {
-	my ($JSONAPI,$cgiv) = @_;
-   $ZOOVY::cgiv = $cgiv;
-   my ($LU) = $JSONAPI->LU();
-
-	my ($MID,$USERNAME,$LUSERNAME,$FLAGS,$PRT) = $LU->authinfo();
-	my ($VERB) = $ZOOVY::cgiv->{'VERB'};
-	if ($VERB eq '') { $VERB = 'EDIT'; }
-	print STDERR "VERB: $VERB\n";
-	
-	my ($NS) = $ZOOVY::cgiv->{'NS'};
-	$GTOOLSUI::TAG{'<!-- NS -->'} = $NS;
-	my @TABS = ();
-	my @MSGS = ();
-
-	my $template_file = '';
-
-	my ($SITE) = SITE->new($USERNAME,'PRT'=>$PRT,'DOMAIN'=>$LU->domainname());
-	my ($SE) = SITE::EMAILS->new($USERNAME,'*SITE'=>$SITE,RAW=>1);
-
-	if ($VERB eq 'CONFIG') {
-		}
-
-	if ($VERB eq 'MSGNUKE') {
-		my $MSGID = $ZOOVY::cgiv->{'MSGID'};
-		$SE->save($MSGID,"NUKE"=>1);
-		push @MSGS, "SUCCESS|+Deleted message $MSGID";
-		$VERB = '';	
-		}
-
-	##
-	##
-	##	
-	if ($VERB eq 'MSGTEST') {
-		my $MSGID = $ZOOVY::cgiv->{'MSGID'};
-		my ($err) = $SE->send($MSGID,TEST=>1,TO=>$ZOOVY::cgiv->{'MSGFROM'});
-		$VERB = 'MSGEDIT';
-	
-		if ($err) {
-			my $errmsg = $SITE::EMAILS::ERRORS{$err};
-			push @MSGS, "ERROR|+$errmsg";
-			}
-		else {
-			push @MSGS, "SUCCESS|+Successfully sent test email.";
-			}
-		}
-
-	##
-	##	
-	##
-	if ($VERB eq 'MSGSAVE') {
-		## 
-		my $MSGID = $ZOOVY::cgiv->{'MSGID'};
-
-		my %options = ();
-		$options{'SUBJECT'} = $ZOOVY::cgiv->{'MSGSUBJECT'};
-		$options{'BODY'} = $ZOOVY::cgiv->{'MSGBODY'};
-		if (defined $ZOOVY::cgiv->{'MSGTYPE'}) {
-			$options{'TYPE'} = $ZOOVY::cgiv->{'MSGTYPE'};
-			}
-		if (defined $ZOOVY::cgiv->{'MSGBCC'}) {
-			$options{'BCC'} = $ZOOVY::cgiv->{'MSGBCC'};
-			}
-		if (defined $ZOOVY::cgiv->{'MSGFROM'}) {
-			$options{'FROM'} = $ZOOVY::cgiv->{'MSGFROM'};
-			}
-	
-		$options{'FORMAT'} = 'HTML';
-		if (defined $ZOOVY::cgiv->{'MSGFORMAT'}) {
-			$options{'FORMAT'} = $ZOOVY::cgiv->{'MSGFORMAT'};
-			}
-		
-		push @MSGS, "SUCCESS|Successfully saved.";
-		
-		$SE->save($MSGID, %options);
-		$VERB = 'MSGEDIT';
-		}
-	
-	##
-	##
-	##
-	if ($VERB eq 'MSGEDIT') {
-		my $MSGID = $ZOOVY::cgiv->{'MSGID'};
-		my $msgref = $SE->getref($MSGID);
-		
-		$GTOOLSUI::TAG{'<!-- MSGTYPE -->'} = $msgref->{'MSGTYPE'};
-		$GTOOLSUI::TAG{'<!-- MSGID -->'} = uc($MSGID);
-		$GTOOLSUI::TAG{'<!-- MSGSUBJECT -->'} = &ZOOVY::incode($msgref->{'MSGSUBJECT'});
-	
-		$GTOOLSUI::TAG{'<!-- MSGFORMAT_HTML -->'} = ($msgref->{'MSGFORMAT'} eq 'HTML')?'checked':'';
-		$GTOOLSUI::TAG{'<!-- MSGFORMAT_WIKI -->'} = ($msgref->{'MSGFORMAT'} eq 'WIKI')?'checked':'';
-		$GTOOLSUI::TAG{'<!-- MSGFORMAT_TEXT -->'} = ($msgref->{'MSGFORMAT'} eq 'TEXT')?'checked':'';
-		$GTOOLSUI::TAG{'<!-- MSGFORMAT_DONOTSEND -->'} = ($msgref->{'MSGFORMAT'} eq 'DONOTSEND')?'checked':'';
-	
-		$GTOOLSUI::TAG{'<!-- MSGBODY -->'} = &ZOOVY::incode($msgref->{'MSGBODY'});
-		$GTOOLSUI::TAG{'<!-- MSGFROM -->'} = &ZOOVY::incode($msgref->{'MSGFROM'});
-		$GTOOLSUI::TAG{'<!-- MSGBCC -->'} = &ZOOVY::incode($msgref->{'MSGBCC'});
-		$GTOOLSUI::TAG{'<!-- CREATED -->'} = &ZTOOLKIT::pretty_date($msgref->{'CREATED_GMT'},1);
-	
-		foreach my $mline (@SITE::EMAILS::MACRO_HELP) {
-			my $show = 0;
-			if ($mline->[0] eq $msgref->{'MSGTYPE'}) { $show |= 1; }
-			elsif (($msgref->{'MSGTYPE'} eq 'TICKET') && ($mline->[0] eq 'CUSTOMER')) { $show |= 1; }
-			elsif (($msgref->{'MSGTYPE'} eq 'TICKET') && ($mline->[0] eq 'ORDER')) { $show |= 2; } # 2 = selective availability
-	
-			if ($show) {
-			$GTOOLSUI::TAG{'<!-- MACROHELP -->'} .= 
-				sprintf(q~<tr>
-				<td class="av" valign="top">%s</td>
-				<td class="av" valign="top">%s%s</td>
-				</tr>~,
-				&ZOOVY::incode($mline->[1]), 
-				$mline->[2],
-				((($show&2)==2)?'<div class="hint">Note: will only appear when properly associated.</div>':'')
-				 );
-				}
-			}
-	
-		$template_file = 'msgedit.shtml';	
-		}
-	
-	##
-	##
-	##
-	if ($VERB eq 'EDIT') {
-		$template_file = 'edit.shtml';
-	
-		my ($SE) = SITE::EMAILS->new($USERNAME,'*SITE'=>$SITE,RAW=>1);
-		my $result = $SE->available("");	
-		foreach my $TYPE ('ORDER','ACCOUNT','PRODUCT','TICKET') {
-			my $c = '';
-			my $r = 0;
-			my %MSGIDS = ();
-			foreach my $msgref (@{$result}) {
-				next if ($TYPE ne $msgref->{'MSGTYPE'});
-				$MSGIDS{ $msgref->{'MSGID'} } = $msgref;
-				}
-	
-			## we sort by MSGID
-			foreach my $k (sort keys %MSGIDS) {
-				my $msgref = $MSGIDS{$k};
-				my $title = "SUBJECT: $msgref->{'MSGSUBJECT'}";
-				if ($msgref->{'MSGTITLE'} ne '') { $title = "TITLE: $msgref->{'MSGTITLE'}"; }
-	
-				if (not defined $msgref->{'MSGFORMAT'}) { $msgref->{'MSGFORMAT'} = 'HTML'; }
-	
-				$r = ($r eq 'r0')?'r1':'r0';
-				$c .= "<tr class='$r'>";
-				$c .= "<td width='50px'><input type='button' class='button' value=' Edit ' onClick=\"navigateTo('/biz/vstore/builder/emails/index.cgi?NS=$NS&VERB=MSGEDIT&MSGID=$msgref->{'MSGID'}');\"></td>";
-				$c .= "<td width='100px'>".&ZOOVY::incode($msgref->{'MSGID'})."</td>";
-				$c .= "<td>".&ZOOVY::incode($title)."</td>";
-				if (not defined $msgref->{'CREATED_GMT'}) { $msgref->{'CREATED_GMT'} = 0; }
-				$c .= "<td width='100px'>".&ZTOOLKIT::pretty_date($msgref->{'CREATED_GMT'})."</td>";
-				$c .= "<td width='100px'>".$msgref->{'MSGFORMAT'}."</td>";
-				$c .= "</tr>";
-				}
-			$GTOOLSUI::TAG{"<!-- $TYPE -->"} .= $c;
-			}
-		# $GTOOLSUI::TAG{'<!-- ORDER -->'} = Dumper($result);
-	
-		}
-	
-	if ($VERB eq 'ADD') {
-		$GTOOLSUI::TAG{'<!-- NS -->'} = $NS;
-		$template_file = 'add.shtml';
-		}
-	
-	
-	#push @TABS, { name=>'Config', link=>"/biz/vstore/builder/emails/index.cgi?VERB=CONFIG", selected=>(($VERB eq 'SELECT')?1:0) };
-	push @TABS, { name=>'Select', link=>"/biz/vstore/builder/themes/index.cgi?SUBTYPE=E&NS=$NS", selected=>(($VERB eq 'SELECT')?1:0) };
-	push @TABS, { name=>'Edit', link=>"/biz/vstore/builder/emails/index.cgi?VERB=EDIT&NS=$NS", selected=>(($VERB eq 'EDIT')?1:0)  };
-	push @TABS, { name=>'Add', link=>"/biz/vstore/builder/emails/index.cgi?VERB=ADD&NS=$NS", selected=>(($VERB eq 'ADD')?1:0)  };
-	
-	my @BC = ();
-	push @BC, { name=>"Setup", link=>'/biz/vstore' };
-	push @BC, { name=>"Builder", link=>'/biz/vstore/builder' };
-	push @BC, { name=>"Emails", link=>'/biz/vstore/builder/emails' };
-	
-	return(file=>$template_file,header=>1,msgs=>\@MSGS,tabs=>\@TABS, bc=>\@BC);
-	}
-
 
 
 
@@ -750,7 +563,7 @@ sub search {
 				$Q = undef;
 				}
 			else {
-				## $Q->{'index'} = lc("$USERNAME.public");
+				$Q->{'index'} = lc("$USERNAME.public");
 				foreach my $k (keys %{$Q}) {
 					if (substr($k,0,1) eq '_') { 
 						push @MSGS, "INFO|+removed key '$k' because it started with an underscore and is not valid (just being helpful)";
@@ -770,7 +583,7 @@ sub search {
 			## print STDERR Dumper($Q,\@MSGS);
 	
 			if ((defined $Q) && (defined $es)) {
-			   eval { $results = $es->search( 'index'=>lc("$USERNAME.public"), 'body'=>$Q ); };
+			   eval { $results = $es->search(%{$Q}); };
 				if ($@) {
 					push @MSGS, "ERROR|Elastic Search Error:$@";
 					}
@@ -3995,28 +3808,16 @@ sub builder_themes {
 	my $SUBTYPE = $ZOOVY::cgiv->{'SUBTYPE'};
 	## SUBTYPE = "" (wrapper)
 	## SUBTYPE = "P" (Popup)
-	## SUBTYPE = "E" (Email)
 	$GTOOLSUI::TAG{'<!-- SUBTYPE -->'} = $SUBTYPE;
 	
 	my $DOCTYPE = 'WRAPPER';
-	if ($SUBTYPE eq 'E') { $DOCTYPE = 'ZEMAIL'; }
-	
 	my @TABS = ();
 	
 	my @BC = ();
 	push @BC, { name=>"Setup", link=>"/biz/vstore" };
 	push @BC, { name=>"Site Builder", link=>"/biz/vstore/builder" };
 	push @BC, { name=>"Profile [$NS]" };
-	
-	if ($SUBTYPE eq 'E') {
-		push @BC, { name=>"Email Template Chooser" };
-		push @TABS, { name=>'Select', link=>"/biz/vstore/builder/themes/index.cgi?SUBTYPE=E&NS=$NS", selected=>1 };
-		push @TABS, { name=>'Edit', link=>"/biz/vstore/builder/emails/index.cgi?VERB=EDIT&NS=$NS", };
-		push @TABS, { name=>'Add', link=>"/biz/vstore/builder/emails/index.cgi?VERB=ADD&NS=$NS", };
-		}
-	else {
-		push @BC, { name=>"Theme Chooser" };
-		}
+	push @BC, { name=>"Theme Chooser" };
 	
 	## General Help on Themes
 	my $help = "#50270";
@@ -4248,10 +4049,6 @@ sub builder_themes {
 			$NSREF->{'zoovy:mobile_wrapper'} = $wrapper;
 			$LU->log('SETUP.BUILDER.THEME',"Updated mobile wrapper for profile $NS",'SAVE');
 			}
-		elsif ($SUBTYPE eq 'E') {
-			$LU->log('SETUP.BUILDER.THEME',"Updated email wrapper for profile $NS",'SAVE');
-			$NSREF->{'email:docid'} = $wrapper;
-			}
 	
 	   $D->from_legacy_nsref($NSREF);
 	   $D->save();
@@ -4473,14 +4270,12 @@ sub builder_themes {
 	
 			my $wrapper = $NSREF->{'zoovy:site_wrapper'};		
 			my $popwrapper = $NSREF->{'zoovy:popup_wrapper'};
-			my $emailwrapper = $NSREF->{'email:docid'};
 	
 			$out = qq~
 				<table>
 					<tr><td><b>Selected Site Theme:</b><br>
 					~.&format($JSONAPI->LU(),&lookup_theme('WRAPPER',$wrapper),'SELECTED',-1,$SUBTYPE,$FLAGS).qq~</td></tr>				
 					~.(($popwrapper ne '')?("<tr><td><b>Selected Popup Theme:</b><br>".&format($JSONAPI->LU(),&lookup_theme('WRAPPER',$popwrapper),'SELECTED',-1,$SUBTYPE,$FLAGS)."</td></tr>"):'').qq~
-					~.(($emailwrapper ne '')?("<tr><td><b>Selected Email Theme:</b><br>".&format($JSONAPI->LU(),&lookup_theme('EMAIL',$emailwrapper),'SELECTED',-1,$SUBTYPE,$FLAGS)."</td></tr>"):'').qq~
 				</table>
 				<br><br>
 	
@@ -4561,9 +4356,6 @@ sub builder_themes {
 		my $out = '';
 	   my $MEDIAHOST = &ZOOVY::resolve_media_host($USERNAME);
 		my $thumburl = "//$MEDIAHOST/graphics/wrappers/".$tinfo->{'DOCID'}.'/preview.jpg';
-		if ($tinfo->{'FORMAT'} eq 'ZEMAIL') {
-			$thumburl = "//$MEDIAHOST/graphics/emails/".$tinfo->{'DOCID'}.'/preview.jpg';
-			}
 	
 		if ((substr($tinfo->{'DOCID'},0,1) eq '~') || ($tinfo->{'MID'} == $MID)) {
 
@@ -5139,13 +4931,6 @@ sub builder {
 				$SITE->layout( $nsref->{'zoovy:site_wrapper'} );
 				}
 			}
-		elsif ($SITE->format() eq 'EMAIL') {
-			if ($SITE->layout() eq '') {
-				# $SITE->layout( &ZOOVY::fetchmerchantns_attrib($USERNAME,$D->profile(),'email:docid') );
-				my ($nsref) = $D->as_legacy_nsref();
-				$SITE->layout( $nsref->{'email:docid'} );
-				}
-			}
 		elsif ($SITE->format() eq 'PRODUCT') {
 			$SITE->pageid( $SITE->pid() );
 			if ($SITE->layout() eq '') {
@@ -5228,10 +5013,6 @@ sub builder {
 	
 		if ($SITE->format() eq 'WRAPPER') {	
 			die("alas, wrappers are not saved/configured by this tool (only edited)");
-			}
-		elsif ($SITE->format() eq 'EMAIL') {
-			$D->set('email.docid',$SITE->docid()); $D->save();
-			$LU->log('SETUP.BUILDER.EMAIL',"Saved new layout ".$SITE->docid()." for profile ".$D->profile(),"SAVE");
 			}
 		elsif ($SITE->format() eq 'PRODUCT') {
 			my ($P) = PRODUCT->new($LU,$SITE->pid()); 
@@ -5716,13 +5497,7 @@ sub builder {
 		my $default = '';
 		$template_file = 'chooser.shtml';
 		my ($nsref) = $D->as_legacy_nsref();
-		if ($SITE->{'_FORMAT'} eq 'EMAIL') {
-			$title = "Choose an Email Template";
-			# $default = &ZOOVY::fetchmerchantns_attrib($USERNAME,$D->profile(),'zoovy:email_template');
-			 $default = $nsref->{'zoovy:email_template'};
-			$SITE->sset('_FS','');
-			}
-		elsif ( index($SITE->pageid(), 'CAMPAIGN') > 0){ 
+		if ( index($SITE->pageid(), 'CAMPAIGN') > 0){ 
 			my (undef, $CAMPAIGN_ID) = split(/:/, $SITE->pageid());
 			$title = "Choose a Newsletter Layout";
 			$GTOOLSUI::TAG{"<!-- TITLE -->"} = "Step 2: $title";
@@ -6287,31 +6062,12 @@ sub panel_builder {
 	my $mobile_wrapper = $nsref->{'zoovy:mobile_wrapper'};
 	if ($mobile_wrapper eq '') { $mobile_wrapper = 'm09_moby'; }
 
-
-	## my $email = &ZOOVY::fetchmerchantns_attrib($USERNAME,$NS,'email:docid');
-	my $email = $nsref->{'email:docid'};
-	if ($email eq '') { $email = 'Not Set'; }
-
-	##my $prt = &ZOOVY::fetchmerchantns_attrib($USERNAME,$NS,'prt:id');
-	##my $prtinfo = '';
-	##if ($prt>0) {
-	##	$prtinfo = "<tr><td>Partition:</td><td>$prt</td></tr>";
-	##	}
-
 	my $DOMAINNAME = $D->domainname();
 	$out .= qq~
 <table width=100%>
 <tr>
 	<td>Company Information</td>
 	<td><a href="#" onClick="return navigateTo('/biz/vstore/builder/index.cgi?ACTION=COMPANYEDIT&DOMAIN=$DOMAINNAME');">[Edit]</a></td>
-</tr>
-<tr>
-	<td>Email Messages</td>
-	<td>
-		<a href="#" onClick="return navigateTo('/biz/vstore/builder/emails/index.cgi?VERB=EDIT&DOMAIN=$DOMAINNAME');">[Edit]</a>
-		<a href="#" onClick="return navigateTo('/biz/vstore/builder/themes/index.cgi?DOMAIN=$DOMAINNAME&SUBTYPE=E');">[Select]</a>
-	</td>
-	<td>$email</td>
 </tr>
 
 <tr>
@@ -6764,422 +6520,3 @@ sub output {
 1;
 
 
-__DATA__
-	
-	./advwebsite/index.cgi
-	./builder/details.cgi
-	./builder/index.cgi
-	./builder/themes/index.cgi
-	./billing/index.cgi
-	./analytics/index.cgi
-	./search/index.cgi
-	#!/usr/bin/perl
-
-	
-	#!/usr/bin/perl
-	
-	use lib "/backend/lib";
-	use strict;
-	require ZOOVY;
-	require ZWEBSITE;
-	require LUSER;
-	require SITE;
-	require SITE::EMAILS;
-	
-	#use URI::Escape;
-	use Data::Dumper;
-	
-	my ($LU) = $JSONAPI->LU();
-	my ($MID,$USERNAME,$LUSERNAME,$FLAGS,$PRT) = $LU->authinfo();
-	if ($MID<=0) { warn "No auth"; exit; }
-	
-	my ($VERB) = $ZOOVY::cgiv->{'VERB'};
-	if ($VERB eq '') { $VERB = 'EDIT'; }
-	print STDERR "VERB: $VERB\n";
-	
-	my ($NS) = $ZOOVY::cgiv->{'NS'};
-	$GTOOLSUI::TAG{'<!-- NS -->'} = $NS;
-	my @TABS = ();
-	my @MSGS = ();
-	
-	my $template_file = '';
-	
-	my ($SITE) = SITE->new($USERNAME,'PRT'=>$PRT,'DOMAIN'=>$LU->domainname());
-	my ($SE) = SITE::EMAILS->new($USERNAME,'*SITE'=>$SITE,RAW=>1);
-	
-	
-	if ($VERB eq 'CONFIG') {
-		}
-	
-	
-	if ($VERB eq 'MSGNUKE') {
-		my $MSGID = $ZOOVY::cgiv->{'MSGID'};
-		$SE->save($MSGID,"NUKE"=>1);
-		push @MSGS, "SUCCESS|+Deleted message $MSGID";
-		$VERB = '';
-		}
-	
-	##
-	##
-	##
-	if ($VERB eq 'MSGTEST') {
-		my $MSGID = $ZOOVY::cgiv->{'MSGID'};
-		my ($err) = $SE->send($MSGID,TEST=>1,TO=>$ZOOVY::cgiv->{'MSGFROM'});
-		$VERB = 'MSGEDIT';
-	
-		if ($err) {
-			my $errmsg = $SITE::EMAILS::ERRORS{$err};
-			push @MSGS, "ERROR|+$errmsg";
-			}
-		else {
-			push @MSGS, "SUCCESS|+Successfully sent test email.";
-			}
-		}
-	
-	##
-	##
-	##
-	if ($VERB eq 'MSGSAVE') {
-		## 
-		my $MSGID = $ZOOVY::cgiv->{'MSGID'};
-	
-		my %options = ();
-		$options{'SUBJECT'} = $ZOOVY::cgiv->{'MSGSUBJECT'};
-		$options{'BODY'} = $ZOOVY::cgiv->{'MSGBODY'};
-		if (defined $ZOOVY::cgiv->{'MSGTYPE'}) {
-			$options{'TYPE'} = $ZOOVY::cgiv->{'MSGTYPE'};
-			}
-		if (defined $ZOOVY::cgiv->{'MSGBCC'}) {
-			$options{'BCC'} = $ZOOVY::cgiv->{'MSGBCC'};
-			}
-		if (defined $ZOOVY::cgiv->{'MSGFROM'}) {
-			$options{'FROM'} = $ZOOVY::cgiv->{'MSGFROM'};
-			}
-	
-		$options{'FORMAT'} = 'HTML';
-		if (defined $ZOOVY::cgiv->{'MSGFORMAT'}) {
-			$options{'FORMAT'} = $ZOOVY::cgiv->{'MSGFORMAT'};
-			}
-		
-		push @MSGS, "SUCCESS|Successfully saved.";
-		
-		$SE->save($MSGID, %options);
-		$VERB = 'MSGEDIT';
-		}
-	
-	##
-	##
-	##
-	if ($VERB eq 'MSGEDIT') {
-		my $MSGID = $ZOOVY::cgiv->{'MSGID'};
-		my $msgref = $SE->getref($MSGID);
-		
-		$GTOOLSUI::TAG{'<!-- MSGTYPE -->'} = $msgref->{'MSGTYPE'};
-		$GTOOLSUI::TAG{'<!-- MSGID -->'} = uc($MSGID);
-		$GTOOLSUI::TAG{'<!-- MSGSUBJECT -->'} = &ZOOVY::incode($msgref->{'MSGSUBJECT'});
-	
-		$GTOOLSUI::TAG{'<!-- MSGFORMAT_HTML -->'} = ($msgref->{'MSGFORMAT'} eq 'HTML')?'checked':'';
-		$GTOOLSUI::TAG{'<!-- MSGFORMAT_WIKI -->'} = ($msgref->{'MSGFORMAT'} eq 'WIKI')?'checked':'';
-		$GTOOLSUI::TAG{'<!-- MSGFORMAT_TEXT -->'} = ($msgref->{'MSGFORMAT'} eq 'TEXT')?'checked':'';
-		$GTOOLSUI::TAG{'<!-- MSGFORMAT_DONOTSEND -->'} = ($msgref->{'MSGFORMAT'} eq 'DONOTSEND')?'checked':'';
-	
-		$GTOOLSUI::TAG{'<!-- MSGBODY -->'} = &ZOOVY::incode($msgref->{'MSGBODY'});
-		$GTOOLSUI::TAG{'<!-- MSGFROM -->'} = &ZOOVY::incode($msgref->{'MSGFROM'});
-		$GTOOLSUI::TAG{'<!-- MSGBCC -->'} = &ZOOVY::incode($msgref->{'MSGBCC'});
-		$GTOOLSUI::TAG{'<!-- CREATED -->'} = &ZTOOLKIT::pretty_date($msgref->{'CREATED_GMT'},1);
-	
-		foreach my $mline (@SITE::EMAILS::MACRO_HELP) {
-			my $show = 0;
-			if ($mline->[0] eq $msgref->{'MSGTYPE'}) { $show |= 1; }
-			elsif (($msgref->{'MSGTYPE'} eq 'TICKET') && ($mline->[0] eq 'CUSTOMER')) { $show |= 1; }
-			elsif (($msgref->{'MSGTYPE'} eq 'TICKET') && ($mline->[0] eq 'ORDER')) { $show |= 2; } # 2 = selective availability
-	
-			if ($show) {
-			$GTOOLSUI::TAG{'<!-- MACROHELP -->'} .= 
-				sprintf(q~<tr>
-				<td class="av" valign="top">%s</td>
-				<td class="av" valign="top">%s%s</td>
-				</tr>~,
-				&ZOOVY::incode($mline->[1]), 
-				$mline->[2],
-				((($show&2)==2)?'<div class="hint">Note: will only appear when properly associated.</div>':'')
-				 );
-				}
-			}
-	
-		$template_file = 'msgedit.shtml';	
-		}
-	
-	##
-	##
-	##
-	if ($VERB eq 'EDIT') {
-		$template_file = 'edit.shtml';
-	
-		my ($SE) = SITE::EMAILS->new($USERNAME,'*SITE'=>$SITE,RAW=>1);
-		my $result = $SE->available("");	
-		foreach my $TYPE ('ORDER','ACCOUNT','PRODUCT','TICKET') {
-			my $c = '';
-			my $r = 0;
-			my %MSGIDS = ();
-			foreach my $msgref (@{$result}) {
-				next if ($TYPE ne $msgref->{'MSGTYPE'});
-				$MSGIDS{ $msgref->{'MSGID'} } = $msgref;
-				}
-	
-			## we sort by MSGID
-			foreach my $k (sort keys %MSGIDS) {
-				my $msgref = $MSGIDS{$k};
-				my $title = "SUBJECT: $msgref->{'MSGSUBJECT'}";
-				if ($msgref->{'MSGTITLE'} ne '') { $title = "TITLE: $msgref->{'MSGTITLE'}"; }
-	
-				if (not defined $msgref->{'MSGFORMAT'}) { $msgref->{'MSGFORMAT'} = 'HTML'; }
-	
-				$r = ($r eq 'r0')?'r1':'r0';
-				$c .= "<tr class='$r'>";
-				$c .= "<td width='50px'><input type='button' class='button' value=' Edit ' onClick=\"navigateTo('/biz/vstore/builder/emails/index.cgi?DOMAIN=$DOMAIN&VERB=MSGEDIT&MSGID=$msgref->{'MSGID'}');\"></td>";
-				$c .= "<td width='100px'>".&ZOOVY::incode($msgref->{'MSGID'})."</td>";
-				$c .= "<td>".&ZOOVY::incode($title)."</td>";
-				if (not defined $msgref->{'CREATED_GMT'}) { $msgref->{'CREATED_GMT'} = 0; }
-				$c .= "<td width='100px'>".&ZTOOLKIT::pretty_date($msgref->{'CREATED_GMT'})."</td>";
-				$c .= "<td width='100px'>".$msgref->{'MSGFORMAT'}."</td>";
-				$c .= "</tr>";
-				}
-			$GTOOLSUI::TAG{"<!-- $TYPE -->"} .= $c;
-			}
-		# $GTOOLSUI::TAG{'<!-- ORDER -->'} = Dumper($result);
-	
-		}
-	
-	if ($VERB eq 'ADD') {
-		$GTOOLSUI::TAG{'<!-- NS -->'} = $NS;
-		$template_file = 'add.shtml';
-		}
-	
-	
-	#push @TABS, { name=>'Config', link=>"/biz/vstore/builder/emails/index.cgi?VERB=CONFIG", selected=>(($VERB eq 'SELECT')?1:0) };
-	push @TABS, { name=>'Select', link=>"/biz/vstore/builder/themes/index.cgi?SUBTYPE=E&DOMAIN=$DOMAIN", selected=>(($VERB eq 'SELECT')?1:0) };
-	push @TABS, { name=>'Edit', link=>"/biz/vstore/builder/emails/index.cgi?VERB=EDIT&DOMAIN=$DOMAIN", selected=>(($VERB eq 'EDIT')?1:0)  };
-	push @TABS, { name=>'Add', link=>"/biz/vstore/builder/emails/index.cgi?VERB=ADD&DOMAIN=$DOMAIN", selected=>(($VERB eq 'ADD')?1:0)  };
-	
-	my @BC = ();
-	push @BC, { name=>"Setup", link=>'/biz/vstore' };
-	push @BC, { name=>"Builder", link=>'/biz/vstore/builder' };
-	push @BC, { name=>"Emails", link=>'/biz/vstore/builder/emails' };
-	
-	return(file=>$template_file,header=>1,msgs=>\@MSGS,tabs=>\@TABS, bc=>\@BC);
-	
-
-
-
-	#!/usr/bin/perl
-	
-	use lib "/backend/lib";
-	use ZOOVY;
-	use CGI;
-	
-	my $q = new CGI;
-	my $ID = $ZOOVY::cgiv->{'id'};
-	
-	print "Content-type: text/html\n\n";
-	print qq~
-	<html>
-	<head>
-	<title>Zoovy HTML Editor</title>
-	
-	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-	
-	<!-- Configure the path to the editor.  We make it relative now, so that the
-	    example ZIP file will work anywhere, but please NOTE THAT it's better to
-	    have it an absolute path, such as '/htmlarea/'. -->
-	<script type="text/javascript">
-	  _editor_url = "/biz/vstore/builder/htmlarea/";
-	  _editor_lang = "en";
-	</script>
-	
-	<!-- load the main HTMLArea file, this will take care of loading the CSS and
-	    other required core scripts. -->
-	<script type="text/javascript" src="/biz/vstore/builder/htmlarea/htmlarea.js"></script>
-	
-	<!-- load the plugins -->
-	<script type="text/javascript">
-	      // WARNING: using this interface to load plugin
-	      // will _NOT_ work if plugins do not have the language
-	      // loaded by HTMLArea.
-	
-	      // In other words, this function generates SCRIPT tags
-	      // that load the plugin and the language file, based on the
-	      // global variable HTMLArea.I18N.lang (defined in the lang file,
-	      // in our case "lang/en.js" loaded above).
-	
-	      // If this lang file is not found the plugin will fail to
-	      // load correctly and NOTHING WILL WORK.
-	
-	      HTMLArea.loadPlugin("TableOperations");
-	      HTMLArea.loadPlugin("SpellChecker");
-	      HTMLArea.loadPlugin("FullPage");
-	      HTMLArea.loadPlugin("CSS");
-	      HTMLArea.loadPlugin("ContextMenu");
-	      //HTMLArea.loadPlugin("HtmlTidy");
-	      HTMLArea.loadPlugin("ListType");
-	      HTMLArea.loadPlugin("CharacterMap");
-			HTMLArea.loadPlugin("DynamicCSS");
-	</script>
-	
-	<style type="text/css">
-	html, body {
-	  font-family: Verdana,sans-serif;
-	  background-color: #FFFFFF;
-	  color: #000000;
-	}
-	a:link, a:visited { color: #00f; }
-	a:hover { color: #048; }
-	a:active { color: #f00; }
-	
-	textarea { background-color: #fff00f; border: 1px solid; }
-	</style>
-	
-	<script type="text/javascript">
-	var editor = null;
-	
-	function initEditor() {
-	
-	  // create an editor for the "ta" textbox
-	  editor = new HTMLArea("ta");
-	
-	  // register the FullPage plugin
-	  editor.registerPlugin(FullPage);
-	
-	  // register the Table plugin
-	  editor.registerPlugin(TableOperations);
-	
-	  // register the SpellChecker plugin
-	  editor.registerPlugin(SpellChecker);
-	
-	  // register the HtmlTidy plugin
-	  //editor.registerPlugin(HtmlTidy);
-	
-	  // register the ListType plugin
-	  // editor.registerPlugin(ListType);
-	
-	//  editor.registerPlugin(CharacterMap);
-	// editor.registerPlugin(DynamicCSS);
-	
-	  // register the CSS plugin
-	  editor.registerPlugin(CSS, {
-	    combos : [
-	      { label: "Syntax:",
-	                   // menu text       // CSS class
-	        options: { "None"           : "",
-	                   "Code" : "code",
-	                   "String" : "string",
-	                   "Comment" : "comment",
-	                   "Variable name" : "variable-name",
-	                   "Type" : "type",
-	                   "Reference" : "reference",
-	                   "Preprocessor" : "preprocessor",
-	                   "Keyword" : "keyword",
-	                   "Function name" : "function-name",
-	                   "Html tag" : "html-tag",
-	                   "Html italic" : "html-helper-italic",
-	                   "Warning" : "warning",
-	                   "Html bold" : "html-helper-bold"
-	                 },
-	        context: "pre"
-	      },
-	      { label: "Info:",
-	        options: { "None"           : "",
-	                   "Quote"          : "quote",
-	                   "Highlight"      : "highlight",
-	                   "Deprecated"     : "deprecated"
-	                 }
-	      }
-	    ]
-	  });
-	
-	  // add a contextual menu
-	  editor.registerPlugin("ContextMenu");
-	
-	  // load the stylesheet used by our CSS plugin configuration
-	  editor.config.pageStyle = "@import url(custom.css);";
-	
-	  editor.generate();
-	  return false;
-	}
-	
-	HTMLArea.onload = initEditor;
-	
-	function insertHTML() {
-	  var html = prompt("Enter some HTML code here");
-	  if (html) {
-	    editor.insertHTML(html);
-	  }
-	}
-	function highlight() {
-	  editor.surroundHTML('<span style="background-color: yellow">', '</span>');
-	}
-	</script>
-	
-	</head>
-	
-	<!-- use <body onload="HTMLArea.replaceAll()" if you don't care about
-	     customizing the editor.  It's the easiest way! :) -->
-	<body onload="HTMLArea.init();">
-	<form action="#" name="edit" id="edit" method="POST">
-	
-	<textarea id="ta" name="ta" style="width:100%" rows="20" cols="80">
-	</textarea>
-	
-	<p />
-	
-	<center><table width=90%>
-	<tr>
-		<td>
-			<input type="submit" src="/images/bizbuttons/save.gif" onClick="mySubmit();" name="ok" value="  submit  " />
-		</td>
-		<td width=100% align='right'>
-			<input type="button" name="ins" value="  insert html  " onclick="return insertHTML();" />
-		</td>
-	</tr>
-	</table>
-	</center>
-	
-	<!--
-	<input type="button" name="hil" value="  highlight text  " onclick="return highlight();" />
-	-->
-	
-	
-	<script type="text/javascript">
-	<!--
-	
-	
-	function mySubmit() {
-	
-		// document.edit.save.value = "yes";
-		document.edit.onsubmit(); 	
-		document.edit.submit();
-		var v = document.forms['edit'].ta.value;
-	
-		window.opener.document.getElementById('$ID').value = v;
-		window.close();
-		return(1);
-		};
-	
-	
-	var frm = window.opener.document.forms['thisFrm'];
-	if (!frm) { frm = window.opener.document.forms['thisFrm-$ID']; }
-	ta.value = frm.elements['$ID'].value;
-	
-	//-->
-	</script>
-	
-	</form>
-	</td></tr></table>
-	</center>
-	
-	</body>
-	</html>
-	~;
-	
-	
-	

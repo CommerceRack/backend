@@ -6,7 +6,7 @@ use Crypt::OpenSSL::RSA;
 use Mail::DKIM::PrivateKey;
 use Data::GUID;
 
-use lib "/httpd/modules";
+use lib "/backend/lib";
 use strict;
 
 use MIME::Entity;
@@ -697,7 +697,7 @@ sub fetch_newsletter_sub_count{
 
 
 
-## perl -e 'use Data::Dumper; use lib "/httpd/modules"; use CUSTOMER::NEWSLETTER; my ($CREF) = &CUSTOMER::NEWSLETTER::fetch_campaign("brian",12314); print Dumper(CUSTOMER::NEWSLETTER::generate("brian",$CREF));'
+## perl -e 'use Data::Dumper; use lib "/backend/lib"; use CUSTOMER::NEWSLETTER; my ($CREF) = &CUSTOMER::NEWSLETTER::fetch_campaign("brian",12314); print Dumper(CUSTOMER::NEWSLETTER::generate("brian",$CREF));'
 
 ##
 ## generate/parbake is phase1, it renders the newsletter content and get's it ready for interplation phase

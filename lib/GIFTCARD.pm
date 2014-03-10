@@ -4,6 +4,20 @@ use strict;
 use lib "/backend/lib";
 require ZOOVY;
 
+sub TO_JSON {
+	my ($self) = @_;
+	my %ref = ();
+	foreach my $k (keys %{$self}) { $ref{$k} = $self->{$k}; }
+	return(\%ref);
+	}
+
+sub new {
+	my ($class, $code, %options) = @_;
+	my $self = \%options;
+	$self->{'code'} = $code;
+	bless $self, 'GIFTCARD';
+	return($self);
+	}
 
 
 ##

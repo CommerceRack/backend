@@ -12632,54 +12632,6 @@ sub from_xml {
 
 
 
-sub payinfo {
-	my ($self) = @_;
-
-	my $error = $self->check();
-	if ($error) {
-		return "Unable to generate payinfo: $error";
-		}
-
-	require ZPAY;
-
-	my $attribs = $self->{'data'};
-
-	my $out;
-	my ($paymethodref) = &ZPAY::lookup_method($attribs->{'payment_method'});
-
-	if ($attribs->{'payment_method'} eq 'CREDIT') {
-		$out = 'Credit Card ';
-		$out .= ('X' x (length($attribs->{'card_number'}) - 4));
-		$out .= substr($attribs->{'card_number'},-4,4) ;
-		}
-	elsif (defined $paymethodref) {
-		# my %methods = &ZPAY::fetch_payment_methods_general();
-		$out = 'Payment by ' . $paymethodref->[0];
-		}
-	else {
-		$out = "Payment by $attribs->{'payment_method'}";
-		}
-
-	if (substr($attribs->{'payment_status'},0,1) eq '0') {
-		$out .= "(Paid in Full)";	
-		}
-	elsif (substr($attribs->{'payment_status'},0,1) eq '2') {
-		$out .= "(Denied)";
-		}
-	else {
-		$out .= "(Pending)";
-		}
-
-	$out .= "\n";
-
-	return $out;
-}
-
-
-
-
-
-
 
 
 
@@ -13610,6 +13562,8 @@ sub TO_JSON {
 #		
 #		push @r, $i;
 #		}
+	$O{'@ITEMS'} = $self->stuff2()->TO_JSON();
+
 	return(\%O);
 	}
 

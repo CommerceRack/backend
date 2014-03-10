@@ -1,6 +1,6 @@
 package ZPAY::PAYFLOW;
 
-use lib '/httpd/modules';
+use lib '/backend/lib';
 require ZPAY;
 require ZWEBSITE;
 require ZTOOLKIT;
@@ -18,8 +18,8 @@ $ZPAY::VERISIGN::PROD_SERVER = 'https://payflowpro.paypal.com';
 $ZPAY::VERISIGN::PROD_SERVER_ALT = 'https://payflowpro.verisign.com';	
 $ZPAY::VERISIGN::TEST_SERVER = 'https://pilot-payflowpro.paypal.com';
 
-#$ENV{'PFPRO_CERT_PATH'} = '/httpd/modules/verisign';
-#$PFProAPI::PFPRO = '/httpd/modules/PFPro';
+#$ENV{'PFPRO_CERT_PATH'} = '/backend/lib/verisign';
+#$PFProAPI::PFPRO = '/backend/lib/PFPro';
 #use PFProAPI;
 
 my $DEBUG = 1;    # This just outputs debug information to the apache log file

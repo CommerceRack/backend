@@ -2,7 +2,7 @@ package ZPAY::PAYPALEC;
 
 use strict;
 
-use lib "/httpd/modules";
+use lib "/backend/lib";
 require ZWEBSITE;
 require ZPAY;
 require ZPAY::PAYPAL;

@@ -3888,9 +3888,6 @@ sub handler {
 			}
 		}
 
-	if ($SITE::c->{'sandbox'} || $PAGE::customer::debug) {
-		push @SITE::PREBODY, { 'TYPE'=>'OUTPUT', HTML=>'<pre>LM:'.&ZOOVY::incode(Dumper($lm)).'</pre><br>' };
-		}
 
 	return();	
 	}
