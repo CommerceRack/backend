@@ -49,6 +49,7 @@ require DOMAIN::QUERY;
 require WHOLESALE;
 require JSONAPI;
 require HTTP::Headers;
+require TOXML;
 
 ## http://search.cpan.org/CPAN/authors/id/M/MI/MIYAGAWA/Plack-Middleware-ReverseProxy-0.15.tar.gz
 

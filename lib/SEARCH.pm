@@ -1661,12 +1661,13 @@ sub search {
 			}
 
 		print STDERR "DOING ELASTIC A\n";
+		open F, ">/dev/shm/elasticsearch.debug";
+		print F Dumper(\%params);
+		close F;
+		
 	   my $results = undef;
 		eval {
-		 	$results = $es->search( 
-				'index'=>"$USERNAME.public", 
-				'body'=>\%params 
-				);
+		 	$results = $es->search( 'index'=>"$USERNAME.public", 	'body'=>\%params 	);
 			};
 		#open F, ">>/tmp/elastic";
 		#print F Dumper($USERNAME,\%params);

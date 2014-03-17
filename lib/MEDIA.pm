@@ -44,7 +44,7 @@ sub to_webapi { my ($pwd) = @_; $pwd =~ s/\//\|/gs; return($pwd); }
 sub load_buffer {
 	my ($orig_filename, $USERNAME) = @_; # USERNAME is optional
 
-	$MEDIA::DEBUG = ($orig_filename =~ m/ppslv2/) ? 1 : 0 ;
+	# $MEDIA::DEBUG = ($orig_filename =~ m/ppslv2/) ? 1 : 0 ;
 
 	my $filename = $orig_filename;
 	if ((defined $USERNAME) && ($USERNAME ne '')) {
@@ -672,7 +672,7 @@ sub serve_image {
 	## SANITY: if we made it here, then we could not find the image and we should try and create
 	##				it from the original
 
-	$MEDIA::DEBUG++;
+	## $MEDIA::DEBUG++;
 
 	$filename = "$subdir/$image.$orig_format";
 	($buf, $format, $result) = &MEDIA::build_image("$userdir/$filename", $argsref, $format);
