@@ -54,10 +54,10 @@ sub jsonapi {
 	if (not $SHIPCFG->{'enable'}) {
 		$ERROR = [ 96, 'Shipworks Not enabled' ];
 		}
-	elsif ($SHIPCFG->{'password'} eq '') {
+	elsif ($SHIPCFG->{'~password'} eq '') {
 		$ERROR = [ 97, 'Password is not set / Shipworks not initialized' ];
 		}
-	elsif ($SHIPCFG->{'password'} ne $SHIPPASS) {
+	elsif ($SHIPCFG->{'~password'} ne $SHIPPASS) {
 		$ERROR = [ 99, sprintf("Password '%s' invalid for '%s'",$SHIPPASS,$USERNAME) ];
 		}
 
