@@ -14,7 +14,7 @@ require ZTOOLKIT;
 require ZWEBSITE;
 require NAVCAT;
 require SITE::URLS;
-require SITE::MSGS;
+#require SITE::MSGS;
 require PAGE;
 require DOMAIN;
 require DOMAIN::QUERY;
@@ -23,18 +23,6 @@ require DOMAIN::TOOLS;
 ## $SITE::DEBUG++;
 $SITE::GLOBAL_MEMCACHE_ID = '.';
 
-#@SITE::SANDBOX_VARS = (
-#	[ 'sandbox__performance', 'Show Performance' ],
-#	[ 'sandbox__formvars', 'Form Vars/Cookies' ],
-#	[ 'sandbox__nomemcache', 'Disable Memcache' ],
-#	[ 'sandbox__elements', 'Disect Elements on Page' ],
-##	[ 'sandbox__javascript', 'Disable 3rd party javascript/plugins' ],
-##	[ 'sandbox__inlinedebug', 'Enable In-line Element Debugging' ],
-##	[ 'sandbox__shipdebug', 'Show Shipping Debugger output' ],
-##	[ 'sandbox__promodebug', 'Show Shipping Debugger output' ],
-#	[ 'sandbox__searchdebug', 'Show Search Debugger output' ],
-##	[ 'sandbox__showbroke', 'Show broken stuff. (e.g. missing categories, products that don\'t exist, etc.)' ],	
-#	);
 
 
 %SITE::VARS = (
@@ -234,7 +222,6 @@ sub pAGE {
 		}
 	$SITE::DEBUG && print STDERR  "PAGE->($PATH) ".join("|",caller(0))."\n"; 
 
-	# PAGE->new($SITE->username(),$SITE::PG,cache=>$SITE::SREF->{'cache'},PRT=>$SITE->prt());
 	return($P);
 	}
 
@@ -403,18 +390,6 @@ sub globalref {
 	}
 
 
-##
-## initializes and exports the SITE object for global use.
-##
-#sub export {
-#	my ($self) = @_;
-#	
-#	$SITE::SREF = $self;
-#	$SITE::SREF->{'%NSREF'} = $self->nsref();
-#	# $SITE::webdbref = $self->webdb();
-#	$SITE::SREF->{'+prt'} = $self->prt();
-#	return($self);
-#	}
 
 
 sub wrapper { return( $_[0]->nsref()->{'zoovy:site_wrapper'} ); }
@@ -615,7 +590,6 @@ sub canonical_uri {
 		}
 	elsif ($pagetype eq 'results') {
 		#my $params = &ZTOOLKIT::buildparams({KEYWORDS=>$SITE::v->{'keywords'},CATALOG=>$SITE::v->{'catalog'}});
-		#$SITE::SREF->{'+canonical_url'} = sprintf("http://%s/results.cgis?%s",$SITE->cdomain(),$params);
 		}
 	return($CANONICAL_URI);
 	}
@@ -755,64 +729,9 @@ sub prt {
 	#	$self->{'+prt'} = &ZOOVY::profile_to_prt($self->username(),$self->profile());		
 	#	}
 
-	#$SITE::SREF->{'+prt'} = int($SITE->nsref()->{'zoovy:site_partition'});
-	#if ($SITE->profile() eq 'DEFAULT') {
-	#	## default is always partition zero
-	#	$SITE::SREF->{'+prt'} = 0;
-	#	}
-	#elsif (defined $SITE->nsref()->{'prt:id'}) {
-	#	## prt:id always wins, if it's set.
-	#	$SITE::SREF->{'+prt'} = int($SITE->nsref()->{'prt:id'});
-	#	}
-
 	return($self->sget('+prt')); 
 	}
 
-
-
-
-#sub profile { 
-#	my ($self) = @_;
-#
-#	Carp::cluck("ATTEMPTED TO ACCESS SITE->profile()\n");
-#	return(sprintf("#%d",$self->prt()));
-#	}
-
-#	$SITE::DEBUG && print STDERR  "profile->".join("|",caller(0))."\n";
-#	if (defined $self->{'_NS'}) {
-#		}
-#	elsif (defined $self->{'+prt'}) {
-#		($self->{'_NS'}) = &ZOOVY::prt_to_profile($self->username(),$self->prt());		
-#		}
-#	else {
-#		warn Carp::cluck("_NS not populated in SITE -- ");		
-#		}
-#
-#	my $PROFILE = $self->sget('_NS');
-#	if ((not defined $PROFILE) || ($PROFILE eq '')) { 
-#		$PROFILE = 'DEFAULT'; 
-#		}
-#	else {
-#		$PROFILE = uc($PROFILE);
-#		$PROFILE =~ s/[^A-Z0-9]+//gso;
-#		}
-#
-#	return($PROFILE); 
-#	}
-
-
-## the rewritable / redirectable uri
-##	/c= removed
-## /s= removed
-## /username/ remains
-#sub rewritable_uri {
-#		my $requri = $ENV{'REQUEST_URI'};
-#		if (index($requri,'?')>=0) { $requri = substr($requri,0,index($requri,'?')); }	# strip ? 
-#		if ($requri =~ /\/c=(.*?)\//o) { $requri =~ s/\/c=(.*?)\//\//gs; } # strip the cart id.
-#		if ($requri =~ /\/s=(.*?)\//o) { $requri =~ s/\/s=(.*?)\//\//gs; } # strip the sdomain
-#
-#		$SITE::SREF->{'+REQUEST_URI'} = $requri;
-#	}
 
 
 sub uri { 
@@ -823,10 +742,10 @@ sub msgs {
 	my ($self) = @_;
 
 	# warn "MSGS: ".join("|",caller(0))."\n";	
-	## $SITE::SREF->{'*MSGS'} = SITE::MSGS->new($SITE->username(), '*SITE'=>$SITE, '*CART2'=>$SITE::CART2);
 	if (defined $self->{'*MSGS'}) {
 		}
 	else {
+		require SITE::MSGS;
 		$self->{'*MSGS'} = SITE::MSGS->new($self->username(), '*SITE'=>$self, '*CART2'=>$self->cart2());
 		}
 	return($self->{'*MSGS'});
@@ -1301,43 +1220,8 @@ sub init_jsruntime {
 	$SITE::JSOUTPUT = '';
 	$SITE::JSRUNTIME = JavaScript::Runtime->new(128000);
 	$SITE::JSCONTEXT = $SITE::JSRUNTIME->create_context();
-#	$SITE::JSCONTEXT->set_error_handler(sub {
-#			 my ($message, $lineno, $linebuff) = @_;
-#			 die "Error at line: $lineno\nMessage is: $message\nSource is: $linebuff\n";
-#		  });
-
 	my $context = $SITE::JSCONTEXT;
-
-	## searchCatalog
-#	$context->bind_function( name => 'searchCatalog', func => sub { 
-#		my ($CATALOG,$WORDS) = @_;
-#		my ($listref,$prodsref) = &SEARCH::search($SITE::merchant_id,MODE=>'',KEYWORDS=>$WORDS,CATALOG=>$CATALOG,PRT=>$SITE::SREF->{'+prt'});
-#		return(join(",",@{$listref}));
-#		} );
-#	$context->bind_function( name => 'imageUrl', func => sub { return(&TOXML::RENDER::imageUrl($SITE::SREF->{'_USERNAME'},@_)); } );
-#	$context->bind_function( name => 'loadURP', func => sub { return(&TOXML::RENDER::loadURP($SITE::SREF,@_)); } );	
-
-#	$context->bind_function( name => 'themeini', func => sub { return($cart_theme->{$_[0]}); } );
-#	$context->bind_function( name => 'webdb', func => sub { return($cart_webdb->{$_[0]}); } );
-#	$context->bind_function( name => 'element', func => sub { return($iniref->{$_[0]}); } );
-#	$context->bind_function( name => 'moneyformat', func => sub { return(&ZTOOLKIT::moneyformat($_[0])); } );
-
-#	$context->bind_function( name=> 'specfunc', func=> sub {
-#		my ($sfunc,$in,%params) = @_;
-#		#$TOXML::SPECL::t2functions{$sfunc}->($_,$hashes,$paramstr)
-#		# return(Dumper($TOXML::SPECL::t2functions{$sfunc}->($in,\%params));
-#		});
-#	$context->bind_function( name=> 'specvar', func=> sub {
-#		my ($svar,%params) = @_;
-#		#$TOXML::SPECL::t2functions{$sfunc}->($_,$hashes,$paramstr)
-#		# return(Dumper($svar,\%params));
-#		});
-
 	$context->bind_function( name => 'write', func => sub { $SITE::JSOUTPUT .= $_[0]; } );
-#	$context->set_error_handler(sub {
-#		my ($message, $lineno, $linebuff) = @_;
-#		die "Error at line: $lineno\nMessage is: $message\nSource is: $linebuff\n";
-#		});
 	
 	return($context);
 	}
@@ -1460,40 +1344,6 @@ sub run {
 ########################################
 # HTTP HEADER
 
-#sub header {
-#	my ($r, $exp_hours, $length) = @_;
-#
-#
-#	$exp_hours = (defined $exp_hours)?$exp_hours:6;
-#
-#	## Date is a required field when working with Expires and Cookies
-#	$r->headers_out()->add('Date'=>&CGI::expires('+0h')); # Looks kludgy but its how CGI.pm does it intenally :)
-#	if ($length>0) { $r->headers_out()->add('Content-Length'=>$length); }
-#
-#	if ($exp_hours == 0) {	## nocache
-#		$SITE::DEBUG && warn('Disabling browser caching');
-#		$r->headers_out()->add('Pragma'=>'no-cache');	## HTTP 1.0 non-caching specification
-#		$r->headers_out()->add('Cache-Control'=>'no-cache, no-store');	## HTTP 1.1 non-caching specification
-#		$r->headers_out()->add('Expires'=>'0');								 ## HTTP 1.0 way of saying "expire now"
-#		}
-#	else {
-#		$r->headers_out()->add('Cache-Control'=>'Private'); 
-#		$r->headers_out()->add('Expires'=>&CGI::expires('+' . $exp_hours . 'h'));	 # Set the expiration time
-#		}
-#	cookies($SITE::SREF,$r);
-#	# my $charset = &ZTOOLKIT::def($SITE::webdbref->{'charset'}, 'ISO-8859-1');
-#	my $charset = &ZTOOLKIT::def($SITE::webdbref->{'charset'}, 'UTF-8');
-#	# $r->content_type("text/html; charset=$charset");
-#	if (substr($SITE::SREF->{'+sdomain'},0,2) eq 'm.') {
-#		## woot.. we're mobile!
-#		$r->content_type("text/html; charset=$charset");
-#		}
-#	else {
-#		$r->content_type("text/html; charset=$charset");
-#		}
-#	
-#	} ## end sub header
-
 
 ########################################
 ## BAD BOT
@@ -1526,95 +1376,6 @@ sub request_login {
 	}
 
 
-
-###############################################################################
-## get_static_url
-##
-## Purpose: Makes a URL for an image
-## Accepts: A username, a type (which can be 'img' for normal image library
-##			 images or 'merchant' for direct-lookup to the IMAGES directory),
-##			 and an optional protocol of http or https (defaults to whatever
-##			 environment the web server appears to be running under)
-## Returns: A URL for the image
-##
-## NOTES:
-## Implements $SITE::image_base which was half-completed at time of writing
-##
-###############################################################################
-#sub get_static_url {
-#	my ($USERNAME, $type, $protocol) = @_;
-#	## Make sure we have a username
-#	unless (&ZTOOLKIT::def($USERNAME)) {
-#		warn "Must provide username with call to IMGLIB::get_static_url()";
-#		return();
-#		}
-#
-#	## Make sure we have a lookup type...
-#	##  'merchant' for direct lookup for non-image uploads, and...
-#	##  'img' for IMGLIB processed images
-#	$type = &ZTOOLKIT::def($type,'img');
-#	my $url = '';
-#	if (defined $SITE::image_base) {
-#		## If we have an already-defined image base, send it over
-#		$url = $SITE::image_base.'/'.$type;
-#		}
-#	else {
-#		## Make sure we have http or https set as the protocol
-#		if (not &ZTOOLKIT::def($protocol)) {
-#			if (lc(&ZTOOLKIT::def($ENV{'HTTPS'})) eq 'on') { $protocol = 'https'; }
-#			else { $protocol = 'http'; }
-#			}
-#		elsif ($protocol !~ m/^https?$/) {
-#			$protocol = 'http';
-#			}
-#		$url = "$protocol://static.zoovy.com/$type/$USERNAME";
-#		}
-#	return $url;
-#	}
-
-
-
-
-##
-## this function contains all the logic which rewrites a particular product into it's URL
-##
-#sub prodref_to_url {
-#	my ($USERNAME,$PID,$pref) = @_;
-#	
-#	my $uri_name = $pref->{'zoovy:prod_name'};
-#	if ((defined $pref->{'zoovy:prod_seo_title'}) && ($pref->{'zoovy:prod_seo_title'} ne '')) {
-#		$uri_name = $pref->{'zoovy:prod_seo_title'};
-#		}
-#	$uri_name =~ s/[\"!\&]+//gs;
-#	$uri_name =~ s/^[\s]+//gos;
-#	$uri_name =~ s/[\s]+$//gos;
-#	$uri_name =~ s/[\s]+/\-/gos;
-#	$uri_name =~ s/[\n\r]+//gos;
-#	$uri_name =~ s/[^\w\-]+//gos;
-#	# $uri_name = URI::Escape::uri_escape($uri_name);
-#	$uri_name = URI::Escape::uri_escape_utf8($uri_name); 
-#	$uri_name = "/$uri_name.html";
-#	# if ($USERNAME eq 'kyledesign') { $uri_name = ''; }
-#
-#	# print STDERR "URI[$uri_name]\n";
-#
-#	return('/product/'.$PID.$uri_name);
-#	}
-
-
-
-########################################
-## MSG and SMSG (SITE.pm AND CGI(s) DEBUG LOGGING)
-
-#sub msg
-#{
-#	my $head = 'SITE: ';
-#	while ($_ = shift (@_))
-#	{
-#		if (ref) { require Data::Dumper; $_ = Data::Dumper->Dump([$_], [shift (@_)]); }
-##		print STDERR $head, join ("\n$head", split (/\n/, $_)), "\n";
-#	}
-#}
 
 sub login_trackers {
 	my ($self,$CART2) = @_;

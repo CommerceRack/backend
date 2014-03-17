@@ -6,7 +6,9 @@ use HTTP::Date qw();
 use Data::Dumper;
 use POSIX;
 use Image::Magick qw();
+use Plack::Builder;
 use Plack::Request;
+use Plack::Util;
 use Plack::Response;
 use MIME::Types qw();
 use Coro::AnyEvent;
@@ -86,7 +88,9 @@ my $app = sub {
 			return($res->finalize);
 			}
 		}
+
 		
+
 
 	my $AGE = (86400*45);
 	my $DNSINFO = undef;
@@ -137,6 +141,42 @@ my $app = sub {
 				}
 			}
 		}
+
+
+   if (defined $HTTP_RESPONSE) {
+      ## we're already done! (probably an error)
+      }
+   elsif ($path =~ /^\/jsonapi\/plugin\/([a-z0-9]+)\.(xml|json|txt)$/) {
+      ## we handle options *very* differntly for jsonapi/upload requests so we'll do that later.
+		my $module = uc($1);
+		my $output = $2;
+
+
+
+		## require "PLUGIN::$module";	
+		if ($module eq 'SHIPWORKS') {
+			require PLUGIN::SHIPWORKS;		
+			my ($plugin) = PLUGIN::SHIPWORKS->new($DNSINFO,$v);
+			($HTTP_RESPONSE, $HEADERS, $BODY) = $plugin->jsonapi($path,$req,$HEADERS);
+			}
+		elsif ($module eq 'SHIPSTATION') {
+			require PLUGIN::SHIPSTATION;		
+			my ($plugin) = PLUGIN::SHIPSTATION->new($DNSINFO,$v);
+			($HTTP_RESPONSE, $HEADERS, $BODY) = $plugin->jsonapi($path,$req,$HEADERS,$env);
+			# using OO interface
+			}
+		else {
+			$HTTP_RESPONSE = 500;
+			$BODY = qq~Unknown plugin: $module~;
+			}
+
+		if ($HTTP_RESPONSE == 200) {
+			$HEADERS->push_header( 'Content-type' => "text/$output" );
+			}
+
+      }
+  	
+
 
 	## AT THIS POINT $v is populated
 	my $JSAPI = undef;
@@ -442,7 +482,9 @@ my $app = sub {
 	
 	## the 'Content-Length' header below caused one of the most tramautic 24 hours in my life -- ask me about it.
 	## change at your own peril. -BH 5/18/13
-	$HEADERS->push_header( 'Content-Length' => length($BODY) );
+	if (ref($HEADERS) eq 'HTTP::Headers') {
+		$HEADERS->push_header( 'Content-Length' => length($BODY) );
+		}
 
 	if (&ZOOVY::servername() eq 'dev') {
 		warn "RESPONSE $HTTP_RESPONSE\nBODY:$BODY\n";

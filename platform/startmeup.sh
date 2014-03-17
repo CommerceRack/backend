@@ -14,6 +14,7 @@ mkdir -p /local/swap
 export TOTALMEM=`cat /proc/meminfo  | grep "MemTotal" | cut -b 12-25`
 export TOTALMEM=`expr $TOTALMEM / 1000`	## KB
 export TOTALMEM=`expr $TOTALMEM / 1000`	## MB
+if [ $TOTALMEM -lt 2 ] ; then export TOTALMEM=2; fi;	## minimum swap file(s) should be 3 (3gb)
 while [ $TOTALMEM -gt 0 ] ; do
 	echo $TOTALMEM;
 	TOTALMEM=`expr $TOTALMEM - 1`
@@ -110,10 +111,10 @@ echo "nameserver 8.8.8.8" > /etc/resolv.conf
   chmod 777 /var/run/redis.sock
 	 	
 	/bin/rm /usr/local/nginx/conf/vhosts/*.conf
-  /httpd/platform/dump-domains.pl
-  /httpd/platform/dump-vhosts.pl
-  /etc/init.d/platform start
-  /httpd/bin/apachectl start
+	/httpd/platform/dump-domains.pl
+	/etc/init.d/uwsgi start
+	/etc/init.d/nginx start
+
  
 ## START ELASTIC
   mkdir -p /local/elastic

@@ -9,6 +9,7 @@ require ZOOVY;
 require ZWEBSITE;
 require CUSTOMER::ADDRESS;
 require CUSTOMER::ORGANIZATION;
+require BLAST;
 use strict;
 
 $CUSTOMER::DEBUG = 0;
@@ -342,23 +343,28 @@ sub run_macro_cmds {
 			$self->nuke_addr($TYPE,$SHORTCUT);
 			}
 		elsif ($cmd eq 'SENDEMAIL') {
-			my $PROFILE = &ZOOVY::prt_to_profile($self->username(),$self->prt());
-			require SITE;
-			my ($SITE) = SITE->new($self->username(),'PRT'=>$self->prt(),'PROFILE'=>$PROFILE);
-			require SITE::EMAILS;
-			my ($SE) = SITE::EMAILS->new($self->username(),'*SITE'=>$SITE);
+			#my $PROFILE = &ZOOVY::prt_to_profile($self->username(),$self->prt());
+			#require SITE;
+			#my ($SITE) = SITE->new($self->username(),'PRT'=>$self->prt(),'PROFILE'=>$PROFILE);
+			#require SITE::EMAILS;
+			#my ($SE) = SITE::EMAILS->new($self->username(),'*SITE'=>$SITE);
+			#my ($ERR) = $SE->sendmail($MSGID,'PRT'=>$self->prt(),'RECIPIENT'=>$self->email(),'CUSTOMER'=>$self,
+			#	MSGSUBJECT=>$pref->{'MSGSUBJECT'},
+			#	MSGBODY=>$pref->{'MSGBODY'},
+			#	);
 			my ($MSGID) = $pref->{'MSGID'};
+			my ($BLAST) = BLAST->new($self->username(),int($self->prt()));
+			my ($rcpt) = $BLAST->recipient('CUSTOMER',$self, {'%CUSTOMER'=>$self});
+			my ($msg) = $BLAST->msg($MSGID,$pref);
+			$BLAST->send($rcpt,$msg);
 
-			my ($ERR) = $SE->sendmail($MSGID,'PRT'=>$self->prt(),'RECIPIENT'=>$self->email(),'CUSTOMER'=>$self,
-				MSGSUBJECT=>$pref->{'MSGSUBJECT'},
-				MSGBODY=>$pref->{'MSGBODY'},
-				);
-			if (not $ERR) {
-				$lm->pooshmsg("SUCCESS|+Your message was sent, you may now close this window.");
-				}
-			else {
-				$lm->pooshmsg("ERROR|+>Email#($ERR) $SITE::EMAILS::ERRORS{$ERR}");
-				}
+			#my $ERR = undef;
+			#if (not $ERR) {
+			#	$lm->pooshmsg("SUCCESS|+Your message was sent, you may now close this window.");
+			#	}
+			#else {
+			#	$lm->pooshmsg("ERROR|+>Email#($ERR) $SITE::EMAILS::ERRORS{$ERR}");
+			#	}
 
 			}
 		elsif ($cmd eq 'ORDERLINK') {
@@ -1105,9 +1111,9 @@ sub new {
 			$self->{'INFO'}->{'HINT_ANS'} = ''; 
 			}
 
-		if (not defined $self->{'INFO'}->{'PASSWORD'}) { 
-			$self->{'INFO'}->{'PASSWORD'} = &ZTOOLKIT::make_password();
-			}
+		#if (not defined $self->{'INFO'}->{'PASSWORD'}) { 
+		#	$self->{'INFO'}->{'PASSWORD'} = &ZTOOLKIT::make_password();
+		#	}
 
 		$self->save();
 
@@ -1154,15 +1160,6 @@ sub giftcards {
 	return(\@CARDS);
 	}
 
-
-#sub new_customer {
-#	my ($USERNAME, $EMAIL, $PASSWORD, $LIKESPAM, $HINTNUM, $HINTANS, $ORDERREF, $IP, $ORIGIN) = @_;
-#	if ($EMAIL eq "") { return (2,''); }
-#
-#	# intialize default return values
-#	my $error = 0; 
-#	my $errmsg = "";
-#	# need the database handle to do the encoding properly!
 
 
 # Does the same as above but doesn't create the customer billing/shipping information and assumes they want spam
@@ -1269,9 +1266,6 @@ sub save {
 			if (not defined $self->{'INFO'}->{'ORIGIN'}) { $self->{'INFO'}->{'ORIGIN'} = ''; }
 			if (not defined $self->{'INFO'}->{'PASSWORD'}) { $self->{'INFO'}->{'PASSWORD'} = ''; }
 
-#			## addition of CUSTOMER_COUNTER - patti - 2006/12/05
-#			## CUSTOMER::LEGACY::new_customer uses it, which is used everywhere else
-#
 #			my $parent = 0;
 #			my $pstmt = "insert into CUSTOMER_COUNTER (ID,USERNAME) values(0,".$odbh->quote($self->username()).")";
 #			$odbh->do($pstmt);
@@ -2248,7 +2242,6 @@ sub authenticate {
 
 	$PRT = int($PRT);
 	($PRT) = &CUSTOMER::remap_customer_prt($USERNAME,$PRT);
-	print STDERR "PRT IS NOW: $PRT\n";
 
 	if ($EMAIL eq "") { return(0); }
 	my $odbh = &DBINFO::db_user_connect($USERNAME);
@@ -2261,9 +2254,7 @@ sub authenticate {
 	my ($CUSTOMERTB) = &CUSTOMER::resolve_customer_tb($USERNAME,$MID);
 
 	my $pstmt = "select CID,IS_LOCKED from $CUSTOMERTB where MID=$MID /* $USERNAME */ and PRT=$PRT and EMAIL=$qtEMAIL and PASSWORD=$qtPASSWORD";
-	print STDERR $pstmt."\n";
 	my ($CID,$IS_LOCKED) = $odbh->selectrow_array($pstmt);
-	print STDERR "CID:$CID\n";
 
 	if (not defined $CID) { $CID = 0; }
 	if ($IS_LOCKED) { $CID = 0; }	# yeah i know we should have better error handling, no time to rewrite.

@@ -31,6 +31,7 @@ use PRODUCT;
 use AMAZON3;
 use SITE;
 require INVENTORY2;
+require BLAST;
 
 ## make sure we don't accidentally run two!
 use Proc::PID::File;
@@ -1289,7 +1290,7 @@ sub e_ORDER {
 			my ($C) = CUSTOMER->new($USERNAME,'CREATE'=>0,'CID'=>$O2->customerid(),'INIT'=>0x1);
 			$C->update_reward_balance( $O2->in_get('sum/items_total'), $O2->oid() );
 			$O2->add_history("added ".int($O2->in_get('sum/items_total'))." reward points to customer");
-			my $msgid = "REWARDS";
+			my $msgid = "CUSTOMER.REWARDS";
 
 			## added 2011-11-02, ticket 474843... automatically create giftcard when balance exceeds "points_needed"
 			## set by merchant
@@ -1309,15 +1310,19 @@ sub e_ORDER {
 				GIFTCARD::createCard($USERNAME,$O2->prt(),$issueamt,%OPTS);
 				$O2->add_history("added \$".$issueamt." giftcard, subtracted ".$points_needed." points from customer");
 				$C->update_reward_balance("-".$points_needed,"\$".$issueamt." giftcard created");
-				$msgid = "CUSTOMER.GIFTCARD_RECEIVED";
+				$msgid = "CUSTOMER.GIFTCARD.RECEIVED";
 				}
 				
 			## send email to Customer notifying them of points added or GiftCard created	
-			require SITE::EMAILS;
-			require SITE;
-			my ($SITE) = SITE->new($C->username,'PRT'=>$C->prt());
-			my ($SE) = SITE::EMAILS->new($C->username,'*SITE'=>$SITE); # 'PRT'=>$C->prt(),'GLOBALS'=>1);
-			$SE->sendmail($msgid,'CUSTOMER'=>$C);
+			my ($BLAST) = BLAST->new($C->username,$C->prt());
+			my ($rcpt) = $BLAST->recipient('CUSTOMER',$C);
+			my ($msg) = $BLAST->msg($msgid);
+			$BLAST->send($rcpt,$msg);
+			#require SITE::EMAILS;
+			#require SITE;
+			#my ($SITE) = SITE->new($C->username,'PRT'=>$C->prt());
+			#my ($SE) = SITE::EMAILS->new($C->username,'*SITE'=>$SITE); # 'PRT'=>$C->prt(),'GLOBALS'=>1);
+			#$SE->sendmail($msgid,'CUSTOMER'=>$C);
 			}
 
 		## INFUSIONSOFT, added by patti 2011-02-24
@@ -1430,11 +1435,11 @@ sub e_ORDER {
 		}
 	elsif ($EVENT eq 'ORDER.ARRIVE') {
 		## SEND FOLLOWUP EMAIL
-		require SITE::EMAILS;
+		#require SITE::EMAILS;
 		#my ($se) = SITE::EMAILS->new($USERNAME,'PRT'=>$o->prt(),'GLOBALS'=>1);
 		## need to make emails PROFILE specific
-		my ($SREF) = SITE->new($USERNAME,'PROFILE'=>$O2->profile(),'PRT'=>$O2->prt());
-		my ($se) = SITE::EMAILS->new($USERNAME,'*SITE'=>$SREF,'GLOBALS'=>1);
+		#my ($SREF) = SITE->new($USERNAME,'PROFILE'=>$O2->profile(),'PRT'=>$O2->prt());
+		#my ($se) = SITE::EMAILS->new($USERNAME,'*SITE'=>$SREF,'GLOBALS'=>1);
 		my $ORDER_ORIGIN = '';
 
 		## attempt 2, getting correct marketplace dstcode from order
@@ -1451,7 +1456,7 @@ sub e_ORDER {
 			}
 		print Dumper($ORDER_ORIGIN);
 
-		my @TRY_MSGIDS = ();
+		my $MSGID = undef;
 		if ($ORDER_ORIGIN eq 'BUY') {
 			## against Buy.com policy to send out emails to their customers
 			}
@@ -1467,31 +1472,18 @@ sub e_ORDER {
 		elsif ($ORDER_ORIGIN eq 'AMZ') {
 			## Amazon will freak if we send any external links,
 			##      dont let merchant make that mistake (or at least don't let them send the wrong message)
-			push @TRY_MSGIDS, 'ORDER.ARRIVED.AMZ';	
+			$MSGID = 'ORDER.ARRIVED.AMZ';	
 			}
 		elsif ($O2->customerid() <= 0) {
 			## no customer acct created?, don't send email... customer won't be able to add feedback
 			## moved from the top of this group of if/elsif statement as a CID shouldn't be a requirement for markeplace orders 
 			}
 		elsif ($ORDER_ORIGIN ne '') {
-			push @TRY_MSGIDS, sprintf('ORDER.ARRIVED.%s',$ORDER_ORIGIN);
-			push @TRY_MSGIDS, 'ORDER.ARRIVED';
+			$MSGID = sprintf('ORDER.ARRIVED.%s',$ORDER_ORIGIN);
 			}
 		else {
 			## add WEB for non-marketplace orders
-			push @TRY_MSGIDS, 'ORDER.ARRIVED.WEB';
-			push @TRY_MSGIDS, 'ORDER.ARRIVED';
-			}
-
-
-		##
-		## SANITY: at this point @TRY_MSGID's contains a complete list of all messages we're going to try.
-		##
-
-		my $MSGID = undef;
-		foreach my $trymsgid (@TRY_MSGIDS) {
-			next if (defined $MSGID);
-			if ($se->exists($trymsgid)) { $MSGID = $trymsgid; }
+			$MSGID = 'ORDER.ARRIVED.WEB';
 			}
 
 		##
@@ -1510,9 +1502,13 @@ sub e_ORDER {
 			warn "MSGID was not set, not sending ORDER.ARRIVED email\n";
 			}
 		else {
-			$se->sendmail($MSGID,'*SITE'=>$SREF,'*CART2'=>$O2,'CID'=>$O2->customerid());
+			my ($BLAST) = BLAST->new($USERNAME,$O2->prt());
+			my ($rcpt) = $BLAST->recipient('CUSTOMER',$O2->customerid());
+			my ($msg) = $BLAST->msg($MSGID);
+			$BLAST->send($rcpt,$msg);
+			# $se->sendmail($MSGID,'*SITE'=>$SREF,'*CART2'=>$O2,'CID'=>$O2->customerid());
 			}
-		$se = undef;
+		# $se = undef;
 		}
 
 	
@@ -1592,44 +1588,52 @@ sub e_TICKET {
 
 	my ($TID) = $YREF->{'TICKETID'};
 	require CUSTOMER::TICKET;
-	require SITE::EMAILS;
+	# require SITE::EMAILS;
 	print "TID: $TID\n";
 	my ($CT) = CUSTOMER::TICKET->new($USERNAME,"#$TID",'PRT'=>$PRT);
+	my ($BLAST) = BLAST->new($USERNAME,$PRT);
 		
 	## STEP1: send an email
-	require SITE;
-	my ($SITE) = SITE->new($USERNAME,'PRT'=>$PRT);
-	my ($SE) = SITE::EMAILS->new($USERNAME,'*SITE'=>$SITE);	
-	my ($C,$CID) = undef;
-	my $RECIPIENT = undef;
+	#require SITE;
+	#my ($SITE) = SITE->new($USERNAME,'PRT'=>$PRT);
+	#my ($SE) = SITE::EMAILS->new($USERNAME,'*SITE'=>$SITE);	
+	#my ($C,$CID) = undef;
+	my ($rcpt) = undef;
 	if (defined $CT) {
-		($C) = $CT->link_customer();
+		my ($C) = $CT->link_customer();
 		if ((defined $C) && (ref($C) eq 'CUSTOMER')) {
-			$CID = $C->cid();
-			$RECIPIENT = $C->email();
+			($rcpt) = $BLAST->recipient('CUSTOMER',$C);
 			}
 		}	
+
 	if (not defined $CT) {
 		$ERROR = "Could not lookup ticket $TID";
 		}
-	elsif ($EVENT eq 'TICKET.CREATE') {
-		($ERROR) = $SE->sendmail('TICKET.CREATED','TO'=>$RECIPIENT,'PRT'=>$PRT,'*CT'=>$CT,'ORDER'=>$CT->link_order(),'CUSTOMER'=>$C);
-		}
-	elsif ($EVENT eq 'TICKET.CLOSE') {
-		($ERROR) = $SE->sendmail('TICKET.CLOSED','TO'=>$RECIPIENT,'PRT'=>$PRT,'*CT'=>$CT,'ORDER'=>$CT->link_order(),'CUSTOMER'=>$C);
-		}
-	elsif ($EVENT eq 'TICKET.UPDATE') {
-		($ERROR) = $SE->sendmail('TICKET.UPDATED','TO'=>$RECIPIENT,'PRT'=>$PRT,'*CT'=>$CT,'ORDER'=>$CT->link_order(),'CUSTOMER'=>$C);
-		}
-	elsif ($EVENT eq 'TICKET.REPLY') {
-		($ERROR) = $SE->sendmail('TICKET.REPLY','TO'=>$RECIPIENT,'PRT'=>$PRT,'*CT'=>$CT,'ORDER'=>$CT->link_order(),'CUSTOMER'=>$C);
-		}
-	if ($ERROR == 0) { 
-		$ERROR = undef; 
+	elsif (not $rcpt) {
 		}
 	else {
-		$ERROR = sprintf("[%d] %s",$ERROR,$SITE::EMAIL::ERRORS{$ERROR});
+		## EVENT: TICKET.CREATE, TICKET.CLOSE, TICKET.UPDATE, TICKET.REPLY
+		my ($msg) = $BLAST->msg($EVENT,{'ORDER'=>$CT->link_order,'TICKET'=>$CT});
+		$BLAST->send($rcpt,$msg);
 		}
+	#elsif ($EVENT eq 'TICKET.CREATE') {
+	#	($ERROR) = $SE->sendmail('TICKET.CREATED','TO'=>$RECIPIENT,'PRT'=>$PRT,'*CT'=>$CT,'ORDER'=>$CT->link_order(),'CUSTOMER'=>$C);
+	#	}
+	#elsif ($EVENT eq 'TICKET.CLOSE') {
+	#	($ERROR) = $SE->sendmail('TICKET.CLOSED','TO'=>$RECIPIENT,'PRT'=>$PRT,'*CT'=>$CT,'ORDER'=>$CT->link_order(),'CUSTOMER'=>$C);
+	#	}
+	#elsif ($EVENT eq 'TICKET.UPDATE') {
+	#	($ERROR) = $SE->sendmail('TICKET.UPDATED','TO'=>$RECIPIENT,'PRT'=>$PRT,'*CT'=>$CT,'ORDER'=>$CT->link_order(),'CUSTOMER'=>$C);
+	#	}
+	#elsif ($EVENT eq 'TICKET.REPLY') {
+	#	($ERROR) = $SE->sendmail('TICKET.REPLY','TO'=>$RECIPIENT,'PRT'=>$PRT,'*CT'=>$CT,'ORDER'=>$CT->link_order(),'CUSTOMER'=>$C);
+	#	}
+	#if ($ERROR == 0) { 
+	#	$ERROR = undef; 
+	#	}
+	#else {
+	#	$ERROR = sprintf("[%d] %s",$ERROR,$SITE::EMAIL::ERRORS{$ERROR});
+	#	}
 	
 
 	return($ERROR);
@@ -1868,15 +1872,19 @@ sub e_INV_GOTINSTOCK {
 			$pstmt = "update USER_EVENTS_FUTURE set PROCESSED_GMT=".time()." where MID=$MID and ID=".$ID;
 			print STDERR $pstmt."\n";
 			$udbh->do($pstmt);
-			my ($C) = CUSTOMER->new($USERNAME,CID=>$CID);
+			my ($C) = CUSTOMER->new($USERNAME,CID=>$CID,INIT=>0xFF);
 			
 			## pinstock
-			require SITE;
-			my ($SITE) = SITE->new($USERNAME,NS=>$PROFILE,PRT=>$C->prt());
-			require SITE::EMAILS;
-			my ($se) = SITE::EMAILS->new($USERNAME,'*SITE'=>$SITE);
-			$se->send($varsref->{'msgid'},CUSTOMER=>$C,PRODUCT=>$varsref->{'pid'},TO=>$varsref->{'email'},VARS=>$varsref);
-			$se = undef;
+			#require SITE;
+			#my ($SITE) = SITE->new($USERNAME,NS=>$PROFILE,PRT=>$C->prt());
+			#require SITE::EMAILS;
+			#my ($se) = SITE::EMAILS->new($USERNAME,'*SITE'=>$SITE);
+			#$se->send($varsref->{'msgid'},CUSTOMER=>$C,PRODUCT=>$varsref->{'pid'},TO=>$varsref->{'email'},VARS=>$varsref);
+			#$se = undef;
+			my ($BLAST) = BLAST->new($USERNAME,$C->prt());
+			my ($rcpt) = $BLAST->recipient('CUSTOMER',$C);
+			my ($msg) = $BLAST->msg($varsref->{'msgid'},{'%VARS'=>$varsref});
+			$BLAST->send($rcpt,$msg);
 			}
 		## END ADDNOTIFY
 		}
@@ -2241,48 +2249,21 @@ sub notify_ebay {
 		#	# $hash{'ShippingInsuranceCost*'} = 
 		#	}
 #		$pkgs = 0;
-		if ($pkgs) {
-			my %hash = ();
-			# http://developer.ebay.com/DevZone/XML/docs/Reference/eBay/AddMemberMessageAAQToPartner.html
-			$hash{'#Site'} = $SITE_ID;
-			$hash{'ItemID'} = $EBAY_ID;
-			# $hash{'MessageID'} =  # internal message
-	
+		if ($pkgs) {	
 			my $ORDERID = URI::Escape::XS::uri_escape($O2->oid());
 			my $CARTID = URI::Escape::XS::uri_escape($O2->in_get('cart/cartid'));
 	
-			my $SREF = SITE->new($USERNAME,'PRT'=>$O2->prt());
+			my ($BLAST) = BLAST->new($USERNAME,$O2->prt());
+			my ($rcpt) = $BLAST->recipient('EBAY',$eb2, $SITE_ID,$EBAY_ID,'Shipping',$EBAY_USER);
+			my ($msg) = $BLAST->msg('ORDER.SHIPPED.EBAY',{'%ORDER'=>$O2});
+			$BLAST->send($rcpt,$msg);
+			$O2->add_history("Notified client of shipment via myEBay",etype=>32,luser=>"*$EVENT");
 
-			require SITE::EMAILS;
-			my ($se) = SITE::EMAILS->new($USERNAME,'*SITE'=>$SREF,'GLOBALS'=>1);
-			my ($ERR, $result) = $se->createMsg('ORDER.SHIPPED.EBAY','*CART2'=>$O2,'*SITE'=>$SREF,'LAYOUT'=>0);
-			($hash{'MemberMessage.Subject'},$hash{'MemberMessage.Body'}) = ($result->{'SUBJECT'},$result->{'BODY'});
-
-#			$hash{'MemberMessage.Body'} = qq~
-#Your order has been shipped.
-#Please visit our website at
-#http://www.toynk.com/customer/order/status?orderid=$ORDERID&cart=$CARTID
-#~;
-#			$hash{'MemberMessage.Subject'} = 'Thank you for your order.';
-			
-			$hash{'MemberMessage.QuestionType'} = 'Shipping';
-			$hash{'MemberMessage.RecipientID'} = $EBAY_USER;
-	
-			if ($result->{'SUBJECT'} eq '') {
-				## did not send, message blank
-				}
-			else {
-				print Dumper(\%hash);
-				($r) = $eb2->api('AddMemberMessageAAQToPartner',\%hash,'xml'=>3);
-				#use Data::Dumper;
-				#print Dumper($r);
-				if ($r->{'.'}->{'Ack'}->[0] eq 'Success') {
-					$O2->add_history("Notified client of shipment via myEBay",etype=>32,luser=>"*$EVENT");
-					}
-				else {
-					## notification failed?
-					}
-				}
+			#my $SREF = SITE->new($USERNAME,'PRT'=>$O2->prt());
+			#require SITE::EMAILS;
+			#my ($se) = SITE::EMAILS->new($USERNAME,'*SITE'=>$SREF,'GLOBALS'=>1);
+			#my ($ERR, $result) = $se->createMsg('ORDER.SHIPPED.EBAY','*CART2'=>$O2,'*SITE'=>$SREF,'LAYOUT'=>0);
+			#($hash{'MemberMessage.Subject'},$hash{'MemberMessage.Body'}) = ($result->{'SUBJECT'},$result->{'BODY'});	
 			}
 		
 		## next lets leave feedback.		

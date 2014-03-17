@@ -42,6 +42,7 @@ require ZPAY;
 require SITE;
 require LISTING::MSGS;
 require INVENTORY2;
+require BLAST;
 
 
 %CART2::FEES_MAP = (
@@ -6565,8 +6566,9 @@ sub finalize_order {
 
 	my $webdbref = $self->webdb();
 	my ($gref) = &ZWEBSITE::fetch_globalref($self->username());
-	my $SREF = undef;
-	my $SE = undef;
+	# my $SREF = undef;
+	# my $SE = undef;
+	my ($BLAST,$rcpt) = undef;
 
 	my $CID = undef;
 	my %cart2 = ();
@@ -6581,30 +6583,32 @@ sub finalize_order {
 		#	$self->__SET__('our/profile',&ZOOVY::prt_to_profile($self->username(),$self->prt()));
 		#	}
 
-		## we're probably going to need to send some emails as part of this process, so we'll initialize the SITE::EMAILS ($se) object
-		require SITE;
-		require SITE::EMAILS;
-		## $params{'domain'} parameter was added in 201401 for compatibility with legacy email system.
-		my $DOMAIN = $params{'domain'} || $self->site()->linkable_domain();
-		print STDERR "EMAIL FROM DOMAIN:$DOMAIN\n";
-		($SREF) = SITE->new($self->username(),'PRT'=>$self->prt(),'DOMAIN'=>$DOMAIN);
+	#	## we're probably going to need to send some emails as part of this process, so we'll initialize the SITE::EMAILS ($se) object
+	#	require SITE;
+	#	require SITE::EMAILS;
+	#	## $params{'domain'} parameter was added in 201401 for compatibility with legacy email system.
+	#	my $DOMAIN = $params{'domain'} || $self->site()->linkable_domain();
+	#	print STDERR "EMAIL FROM DOMAIN:$DOMAIN\n";
+	#	($SREF) = SITE->new($self->username(),'PRT'=>$self->prt(),'DOMAIN'=>$DOMAIN);
 
-		## CHEAPO HACKO
-		if ($self->site()->domain_host() || $self->site()->domain_only()) {
-			## NOTE: I don't think this line is ever used, because domain_host and domain_only aren't populated
-			## by setting DOMAIN=>
-			$SREF->{'_DOMAIN_HOST'} = $self->site()->domain_host();
-			$SREF->{'_DOMAIN_ONLY'} = $self->site()->domain_only();
-			}
-		elsif ($DOMAIN ne '') {
-			## we really could do a lot more with well known prefix's here so we'd know it was afe to split.
-			($SREF->{'_DOMAIN_HOST'},$SREF->{'_DOMAIN_ONLY'}) = split(/\./,$DOMAIN,2);
-			}
-		if ($SREF->{'_DOMAIN_ONLY'} eq '') { $SREF->{'_DOMAIN_ONLY'} = '#DOMAIN_NOT_SET'; }
-		if ($SREF->{'_DOMAIN_HOST'} eq '') { $SREF->{'_DOMAIN_HOST'} = 'www'; }
+	#	## CHEAPO HACKO
+	#	if ($self->site()->domain_host() || $self->site()->domain_only()) {
+	#		## NOTE: I don't think this line is ever used, because domain_host and domain_only aren't populated
+	#		## by setting DOMAIN=>
+	#		$SREF->{'_DOMAIN_HOST'} = $self->site()->domain_host();
+	#		$SREF->{'_DOMAIN_ONLY'} = $self->site()->domain_only();
+	#		}
+	#	elsif ($DOMAIN ne '') {
+	#		## we really could do a lot more with well known prefix's here so we'd know it was afe to split.
+	#		($SREF->{'_DOMAIN_HOST'},$SREF->{'_DOMAIN_ONLY'}) = split(/\./,$DOMAIN,2);
+	#		}
+	#	if ($SREF->{'_DOMAIN_ONLY'} eq '') { $SREF->{'_DOMAIN_ONLY'} = '#DOMAIN_NOT_SET'; }
+	#	if ($SREF->{'_DOMAIN_HOST'} eq '') { $SREF->{'_DOMAIN_HOST'} = 'www'; }
 
-		#open F, ">/tmp/email.site2"; print F Dumper($SREF); close F;
-		($SE) = SITE::EMAILS->new($self->username(),'*SITE'=>$SREF);
+	#	#open F, ">/tmp/email.site2"; print F Dumper($SREF); close F;
+	#	($SE) = SITE::EMAILS->new($self->username(),'*SITE'=>$SREF);
+
+		($BLAST) = BLAST->new($self->username(),$self->prt());
 	
 		##
 		## initialize some of the CRM stuff	
@@ -6678,7 +6682,9 @@ sub finalize_order {
 		if ($CID>0) {
 			}
 		elsif ($webdbref->{'customer_management'} eq 'PASSIVE') {
-			$SE->sendmail('CUSTOMER.CREATED',CUSTOMER=>$C);
+			my ($rcpt) = $BLAST->recipient('CUSTOMER',$self,{'%CUSTOMER'=>$C});
+			my ($msg) = $BLAST->msg('CUSTOMER.CREATED');
+			$BLAST->send($rcpt,$msg);
 			}
 		} ## end elsif ($cart{'chkout.create_customer'...
 	else {
@@ -6903,20 +6909,24 @@ sub finalize_order {
 	else {
 		my $ORDER_PS = $self->payment_status();
 		my $ORDER_PS_PRETTY = &ZPAY::payment_status_short_desc($ORDER_PS);	 # PAID|PENDING|DENIED
-		my @TRY_MSGIDS = ();
-		push @TRY_MSGIDS, sprintf('ORDER.CONFIRM_%03d',$ORDER_PS);
-		push @TRY_MSGIDS, sprintf('ORDER.CONFIRM_%s',$ORDER_PS_PRETTY);
-		push @TRY_MSGIDS, 'ORDER.CONFIRM';
-		my $MSGID = undef;
-		foreach my $trymsgid (@TRY_MSGIDS) {
-			next if (defined $MSGID);
-			if ($SE->exists($trymsgid)) { $MSGID = $trymsgid; }
-			}
-		if (not defined $MSGID) {
-			$MSGID = 'ORDER.CONFIRM';
-			$self->add_history("MSGID was not set after trying, this should never happen. defaulting to ORDER.CONFIRM");;
-			}
-		$SE->sendmail($MSGID,'*CART2'=>$self,'*SITE'=>$SREF,'CID'=>$CID,'CUSTOMER'=>$self->customer());
+		#my @TRY_MSGIDS = ();
+		#push @TRY_MSGIDS, sprintf('ORDER.CONFIRM.%s.%03d',$ORDER_PS,$ORDER_PS);
+		#push @TRY_MSGIDS, sprintf('ORDER.CONFIRM_%s',$ORDER_PS_PRETTY);
+		#push @TRY_MSGIDS, 'ORDER.CONFIRM';
+		#my $MSGID = undef;
+		#foreach my $trymsgid (@TRY_MSGIDS) {
+		#	next if (defined $MSGID);
+		#	if ($SE->exists($trymsgid)) { $MSGID = $trymsgid; }
+		#	}
+		#if (not defined $MSGID) {
+		#	$MSGID = 'ORDER.CONFIRM';
+		#	$self->add_history("MSGID was not set after trying, this should never happen. defaulting to ORDER.CONFIRM");;
+		#	}
+		#$SE->sendmail($MSGID,'*CART2'=>$self,'*SITE'=>$SREF,'CID'=>$CID,'CUSTOMER'=>$self->customer());
+		my ($MSGID) = sprintf('ORDER.CONFIRM.%s.%03d',$ORDER_PS,$ORDER_PS);
+		my ($rcpt) = $BLAST->recipient('CART',$self,{'%ORDER'=>$self});
+		my ($msg) = $BLAST->msg($MSGID);
+		$BLAST->send($rcpt,$msg);
 		}
 
 
@@ -10510,17 +10520,22 @@ sub run_macro_cmds {
 		elsif ($cmd eq 'EMAIL') {
 			## $pref->{'msg'} =~ s/^MAIL\|//gs;	 # strip MAIL| from msg
 			## $self->email($pref->{'msg'});
-			my ($SITE) = $params{'*SITE'};
-			if (not defined $SITE) {
-				($SITE) = SITE->new($self->username(),'PRT'=>$self->prt(),'DOMAIN'=>$self->sdomain());
-				}
-			require SITE::EMAILS;
-			my ($se) = SITE::EMAILS->new($SITE->username(),'*SITE'=>$SITE);
-			my %msgparams = ('CID'=>$self->cid(),'CUSTOMER'=>$self->customer(),'*CART2'=>$self);
-			if ($pref->{'body'}) { $msgparams{'MSGBODY'} = $pref->{'body'}; }
-			if ($pref->{'subject'}) { $msgparams{'MSGSUBJECT'} = $pref->{'subject'}; }
-			$se->sendmail($pref->{'msg'},%msgparams);
-			$se = undef;
+			#my ($SITE) = $params{'*SITE'};
+			#if (not defined $SITE) {
+			#	($SITE) = SITE->new($self->username(),'PRT'=>$self->prt(),'DOMAIN'=>$self->sdomain());
+			#	}
+			#require SITE::EMAILS;
+			#my ($se) = SITE::EMAILS->new($SITE->username(),'*SITE'=>$SITE);
+			#my %msgparams = ('CID'=>$self->cid(),'CUSTOMER'=>$self->customer(),'*CART2'=>$self);
+			#if ($pref->{'body'}) { $msgparams{'MSGBODY'} = $pref->{'body'}; }
+			#if ($pref->{'subject'}) { $msgparams{'MSGSUBJECT'} = $pref->{'subject'}; }
+			#$se->sendmail($pref->{'msg'},%msgparams);
+			#$se = undef;
+			my ($BLAST) = BLAST->new($self->username(),$self->prt());
+			my ($rcpt) = $BLAST->recipient('CUSTOMER',$self->customer(),{'%CART'=>$self,'%CUSTOMER'=>$self->customer()});
+			if ($pref->{'msg'} eq 'PTELLAF') { $pref->{'msg'} = 'PRODUCT.SHARE'; }
+			my ($msg) = $BLAST->msg($pref->{'msg'});
+			$BLAST->send($rcpt,$msg);
 			}
 		elsif (($cmd eq 'ADDNOTE') || ($cmd eq 'ADDPUBLICNOTE') || ($cmd eq 'SETPUBLICNOTE')) {
 			if (not $pref->{'note'}) {

@@ -3,6 +3,8 @@ package PAGE::HANDLER;
 use Data::Dumper;
 use strict;
 
+
+require BLAST;
 require CART2;
 
 sub amazon_handler {
@@ -299,13 +301,18 @@ sub subscribe_handler {
 		my ($msgid) = $SITE::v->{'msgid'};
 		if ((not defined $msgid) || ($msgid eq '')) {
 			## default to the SUBSCRIBE message
-			$msgid = 'SUBSCRIBE';
+			$msgid = 'ACCOUNT.SUBSCRIBE';
 			}
 
-		require SITE::EMAILS;
-		my ($se) = SITE::EMAILS->new($SITE->username(),'*SITE'=>$SITE); #
-		$se->sendmail($msgid,CID=>$CID);
-		$se = undef;
+		#require SITE::EMAILS;
+		#my ($se) = SITE::EMAILS->new($SITE->username(),'*SITE'=>$SITE); #
+		#$se->sendmail($msgid,CID=>$CID);
+		#$se = undef;
+		my ($BLAST) = BLAST->new($SITE->username(),int($SITE->prt()));
+		my ($rcpt) = $BLAST->recipient('CUSTOMER',$CID);
+		my ($msg) = $BLAST->msg($msgid);
+		$BLAST->send($rcpt,$msg);
+
 		}
 	else {
 		## uh-oh, error!
@@ -406,14 +413,19 @@ sub popup_handler {
 		my ($attempts) = &SITE::log_email($SITE->username(),$ENV{'REMOTE_ADDR'});
 		if ($attempts<25) {
 			## don't actually send if we sent to many <25 emails today.
-			require SITE::EMAILS;
-			my ($se) = SITE::EMAILS->new($SITE->username(),'*SITE'=>$SITE);
-			$se->sendmail('PTELLAF',PRODUCT=>$vref->{'product'},
-				TO=>$vref->{'recipient'},
-				VARS=>$vref
-				);
-			$se = undef;
-			$SITE->layout($vref->{'success_fl'});
+			#require SITE::EMAILS;
+			#my ($se) = SITE::EMAILS->new($SITE->username(),'*SITE'=>$SITE);
+			#$se->sendmail('PRODUCT.SHARE',PRODUCT=>$vref->{'product'},
+			#	TO=>$vref->{'recipient'},
+			#	VARS=>$vref
+			#	);
+			#$se = undef;
+			my ($BLAST) = BLAST->new($SITE->username(),int($SITE->prt()));
+			my ($rcpt) = $BLAST->recipient('EMAIL',$vref->{'recipient'});
+			my ($msg) = $BLAST->msg('PRODUCT.SHARE',{'%VARS'=>$vref});
+			$BLAST->send($rcpt,$msg);
+
+			$SITE->layout($vref->{'success_fl'}); 
 			}
 
 		# print STDERR "POP EXIT: $SITE->layout()\n";

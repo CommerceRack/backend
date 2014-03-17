@@ -145,6 +145,7 @@ require PROJECT;
 require ACCOUNT;
 require ZSHIP;
 require ZSHIP::UPSAPI;	# ZSHIP::UPSAPI::global vars are used here
+require BLAST;
 use strict;
 
 
@@ -412,6 +413,13 @@ use strict;
 	'adminNewsletterList' =>[  \&JSONAPI::appNewsletterList,  { 'admin'=>1, }, 'admin', ],
 
 	## Email/Blast
+	'adminBlastMacroPropertyDetail'=>[\&JSONAPI::adminBlastMacro, { 'admin'=>1, }, 'admin', { 'BLAST'=>'L' } ],
+	'adminBlastMacroPropertyUpdate'=>[\&JSONAPI::adminBlastMacro, { 'admin'=>1, }, 'admin', { 'BLAST'=>'L' } ],
+	'adminBlastMacroList'=>[\&JSONAPI::adminBlastMacro, { 'admin'=>1, }, 'admin', { 'BLAST'=>'L' } ],
+	'adminBlastMacroDetail'=>[\&JSONAPI::adminBlastMacro, { 'admin'=>1, }, 'admin', { 'BLAST'=>'R' } ],
+	'adminBlastMacroCreate'=>[\&JSONAPI::adminBlastMacro, { 'admin'=>1, }, 'admin', { 'BLAST'=>'C' } ],
+	'adminBlastMacroUpdate'=>[\&JSONAPI::adminBlastMacro, { 'admin'=>1, }, 'admin', { 'BLAST'=>'U' } ],
+	'adminBlastMacroRemove'=>[\&JSONAPI::adminBlastMacro, { 'admin'=>1, }, 'admin', { 'BLAST'=>'D' } ],
 	'adminBlastMsgList'=>[\&JSONAPI::adminBlastMsg, { 'admin'=>1, }, 'admin', { 'BLAST'=>'L' } ],
 	'adminBlastMsgDetail'=>[\&JSONAPI::adminBlastMsg, { 'admin'=>1, }, 'admin', { 'BLAST'=>'R' } ],
 	'adminBlastMsgCreate'=>[\&JSONAPI::adminBlastMsg, { 'admin'=>1, }, 'admin', { 'BLAST'=>'C' } ],
@@ -570,6 +578,11 @@ use strict;
 	'adminAppTicketMacro'=>[ \&JSONAPI::adminAppTicket, { 'admin'=>1, }, 'admin', { 'TICKET'=>'U' } ],
 	'adminAppTicketDetail'=>[ \&JSONAPI::adminAppTicket, { 'admin'=>1, }, 'admin', { 'TICKET'=>'D' } ],
 
+	## FAQ
+	'adminFAQDetail'=>[ \&JSONAPI::adminFAQ, { 'admin'=>1, }, 'admin', { 'FAQ'=>'L' } ],
+	'adminFAQList'=>[ \&JSONAPI::adminFAQ, { 'admin'=>1, }, 'admin', { 'FAQ'=>'L' } ],
+	'adminFAQMacro'=>[ \&JSONAPI::adminFAQ, { 'admin'=>1, }, 'admin', { 'FAQ'=>'S' } ],
+
 	## wholesale/schedule manager
 	'adminPriceScheduleList'=>[ \&JSONAPI::adminPriceSchedule, { 'admin'=>1, }, 'admin', { 'CUSTOMER'=>'L' } ],
 	'adminPriceScheduleCreate'=>[ \&JSONAPI::adminPriceSchedule, { 'admin'=>1, }, 'admin', { 'CUSTOMER'=>'C' } ],
@@ -593,9 +606,9 @@ use strict;
 	'adminRSSUpdate'=>[ \&JSONAPI::adminRSS, { 'admin'=>1, }, 'admin', { 'RSS'=>'U' } ],
 	'adminRSSDetail'=>[ \&JSONAPI::adminRSS, { 'admin'=>1, }, 'admin', { 'RSS'=>'D' } ],
 
-	## adminEmailMessage
-	'adminEmailList'=>[\&JSONAPI::adminEmail,  { 'admin'=>1, }, 'admin', { 'MESSAGE'=>'L' } ],
-	'adminEmailSave'=>[\&JSONAPI::adminEmail,  { 'admin'=>1, }, 'admin', { 'MESSAGE'=>'U' } ],
+#	## adminEmailMessage
+#	'adminEmailList'=>[\&JSONAPI::adminEmail,  { 'admin'=>1, }, 'admin', { 'MESSAGE'=>'L' } ],
+#	'adminEmailSave'=>[\&JSONAPI::adminEmail,  { 'admin'=>1, }, 'admin', { 'MESSAGE'=>'U' } ],
 #	'adminEmailMessageList'=>[ \&JSONAPI::adminEmailMessage, { 'admin'=>1, }, 'admin', { 'MESSAGE'=>'L' } ],
 #	'adminEmailMessageClone'=>[ \&JSONAPI::adminEmailMessage, { 'admin'=>1, }, 'admin', { 'MESSAGE'=>'R' } ],
 #	'adminEmailMessageCreate'=>[ \&JSONAPI::adminEmailMessage, { 'admin'=>1, }, 'admin', { 'MESSAGE'=>'C' } ],
@@ -1493,12 +1506,11 @@ sub parse_macros {
 sub configJS {
 	my ($self, %params) = @_;
 
-	
-	my ($SITE) = $params{'*SITE'} || $self->_SITE();
-	my $webdbref = $SITE->webdbref();
-	my ($globalref) = $SITE->globalref();
-	my ($prtinfo) = &ZOOVY::fetchprt($SITE->username(), $SITE->prt());
+	my $webdbref = $self->webdbref();
+	my ($globalref) = $self->globalref(); # SITE->globalref();
+	my ($prtinfo) = &ZOOVY::fetchprt($self->username(), $self->prt());
 
+	my ($SITE) = $params{'*SITE'} || $self->_SITE();
 	my $NORMAL_URL = sprintf("%s.%s",$SITE->domain_host(),$SITE->domain_only());
 	my $SECURE_URL = &ZWEBSITE::domain_to_checkout_domain($NORMAL_URL);
 	## don't do this: it will rewrite secure-domain-com.
@@ -2516,11 +2528,27 @@ sub PRE201311cart2 {
 	die();
 	}
 
-sub gref { return($_[0]->_SITE()->globalref()) };
-sub webdb { return($_[0]->_SITE()->webdbref()) };
+sub gref { return(&JSONAPI::globalref(@_)); }	## legacy name
+sub globalref {
+	my ($self) = @_;
+	if (not defined $self->{'*GLOBAL'}) {
+		$self->{'*GLOBAL'} = &ZWEBSITE::fetch_globalref($self->username());
+		}
+	return($self->{'*GLOBAL'});
+	};
+
+sub webdbref { return(&JSONAPI::webdb(@_)); }
+sub webdb { 
+	my ($self) = @_;
+	if (not defined $self->{'*WEBDB'} ) {
+		$self->{'*WEBDB'} = &ZWEBSITE::fetch_website_dbref($self->username(),$self->prt());
+		}
+	return($self->{'*WEBDB'});
+	# return($_[0]->_SITE()->webdbref()) 
+	};
 ## seriously trying to get rid fo profile specific settings..
-sub profile { return($_[0]->_SITE()->profile()) };
-sub nsref { return($_[0]->_SITE()->nsref()); };
+
+
 
 ##
 ## if we set a customer at the JSONAPI level, it will inform any associated carts.
@@ -2653,10 +2681,10 @@ sub hasFlag {
 	
 	my $hasFlag = 1;
 
-	if (not defined $self->gref()) {
-		warn "SITE:->gref() is not defined - hasFlag '$flag' will not work, so returning true.";
+	if (not defined $self->globalref()) {
+		warn "SITE:->globalref() is not defined - hasFlag '$flag' will not work, so returning true.";
 		}
-	elsif ($self->gref()->{'cached_flags'} !~ /,$flag,/) {
+	elsif ($self->globalref()->{'cached_flags'} !~ /,$flag,/) {
 		$hasFlag = 0;
 		&JSONAPI::set_error($R,"apierr",6000,"This feature requires the $flag bundle - which is not enabled on this account.");
 		}
@@ -3068,7 +3096,6 @@ sub handle {
 	##	NEXT: initialize global objects ex: cart, buyer auth, admin auth, etc.
 	##
 
-	my $SITE = $self->_SITE();
 	my %CACHE = ();
 	# $CACHE{"foo"}++;
 	my %APICALLS = ();		## a hash of api calls and their counts
@@ -8641,7 +8668,7 @@ sub adminProduct {
 		require POGS;
 
 		my $HAS_WMS = 0;
-		my $globalref = &ZWEBSITE::fetch_globalref($USERNAME);
+		my $globalref = $self->globalref();
 		if ($globalref->{'wms'} == 1) { $HAS_WMS++; }
 		my $SKULIST = $P->list_skus();
 	
@@ -8879,6 +8906,112 @@ sub adminTicket {
 
 
 
+=pod
+
+<API id="adminBlastMacroPropertyDetail">
+<output id="%PRT">
+</output>
+</API>
+
+<API id="adminBlastMacroPropertyUpdate">
+<input id="%PRT.PHONE"></input>
+<input id="%PRT.DOMAIN"></input>
+<input id="%PRT.MAILADDR"></input>
+<input id="%PRT.EMAIL"></input>
+<input id="%PRT.LINKSYNTAX">APP|VSTORE</input>
+</API>
+
+<API id="adminBlastMacroUpdate">
+<output id="@MSGS"></output>
+</API>
+
+
+<API id="adminBlastMacroDetail">
+<input id="MSGID"></input>
+<output id="%MSG"></output>
+</API>
+
+<API id="adminBlastMacroCreate">
+<input id="MSGID"></input>
+</API>
+
+<API id="adminBlastMacroUpdate">
+<input id="MSGID"></input>
+</API>
+
+<API id="adminBlastMacroRemove">
+<input id="MSGID"></input>
+</API>
+
+=cut
+
+sub adminBlastMacro {
+	my ($self, $v) = @_;
+
+	my %R = ();
+	require BLAST::DEFAULTS;
+
+	my ($MID) = &ZOOVY::resolve_mid($self->username());
+	my $PRT = int($self->prt());
+	my ($udbh) = &DBINFO::db_user_connect($self->username());
+
+	$v->{'MACROID'} = uc($v->{'MACROID'});
+	if ($v->{'_cmd'} eq 'adminBlastMacroPropertyDetail') {
+		my ($webdb) = &ZWEBSITE::fetch_website_dbref($self->username(),$self->prt());
+		$R{'%PRT'} = $webdb->{'%BLAST'} || {}; 
+		}
+	elsif ($v->{'_cmd'} eq 'adminBlastMacroPropertyUpdate') {
+		my %PRT = ();
+		print STDERR Dumper($v);
+		foreach my $k (keys %{$v}) { if ($k =~ /^PRT\.(.*?)$/) { $PRT{$1} = $v->{$k}; } }
+		my ($webdb) = &ZWEBSITE::fetch_website_dbref($self->username(),$self->prt());
+		$webdb->{'%BLAST'} = \%PRT;
+		&ZWEBSITE::save_website_dbref($self->username(),$webdb,$self->prt());
+		}
+	elsif ($v->{'_cmd'} eq 'adminBlastMacroList') {
+		my @MSGS = ();
+		my $pstmt = "select MACROID,TITLE,PRT,BODY,CREATED_TS,LUSER from BLAST_MACROS where MID=$MID";
+		my $sth = $udbh->prepare($pstmt);
+		$sth->execute();
+		while ( my $row = $sth->fetchrow_hashref() ) {
+			push @MSGS, $row;
+			}
+		$sth->finish();
+		$R{'@MACROS'} = \@MSGS;
+		}
+	elsif (not &JSONAPI::validate_required_parameter(\%R,$v,'MACROID')) {
+		}
+	elsif ($v->{'MACROID'} !~ /^%[A-Z0-9]+%$/) {
+		&JSONAPI::had_error(\%R,'apperr',48822,'MACROID must be %VALUE%');
+		}
+	#elsif (defined $BLAST::MACRO::DEFAULTS{$v->{'MACROID'}}) {
+	#	&JSONAPI::had_error(\%R,'apperr',48822,'MACROID cannot have the same name as a system macro');
+	#	}
+	elsif (($v->{'_cmd'} eq 'adminBlastMacroCreate') || ($v->{'_cmd'} eq 'adminBlastMacroUpdate')) {
+		my %params = ();
+		$params{'MID'} = $self->mid();
+		$params{'MACROID'} = uc($v->{'MACROID'});
+		$params{'BODY'} = $v->{'BODY'};
+		$params{'PRT'} = $PRT;
+		$params{'TITLE'} = $v->{'TITLE'};
+		$params{'BODY'} =  $v->{'BODY'};
+		$params{'*CREATED_TS'} = 'now()';
+		$params{'LUSER'} = $self->luser();
+		my $VERB = ($v->{'_cmd'} eq 'adminBlastMacroCreate')?'insert':'update';
+		my $pstmt =	&DBINFO::insert($udbh,'BLAST_MACROS',\%params,debug=>2,key=>['MID','MACROID'],sql=>1,verb=>$VERB);
+		print STDERR "$pstmt\n";
+		$udbh->do($pstmt);
+		}
+	elsif ($v->{'_cmd'} eq 'adminBlastMacroRemove') {
+		my $pstmt = "delete from BLAST_MACROS where MID=$MID and MACROID=".$udbh->quote($v->{'MACROID'});
+		$udbh->do($pstmt);
+		}
+	&DBINFO::db_user_close();
+
+	return(\%R);
+	}
+
+
 
 =pod
 
@@ -8918,33 +9051,78 @@ sub adminBlastMsg {
 	my ($self, $v) = @_;
 
 	my %R = ();
+	require BLAST::DEFAULTS;
 
 	my ($MID) = &ZOOVY::resolve_mid($self->username());
 	my $PRT = int($self->prt());
 	my ($udbh) = &DBINFO::db_user_connect($self->username());
 	if ($v->{'_cmd'} eq 'adminBlastMsgList') {
+		
 		my @MSGS = ();
-		my $pstmt = "select MSGID,FORMAT,OBJECT,CREATED_TS,MODIFIED_TS,LUSER from SITE_EMAILS where MID=$MID and PRT=$PRT";
+		my %HAS_MSGID = ();
+
+		my $pstmt = "select MSGID,FORMAT,SUBJECT,OBJECT,CREATED_TS,MODIFIED_TS,LUSER from SITE_EMAILS where MID=$MID and PRT=$PRT";
 		my $sth = $udbh->prepare($pstmt);
 		$sth->execute();
 		while ( my $row = $sth->fetchrow_hashref() ) {
+			$HAS_MSGID{$row->{'MSGID'}}++;
 			push @MSGS, $row;
 			}
 		$sth->finish();
+
+		## load in the default messages
+		foreach my $msgid (keys %BLAST::DEFAULTS::MSGS) {
+			next if ($HAS_MSGID{$msgid});
+			push @MSGS, {
+				'MSGID'=>$msgid,
+				'FORMAT'=>$BLAST::DEFAULTS::MSGS{$msgid}->{'MSGFORMAT'},
+				'SUBJECT'=>$BLAST::DEFAULTS::MSGS{$msgid}->{'MSGSUBJECT'},
+				'OBJECT'=>( $BLAST::DEFAULTS::MSGS{$msgid}->{'MSGOBJECT'} || 'UNKNOWN' ),
+				'MODIFIED_TS'=>'0',
+				'CREATED_TS'=>'0',
+				};
+			}
+
 		$R{'@MSGS'} = \@MSGS;
 		}
 	elsif (not &JSONAPI::validate_required_parameter(\%R,$v,'MSGID')) {
-		
-		
 		}
 	elsif ($v->{'_cmd'} eq 'adminBlastMsgDetail') {
 		my $pstmt = "select * from SITE_EMAILS where MID=$MID and PRT=$PRT and MSGID=".$udbh->quote($v->{'MSGID'});
-		$R{'%MSG'} = $udbh->selectrow_hashref($pstmt);
-		$R{'%MSG'}->{'%META'} = {};
-		if ($R{'%MSG'}->{'METAJSON'} ne '') { 
-			$R{'%MSG'}->{'%META'} = JSON::XS->new()->decode($R{'%MSG'}->{'METAJSON'});
+		($R{'%MSG'}) = $udbh->selectrow_hashref($pstmt);
+		
+		if (defined $R{'%MSG'}) {
+			## we have a custom message matching the MSGID
+			$R{'%MSG'}->{'%META'} = {};
+			if ($R{'%MSG'}->{'METAJSON'} ne '') { 
+				$R{'%MSG'}->{'%META'} = JSON::XS->new()->decode($R{'%MSG'}->{'METAJSON'});
+				}
+			delete $R{'%MSG'}->{'METAJSON'};
 			}
-		delete $R{'%MSG'}->{'METAJSON'};
+		elsif (defined $BLAST::DEFAULTS::MSGS{$v->{'MSGID'}}) {
+			my $msgid = $v->{'MSGID'};
+			$R{'%MSG'} = {
+				'MSGID'=>$msgid,
+				'FORMAT'=>$BLAST::DEFAULTS::MSGS{$msgid}->{'MSGFORMAT'},
+				'OBJECT'=>( $BLAST::DEFAULTS::MSGS{$msgid}->{'MSGOBJECT'} || 'UNKNOWN' ),
+				'SUBJECT'=>$BLAST::DEFAULTS::MSGS{$msgid}->{'MSGSUBJECT'},
+				'BODY'=>$BLAST::DEFAULTS::MSGS{$msgid}->{'MSGBODY'},
+				'MODIFIED_TS'=>'0',
+				'CREATED_TS'=>'0',
+				};			
+			}
+
+
+		if (&ZOOVY::is_true($v->{'TLC'})) {
+			## interpolate %SUBS% into their tlc counterparts
+			my ($BLAST) = BLAST->new($self->username(),$self->prt());
+			$R{'%MSG'}->{'BODY'} = &ZTOOLKIT::interpolate( $BLAST->macros(), $R{'%MSG'}->{'BODY'} );
+			$R{'%MSG'}->{'SUBJECT'} = &ZTOOLKIT::interpolate( $BLAST->macros(), $R{'%MSG'}->{'SUBJECT'} );
+			$R{'%MSG'}->{'FORMAT'} = 'HTML5';
+			
+			}
+		
+
 		}
 	elsif (($v->{'_cmd'} eq 'adminBlastMsgCreate') || ($v->{'_cmd'} eq 'adminBlastMsgUpdate')) {
 		my %params = ();
@@ -8960,11 +9138,18 @@ sub adminBlastMsg {
 			if ($k =~ /^\%META\.(.*?)/) { $META{$1} = $v->{$k}; }
 			}
 		$params{'METAJSON'} = JSON::XS->new()->encode(\%META);
-		$params{'CREATED_GMT'} = time();
+		$params{'*CREATED_TS'} = 'now()';
+		$params{'*MODIFIED_TS'} = 'now()';
 		$params{'LUSER'} = $self->luser();
 		$params{'LANG'} = 'EN';
-		my $VERB = ($v->{'_cmd'} eq 'adminBlastMsgCreate')?'insert':'update';
+
+		## messages can be sent as 'update' even if they don't really exist in the db (so we need this hack!)
+		my $pstmt = "select count(*) from SITE_EMAILS where MID=".$self->mid()." and PRT=".$self->prt()." and MSGID=".$udbh->quote($params{'MSGID'})." and LANG=".$udbh->quote($params{'LANG'});
+		my ($exists) = $udbh->selectrow_array($pstmt);
+		my $VERB = ($exists)?'update':'insert';
+	
 		my $pstmt =	&DBINFO::insert($udbh,'SITE_EMAILS',\%params,debug=>2,key=>['MID','PRT','MSGID','LANG'],sql=>1,verb=>$VERB);
+		print STDERR "$pstmt\n";
 		$udbh->do($pstmt);
 		}
 	elsif ($v->{'_cmd'} eq 'adminBlastMsgRemove') {
@@ -8976,7 +9161,7 @@ sub adminBlastMsg {
 		my ($blast) = BLAST->new( $self->username(), $self->prt() );
 		## my ($rcpt) = $blast->recipient('CUSTOMER',$CID,{'%GIFTCARD'=>$GCOBJ});
 		my ($rcpt) = undef;
-		if (not &JSONAPI::validate_required_parameter(\%R,$v,'RECEIVER',['EMAIL','GCM','APNS'])) {
+		if (not &JSONAPI::validate_required_parameter(\%R,$v,'RECEIVER',['CUSTOMER','EMAIL','GCM','APNS'])) {
 			}
 		elsif ($v->{'RECEIVER'} eq 'EMAIL') {
 			if (not &JSONAPI::validate_required_parameter(\%R,$v,'EMAIL')) {
@@ -8988,11 +9173,19 @@ sub adminBlastMsg {
 				($rcpt) = $blast->recipient('EMAIL',$v->{'EMAIL'},{});
 				}
 			}
-		elsif (($v->{'RECEIVER'} eq 'CUSTOMER') && (not &JSONAPI::validate_required_parameter(\%R,$v,'CID'))) {
-			($rcpt) = $blast->recipient('CUSTOMER',$v->{'CUSTOMER'},{});
+		elsif ($v->{'RECEIVER'} eq 'CUSTOMER') {
+			if (&JSONAPI::validate_required_parameter(\%R,$v,'CID')) {
+				($rcpt) = $blast->recipient('CUSTOMER', $v->{'CID'}, {});
+				}
+			}
+		elsif ($v->{'RECEIVER'} eq 'GCM') {
+			}
+		elsif ($v->{'RECEIVER'} eq 'APNS') {
 			}
 
-		if (defined $rcpt) {} elsif (&JSONAPI::hadError(\%R)) {} else { &JSONAPI::set_error(\%R,'iseerr',83483,'RECEIVER is invalid/unknown'); }
+		if (defined $rcpt) {} 
+		elsif (&JSONAPI::hadError(\%R)) {} 
+		else { &JSONAPI::set_error(\%R,'iseerr',83483,'RECEIVER is invalid/unknown'); }
 
 		if (not defined $v->{'FORMAT'}) { $v->{'FORMAT'} = 'AUTO'; }
 		my $msg = undef;
@@ -9001,10 +9194,12 @@ sub adminBlastMsg {
 		elsif (not &JSONAPI::validate_required_parameter(\%R,$v,'FORMAT',['AUTO','HTML5'])) {
 			}
 		else {
-			($msg) = $blast->msg($v->{'FORMAT'},$v->{'MSGID'});
+			($msg) = $blast->msg($v->{'MSGID'});
 			}
 
-		if (defined $msg) {} elsif (&JSONAPI::hadError(\%R)) {} else { &JSONAPI::set_error(\%R,'iseerr',83484,'MSG is invalid/unknown'); }
+		if (defined $msg) {} 
+		elsif (&JSONAPI::hadError(\%R)) {} 
+		else { &JSONAPI::set_error(\%R,'iseerr',83484,'MSG is invalid/unknown'); }
 
 		if (defined $msg) {
 			$blast->send( $rcpt, $msg );
@@ -9228,7 +9423,7 @@ sub adminDSAgent {
 	my $PRT = $self->prt();
 
 	my ($udbh) = &DBINFO::db_user_connect($USERNAME);
-	my ($gref) = ZWEBSITE::fetch_globalref($USERNAME);
+	my ($gref) = $self->globalref();
 	my $DST = 'AMZ';
 	my ($w) = WATCHER->new($USERNAME,$DST);
 
@@ -11282,7 +11477,6 @@ sub adminSyndication {
 		#push @TABS, { name=>"Product Export", selected=>($VERB eq 'PRODUCT-CSV')?1:0, link=>"$PATH?VERB=PRODUCT-CSV&PROFILE=$PROFILE", };
 		}
 
-	# my $PROFILE = $self->profile();
 	my ($so) = undef;
 	#my ($DOMAIN) = $self->domain();
 	if (defined $DST) {
@@ -11715,7 +11909,7 @@ sub adminSyndication {
 					$s{'.feedpermissions'} = $FEED_PERMISSIONS;
 		
 					if ($FEED_PERMISSIONS > 0) {
-						my ($gref) = &ZWEBSITE::fetch_globalref($USERNAME);
+						my ($gref) = $self->globalref();
 						if ((not defined $gref->{'amz_prt'}) || ($gref->{'amz_prt'} != $PRT)) {
 							## amz_prt ensures that product feeds are only sent from one partition 
 							&JSONAPI::add_macro_msg(\%R,$CMDSET,"SUCCESS|+Configured amazon to send products from prt# $PRT");
@@ -12454,6 +12648,7 @@ sub adminGiftcard {
 				}			
 			}
 
+		my $GIFTCARD_REF = undef;
 		my @CARDS = ();
 		if (JSONAPI::hadError(\%R)) {
 			}
@@ -12489,6 +12684,7 @@ sub adminGiftcard {
 					}
 				}
 			&DBINFO::db_user_close();
+			$GIFTCARD_REF = \%CARD_VARS;
 			## NOTE: Don't set $GCID if we are bulk creating cards.
 			}
 		else {
@@ -12513,18 +12709,10 @@ sub adminGiftcard {
 			## never send email when we don't have a customer account, or we created multiple giftcards.
 			}
 		elsif ($v->{'sendemail'} eq 'on') {
-			require SITE;
-			#my ($profile) = &ZOOVY::prt_to_profile($USERNAME,$PRT);
-			require SITE;
-			my ($SITE) = $self->SITE();
-			if (not defined $SITE) { ($SITE) = SITE->new($self->username(),'PRT'=>$PRT);	}
-
-			require SITE::EMAILS;
-			my ($se) = SITE::EMAILS->new($USERNAME,'*SITE'=>$SITE);
-			my ($ERR) = $se->sendmail('CUSTOMER.GIFTCARD.RECEIVED',CID=>$CID);
-			if ($ERR) {
-				push @MSGS, "ERROR|Could not send email (REASON: $ERR)";
-				}
+			my ($BLAST) = BLAST->new( $self->username(), $self->prt() );
+			my ($rcpt) = $BLAST->recipient('CUSTOMER',$CID);
+			my ($msg) = $BLAST->msg('CUSTOMER.GIFTCARD.RECEIVED',{ '%GIFTCARD'=>$GIFTCARD_REF });
+			$BLAST->send($rcpt,$msg);
 			}
 		else {
 			warn "No email sent";
@@ -13090,6 +13278,124 @@ sub adminProject {
 
 
 
+=pod
+
+<API id="adminFAQList">
+<purpose></purpose>
+</API>
+
+<API id="adminFAQSearch">
+<purpose></purpose>
+<input optional="1" id="lookup">any string</input>
+<input optional="1" id="lookup-orderid">order #</input>
+<input optional="1" id="lookup-email">email</input>
+<input optional="1" id="lookup-phone">phone</input>
+<input optional="1" id="lookup-ticket">ticket #</input>
+</API>
+
+<API id="adminFAQCreate">
+<purpose></purpose>
+</API>
+
+<API id="adminFAQRemove">
+<purpose></purpose>
+</API>
+
+<API id="adminFAQMacro">
+<purpose></purpose>
+<example>
+<![CDATA[
+* ADDNOTE?note=xyz&private=1|0
+* ASK?
+* UPDATE?escalate=1|0&class=PRESALE|POSTSALE|EXCHANGE|RETURN
+* CLOSE
+* 
+]]>
+</example>
+</API>
+
+<API id="adminFAQDetail">
+<purpose></purpose>
+</API>
+
+=cut
+
+sub adminFAQ {
+	my ($self,$v) = @_;
+
+	my %R = ();
+
+
+	my @MSGS = ();
+	my ($USERNAME) = $self->username();
+	my ($MID) = &ZOOVY::resolve_mid($USERNAME);
+	my ($PRT) = $self->prt();
+	my ($LU) = $self->LU();
+
+	my ($udbh) = &DBINFO::db_user_connect($USERNAME);
+	if ($v->{'_cmd'} eq 'adminFAQList') {
+		my $pstmt = "select * from FAQ_TOPICS where PRT=$PRT and MID=$MID";
+		my ($sth) = $udbh->prepare($pstmt);
+		$sth->execute();
+		while ( my $row = $sth->fetchrow_hashref() ) {
+			$row->{'TOPIC_ID'} = $row->{'ID'}; delete $row->{'ID'};
+			push @{$R{'@TOPICS'}}, $row;
+			}
+		$sth->finish();
+		
+		$pstmt = "select * from FAQ_ANSWERS where PRT=$PRT and MID=$MID";
+		($sth) = $udbh->prepare($pstmt);
+		$sth->execute();
+		while ( my $row = $sth->fetchrow_hashref() ) {
+			$row->{'FAQ_ID'} = $row->{'ID'}; delete $row->{'ID'};
+			push @{$R{'@FAQS'}}, $row;
+			}
+		$sth->finish();
+		}
+	elsif ($v->{'_cmd'} eq 'adminFAQMacro') {
+		my @CMDS = ();
+
+		$self->parse_macros($v->{'@updates'},\@CMDS);
+		my $LM = LISTING::MSGS->new();
+
+		foreach my $CMDSET (@CMDS) {
+			my ($VERB,$params) = @{$CMDSET};
+			my @MSGS = ();
+			my $CODE = $v->{'PROFILE'};
+
+			if ($VERB =~ /^TOPIC-(UPDATE|CREATE)$/) {
+				$VERB = ($1 eq 'UPDATE')?'update':'insert';
+				my %cols = (MID=>$MID,USERNAME=>$USERNAME,PRT=>$PRT);
+				foreach my $k ('TITLE','PRIORITY') { $cols{$k} = $params->{$k}; }
+				if ($VERB eq 'insert') { $cols{'ID'} = 0; }
+				if ($VERB eq 'update') { $cols{'ID'} = $params->{'TOPIC_ID'}; }
+				my ($pstmt) = DBINFO::insert($udbh,'FAQ_TOPICS',\%cols,sql=>1,verb=>$VERB,key=>['ID','MID','PRT']);				
+				&JSONAPI::dbh_do(\%R,$udbh,$pstmt,$VERB);
+				}
+			elsif ($VERB eq 'TOPIC-DELETE') {
+				my $pstmt = "delete from FAQ_TOPICS where MID=$MID and PRT=$PRT and ID=".$udbh->quote($params->{'TOPIC_ID'});
+				&JSONAPI::dbh_do(\%R,$udbh,$pstmt,$VERB);
+				}
+			elsif ($VERB =~ /^FAQ-(UPDATE|CREATE)$/) {
+				$VERB = ($1 eq 'UPDATE')?'update':'insert';
+				my %cols = (MID=>$MID,USERNAME=>$USERNAME,PRT=>$PRT);
+				foreach my $k ('TOPIC_ID','KEYWORDS','QUESTION','ANSWER','PRIORITY') { $cols{$k} = $params->{$k}; }
+				if ($VERB eq 'insert') { $cols{'ID'} = 0; }
+				if ($VERB eq 'update') { $cols{'ID'} = $params->{'FAQ_ID'}; }
+				my ($pstmt) = DBINFO::insert($udbh,'FAQ_ANSWERS',\%cols,sql=>1,verb=>$VERB,key=>['ID','MID','PRT']);				
+				&JSONAPI::dbh_do(\%R,$udbh,$pstmt);
+				}
+			elsif ($VERB eq 'FAQ-DELETE') {
+				my $pstmt = "delete from FAQ_ANSWERS where MID=$MID and PRT=$PRT and ID=".$udbh->quote($params->{'FAQ_ID'});
+				&JSONAPI::dbh_do(\%R,$udbh,$pstmt,$VERB);
+				}
+			}
+		
+		}
+
+	&DBINFO::db_user_close();
+	return(\%R);
+	}
 
 
 
@@ -13996,104 +14302,6 @@ sub adminPage {
 	return(\%R);
 	}
 
-
-
-=pod 
-
-<API id="adminEmailList">
-<purpose></purpose>
-<input id="PRT"></input>
-<input id="TYPE">TICKET,PRODUCT,ORDER,ACCOUNT,SUPPLY,CUSTOMER,INCOMPLETE</input>
-<example><![CDATA[
-@RESULTS:[
-	{ MSGBODY:"", MSGTITLE:, MSGTYPE:"" },
-	{ MSGBODY:"", MSGTITLE:, MSGTYPE:"" },
-	]
-@MACROS:[
-	]
-]]>
-</example>
-</API>
-
-<API id="adminEmailSave">
-<input id="PRT"></input>
-<input id="MSGID">ORDER.CREATE</input>
-
-<input id="SUBJECT"></input>
-<input id="BODY"></input>
-<input id="TYPE"></input>
-<input id="BCC"></input>
-<input id="FROM"></input>
-<input id="FORMAT"></input>
-</API>
-
-=cut
-
-sub adminEmail {
-	my ($self,$v) = @_;
-
-	my %R = ();	
-
-	my ($PRT) = $v->{'PRT'};
-	if (not defined $PRT) { $PRT = $self->prt(); }
-
-	require SITE;
-	my ($SITE) = $self->SITE();
-	if (not defined $SITE) {
-		($SITE) = SITE->new($self->username(),'PRT'=>$PRT);
-		}
-
-	if ($v->{'_cmd'} eq 'adminEmailSave') {
-		require SITE::EMAILS;
-		my ($SE) = SITE::EMAILS->new($self->username(),'*SITE'=>$SITE,RAW=>1);
-
-		my $MSGID = $v->{'MSGID'};
-		my %options = ();
-		$options{'SUBJECT'} = $v->{'SUBJECT'};
-		$options{'BODY'} = $v->{'BODY'};
-		if (defined $v->{'TYPE'}) {
-			$options{'TYPE'} = $v->{'TYPE'};
-			}
-		if (defined $v->{'MSGBCC'}) {
-			$options{'BCC'} = $v->{'BCC'};
-			}
-		if (defined $v->{'MSGFROM'}) {
-			$options{'FROM'} = $v->{'FROM'};
-			}
-
-		$options{'FORMAT'} = 'HTML';
-		if (defined $v->{'FORMAT'}) {
-			$options{'FORMAT'} = $v->{'FORMAT'};
-			}
-	
-		$options{'LUSER'} = $self->luser();
-		$SE->save($MSGID, %options);
-
-		if (not &JSONAPI::hadError(\%R)) {
-			&JSONAPI::append_msg_to_response(\%R,'success',0);		
-			}
-		}
-	elsif ($v->{'_cmd'} eq 'adminEmailList') {
-		my $PRT = $v->{'PRT'};
-		if (not defined $PRT) { $PRT = $self->prt(); }
-
-		require SITE::EMAILS;
-		## currently only using DEFAULT profile
-		my ($se) = SITE::EMAILS->new($self->username(),'*SITE'=>$SITE);
-		my ($msgs) = $se->available($v->{'TYPE'});
-		my @RESULTS = ();
-		foreach my $type (@{$msgs}) {
-			push @RESULTS, $se->getref($type->{'MSGID'});
-			}
-		$R{'@MSGS'} = \@RESULTS;
-	
-		if (not &JSONAPI::hadError(\%R)) {
-			&JSONAPI::append_msg_to_response(\%R,'success',0);		
-			}
-		}
-
-   return(\%R);
-	}
 
 
 
@@ -15355,157 +15563,6 @@ sub adminUIExecuteCGI {
 
 
 
-=pod
-
-<API id="adminUIProductPanelList">
-<purpose></purpose>
-<input id="pid">Product Identifier</input>
-<response id="@PANELS">An array of panels, each row has id, title, and position</response>
-</API>
-
-=cut
-
-sub adminUIProductPanelList {
-	my ($self, $v) = @_;
-	my %R = ();
-
-	&JSONAPI::append_msg_to_response(\%R,'apperr',127,'adminUIProductPanelList no longer available (please upgrade)');
-
-#	require PRODUCT::PANELS;
-#	require LUSER;
-#	print STDERR sprintf("LUSER:'%s' '%s'\n",$self->username(),$self->luser());
-#
-#	my ($P) = PRODUCT->new($self->username(),$v->{'pid'});
-#	## step1: first make a map of id's
-#	my %panel_id_lookup = ();
-#
-#	if (not defined $P) {
-#		&JSONAPI::append_msg_to_response(\%R,'iseerr',9393,'Invalid product (pid) requested - does not exist or could not be loaded.');
-#		}
-#
-#	my %panel_positions = ();
-#	foreach my $panel (@PRODUCT::PANELS::biglist) {
-#		$panel_id_lookup{ $panel->{'id'} } = $panel;
-#		$panel_positions{$panel->{'id'} } = $panel->{'priority'};
-#		## position modifies the global array, but it's a copy of the priority UNLESS ovewritten by the user.
-#		$panel->{'position'} = $panel->{'priority'};
-#		}
-#	
-#	## step2: decode the product-panel-positions key
-#	my ($USERNAME) = $self->username();
-#	my ($globalref) = &ZWEBSITE::fetch_globalref($USERNAME);
-#	my $ref = &ZTOOLKIT::parseparams($globalref->{'prodedit-positions'});
-#	foreach my $id (keys %{$ref}) {
-#		$panel_positions{$id} = $ref->{$id};
-#		}
-#
-#	##
-#	## SANITY: at this point panel_priorities is a hash keyed by the panel id, with a value of it's position (aka priority)
-#	##				now we will suppress panels which the user doesn't have access to.
-#	##
-#
-#	my $FLAGS = ",$globalref->{'cached_flags'},";
-#	if ($FLAGS !~ /,PKG=SHOPCART,/) {
-#		$panel_positions{'hosting'} = -1;	# if not shopping cart package, disable the hosting panel.
-#		}
-#	if ($FLAGS =~ /,PKG=SHOPCART,/) {
-#		if ($FLAGS !~ /,SITEHOST,/) {
-#			$panel_positions{'navigation'} = -1;	# if not shopping cart package, disable the hosting panel.
-#			}
-#		}
-#
-#	if (defined $P) {
-#		## this will activate panels which are conditional based on product settings.
-#		if ($P->fetch('zoovy:catalog') ne '') {
-#			$panel_positions{'catalog'} = -1;
-#			}
-#		}
-#
-#	if (not defined $P) {
-#		## always show flexedit 
-#		}
-#	elsif (not defined $globalref->{'@flexedit'}) {
-#		$panel_positions{'flexedit'} = -1;
-#		# push @PANELS, ['flexedit','FLEXEDIT_PANEL','Custom Fields (Flex Edit)'];
-#		}
-#
-#
-#	if ($FLAGS !~ /,AMZ,/) {
-#		$panel_positions{'amazon'} = -1;
-#		}
-#	if ($FLAGS !~ /,BUY,/) {
-#		$panel_positions{'buy'} = -1;
-#		}
-#	if ($FLAGS !~ /,WS,/) {
-#		$panel_positions{'wholesale'} = -1;
-#		}
-#
-#	if ($FLAGS !~ /,RMA,/) {
-#		$panel_positions{'rma'} = -1;
-#		}
-#	if ($FLAGS !~ /,ERP,/) {
-#		$panel_positions{'erp'} = -1;
-#		}
-#
-#	#my ($LU) = $self->LU();
-#	#if ($LU->is_zoovy()) {
-#	#	}
-#	#elsif ($FLAGS !~ /,WMS,/) {
-#	#	$panel_positions{'wms'} = -1;
-#	#	}
-#	if ($globalref->{'wms'}<=0) {
-#		$panel_positions{'wms'} = -1;
-#		}
-#
-#	if ($FLAGS !~ /,AMZRP,/) {
-#		$panel_positions{'amzreprice'} = -1;
-#		}
-#
-#	if ($FLAGS !~ /,XSELL,/) {
-#		$panel_positions{'xsell'} = -1;
-#		$panel_positions{'rss'} = -1;
-#		}
-#
-#	if ($FLAGS !~ /,EBAY,/) {
-#		$panel_positions{'ebay'} = -1;
-#		$panel_positions{'ebay2'} = -1;
-#		}
-#
-#	if ($FLAGS !~ /,WS,/) {
-#		$panel_positions{'wholesale'} = -1;
-#		}
-#	if ($FLAGS !~ /,CRM,/) {
-#		$panel_positions{'reviews'} = -1;
-#		}
-#	if ($FLAGS !~ /,XSELL,/) {
-#		$panel_positions{'rss'} = -1;
-#		}
-#
-#	## step3: go through each panel and create a hash of panels (which are visible) with their priority
-#	my @PANELS = ();
-#	foreach my $id (reverse &ZTOOLKIT::value_sort(\%panel_positions,'numerically')) {
-#		next if ($panel_positions{$id} == -1);
-#		next if (not defined $panel_id_lookup{ $id });
-#
-#		$panel_id_lookup{ $id }->{'position'} = $panel_positions{$id};
-#		
-#		push @PANELS, { 
-#			position=>$panel_positions{$id},
-#			title=>$panel_id_lookup{ $id }->{'title'},
-#			id=>$id };
-#		}
-#
-#	if (&JSONAPI::hadError(\%R)) {
-#		}
-#	elsif (defined $P) {
-#		&JSONAPI::append_msg_to_response(\%R,'success',0);
-#		$R{'@PANELS'} = \@PANELS;
-#		$R{'pid'} = $P->pid();
-#		}
-
-	return(\%R);		
-	}
-
 
 
 =pod
@@ -16544,14 +16601,14 @@ sub adminSOG {
 		$R{'@SOGS'} = $listref;
 		}
 	elsif ($v->{'_cmd'} eq 'adminSOGDetail') {
-		my $sogref = &POGS::load_sogref($USERNAME,$v->{'id'});
+		my $sogref = &POGS::load_soglobalref($USERNAME,$v->{'id'});
 		$R{$v->{'id'}} = $sogref;
 		}
 	elsif ($v->{'_cmd'} eq 'adminSOGComplete') {
 		my $listref = POGS::list_sogs($USERNAME);
 		$R{'%SOGS'} = {};
 		foreach my $sogid (sort keys %{$listref}) {
-			my $sogref = &POGS::load_sogref($USERNAME,$sogid);
+			my $sogref = &POGS::load_soglobalref($USERNAME,$sogid);
 			$R{'%SOGS'}->{$sogid} = $sogref;
 			}
 		$R{'@SOGS'} = $listref;
@@ -16865,7 +16922,7 @@ sub canIUse {
 
 	if (defined $v->{'flag'}) {
 		## this will always return a success (for the call), but that won't necessarily indicate that they have access
-		$R{'allowed'} = ($self->gref()->{'cached_flags'} !~ /,$v->{'flag'},/)?1:0;
+		$R{'allowed'} = ($self->globalref()->{'cached_flags'} !~ /,$v->{'flag'},/)?1:0;
 		&JSONAPI::append_msg_to_response(\%R,'success',0);		
 		}
 	else {
@@ -19040,7 +19097,6 @@ sub buyerNotificationAdd {
 			}
 		else {
 			my ($error) = &INVENTORY2::UTIL::request_notification( $self->username(), $v->{'sku'}, 
-				# NS=>$self->profile(),
 				PRT=>$self->prt(),
 				EMAIL=>$v->{'email'}, 
 				MSGID=>$v->{'msgid'},
@@ -19451,21 +19507,26 @@ sub appEmailSend {
 		&JSONAPI::append_msg_to_response(\%R,"apierr",6002,"daily email threshold exceeded.");
 		}
 	elsif ($v->{'method'} eq 'tellafriend') {
-		require SITE::EMAILS;
-		my ($se) = SITE::EMAILS->new($self->username(),'*SITE'=>$self->_SITE());
-		my ($ERRORID) = $se->sendmail('PTELLAF',
-			PRODUCT=>$v->{'product'},
-			TO=>$v->{'recipient'},
-			VARS=>$v
-			);
-		if ($ERRORID>0) {
-			my $ERRMSG = $SITE::EMAILS::ERRORS{$ERRORID};
-			if ($ERRMSG eq '') { $ERRMSG = "Unknown SITE::EMAILS::ERROR ID=$ERRORID"; }
-			&JSONAPI::append_msg_to_response(\%R,"apierr",$ERRORID,$ERRMSG);
-			}
-		else {
-			&JSONAPI::append_msg_to_response(\%R,"success",0);
-			}
+		#require SITE::EMAILS;
+		#my ($se) = SITE::EMAILS->new($self->username(),'*SITE'=>$self->_SITE());
+		#my ($ERRORID) = $se->sendmail('PRODUCT.SHARE',
+		#	PRODUCT=>$v->{'product'},
+		#	TO=>$v->{'recipient'},
+		#	VARS=>$v
+		#	);
+		#if ($ERRORID>0) {
+		#	my $ERRMSG = $SITE::EMAILS::ERRORS{$ERRORID};
+		#	if ($ERRMSG eq '') { $ERRMSG = "Unknown SITE::EMAILS::ERROR ID=$ERRORID"; }
+		#	&JSONAPI::append_msg_to_response(\%R,"apierr",$ERRORID,$ERRMSG);
+		#	}
+		#else {
+		#	&JSONAPI::append_msg_to_response(\%R,"success",0);
+		#	}
+		my ($P) = PRODUCT->new($self->username(),$v->{'product'});
+		my ($BLAST) = BLAST->new($self->username(),$self->prt());
+		my ($rcpt) = $BLAST->recipient('EMAIL',$v->{'recipient'},$v);
+		my ($msg) = $BLAST->msg('PRODUCT.SHARE',{ '%PRODUCT'=>$P } );
+		$BLAST->send($rcpt,$msg);
 		}
 	else {
 		&JSONAPI::append_msg_to_response(\%R,"apierr",6660,"unknown method, or something else went horribly wrong - possibly demonic possession.");
@@ -19636,7 +19697,6 @@ sub buyerAddressList {
 		## handles it's own errors
 		}
 	else {
-		# print STDERR Dumper($SITE::SREF->{'*C'}, $self->customer());
 
 		$CUSTOMER::ADDRESS::JSON_EXPORT_FORMAT = $self->apiversion();		## used for CUSTOMER::ADDRESS::TO_JSON
 		$R{'@bill'} = $self->customer()->fetch_addresses('BILL');
@@ -20964,11 +21024,15 @@ sub appBuyerPasswordRecover {
 		&JSONAPI::append_msg_to_response(\%R,"iseerr",6006,"internal logic error CID=0 but no error set.");
 		}
 	elsif ($v->{'method'} eq 'email') {
-		require SITE::EMAILS;
-		my ($se) = SITE::EMAILS->new($self->username(), '*SITE'=>$self->_SITE());
-		$se->sendmail('CUSTOMER.PASSWORD.REQUEST',CID=>$CID);
-		$se = undef;
-		$R{'customer'} = $CID;
+		#require SITE::EMAILS;
+		#my ($se) = SITE::EMAILS->new($self->username(), '*SITE'=>$self->_SITE());
+		#$se->sendmail('CUSTOMER.PASSWORD.REQUEST',CID=>$CID);
+		#$se = undef;
+		#$R{'customer'} = $CID;
+		my ($BLAST) = BLAST->new($self->username(),$self->prt());
+		my ($rcpt) = $BLAST->recipient('CUSTOMER',$CID);
+		my ($msg) = $BLAST->msg('CUSTOMER.PASSWORD.REQUEST',{} );
+		$BLAST->send($rcpt,$msg);
 		&JSONAPI::append_msg_to_response(\%R,'success',0);		
 		}
 	else {
@@ -21984,7 +22048,7 @@ sub cartItemsInventoryVerify {
 		$CART2 = $self->cart2( $v->{'_cartid'} );
 		}
 
-	my ($resultref) = INVENTORY2->new($self->username())->verify_cart2($CART2,'%GREF'=>$self->gref());
+	my ($resultref) = INVENTORY2->new($self->username())->verify_cart2($CART2,'%GREF'=>$self->globalref());
 	$R{'%changes'} = $resultref;
 
 	return(\%R);
@@ -22622,58 +22686,7 @@ sub cartCheckoutValidate {
 	my ($self,$v) = @_;
 	my %R = ();
 
-	#if (not defined $SITE::msgs) { 
-	#	require CART;
-	#	my $cartid = $v->{'_cartid'};
-	#	$SITE::msgs = SITE::MSGS->new($self->username(), CART2=>$self->PRE201311cart2(), WEBDB=>$self->webdb(), PRT=>$self->prt());
-	#	}
-
-#	my @ISSUES = ();
-#
-#	my $SENDER = $v->{'sender'};
-#	if ($SENDER eq '') { 
-#		$SENDER = 'ORDER_CONFIRMATION'; 
-#		}
-#	elsif ($SENDER eq 'ADMIN') {
-#		## validate against admin logic.
-#		}
-#
-#	my $CART2 = undef;
-#	if ($self->apiversion()<201311) {
-#		$CART2 = $self->PRE201311cart2();
-#		}
-#	elsif ($v->{'_cartid'} eq '') {
-#		&JSONAPI::append_msg_to_response(\%R,'apperr',9998,"_cartid parameter is required for apiversion > 201310");			
-#		}
-#	else {
-#		$CART2 = $self->cart2( $v->{'_cartid'} );
-#		}
-#
-#
-#	if (scalar(@ISSUES)>0) {
-#		## something already went horribly wrong.
-#		}
-#	elsif (not ref($CART2) eq 'CART2') {	
-#		push @ISSUES, [ 'ISE', 'non_cart_reference', '', 'Sorry, but we could not load the cart you created. (Object was not correct reference)' ];
-#		}
-#	elsif ($self->apiversion() >= 201301) {
-#		## 
-#		}
-#	else {
-#		#(my $validation_issues) = $CART2->verify_checkout($SENDER,$self->_SITE());
-#		#foreach my $issue (@{$validation_issues}) {
-#		#	push @ISSUES, $issue;
-#		#	}
-#		}
-#
-#	if (scalar(@ISSUES)>0) {
-#		&JSONAPI::append_msg_to_response(\%R,"warning",200,"Encountered one or more issues with checkout");
-#		$R{'@issues'} = \@ISSUES;
-#		}
-#	else {
-		&JSONAPI::append_msg_to_response(\%R,'success',0);		
-#		}
-
+	&JSONAPI::append_msg_to_response(\%R,'success',0);		
 	return(\%R);
 	}
 
@@ -23140,7 +23153,6 @@ sub appSendMessage {
 				}
 
 			require TODO;
-			# &ZMAIL::notify_customer($self->username(), $from, $subject, $message, "FEEDBACK", '', 1, $self->profile());
 			
          my ($t) = TODO->new($self->username(),writeonly=>1);
 			my $LINKTO = "mailto:$from";
@@ -23542,7 +23554,7 @@ sub adminDebugSite {
 	my @DIAGS = ();
 
 	if ($v->{'check-global'}) {
-		my ($globalref) = &ZWEBSITE::fetch_globalref($USERNAME);
+		my ($globalref) = $self->globalref();
 		my $i = 0;
 		push @DIAGS, "INFO||Evaulating ".scalar(@{$globalref->{'@partitions'}})." partitions";
 		my %USED = ();
@@ -23628,7 +23640,6 @@ sub adminDebugSite {
 		foreach my $domainname (@domains) {
 			my ($d) = DOMAIN->new($USERNAME,$domainname);
 			my $PRT = $d->prt();
-			# my $PROFILE = $d->profile();
 			# my $nsref = &ZOOVY::fetchmerchantns_ref($USERNAME,$PROFILE);
 
 			my $SKIP = 0;
@@ -23646,8 +23657,6 @@ sub adminDebugSite {
 			#	}
 			#elsif ($d->{'HOST_TYPE'} eq 'PRIMARY') {
 			#	## primary domain .. should share same profile as partition.
-			#	push @DIAGS, "INFO||DOMAIN: $domainname is type PRIMARY, profile=$d->profile() prt=$PRT";
-			#	my $nsref = &ZOOVY::fetchmerchantns_ref($USERNAME,$d->profile());				
 			#	my $prt = &ZOOVY::fetchprt($USERNAME,$PRT);
 
 			#if ($USED_PROFILES{$PROFILE}) {
@@ -24225,7 +24234,7 @@ sub adminConfigDetail {
 	my ($MID) = &ZOOVY::resolve_mid($USERNAME);
 
 	my %R = ();
-	my ($gref) = $self->gref();
+	my ($gref) = $self->globalref();
 	my ($webdbref) = my $webdb = $self->webdb();
 	my $LUSERNAME = $self->luser();
 
@@ -24244,7 +24253,7 @@ sub adminConfigDetail {
 
 	if ($v->{'tuning'}) {
 		require ZWEBSITE;
-		my ($gref) = &ZWEBSITE::fetch_globalref($USERNAME);
+		my ($gref) = $self->globalref();
 		$R{'%tuning'} = $gref->{'%tuning'};
 		}
 
@@ -24273,6 +24282,8 @@ sub adminConfigDetail {
 		}
 
 
+
+
 	if ($v->{'plugins'}) {
 		##
 
@@ -24293,6 +24304,15 @@ sub adminConfigDetail {
 #Other [future]
 
 		my @PLUGINS = ();
+		my $PLUGINS = $gref->{'%plugins'} || {};
+		foreach my $k (keys %{$PLUGINS}) {
+			my $ref = $PLUGINS->{$k};
+			$ref->{'plugin'} = $k;
+			$ref->{'global'} = 1;
+			$ref->{'enable'} = int($ref->{'enable'});
+			push @PLUGINS, $ref;
+			}
+
 		if (1) {
 			my ($ref) = $webdbref->{'%plugin.auth_google'};
 			if (not defined $ref) { $ref = {}; }
@@ -24452,7 +24472,6 @@ sub adminConfigDetail {
 		foreach my $dname (sort @domains) {
 			my %ROW = ();
 			my ($D) = DOMAIN->new($USERNAME,$dname);
-			#my $ns = $d->profile();
 			my $prt = int($D->prt());
 			my $domainname = $D->domainname();
 
@@ -24501,7 +24520,7 @@ sub adminConfigDetail {
 			}
 
 		require PRODUCT::FLEXEDIT;
-		my ($gref) = &ZWEBSITE::fetch_globalref($USERNAME);
+		my ($gref) = $self->globalref();
 		my @FIELDS = ();
 		if (defined $gref->{'@flexedit'}) {
 			foreach my $set (@{$gref->{'@flexedit'}}) {
@@ -25680,7 +25699,6 @@ sub adminConfigMacro {
 		}
 
 	my $gref = undef;
-	# if (not defined $gref) { $gref = &ZWEBSITE::fetch_globalref($USERNAME); }
 	my $webdb = &ZWEBSITE::fetch_website_dbref($USERNAME,$self->prt()); 
 
 	my $FLAGS = '';
@@ -25692,8 +25710,15 @@ sub adminConfigMacro {
 			
 			if ($cmd eq 'PLUGIN/SET') {
 				my $PLUGIN = lc($params->{'plugin'});
+
 				if ($PLUGIN eq '') {
 					push @MSGS, "ERROR|+No plugin name specified";
+					}
+				elsif ($params->{'global'}) {
+					if (not defined $gref) { $gref = $self->globalref(); }
+					if (not defined $gref->{'%plugins'}) { $gref->{'%plugins'} = {}; }
+					$gref->{'%plugins'}->{ $PLUGIN } = $params;
+					delete $params->{'plugin'};
 					}
 				else {
 					$webdb->{"%plugin.$PLUGIN"} = $params;
@@ -25701,13 +25726,13 @@ sub adminConfigMacro {
 					}
 				}
 			elsif ($cmd eq 'GLOBAL/WMS') {
-				if (not defined $gref) { $gref = &ZWEBSITE::fetch_globalref($USERNAME); }
+				if (not defined $gref) { $gref = $self->globalref(); }
 				if (defined $params->{'active'}) {
 					$gref->{'wms'} = int($params->{'active'});
 					}
 				}
 			elsif ($cmd eq 'GLOBAL/ERP') {
-				if (not defined $gref) { $gref = &ZWEBSITE::fetch_globalref($USERNAME); }
+				if (not defined $gref) { $gref = $self->globalref(); }
 				if (defined $params->{'active'}) {
 					$gref->{'erp'} = int($params->{'active'}); 
 					}
@@ -25773,7 +25798,7 @@ sub adminConfigMacro {
 					}
 				}
 			elsif ($cmd eq 'GLOBAL/FLEXEDIT-SAVE') {
-				if (not defined $gref) { $gref = &ZWEBSITE::fetch_globalref($USERNAME); }
+				if (not defined $gref) { $gref = $self->globalref(); }
 				require ZWEBSITE;
 				require JSON::XS;
 				require PRODUCT::FLEXEDIT;
@@ -25792,7 +25817,7 @@ sub adminConfigMacro {
 
 				}
 			elsif ($cmd eq 'GLOBAL/SITE-FIX') {
-				if (not defined $gref) { $gref = &ZWEBSITE::fetch_globalref($USERNAME); }
+				if (not defined $gref) { $gref = $self->globalref(); }
 #				my ($data,$action) = ('','');		## DOES NOT WORK YET
 #				if ($data =~ /^profile:(.*?)$/) {
 #					my $NS = $1;
@@ -25870,7 +25895,7 @@ sub adminConfigMacro {
 					}
 				}
 			elsif ($cmd eq 'GLOBAL/PARTITIONCREATE') {
-				if (not defined $gref) { $gref = &ZWEBSITE::fetch_globalref($USERNAME); }
+				if (not defined $gref) { $gref = $self->globalref(); }
 				my $i = scalar(@{$gref->{'@partitions'}});
 				my %prt = ();
 				$prt{'name'} = $params->{'name'};
@@ -25890,7 +25915,7 @@ sub adminConfigMacro {
 
 				}
 			elsif ($cmd eq 'GLOBAL/INVENTORY') {
-				if (not defined $gref) { $gref = &ZWEBSITE::fetch_globalref($USERNAME); }
+				if (not defined $gref) { $gref = $self->globalref(); }
 				foreach my $k (keys %{$params}) {
 					if ($k =~ /inv_/) { $gref->{$k} = $params->{$k}; }
 					}
@@ -27345,10 +27370,10 @@ sub appResource {
 	elsif ($FILENAME =~ /^integrations\.(.*?)$/) {
 		$ref = \@ZOOVY::INTEGRATIONS;
 		}
-	elsif ($FILENAME =~ /^email_macros\.(.*?)$/) {
-		require SITE::EMAILS;
-		$ref = \@SITE::EMAILS::MACRO_HELP;
-		}
+	#elsif ($FILENAME =~ /^email_macros\.(.*?)$/) {
+	#	require SITE::EMAILS;
+	#	$ref = \@SITE::EMAILS::MACRO_HELP;
+	#	}
 	elsif ($FILENAME =~ /^amazon_catalogs\.(.*?)$/) {
 		require AMAZON3;
 		$ref = \%AMAZON3::CATALOGS;
@@ -28072,7 +28097,7 @@ sub adminTechnicalRequest {
 
 	my ($USERNAME) = $self->username();
 	require PLUGIN::HELPDESK;
-	my ($globalref) = &ZWEBSITE::fetch_globalref($USERNAME);
+	my ($globalref) = $self->globalref();
 	my $overrides = $globalref->{'%overrides'};
 	if (not defined $overrides) { $overrides = {}; }
 	
@@ -28199,7 +28224,7 @@ sub adminAccountDetail {
 	my %R = ();
 	my $TOKEN = '';
 
-	my $gref = &ZWEBSITE::fetch_globalref($USERNAME);
+	my $gref = $self->globalref();
 	my $cached_flags = ','.$gref->{'cached_flags'}.',';
 
 	## needed for version 7 compatibility
@@ -29299,6 +29324,7 @@ sub adminEBAYCategory {
 	$edbh->disconnect() if $edbh;
 	return(\%R);
 	}
+
 
 
 

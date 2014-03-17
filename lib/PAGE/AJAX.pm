@@ -120,39 +120,44 @@ sub handle {
 ## pass cid, or email
 ##		- 
 ##
-sub customerEmail {
-	my ($SITE,$dref) = @_;
-	my %result = ();
-
-	my $cid = int($dref->{'cid'});
-	my ($msgid) = sprintf("%s",$SITE::v->{'msgid'});
-
-	my $err = undef;
-
-	if ($msgid eq '') {
-		$err = "no msgid parameter passed";
-		}
-
-	if ((not defined $err) && ($cid==0)) {
-		my $email = $SITE::v->{'email'};
-		($cid) = &CUSTOMER::resolve_customer_id($SITE->username(), $SITE->prt(),  $email);
-		}
-
-	if (defined $err) {
-		## shit already went bad.
-		}
-	elsif ($cid<=0) {
-		$err = "could not resolve customer id";
-		}
-	else {
-		require SITE::EMAILS;
-		my ($se) = SITE::EMAILS->new($SITE->username(),'*SITE'=>$SITE); # ,NS=>$SITE->{'_NS'},PRT=>$SITE->prt());
-		($err) = $se->sendmail($msgid,CID=>$cid);
-		$se = undef;
-		}
-	
-	return("?m=customerEmailResponse&cid=$cid&err=$err");
-	}
+#sub customerEmail {
+#	my ($SITE,$dref) = @_;
+#	my %result = ();
+#
+#	my $cid = int($dref->{'cid'});
+#	my ($msgid) = sprintf("%s",$SITE::v->{'msgid'});
+#
+#	my $err = undef;
+#
+#	if ($msgid eq '') {
+#		$err = "no msgid parameter passed";
+#		}
+#
+#	if ((not defined $err) && ($cid==0)) {
+#		my $email = $SITE::v->{'email'};
+#		($cid) = &CUSTOMER::resolve_customer_id($SITE->username(), $SITE->prt(),  $email);
+#		}
+#
+#	if (defined $err) {
+#		## shit already went bad.
+#		}
+#	elsif ($cid<=0) {
+#		$err = "could not resolve customer id";
+#		}
+#	else {
+#	#	require SITE::EMAILS;
+#	#	my ($se) = SITE::EMAILS->new($SITE->username(),'*SITE'=>$SITE); # ,NS=>$SITE->{'_NS'},PRT=>$SITE->prt());
+#	#	($err) = $se->sendmail($msgid,CID=>$cid);
+#	#	$se = undef;
+#		my ($BLAST) = BLAST->new($SITE->username(), $SITE->prt());
+#		my ($rcpt) = $BLAST->recipient('EMAIL',$email);
+#		if ($msgid eq 'PTELLAF') { $msgid = 'PRODUCT.SHARE'; }
+#		my ($msg) = $BLAST->msg($msgid);
+#		
+#		}
+#	
+#	return("?m=customerEmailResponse&cid=$cid&err=$err");
+#	}
 
 
 ##

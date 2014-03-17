@@ -2,6 +2,7 @@ package ZWEBSITE;
 
 use strict;
 use YAML::Syck;
+use JSON::XS;
 
 ##
 ## www-zephyrsports-com.zoovy.net to www.zephyrsports.com
@@ -79,19 +80,9 @@ use strict;
 
 
 sub init {
-	$ZWEBSITE::WEBDBUSER = undef;
-	%ZWEBSITE::WEBDBCACHE = ();
-	$ZWEBSITE::WEBDBPRT = -1;
-	$ZWEBSITE::GLOBALUSER = undef;
-	$ZWEBSITE::GLOBALCACHE = undef;
 	}
 
 # these two make peristent copies of the data, handy if we do lots of attribute reads
-$ZWEBSITE::WEBDBUSER = undef;
-$ZWEBSITE::WEBDBCACHE = undef;
-$ZWEBSITE::WEBDBPRT = -1;
-$ZWEBSITE::GLOBALUSER = undef;
-$ZWEBSITE::GLOBALCACHE = undef;
 
 
 ## a shortcut to get a list of partitions for a user
@@ -160,23 +151,6 @@ sub globalset_attribs {
 	}
 
 
-#sub prt_set_profile {
-#	my ($USERNAME,$PRT,$PROFILE) = @_;
-#	
-#	my ($globalref) = &ZWEBSITE::fetch_globalref($USERNAME);
-#	$globalref->{'@partitions'}->[int($PRT)]->{'profile'} = $PROFILE;
-#	&ZWEBSITE::save_globalref($USERNAME,$globalref);
-#
-#	my ($dbref) = &ZWEBSITE::fetch_website_dbref($USERNAME,$PRT);
-#	$dbref->{'profile'} = $PROFILE;
-#	&ZWEBSITE::save_website_dbref($USERNAME,$dbref,$PRT);
-#
-#	my $nsref = &ZOOVY::fetchmerchantns_ref($USERNAME,$PROFILE);
-#	$nsref->{'prt:id'} = $PRT;
-#	&ZOOVY::savemerchantns_ref($USERNAME,$PROFILE,$nsref);
-#	
-#	return();
-#	}
 
 
 sub prt_get_profile {
@@ -472,14 +446,8 @@ sub fetch_globalref {
 	my $file = undef;
 	my $ref = undef;
 
-	if (not defined $ZWEBSITE::GLOBALUSER) { }
-	elsif ($ZWEBSITE::GLOBALUSER eq uc($USERNAME)) {
-		## we already had this global ref in memory.
-		$ref = $ZWEBSITE::GLOBALCACHE;
-		}
-	
 	my $memd = undef;
-	my $MEMKEY = "$USERNAME:global.yaml";
+	my $MEMKEY = lc("$USERNAME:global.yaml");
 
 	if (defined $ref) {
 		}
@@ -491,14 +459,6 @@ sub fetch_globalref {
 				$ref = YAML::Syck::Load($yaml);
 				## warn "Loaded global/yaml from memcache\n";
 				}
-			#if (ref($ref) ne 'HASH') {
-			#	warn "GOT EMPTY STRING (NOT UNDEF) GLOBAL.BIN RESPONSE FROM MEMCACHE USER:$USERNAME\n";
-			#	$ref = undef;
-			#	}
-			#elsif ((defined $ref->{'__FLUSH__'}) && ($ref->{'__FLUSH__'} < time())) {
-			#	warn "FLUSHING GLOBAL.BIN";
-			#	$ref = undef;
-			#	}
 			}
 		}
 
@@ -543,11 +503,7 @@ sub fetch_globalref {
 			}
 		}
 
-	$ZWEBSITE::GLOBALUSER = uc($USERNAME);
-	$ZWEBSITE::GLOBALCACHE = $ref;
-
 	if (ref($ref) eq '') { $ref = undef; }
-
 	return($ref);	
 	}
 
@@ -608,7 +564,7 @@ sub save_globalref {
 #	print F sprintf("%d\t%s\t%s\n",time(),$USERNAME,$file);
 #	close F;
 
-	my $MEMKEY = "$USERNAME:global.yaml";
+	my $MEMKEY = lc("$USERNAME:global.yaml");
 	Storable::nstore $ref, "$file.$$";
 	chmod(0666, "$file.$$");
 	rename("$file.$$","$file");
@@ -641,100 +597,118 @@ sub fetch_website_dbref {
 		return();
 		}
 
-	# persistent caching
-	if (defined($ZWEBSITE::WEBDBUSER) && ($ZWEBSITE::WEBDBUSER eq $USERNAME) && ($ZWEBSITE::WEBDBPRT == $PRT)) {
-		return $ZWEBSITE::WEBDBCACHE;
+
+	my $WEBDBREF = undef;
+	my $USERPATH = &ZOOVY::resolve_userpath($USERNAME);
+	my $file = sprintf("%s/webdb-%d.json",$USERPATH,$PRT);
+	my $MEMCACHE_KEY = lc("webdb|$USERNAME.$PRT");
+	my $memd = &ZOOVY::getMemd($USERNAME);
+
+	if (my $json = $memd->get($MEMCACHE_KEY)) {
+		$WEBDBREF = JSON::XS::decode_json($json);
 		}
 
-	my %AR = ();
-	my %TMP = ();
-	$ZWEBSITE::WEBDBUSER = undef;
-	$ZWEBSITE::WEBDBCACHE = undef;
-	$ZWEBSITE::WEBDBPRT = -1;
-	my $file = '';
-	if ($PRT==0) {
-		$file = &ZOOVY::resolve_userpath($USERNAME).'/webdb.bin';
+	if (defined $WEBDBREF) {
 		}
-	else {
-		$file = &ZOOVY::resolve_userpath($USERNAME).'/webdb-'.$PRT.'.bin';
-		}
-	
-	if ($cache>0) {	
-		my $cfile = &ZWEBSITE::webdb_cache_file($USERNAME,$PRT);
-		my ($dev,$ino,$mode,$nlink,$uid,$gid,$rdev,$size,$atime,$mtime,$ctime,$blksize,$blocks) = stat($cfile);
-		if ($mtime > $cache) {
-			$file = $cfile;
-			}		
-		else {
-			$cache = 1;
+	elsif (! -f $file) {
+		my $oldfile = undef;
+		if ($PRT==0) {
+			$oldfile = &ZOOVY::resolve_userpath($USERNAME).'/webdb.bin';
 			}
+		else {
+			$oldfile = &ZOOVY::resolve_userpath($USERNAME).'/webdb-'.$PRT.'.bin';
+			}
+		if (-f $oldfile) { $WEBDBREF = Storable::retrieve($oldfile); }
+		if (not defined $WEBDBREF) { $WEBDBREF = {}; }
+		open F, ">$file";		
+		print F JSON::XS->new->allow_nonref->encode($WEBDBREF);
+		close F;
 		}
-	$SITE::DEBUG && print STDERR "fetch_website_dbref path: $file\n";
+
+
+
+
+	#if ($cache>0) {	
+	#	my $cfile = &ZWEBSITE::webdb_cache_file($USERNAME,$PRT);
+	#	my ($dev,$ino,$mode,$nlink,$uid,$gid,$rdev,$size,$atime,$mtime,$ctime,$blksize,$blocks) = stat($cfile);
+	#	if ($mtime > $cache) {
+	#		$file = $cfile;
+	#		}		
+	#	else {
+	#		$cache = 1;
+	#		}
+	#	}
+	#$SITE::DEBUG && print STDERR "fetch_website_dbref path: $file\n";
 
 	if (not defined $file) {
 		}
+	elsif (defined $WEBDBREF) {
+		}
 	elsif (-f $file) {
-		## new storable code
-		$ZWEBSITE::WEBDBUSER = $USERNAME;
-		$ZWEBSITE::WEBDBCACHE = retrieve($file);
-		$ZWEBSITE::WEBDBCACHE->{'+prt'} = $PRT;
-		$ZWEBSITE::WEBDBPRT = $PRT;
 
-		if (not defined $ZWEBSITE::WEBDBCACHE->{'cc_processor'}) {
+	#	if ($cache==1) {
+	#		my $cfile = &ZWEBSITE::webdb_cache_file($USERNAME,$PRT);
+	#		Storable::nstore $WEBDBREF, $cfile;
+	#		chmod 0666, $cfile;
+	#		if ($< != $ZOOVY::EUID) { chown $ZOOVY::EUID,$ZOOVY::EGID, $cfile; }
+	#		}
+
+	#	}
+	#else {
+	#	warn "Could not load webdb for user  [$USERNAME]$file";
+	#	$ZWEBSITE::WEBDBUSER = $USERNAME;
+	#	$WEBDBREF = {};	
+	#	$ZWEBSITE::WEBDBPRT = -1;
+	#	}
+		my $json = '';
+		open F, "<$file"; $/ = undef; while (<F>) { $json = $_; } $/ = "\n"; close F;
+		$WEBDBREF = JSON::XS::decode_json($json);
+
+		$memd->set($MEMCACHE_KEY,$json);
+		}
+
+
+
+	if (not defined $WEBDBREF->{'v'}) { $WEBDBREF->{'v'} = 0; }
+	if ($WEBDBREF->{'v'}==0) {
+		## 
+		if (not defined $WEBDBREF->{'cc_processor'}) {
 			}
-		elsif ($ZWEBSITE::WEBDBCACHE->{'cc_processor'} eq 'PAYPALVT') { 
+		elsif ($WEBDBREF->{'cc_processor'} eq 'PAYPALVT') { 
 			## renamed this value.
-			$ZWEBSITE::WEBDBCACHE->{'cc_processor'} = 'PAYPALWP'; 
+			$WEBDBREF->{'cc_processor'} = 'PAYPALWP'; 
 			}
 
-		if ($cache==1) {
-			my $cfile = &ZWEBSITE::webdb_cache_file($USERNAME,$PRT);
-			Storable::nstore $ZWEBSITE::WEBDBCACHE, $cfile;
-			chmod 0666, $cfile;
-			if ($< != $ZOOVY::EUID) { chown $ZOOVY::EUID,$ZOOVY::EGID, $cfile; }
-			}
+		my %DESTINATIONBITS = (
+			'NO'=>0,
+			'NONE'=>0,
+			'DOMESTIC'=>1,
+			'ALL51'=>3,
+			'INT_HIGH'=>1+2+4+8,
+			'INT_LOW'=>1+2+4,
+			);
 
-		}
-	else {
-		warn "Could not load webdb for user  [$USERNAME]$file";
-		$ZWEBSITE::WEBDBUSER = $USERNAME;
-		$ZWEBSITE::WEBDBCACHE = {};	
-		$ZWEBSITE::WEBDBPRT = -1;
-		}
-
-	my %DESTINATIONBITS = (
-		'NO'=>0,
-		'NONE'=>0,
-		'DOMESTIC'=>1,
-		'ALL51'=>3,
-		'INT_HIGH'=>1+2+4+8,
-		'INT_LOW'=>1+2+4,
-		);
-
-
-	if (not defined $ZWEBSITE::WEBDBCACHE->{'v'}) { $ZWEBSITE::WEBDBCACHE->{'v'} = 0; }
-	if ($ZWEBSITE::WEBDBCACHE->{'v'}==0) {
 		foreach my $f ('pay_google','pay_credit','pay_echeck','pay_paypal','pay_paypalec','pay_giftcard',
 						'pay_chkod','pay_mo','pay_cash','pay_pickup','pay_check','pay_po','pay_wire',
 						'pay_amzspay','pay_custom','pay_cod') {
-			if (defined $ZWEBSITE::WEBDBCACHE->{$f}) {
-				if ($ZWEBSITE::WEBDBCACHE->{$f} eq 'NO') {
-					$ZWEBSITE::WEBDBCACHE->{$f} = 0;
+			if (defined $WEBDBREF->{$f}) {
+				if ($WEBDBREF->{$f} eq 'NO') {
+					$WEBDBREF->{$f} = 0;
 					}
-				#elsif (int($ZWEBSITE::WEBDBCACHE->{$f}) > 0) {
+				#elsif (int($WEBDBREF->{$f}) > 0) {
 				#	## already converted
 				#	}
-				elsif (defined $DESTINATIONBITS{$ZWEBSITE::WEBDBCACHE->{$f}}) {
+				elsif (defined $DESTINATIONBITS{$WEBDBREF->{$f}}) {
 					## cache
-#					print STDERR "$f|$ZWEBSITE::WEBDBCACHE->{$f}|$DESTINATIONBITS{$ZWEBSITE::WEBDBCACHE->{$f}}\n";
-					$ZWEBSITE::WEBDBCACHE->{$f} = $DESTINATIONBITS{$ZWEBSITE::WEBDBCACHE->{$f}};
+#					print STDERR "$f|$WEBDBREF->{$f}|$DESTINATIONBITS{$WEBDBREF->{$f}}\n";
+					$WEBDBREF->{$f} = $DESTINATIONBITS{$WEBDBREF->{$f}};
 					}
 				}
 			}
-		$ZWEBSITE::WEBDBCACHE->{'v'} = 1;
+		$WEBDBREF->{'v'} = 1;
 		}
 
-	if ($ZWEBSITE::WEBDBCACHE->{'v'}==1) {
+	if ($WEBDBREF->{'v'}==1) {
 		#<u>Account Creation:</u><br>
 		#<input type='radio' name='customer_management' <!-- CM_DEFAULT --> value='DEFAULT'><b>Default:</b> Require customers to use/create accounts, require existing customers to login.<br>
 		#<input type='radio' name='customer_management' <!-- CM_NICE --> value='NICE'><b>Nice:</b> Prompt customers to use/create accounts, but always let them purchase, even without logging into their account.<br>
@@ -748,46 +722,46 @@ sub fetch_website_dbref {
 		#so it does not invite the customer to login and view order status. To edit the default order created message go to Setup | Email Messages, and
 		#edit the "Order Created" message.
 		#</div>
-		#if ($ZWEBSITE::WEBDBCACHE->{'customer_management'} eq '') {
+		#if ($WEBDBREF->{'customer_management'} eq '') {
 		#	}
-		#elsif ($ZWEBSITE::WEBDBCACHE->{'customer_management'} eq 'DEFAULT') {
-		#	$ZWEBSITE::WEBDBCACHE->{'site_private'} = 0;		# private sites require login
-		#	$ZWEBSITE::WEBDBCACHE->{'site_customer_accounts'} = 1;
-		#	$ZWEBSITE::WEBDBCACHE->{'site_passive_accounts'} = 0;
+		#elsif ($WEBDBREF->{'customer_management'} eq 'DEFAULT') {
+		#	$WEBDBREF->{'site_private'} = 0;		# private sites require login
+		#	$WEBDBREF->{'site_customer_accounts'} = 1;
+		#	$WEBDBREF->{'site_passive_accounts'} = 0;
 		#	}
-		#elsif ($ZWEBSITE::WEBDBCACHE->{'customer_management'} eq 'PASSIVE') {
-		#	$ZWEBSITE::WEBDBCACHE->{'site_private'} = 0;	
-		#	$ZWEBSITE::WEBDBCACHE->{'site_customer_accounts'} = 1;
-		#	$ZWEBSITE::WEBDBCACHE->{'site_passive_accounts'} = 1;
+		#elsif ($WEBDBREF->{'customer_management'} eq 'PASSIVE') {
+		#	$WEBDBREF->{'site_private'} = 0;	
+		#	$WEBDBREF->{'site_customer_accounts'} = 1;
+		#	$WEBDBREF->{'site_passive_accounts'} = 1;
 		#	}
-		#elsif ($ZWEBSITE::WEBDBCACHE->{'customer_management'} eq 'NICE') {
-		#	$ZWEBSITE::WEBDBCACHE->{'site_private'} = 0;	
-		#	$ZWEBSITE::WEBDBCACHE->{'site_customer_accounts'} = 1;
-		#	$ZWEBSITE::WEBDBCACHE->{'site_passive_accounts'} = 1;
-		#	$ZWEBSITE::WEBDBCACHE->{'site_checkout_login'} = 1;
+		#elsif ($WEBDBREF->{'customer_management'} eq 'NICE') {
+		#	$WEBDBREF->{'site_private'} = 0;	
+		#	$WEBDBREF->{'site_customer_accounts'} = 1;
+		#	$WEBDBREF->{'site_passive_accounts'} = 1;
+		#	$WEBDBREF->{'site_checkout_login'} = 1;
 		#	}
-		#elsif ($ZWEBSITE::WEBDBCACHE->{'customer_management'} eq 'DISABLED') {
-		#	$ZWEBSITE::WEBDBCACHE->{'site_private'} = 0;	
-		#	$ZWEBSITE::WEBDBCACHE->{'site_customer_accounts'} = 0;
-		#	$ZWEBSITE::WEBDBCACHE->{'site_passive_accounts'} = 0;
+		#elsif ($WEBDBREF->{'customer_management'} eq 'DISABLED') {
+		#	$WEBDBREF->{'site_private'} = 0;	
+		#	$WEBDBREF->{'site_customer_accounts'} = 0;
+		#	$WEBDBREF->{'site_passive_accounts'} = 0;
 		#	}
-		#elsif ($ZWEBSITE::WEBDBCACHE->{'customer_management'} eq 'MEMBER') {
-		#	$ZWEBSITE::WEBDBCACHE->{'site_private'} = 0;	
-		#	$ZWEBSITE::WEBDBCACHE->{'site_customer_accounts'} = 0;
-		#	$ZWEBSITE::WEBDBCACHE->{'site_passive_accounts'} = 0;
+		#elsif ($WEBDBREF->{'customer_management'} eq 'MEMBER') {
+		#	$WEBDBREF->{'site_private'} = 0;	
+		#	$WEBDBREF->{'site_customer_accounts'} = 0;
+		#	$WEBDBREF->{'site_passive_accounts'} = 0;
 		#	}
-		#elsif ($ZWEBSITE::WEBDBCACHE->{'customer_management'} eq 'PRIVATE') {
-		#	$ZWEBSITE::WEBDBCACHE->{'site_private'} = 1;	
-		#	$ZWEBSITE::WEBDBCACHE->{'site_customer_accounts'} = 1;
-		#	$ZWEBSITE::WEBDBCACHE->{'site_passive_accounts'} = 0;
+		#elsif ($WEBDBREF->{'customer_management'} eq 'PRIVATE') {
+		#	$WEBDBREF->{'site_private'} = 1;	
+		#	$WEBDBREF->{'site_customer_accounts'} = 1;
+		#	$WEBDBREF->{'site_passive_accounts'} = 0;
 		#	}
-		# $ZWEBSITE::WEBDBCACHE->{'v'} = 2;
+		# $WEBDBREF->{'v'} = 2;
 		}
 
 
 	## disable google
-	# $ZWEBSITE::WEBDBCACHE->{'google_api_env'} = 0; 
-	return $ZWEBSITE::WEBDBCACHE;
+	# $WEBDBREF->{'google_api_env'} = 0; 
+	return $WEBDBREF;
 	}
 
 
@@ -823,13 +797,13 @@ sub fetch_website_attrib
 	
 	if (!$USERNAME) { return(1); }
 	# check the peristent copy
-	if (defined($ZWEBSITE::WEBDBUSER) && ($ZWEBSITE::WEBDBUSER eq $USERNAME)) {
-		return($ZWEBSITE::WEBDBCACHE->{$KEY});
-		} 
+	#if (defined($ZWEBSITE::WEBDBUSER) && ($ZWEBSITE::WEBDBUSER eq $USERNAME)) {
+	#	return($ZWEBSITE::WEBDBCACHE->{$KEY});
+	#	} 
 	
 	my $webdbref = &fetch_website_dbref($USERNAME);
 	return($webdbref->{$KEY});
-}
+	}
 
 
 
@@ -842,13 +816,6 @@ sub fetch_website_attrib
 ##
 sub save_website_attrib {
 	my ($USERNAME, $KEY, $VALUE) = @_;
-	
-	
-
-	# flush the cache
-	$ZWEBSITE::WEBDBUSER = undef;
-	$ZWEBSITE::WEBDBCACHE = {};
-	$ZWEBSITE::WEBDBPRT = -1;
 	
 	if (!$USERNAME) { return(1); }
 	my $webdbref = &fetch_website_dbref($USERNAME,0);
@@ -867,29 +834,39 @@ sub save_website_attrib {
 ##
 ##
 sub save_website_dbref {
-	my ($USERNAME, $AR, $PRT) = @_;
-
-	$ZWEBSITE::WEBDBUSER = $USERNAME;
-	$ZWEBSITE::WEBDBCACHE = $AR;
-	$ZWEBSITE::WEBDBPRT = $PRT;
+	my ($USERNAME, $WEBDBREF, $PRT) = @_;
 
 	if (not defined $PRT) { 
 		die("No longer allowed to call save_website_dbref without partition");
 		}
 
-	my $file = '';
-	if ($PRT==0) {
-		$file = &ZOOVY::resolve_userpath($USERNAME).'/webdb.bin';
-		}
-	else {
-		$file = &ZOOVY::resolve_userpath($USERNAME).'/webdb-'.$PRT.'.bin';		
-		}
-	my $path = &ZOOVY::resolve_userpath($USERNAME);
-	if (-d $path) {
-		Storable::nstore $ZWEBSITE::WEBDBCACHE, $file;
-		chmod(0666, $file);
-		&ZOOVY::touched($USERNAME,1);
-		}
+	#my $file = '';
+	#if ($PRT==0) {
+	#	$file = &ZOOVY::resolve_userpath($USERNAME).'/webdb.bin';
+	#	}
+	#else {
+	#	$file = &ZOOVY::resolve_userpath($USERNAME).'/webdb-'.$PRT.'.bin';		
+	#	}
+	#my $path = &ZOOVY::resolve_userpath($USERNAME);
+	#if (-d $path) {
+	#	Storable::nstore $ZWEBSITE::WEBDBCACHE, $file;
+	#	chmod(0666, $file);
+	#	&ZOOVY::touched($USERNAME,1);
+	#	}
+	my $USERPATH = &ZOOVY::resolve_userpath($USERNAME);
+	my $file = sprintf("%s/webdb-%d.json",$USERPATH,$PRT);
+	if (not defined $WEBDBREF) { $WEBDBREF = {}; }
+	open F, ">$file";		
+	print F JSON::XS->new->allow_nonref->encode($WEBDBREF);
+	close F;
+	chmod(0666, $file);
+	&ZOOVY::touched($USERNAME,1);
+
+	## VERY IMPORTANT!
+	my $MEMCACHE_KEY = lc("webdb|$USERNAME.$PRT");
+	my $memd = &ZOOVY::getMemd($USERNAME);
+	$memd->delete($MEMCACHE_KEY);
+		
 	return(0);
 }
 
@@ -906,7 +883,7 @@ sub save_website_dbref {
 sub save_website_db {
 	my ($USERNAME,$AR) = @_;
 	return(&save_website_dbref($USERNAME,$AR));	
-}
+	}
 
 
 

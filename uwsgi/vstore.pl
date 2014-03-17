@@ -419,6 +419,7 @@ my $app = sub {
 		}
 
 
+	my $LOGREF = undef;
 	if (defined $LOGREF) { push @{$LOGREF}, "+URI: ".$SITE->uri(); }
 	
 	##
@@ -2709,7 +2710,7 @@ var pr_style_sheet="http://cdn.powerreviews.com/aux/$pwrgid/$pwrmid/css/powerrev
 TOOK=[~.(time()-$START_GMT).qq~ sec.] CYCLES=[$END_TIMES_user/$END_TIMES_system] SERVER[~.&ZOOVY::servername().qq~.$$] 
 USER[~.$SITE->username().qq~] build[$::BUILD]\nPAGE[~.$SITE->pageid().qq~] PRT[~.$SITE->prt().qq~] 
 FS[~.$SITE->fs().qq~] LAYOUT[~.$SITE->layout().qq~] WRAPPER[$DOCID] PG[~.$SITE->pageid().qq~] HOST[~.$SITE->domain_host().qq~] 
-DN:[~.$SITE->client_is().qq~] MVS[$AB] CLUSTER=[$ZOOVY::LAST_CLUSTER]\n-->\n~ };
+DN:[~.$SITE->client_is().qq~] MVS[$AB]\n-->\n~ };
 				}
 
 			if (defined $req) {
@@ -2774,7 +2775,6 @@ DN:[~.$SITE->client_is().qq~] MVS[$AB] CLUSTER=[$ZOOVY::LAST_CLUSTER]\n-->\n~ };
 			# if ($assbackwards) { print "HTTP/1.0 501 Error\nServer: Apache!\n"; }
 			$SITE::HANDLER = [ 'ISE', { 'Content-Type'=>'text/html' } ];
 			$BODY .= ("<head><title>".$SITE->title()."</title></head><body>$SENDER</body>"); 
-			undef $FLOW::ERRMSG;
 			}
 		elsif ($SITE->pageid() eq '?AJAX') {
 			require PAGE::AJAX;

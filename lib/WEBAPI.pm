@@ -3300,7 +3300,6 @@ sub webdbSync {
 	my $PickupTime = 0;
 	my ($API,$FUNCTION,$TIMESTAMP) = split(/\//,$XAPI,3);
 	$TIMESTAMP = int($TIMESTAMP);
-	require SITE::EMAILS;
 	
 
 	if ($FUNCTION eq 'UPLOAD') {
@@ -3339,9 +3338,9 @@ sub webdbSync {
 				require SITE;
 				my $SITE = SITE->new( $USERNAME, 'NS'=>$NS, 'PRT'=>$PRT );
 				my $params = &ZTOOLKIT::parseparams($node->{'content'}->[0]->{'content'});
-				my ($se) = SITE::EMAILS->new($USERNAME,'*SITE'=>$SITE);
-				my ($success) = $se->save($MSGID,%{$params});
-				$XML .= "<email id=\"$MSGID\" ns=\"$NS\" status=\"success\" errmsg=\"\"/>\n";
+				#my ($se) = SITE::EMAILS->new($USERNAME,'*SITE'=>$SITE);
+				#my ($success) = $se->save($MSGID,%{$params});
+				#$XML .= "<email id=\"$MSGID\" ns=\"$NS\" status=\"success\" errmsg=\"\"/>\n";
 				}
 			}
 
@@ -3366,15 +3365,15 @@ sub webdbSync {
 
 		if ($::XCOMPAT >= 221) {
 			$XML .= "<EMAILS>";
-			require SITE;
-			foreach my $PRT (&ZWEBSITE::prts()) {
-				my ($SREF) = SITE->new($USERNAME,'PRT'=>$PRT);
-				require SITE::EMAILS;
-				my $se = SITE::EMAILS->new($USERNAME,"*SITE"=>$SREF);
-				foreach my $msgref (@{$se->available()}) {
-					$XML .= "<email prt=\"$PRT\" id=\"$msgref->{'MSGID'}\"><![CDATA[".&ZTOOLKIT::buildparams($msgref)."]]></email>\n";
-					}
-				}
+			#require SITE;
+			#foreach my $PRT (&ZWEBSITE::prts()) {
+			#	my ($SREF) = SITE->new($USERNAME,'PRT'=>$PRT);
+			#	require SITE::EMAILS;
+			#	my $se = SITE::EMAILS->new($USERNAME,"*SITE"=>$SREF);
+			#	foreach my $msgref (@{$se->available()}) {
+			#		$XML .= "<email prt=\"$PRT\" id=\"$msgref->{'MSGID'}\"><![CDATA[".&ZTOOLKIT::buildparams($msgref)."]]></email>\n";
+			#		}
+			#	}
 			$XML .= "</EMAILS>";
 			}
 		else {
@@ -3394,14 +3393,13 @@ sub webdbSync {
 
 				require SITE;
 				my ($SREF) = SITE->new($USERNAME,'*D'=>$D,'DOMAIN'=>$D->domainname(),'PRT'=>$D->prt());
-				require SITE::EMAILS;
-				my $se = SITE::EMAILS->new($USERNAME,"*SITE"=>$SREF);
-				foreach my $msgref (@{$se->available()}) {
-					next if (($::XCOMPAT<202) && (length($msgref->{'MSGID'})>10));
-					next if (($msgref->{'MSGTYPE'} eq 'TICKET') && ($::XCOMPAT < 201));
-	
-					$XML .= "<email ns=\"$PROFILE_COMPATIBILITY\" id=\"$msgref->{'MSGID'}\"><![CDATA[".&ZTOOLKIT::buildparams($msgref)."]]></email>\n";
-					}
+				#require SITE::EMAILS;
+				#my $se = SITE::EMAILS->new($USERNAME,"*SITE"=>$SREF);
+				#foreach my $msgref (@{$se->available()}) {
+				#	next if (($::XCOMPAT<202) && (length($msgref->{'MSGID'})>10));
+				#	next if (($msgref->{'MSGTYPE'} eq 'TICKET') && ($::XCOMPAT < 201));
+				#	$XML .= "<email ns=\"$PROFILE_COMPATIBILITY\" id=\"$msgref->{'MSGID'}\"><![CDATA[".&ZTOOLKIT::buildparams($msgref)."]]></email>\n";
+				#	}
 				}
 
 			$XML .= "</PROFILES>\n";
@@ -4280,78 +4278,79 @@ sub sendMail {
 	open F, ">/tmp/emails";
 	use Data::Dumper; print F Dumper($tree);
 	close F;
+
+	return(0,qq~<MSG UUID="0" ERR="0" ERRMSG="ignored messages" />~);
 	
-	my %SITE_CACHE = ();
-
-	$tree = $tree->[0]->{'content'};
-	my $XML = '';
-	foreach my $msgNode (@{$tree}) {
-		next if ($msgNode->{'type'} ne 'e');
-		next if ($msgNode->{'name'} ne 'MSG');
-
-		## <MSG CC="" BCC="" NS="" MSGFORMAT="" SUBJECT="" FROM="" ID="" TO="" OID="" CID="" CLAIM=""><[CDATA[..]]></MSG>
-		## <MSG CC="" BCC="" NS="" MSGFORMAT="" SUBJECT="" FROM="" ID="" TO="" OID="" CID="" CLAIM=""><[CDATA[..]]></MSG>
-
-		# print STDERR Dumper($msgNode);
-		my $body = $msgNode->{'content'}->[0]->{'content'};
-		my $ref = $msgNode->{'attrib'};
-		if ($body ne '') {
-			## override the body!
-			$ref->{'MSGBODY'} = $body;
-			}
-
-		#if ((not defined $ref->{'PRT'}) && (defined $ref->{'NS'})) {
-		#	$ref->{'PRT'} = DOMAIN::resolve_prt_from_profile($USERNAME,$ref->{'NS'});
-		#	}
-
-		if (not defined $ref->{'PRT'}) {
-			$ref->{'PRT'} = 0;
-			}
-
-		require SITE::EMAILS;
-		if (not defined $SITE_CACHE{$ref->{'PRT'}}) {
-			my ($SITE) = SITE->new($USERNAME,'PRT'=>$ref->{'PRT'});
-			#$SITE->{'%NSREF'} = &ZOOVY::fetchmerchantns_ref($USERNAME,$PROFILE);
-			#$SITE->{'%webdb'} = &ZWEBSITE::fetch_website_dbref($USERNAME,$options{'PRT'});
-			#$SITE->{'+prt'} = &ZOOVY::profile_to_prt($USERNAME,$options{'NS'});		
-			#$SITE->{'*URLS'} = SITE::URLS->new($SITE::merchant_id);
-			$SITE_CACHE{$ref->{'PRT'}} = $SITE;
-			}
-
-		if ((defined $ref->{'PREVIEW'}) && ($ref->{'PREVIEW'}==1)) { 
-			## PREVIEW MODE (just echo's back the response)
-			my $SITE = $SITE_CACHE{$ref->{'PRT'}};
-			my ($se) = SITE::EMAILS->new($USERNAME,'*SITE'=>$SITE);
-			my ($err,$result) = $se->preview('',%{$ref});
-			my $errmsg = $SITE::EMAILS::ERRORS{ $err };
-			$XML .= "<MSG UUID=\"$ref->{'UUID'}\" ERR=\"$err\" ERRMSG=\"$errmsg\" "; 
-			foreach my $k (keys %{$result}) {
-				next if ($k eq 'BODY');
-				$XML .= "$k=\"".&ZOOVY::incode($result->{$k})."\" ";
-				}
-			$XML .= "><![CDATA[";
-			$XML .= $result->{'BODY'};
-			$XML .= "></MSG>";
-			}
-		elsif ($ref->{'MSGBODY'} eq '') {
-			$XML .= "<MSG UUID=\"$ref->{'UUID'}\" ERR=\"0\" ERRMSG=\"ignored request to send blank message.\"/>"; 			
-			}
-		else {
-			## SEND MODE (just echo's back a result)
-			my $SITE = $SITE_CACHE{$ref->{'PRT'}};
-			my ($se) = SITE::EMAILS->new($USERNAME,'*SITE'=>$SITE);
-			my ($err) = $se->sendmail('','*SITE'=>$SITE,%{$ref});
-			$err = 0;
-			my $errmsg = $SITE::EMAILS::ERRORS{ $err };
-			$XML .= "<MSG UUID=\"$ref->{'UUID'}\" ERR=\"$err\" ERRMSG=\"$errmsg\"/>"; 
-			}
-		}
-
-	if ($XML eq '') {
-		$XML .= '<MSG RESULT="-1" ID="-1"><warning>No messages were found</warning></MSG>';
-		}
-
-	return($PickupTime,$XML);
+#	my %SITE_CACHE = ();
+#
+#	$tree = $tree->[0]->{'content'};
+#	my $XML = '';
+#	foreach my $msgNode (@{$tree}) {
+#		next if ($msgNode->{'type'} ne 'e');
+#		next if ($msgNode->{'name'} ne 'MSG');
+#
+#		## <MSG CC="" BCC="" NS="" MSGFORMAT="" SUBJECT="" FROM="" ID="" TO="" OID="" CID="" CLAIM=""><[CDATA[..]]></MSG>
+#		## <MSG CC="" BCC="" NS="" MSGFORMAT="" SUBJECT="" FROM="" ID="" TO="" OID="" CID="" CLAIM=""><[CDATA[..]]></MSG>
+#
+#		# print STDERR Dumper($msgNode);
+#		my $body = $msgNode->{'content'}->[0]->{'content'};
+#		my $ref = $msgNode->{'attrib'};
+#		if ($body ne '') {
+#			## override the body!
+#			$ref->{'MSGBODY'} = $body;
+#			}
+#
+#		#if ((not defined $ref->{'PRT'}) && (defined $ref->{'NS'})) {
+#		#	$ref->{'PRT'} = DOMAIN::resolve_prt_from_profile($USERNAME,$ref->{'NS'});
+#		#	}
+#
+#		if (not defined $ref->{'PRT'}) {
+#			$ref->{'PRT'} = 0;
+#			}
+#
+#		require SITE::EMAILS;
+#		if (not defined $SITE_CACHE{$ref->{'PRT'}}) {
+#			my ($SITE) = SITE->new($USERNAME,'PRT'=>$ref->{'PRT'});
+#			#$SITE->{'%NSREF'} = &ZOOVY::fetchmerchantns_ref($USERNAME,$PROFILE);
+#			#$SITE->{'%webdb'} = &ZWEBSITE::fetch_website_dbref($USERNAME,$options{'PRT'});
+#			#$SITE->{'+prt'} = &ZOOVY::profile_to_prt($USERNAME,$options{'NS'});		
+#			#$SITE->{'*URLS'} = SITE::URLS->new($SITE::merchant_id);
+#			$SITE_CACHE{$ref->{'PRT'}} = $SITE;
+#			}
+#
+#		if ((defined $ref->{'PREVIEW'}) && ($ref->{'PREVIEW'}==1)) { 
+#			## PREVIEW MODE (just echo's back the response)
+#			my $SITE = $SITE_CACHE{$ref->{'PRT'}};
+#			my ($se) = SITE::EMAILS->new($USERNAME,'*SITE'=>$SITE);
+#			my ($err,$result) = $se->preview('',%{$ref});
+#			my $errmsg = $SITE::EMAILS::ERRORS{ $err };
+#			$XML .= "<MSG UUID=\"$ref->{'UUID'}\" ERR=\"$err\" ERRMSG=\"$errmsg\" "; 
+#			foreach my $k (keys %{$result}) {
+#				next if ($k eq 'BODY');
+#				$XML .= "$k=\"".&ZOOVY::incode($result->{$k})."\" ";
+#				}
+#			$XML .= "><![CDATA[";
+#			$XML .= $result->{'BODY'};
+#			$XML .= "></MSG>";
+#			}
+#		elsif ($ref->{'MSGBODY'} eq '') {
+#			$XML .= "<MSG UUID=\"$ref->{'UUID'}\" ERR=\"0\" ERRMSG=\"ignored request to send blank message.\"/>"; 			
+#			}
+#		else {
+#			## SEND MODE (just echo's back a result)
+#			my $SITE = $SITE_CACHE{$ref->{'PRT'}};
+#			my ($se) = SITE::EMAILS->new($USERNAME,'*SITE'=>$SITE);
+#			my ($err) = $se->sendmail('','*SITE'=>$SITE,%{$ref});
+#			$err = 0;
+#			my $errmsg = $SITE::EMAILS::ERRORS{ $err };
+#			$XML .= "<MSG UUID=\"$ref->{'UUID'}\" ERR=\"$err\" ERRMSG=\"$errmsg\"/>"; 
+#			}
+#		}
+#
+#	if ($XML eq '') {
+#		$XML .= '<MSG RESULT="-1" ID="-1"><warning>No messages were found</warning></MSG>';
+#		}
+#	return($PickupTime,$XML);
 	}
 
 

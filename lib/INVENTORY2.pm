@@ -59,6 +59,7 @@ require PRODUCT;
 require ZWMS;
 require LISTING::MSGS;
 require TODO;
+require BLAST;
 
 sub appid {
 	return( (rindex($::0,'/')>=0)?substr($::0,rindex($::0,'/')+1):$::0);
@@ -69,6 +70,7 @@ sub mid { return(&ZOOVY::resolve_mid($_[0]->{'_USERNAME'})); }
 sub pid { return($_[0]->{'%PIDS'}); }
 sub luser { return($_[0]->{'_LUSER'}); }
 sub needs_sync { my ($self) = @_; return(scalar(keys %{$self->{'%SYNC'}})); }
+
 
 sub new {
 	my ($class, $USERNAME, $LUSER) = @_;
@@ -613,6 +615,7 @@ sub process_order {
 				$OPTS{'CID'} = $CID;
 				}
 	
+			my $GCOBJ = undef;
 			my $qty = $item->{'qty'};
 			while ($qty > 0) {
 				require GIFTCARD;
@@ -625,15 +628,24 @@ sub process_order {
 				my ($code) = GIFTCARD::createCard($USERNAME,$O2->prt(),$issueamt,%OPTS);
 				$O2->add_history(sprintf("Created GIFTCARD#$qty $code for customer %s (%d)",$OPTS{'RECIPIENT_EMAIL'},$CID));
 				$qty--;
+				if ($qty == 0) {
+					$GCOBJ = GIFTCARD->new( $code, %OPTS );
+					}
 				}
 
 			if ($CID>0) {
 				## where do they get sent to the recipient?
-				require SITE::EMAILS;
-				require SITE;
-				my ($SREF) = SITE->new($O2->username(), 'PRT'=>$O2->prt());
-				my ($se) = SITE::EMAILS->new($O2->username(),'*SITE'=>$SREF);
-				$se->sendmail('CUSTOMER.GIFTCARD.RECEIVED',CID=>$CID,'*SITE'=>$SREF);
+				require BLAST;
+				my ($BLAST) = BLAST->new( $O2->username(), $O2->prt());
+				my ($rcpt) = $BLAST->recipient('CUSTOMER',$CID,{'%GIFTCARD'=>$GCOBJ});
+				my ($msg) = $BLAST->msg('AUTO','CUSTOMER.GIFTCARD.RECEIVED');
+				$BLAST->send( $rcpt, $msg );
+				
+#				require SITE::EMAILS;
+#				require SITE;
+#				my ($SREF) = SITE->new($O2->username(), 'PRT'=>$O2->prt());
+#				my ($se) = SITE::EMAILS->new($O2->username(),'*SITE'=>$SREF);
+#				$se->sendmail('CUSTOMER.GIFTCARD.RECEIVED',CID=>$CID,'*SITE'=>$SREF);
 				}
 			$INV2->orderinvcmd($O2,$UUID,'PICK/ITEM-DONE','PICK_ROUTE'=>'PARTNER','VENDOR'=>'GIFTCARD');
 			}

@@ -45,7 +45,7 @@ sub request_notification {
 		}
 
 	my ($PID) = &PRODUCT::stid_to_pid($SKU);
-	if (not defined $options{'MSGID'}) { $options{'MSGID'} = 'PINSTOCK'; }
+	if (not defined $options{'MSGID'}) { $options{'MSGID'} = 'PRODUCT.INSTOCK'; }
 	if (not defined $options{'CID'}) {
 		$options{'CID'} = CUSTOMER::resolve_customer_id($USERNAME,$options{'PRT'},$options{'EMAIL'});
 		}

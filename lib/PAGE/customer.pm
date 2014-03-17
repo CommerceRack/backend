@@ -14,7 +14,7 @@ require WHOLESALE;
 require ZPAY;
 require CART2;
 require CART2::VIEW;
-
+requite BLAST;
 
 $PAGE::customer::debug = 0;
 
@@ -3416,12 +3416,16 @@ sub handler {
 			if ($CID>0) {
 				## in case you were wondering, sending the CUSTOMER.PASSWORD.REQUEST email actually is what triggers the initpassword
 				## function in the customer (so we don't do it here!)
-				require SITE::EMAILS;
-				require SITE;
-				## my ($SITE) = SITE->new($SITE->username(),PRT=>int($SITE->prt()), NS=>$SITE->profile());
-				my ($se) = SITE::EMAILS->new($SITE->username(), '*SITE'=>$SITE);
-				$se->sendmail('CUSTOMER.PASSWORD.REQUEST',CID=>$CID);
-				$se = undef;
+				#require SITE::EMAILS;
+				#require SITE;
+				### my ($SITE) = SITE->new($SITE->username(),PRT=>int($SITE->prt()), NS=>$SITE->profile());
+				#my ($se) = SITE::EMAILS->new($SITE->username(), '*SITE'=>$SITE);
+				#$se->sendmail('CUSTOMER.PASSWORD.REQUEST',CID=>$CID);
+				#$se = undef;
+				my ($BLAST) = BLAST->new($SITE->username(),int($SITE->prt()));
+				my ($rcpt) = $BLAST->recipient('CUSTOMER',$CID);
+				my ($msg) = $BLAST->msg('CUSTOMER.PASSWORD.REQUEST');
+				$BLAST->send($rcpt,$msg);
 	
 				#require TOXML::EMAIL;
 				#&TOXML::EMAIL::sendmail($SITE->username(), 'CUSTOMER.PASSWORD.REQUEST', '', CID=>$CID);

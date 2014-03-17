@@ -54,6 +54,7 @@ sub lookup_client {
 	'INVENTORY',
 	'PRODUCT',
 	'IMAGE',
+	'FAQ',
 
 	'SYNDICATION',
 	'PROJECT',
