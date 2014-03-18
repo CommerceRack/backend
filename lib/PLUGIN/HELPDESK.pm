@@ -6,6 +6,7 @@ use Data::GUID;
 use lib "/backend/lib";
 use JSON::XS;
 use Crypt::OpenSSL::RSA;
+use HTTP::Tiny;
 use Data::Dumper;
 use Digest::SHA1;
 
@@ -23,7 +24,6 @@ sub test {
 	my $VAR1 = 'tcp://admin.zoovy.com:5555';
 	my %CMD = (
             'disposition' => 'open',
-            '_security' => 'SECRET_GOES_HERE',
             '_cartid' => undef,
             '_prt' => '0',
             '_cmd' => 'adminTicketList',
@@ -37,14 +37,10 @@ sub test {
           );
 
 	my ($PUBLIC_KEY) = ZTOOLKIT::SECUREKEY::rsa_key($CMD{'_user'},"commercerack.com.pub");
-	my $rsa = Crypt::OpenSSL::RSA->new_public_key($PUBLIC_KEY);
-	my %ECMD = ();
-	my $json = JSON::XS::encode_json(\%CMD);
-	$ECMD{'_user'} = $CMD{'_user'};
-	$ECMD{'_cmd'} = 'encrypted-json-payload';
-	$ECMD{'_payload'} = MIME::Base64::encode_base64($rsa->encrypt($json));
+	my $rsa_pub = Crypt::OpenSSL::RSA->new_public_key($PUBLIC_KEY);
+	$CMD{'_signature'} = MIME::Base64::encode($rsa_pub->encrypt(time()));
 
-	print Dumper(send_cmds($VAR1,[ \%ECMD ]));
+	print Dumper(send_cmds($VAR1,[ \%CMD ]));
 	}
 
 
@@ -55,32 +51,25 @@ sub send_cmds {
 	my ($SERVER,$CMDS) = @_;
 
 	## open F, ">/tmp/helpdesk"; print F Dumper($SERVER,$CMDS); close F;
-
-	my $context = ZMQ::LibZMQ3::zmq_init();
-	if (! $context) { die "zmq_init() failed with $!"; }
-
-	# $LM->pooshmsg("INFO|+Connecting to server: $SERVER");
-	## print STDERR "CONNECT\n";
-	my $socket = ZMQ::LibZMQ3::zmq_socket($context, ZMQ_REQ);
-
-	ZMQ::LibZMQ3::zmq_connect($socket, $SERVER);
-	ZMQ::LibZMQ3::zmq_setsockopt($socket, ZMQ_RCVTIMEO, 2500);
-	ZMQ::LibZMQ3::zmq_setsockopt($socket, ZMQ_SNDTIMEO, 2500);
-	ZMQ::LibZMQ3::zmq_setsockopt($socket, ZMQ_LINGER, 1000);
-	## print STDERR "TEST2\n";
+	my %attributes = ();
+	my $http = HTTP::Tiny->new( %attributes );
 
 	my @RESPONSE = ();
 	for my $CMD (@{$CMDS}) {
+
 		print STDERR Dumper($CMD)."\n";
 		my $RESULT = undef;
-		my $msgstatus = ZMQ::LibZMQ3::zmq_sendmsg($socket, JSON::XS::encode_json($CMD));
-		my $reply = ZMQ::LibZMQ3::zmq_recvmsg($socket);	## DON'T USE ZMQ_DONTWAIT
+
+		my %options = ( 'content'=>JSON::XS::encode_json($CMD) );
+		my $response = $http->request('POST', $SERVER, \%options);
+
+		print Dumper($response)."\n";
 		
-		if (not $reply) {
+		if (not $response->{'success'}) {
 			&JSONAPI::set_error($RESULT = {},'apierr',7311,sprintf("Transmission Failure to %s",$SERVER));
 			}
 		else {
-			my ($json) = ZMQ::LibZMQ3::zmq_msg_data($reply);
+			my ($json) = $response->{'content'};
 			eval { $RESULT  = JSON::XS::decode_json($json) };
 			if ($@) { 
 				$RESULT = JSONAPI::set_error($RESULT = {},'apierr',7312,sprintf('Invalid JSON in response'));
@@ -90,8 +79,6 @@ sub send_cmds {
 		push @RESPONSE, $RESULT;
 		}
 
-	ZMQ::LibZMQ3::zmq_close($socket);
-	ZMQ::LibZMQ3::zmq_term($context);
 	return(\@RESPONSE);
 	}
 
@@ -115,15 +102,16 @@ sub execute {
 	## $CMD{'_uuid'} = Data::GUID->new()->as_string();
 
 	my ($PUBLIC_KEY) = ZTOOLKIT::SECUREKEY::rsa_key($CMD{'_user'},"commercerack.com.pub");
-	my $rsa = Crypt::OpenSSL::RSA->new_public_key($PUBLIC_KEY);
-	my %ECMD = ();
-	my $json = JSON::XS::encode_json(\%CMD);
-	$ECMD{'_user'} = $CMD{'_user'};
-	$ECMD{'_cmd'} = 'encrypted-json-payload';
-	$ECMD{'_payload'} = MIME::Base64::encode_base64($rsa->encrypt($json));
+	my $rsa_pub = Crypt::OpenSSL::RSA->new_public_key($PUBLIC_KEY);
+	$CMD{'_signature'} = MIME::Base64::encode($rsa_pub->encrypt(time()));
+	#my %ECMD = ();
+	#my $json = JSON::XS::encode_json(\%CMD);
+	#$ECMD{'_user'} = $CMD{'_user'};
+	#$ECMD{'_cmd'} = 'encrypted-json-payload';
+	#$ECMD{'_payload'} = MIME::Base64::encode_base64($rsa->encrypt($json));
 
 	my $R = undef;
-	my @RESPONSES = @{&PLUGIN::HELPDESK::send_cmds( 'tcp://admin.zoovy.com:5555', [ \%ECMD ])};
+	my @RESPONSES = @{&PLUGIN::HELPDESK::send_cmds( 'https://54.219.139.212/jsonapi/', [ \%CMD ])};
 
 	if (scalar(@RESPONSES)==0) {
 		$R = &JSONAPI::set_error({},'apierr','7300','No response from API');
