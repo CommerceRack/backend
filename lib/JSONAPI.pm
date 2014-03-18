@@ -146,6 +146,7 @@ require ACCOUNT;
 require ZSHIP;
 require ZSHIP::UPSAPI;	# ZSHIP::UPSAPI::global vars are used here
 require BLAST;
+require POGS;
 use strict;
 
 
@@ -4704,8 +4705,8 @@ sub adminDataQuery {
 			$pstmt .= " and TARGET='EBAY.FIXED' ";
 			}
 
-		if ($ZOOVY::cgiv->{'batchid'} ne '') {
-			$pstmt .= " and REQUEST_BATCHID=".int($ZOOVY::cgiv->{'batchid'});
+		if ($v->{'batchid'} ne '') {
+			$pstmt .= " and REQUEST_BATCHID=".int($v->{'batchid'});
 			}
 		if ($PERIOD_GMT>0) { 
 			$pstmt .= " and CREATED_GMT>".int($PERIOD_GMT); 
@@ -7776,9 +7777,9 @@ sub adminProduct {
 						}
 					}
 				#elsif ($VERB eq 'DEBUG-INVENTORY-OVERRIDE-RESERVE') {
-				#	my ($SKU) = $ZOOVY::cgiv->{'SKU'};
-				#	my ($APPKEY) = $ZOOVY::cgiv->{'APPKEY'};
-				#	my ($LISTINGID) = $ZOOVY::cgiv->{'LISTINGID'};
+				#	my ($SKU) = $v->{'SKU'};
+				#	my ($APPKEY) = $v->{'APPKEY'};
+				#	my ($LISTINGID) = $v->{'LISTINGID'};
 				#	&INVENTORY2->new($USERNAME)->mktinvcmd("EBAY",$EBAY_ID,"SET",$SKU,"QTY"=>0,"ENDS_GMT"=>time()-1,"NOTE"=>sprintf("Reason:%s",$params{"REASON"}));
 				#	&INVENTORY::set_other($USERNAME,$APPKEY,$SKU,0,'expirets'=>time()-1,'uuid'=>$LISTINGID);
 				#	$self->log("PRODEDIT.DEBUG.RESINVOVERRIDE","Reserve Inventory Override SKU=$SKU APPKEY=$APPKEY LISTINGID=$LISTINGID");
@@ -8665,7 +8666,6 @@ sub adminProduct {
 	elsif ($v->{'_cmd'} eq 'adminProductInventoryDetail') {
 		my ($udbh) = &DBINFO::db_user_connect($USERNAME);
 		my ($P) = PRODUCT->new($self->username(),$PID);
-		require POGS;
 
 		my $HAS_WMS = 0;
 		my $globalref = $self->globalref();
@@ -9427,7 +9427,7 @@ sub adminDSAgent {
 	my $DST = 'AMZ';
 	my ($w) = WATCHER->new($USERNAME,$DST);
 
-#	my $VERB = uc($ZOOVY::cgiv->{'VERB'});
+#	my $VERB = uc($v->{'VERB'});
 #	if ($VERB eq '') { 
 #		$VERB = 'GLOBAL'; 
 #		if ($gref->{'amz_merchantname'} ne '') {
@@ -10949,9 +10949,9 @@ sub adminEBAY {
 				my $sth = $udbh->prepare($pstmt);
 				$sth->execute();
 				while ( my ($eias) = $sth->fetchrow() ) {
-					my $qtMSG = $udbh->quote($ZOOVY::cgiv->{"MSG!$eias"});
+					my $qtMSG = $udbh->quote($v->{"MSG!$eias"});
 					my $qtEIAS = $udbh->quote($eias);
-					my $mode = int($ZOOVY::cgiv->{"MODE!$eias"});
+					my $mode = int($v->{"MODE!$eias"});
 					my $pstmt = "update EBAY_TOKENS set FB_POLLED_GMT=0,FB_MESSAGE=$qtMSG,FB_MODE=$mode where MID=$MID and PRT=$PRT and EBAY_EIAS=$qtEIAS";
 					print STDERR $pstmt."\n";
 					&JSONAPI::dbh_do(\%R,$udbh,$pstmt);
@@ -12221,9 +12221,9 @@ sub adminAffiliate {
 
 
 #if ($VERB eq 'ENROLL-SAVE') {
-#	my ($EMAIL) = $ZOOVY::cgiv->{'EMAIL'};
+#	my ($EMAIL) = $v->{'EMAIL'};
 #	my ($c) = CUSTOMER->new($USERNAME,EMAIL=>$EMAIL,PRT=>$CPRT,CREATE=>3,INIT=>0x1);
-#	$c->set_attrib('INFO.IS_AFFILIATE',int($ZOOVY::cgiv->{'PACKAGE'}));
+#	$c->set_attrib('INFO.IS_AFFILIATE',int($v->{'PACKAGE'}));
 #	$c->save();
 #	$VERB = 'ENROLL';
 #	}
@@ -12243,7 +12243,7 @@ sub adminAffiliate {
 
 
 #if ($VERB eq 'PACKAGE-NUKE') {
-#	my $pstmt = "delete from AFFILIATE_PACKAGES where MID=$MID /* $USERNAME */ and PRT=$CPRT and ID=".int($ZOOVY::cgiv->{'ID'});
+#	my $pstmt = "delete from AFFILIATE_PACKAGES where MID=$MID /* $USERNAME */ and PRT=$CPRT and ID=".int($v->{'ID'});
 #	print STDERR $pstmt."\n";
 #	&JSONAPI::dbh_do(\%R,$udbh,$pstmt);
 #	$VERB = '';
@@ -12252,9 +12252,9 @@ sub adminAffiliate {
 #if ($VERB eq 'PACKAGE-SAVE') {
 #	&DBINFO::insert($udbh,'AFFILIATE_PACKAGES',{
 #		MID=>$MID,USERNAME=>$USERNAME,PRT=>$CPRT,
-#		OFFER_TITLE=>$ZOOVY::cgiv->{'TITLE'},
-#		ORDER_BOUNTY_FEE=>sprintf("%.2f",$ZOOVY::cgiv->{'ORDER_BOUNTY_FEE'}),
-#		ORDER_BOUNTY_PCT=>sprintf("%.2f",$ZOOVY::cgiv->{'ORDER_BOUNTY_PCT'}),
+#		OFFER_TITLE=>$v->{'TITLE'},
+#		ORDER_BOUNTY_FEE=>sprintf("%.2f",$v->{'ORDER_BOUNTY_FEE'}),
+#		ORDER_BOUNTY_PCT=>sprintf("%.2f",$v->{'ORDER_BOUNTY_PCT'}),
 #		});
 #	$VERB = '';
 #	}
@@ -12432,7 +12432,7 @@ sub adminGiftcard {
 		my %VARS = ();
 		$VARS{'PRT'} = $PRT;
 		$VARS{'LIMIT'} = 250; 
-		$VARS{'SERIES'} = $ZOOVY::cgiv->{'SERIES'};
+		$VARS{'SERIES'} = $v->{'SERIES'};
 
 		if ($v->{'_cmd'} eq 'adminGiftcardSearch') {
 			$VARS{'CODE'} = $v->{'CODE'};
@@ -15340,7 +15340,7 @@ sub adminDomain {
 				## subdomain.domain.com
 				##	domain.com
 				##	somedomain.co.uk
-				#my @parts = split(/\./,$ZOOVY::cgiv->{'DOMAIN'});
+				#my @parts = split(/\./,$v->{'DOMAIN'});
 				#my $subdomain = shift @parts;
 				#$DOMAINNAME = join(".",@parts);
 
@@ -16601,14 +16601,14 @@ sub adminSOG {
 		$R{'@SOGS'} = $listref;
 		}
 	elsif ($v->{'_cmd'} eq 'adminSOGDetail') {
-		my $sogref = &POGS::load_soglobalref($USERNAME,$v->{'id'});
+		my $sogref = &POGS::load_sogref($USERNAME,$v->{'id'});
 		$R{$v->{'id'}} = $sogref;
 		}
 	elsif ($v->{'_cmd'} eq 'adminSOGComplete') {
 		my $listref = POGS::list_sogs($USERNAME);
 		$R{'%SOGS'} = {};
 		foreach my $sogid (sort keys %{$listref}) {
-			my $sogref = &POGS::load_soglobalref($USERNAME,$sogid);
+			my $sogref = &POGS::load_sogref($USERNAME,$sogid);
 			$R{'%SOGS'}->{$sogid} = $sogref;
 			}
 		$R{'@SOGS'} = $listref;

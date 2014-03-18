@@ -864,11 +864,6 @@ sub legacyResponseHandler {
 #	@SITE::SANDBOX_ELEMENTS = ();
 #	@SITE::SANDBOX_SEARCHDEBUG = ();
 
-	&ZOOVY::init();
-	&ZWEBSITE::init();
-
-	# raw flow, initialized by load_flow_raw
-
 	##############################################################################
 	# readonly globals
 	#	 FLOW::PRICE is used to override the price in a product listing (it is checked for in the readonly element type)
@@ -1564,8 +1559,8 @@ sub legacyResponseHandler {
 					) {
 					## redirect to web:prod_domain
 					$SITE::REDIRECT_URL = sprintf("http://%s/%s",$P->fetch('web:prod_domain'),$SITE->canonical_url());
-					if (scalar(keys %{$ZOOVY::cgiv})>0) {
-						$SITE::REDIRECT_URL = sprintf("%s?%s",$SITE::REDIRECT_URL,&ZTOOLKIT::buildparams($ZOOVY::cgiv));
+					if (scalar(keys %{$SITE::v_mixed})>0) {
+						$SITE::REDIRECT_URL = sprintf("%s?%s",$SITE::REDIRECT_URL,&ZTOOLKIT::buildparams($SITE::v_mixed));
 						}
 					$SITE->pageid( "?REDIRECT/301|product ".$SITE->pid()." is not on web:prod_domain!" );
 					}
@@ -1581,8 +1576,8 @@ sub legacyResponseHandler {
 					}
 				elsif (($SITE->pageid() eq 'product') && ($SITE->canonical_uri() ne $requri)) {
 					$SITE::REDIRECT_URL = $SITE->canonical_url();
-					if (scalar(keys %{$ZOOVY::cgiv})>0) {
-						$SITE::REDIRECT_URL = sprintf("%s?%s",$SITE::REDIRECT_URL,&ZTOOLKIT::buildparams($ZOOVY::cgiv));
+					if (scalar(keys %{$SITE::v_mixed})>0) {
+						$SITE::REDIRECT_URL = sprintf("%s?%s",$SITE::REDIRECT_URL,&ZTOOLKIT::buildparams($SITE::v_mixed));
 						}
 					$SITE->pageid( "?REDIRECT/301|canonical url redirect[".$SITE->pid()."] was=[$requri] shouldbe=[".$SITE->canonical_uri()."]" );
 					}
@@ -3317,8 +3312,6 @@ sub seoHTML5CompatibilityResponseHandler {
 	
 		my $seobody = '';
 		$seobody .= sprintf("<!-- DEBUG GENERATED:%s SERVER:%s -->",&ZTOOLKIT::pretty_date(time(),3),&ZOOVY::servername());
-		# if (not $ZOOVY::cgiv->{'_escaped_fragment_'}) {
-		# if (not $cgi->param('_escaped_fragment_')) {
 		if ($ENV{'QUERY_STRING'} !~ /\_escaped\_fragment\_\=/) {
 			$seobody .= "<div class=\"displayNone seo\" id=\"seo-html5\"><!-- HTML5 SEO COMPATIBILITY -->\n$META{'_BODY'}\n<!-- /HTML5 SEO COMPATIBILITY --></div>\n";
 			}

@@ -203,11 +203,12 @@ sub transmogrify {
 
 sub password {
 	my ($JSONAPI,$cgiv) = @_;
-   $ZOOVY::cgiv = $cgiv;
+
+   $cgiv = $cgiv;
    my ($LU) = $JSONAPI->LU();
 
 	my ($MID,$USERNAME,$LUSERNAME,$FLAGS,$PRT) = $LU->authinfo();
-	my ($VERB) = $ZOOVY::cgiv->{'VERB'};
+	my ($VERB) = $cgiv->{'VERB'};
 	if ($VERB eq '') { $VERB = 'EDIT'; }
 	print STDERR "VERB: $VERB\n";
 
@@ -284,7 +285,7 @@ sub password {
 
 sub search {
 	my ($JSONAPI,$cgiv) = @_;
-	$ZOOVY::cgiv = $cgiv;
+	$cgiv = $cgiv;
 
 	my ($LU) = $JSONAPI->LU();	
 	my ($MID,$USERNAME,$LUSERNAME,$FLAGS,$PRT) = $LU->authinfo();
@@ -293,7 +294,7 @@ sub search {
 	my ($udbh) = DBINFO::db_user_connect($USERNAME);
 	
 	my $template_file = '';
-	my $VERB = $ZOOVY::cgiv->{'ACTION'};
+	my $VERB = $cgiv->{'ACTION'};
 	
 	my @MSGS = ();
 	push @MSGS, "WARN|REMINDER: VStore end-of-life is January 1st, 2015.";
@@ -325,25 +326,25 @@ sub search {
 	
 	
 		unlink "$USER_PATH/elasticsearch-product-synonyms.txt";
-		if ($ZOOVY::cgiv->{'SYNONYMS'}) {
-			File::Slurp::write_file("$USER_PATH/elasticsearch-product-synonyms.txt",$ZOOVY::cgiv->{'SYNONYMS'});
+		if ($cgiv->{'SYNONYMS'}) {
+			File::Slurp::write_file("$USER_PATH/elasticsearch-product-synonyms.txt",$cgiv->{'SYNONYMS'});
 			chmod 0666, "$USER_PATH/elasticsearch-product-synonyms.txt";
 			push @MSGS, "SUCCESS|Saved product synonyms (reindex-needed)";
 			}
 	
 		unlink "$USER_PATH/elasticsearch-product-stopwords.txt";
-		if ($ZOOVY::cgiv->{'STOPWORDS'}) {
-			File::Slurp::write_file("$USER_PATH/elasticsearch-product-stopwords.txt",$ZOOVY::cgiv->{'STOPWORDS'});
+		if ($cgiv->{'STOPWORDS'}) {
+			File::Slurp::write_file("$USER_PATH/elasticsearch-product-stopwords.txt",$cgiv->{'STOPWORDS'});
 			chmod 0666, "$USER_PATH/elasticsearch-product-stopwords.txt";
 			push @MSGS, "SUCCESS|Saved product stopwords (reindex-needed)";
 			}
 	
 		unlink "$USER_PATH/elasticsearch-product-charactermap.txt";
-		if ($ZOOVY::cgiv->{'CHARACTERMAP'}) {
+		if ($cgiv->{'CHARACTERMAP'}) {
 			my @LINES = ();
 			my %DUPS = ();
 			my $linecount = 0;
-			foreach my $line (split(/[\n\r]+/,$ZOOVY::cgiv->{'CHARACTERMAP'})) {
+			foreach my $line (split(/[\n\r]+/,$cgiv->{'CHARACTERMAP'})) {
 				$linecount++;
 				my ($k,$v) = split(/\=\>/,$line);
 				$k =~ s/^[s]+//gs;
@@ -415,8 +416,8 @@ sub search {
 	
 	if ($VERB eq 'ADD') {
 		my @ERRORS = ();
-		my $CATALOG = uc($ZOOVY::cgiv->{'CATALOG'});
-		# my $ATTRIBS = lc($ZOOVY::cgiv->{'FULLTEXT_ATTRIBS'});
+		my $CATALOG = uc($cgiv->{'CATALOG'});
+		# my $ATTRIBS = lc($cgiv->{'FULLTEXT_ATTRIBS'});
 		my $ATTRIBS = '';
 	
 		foreach my $id ('SUBSTRING','FINDER','COMMON') {
@@ -426,12 +427,12 @@ sub search {
 		my @ATTRIBS = ();
 		my ($fieldsref) = PRODUCT::FLEXEDIT::elastic_fields($USERNAME);
 		foreach my $id ('id','tags','options','pogs') {
-			if (defined $ZOOVY::cgiv->{"field:$id"}) {
+			if (defined $cgiv->{"field:$id"}) {
 				push @ATTRIBS, $id;
 				}
 			}
 		foreach my $fieldset (@{$fieldsref}) {
-			if (defined $ZOOVY::cgiv->{"field:$fieldset->{'id'}"}) {
+			if (defined $cgiv->{"field:$fieldset->{'id'}"}) {
 				push @ATTRIBS, $fieldset->{'id'};
 				}
 			}
@@ -456,8 +457,8 @@ sub search {
 		}
 	
 	if ($VERB eq 'DELETE') {
-		&SEARCH::del_catalog($USERNAME,$ZOOVY::cgiv->{'CATALOG'});
-		$LU->log("SETUP.SEARCH.NUKE","Deleted catalog $ZOOVY::cgiv->{'CATALOG'}",'INFO');
+		&SEARCH::del_catalog($USERNAME,$cgiv->{'CATALOG'});
+		$LU->log("SETUP.SEARCH.NUKE","Deleted catalog $cgiv->{'CATALOG'}",'INFO');
 		$VERB = '';
 		}
 	
@@ -468,7 +469,7 @@ sub search {
 	
 	if ($VERB eq 'LOG-DELETE') {
 		my $path = &ZOOVY::resolve_userpath($USERNAME).'/IMAGES';
-		my $file = $ZOOVY::cgiv->{'FILE'};
+		my $file = $cgiv->{'FILE'};
 		$file =~ s/[\.]+/./g;	# remove multiple periods.
 		$file =~ s/[\/\\]+//gs;	# remove all slashes
 		unlink("$path/$file");
@@ -523,15 +524,15 @@ sub search {
 		$GTOOLSUI::TAG{'<!-- OUTPUT -->'} = '';
 		
 		my $QUERY = undef;
-		my $PID = $ZOOVY::cgiv->{'PID'};
+		my $PID = $cgiv->{'PID'};
 		my ($es) = &ZOOVY::getElasticSearch($USERNAME);		
 		if ($VERB eq 'RAWE') {
 			## not a "RUN"
 			$es = undef;
 			}
 		elsif ($VERB eq 'RAWE-QUERY') {
-			$QUERY = $ZOOVY::cgiv->{'QUERY'};
-			if ($ZOOVY::cgiv->{'QUERY'} eq '') {
+			$QUERY = $cgiv->{'QUERY'};
+			if ($cgiv->{'QUERY'} eq '') {
 				push @MSGS, "WARN|No query specified"; 
 				}
 			}
@@ -632,7 +633,7 @@ sub search {
 	
 	if ($VERB eq 'EXPLODE-DEBUG') {
 		my $c = '';
-		my $explode = $ZOOVY::cgiv->{'EXPLODE'};
+		my $explode = $cgiv->{'EXPLODE'};
 		if ($explode eq '') { 
 			$c = "<div class='error'>No sku/model # for explosion was passed</div>";
 			}
@@ -652,24 +653,24 @@ sub search {
 		use Data::Dumper;
 		my $log = '';
 	
-		my ($CATALOG) = $ZOOVY::cgiv->{'CATALOG'};
-		my ($SEARCHFOR) = $ZOOVY::cgiv->{'SEARCHFOR'};
-		my ($PID) = $ZOOVY::cgiv->{'PRODUCT'};
+		my ($CATALOG) = $cgiv->{'CATALOG'};
+		my ($SEARCHFOR) = $cgiv->{'SEARCHFOR'};
+		my ($PID) = $cgiv->{'PRODUCT'};
 		$SEARCHFOR =~ s/^[\s]+//g; # strip leading whitespace
 		$SEARCHFOR =~ s/[\s]+$//g;	# strip trailing whitespace
 	
 		$LU->set('setup.search.debug.catalog',$CATALOG);
-		$LU->set('setup.search.debug.root',$ZOOVY::cgiv->{'SITE'});
+		$LU->set('setup.search.debug.root',$cgiv->{'SITE'});
 		$LU->save();
 	
-		my ($xPRT,$ROOT) = split(/-/,$ZOOVY::cgiv->{'SITE'});
+		my ($xPRT,$ROOT) = split(/-/,$cgiv->{'SITE'});
 	
 		if ($PID ne '') {
 			$log .= "<tr><td valign=top>Debug Product: $PID</td></tr>";
 			}
 	
 		my %params = (MODE=>'',KEYWORDS=>$SEARCHFOR,CATALOG=>$CATALOG,TRACEPID=>$PID,debug=>1,ROOT=>$ROOT,PRT=>$xPRT);
-		my $ref = &ZTOOLKIT::parseparams($ZOOVY::cgiv->{'ELEMENT'});
+		my $ref = &ZTOOLKIT::parseparams($cgiv->{'ELEMENT'});
 		foreach my $k (keys %{$ref}) {
 			$params{$k} = $ref->{$k};
 			}
@@ -693,11 +694,11 @@ sub search {
 		my $catalogref = &SEARCH::list_catalogs($USERNAME);
 		my $c = '';
 	
-		my $FOCUS_CATALOG = $ZOOVY::cgiv->{'CATALOG'};
+		my $FOCUS_CATALOG = $cgiv->{'CATALOG'};
 		if (not defined $FOCUS_CATALOG) {
 			$FOCUS_CATALOG = $LU->get('setup.search.debug.catalog');
 			}
-		my $FOCUS_SITE = $ZOOVY::cgiv->{'SITE'};
+		my $FOCUS_SITE = $cgiv->{'SITE'};
 		if (not defined $FOCUS_SITE) {
 			$FOCUS_SITE = $LU->get('setup.search.debug.root');
 			}
@@ -713,8 +714,8 @@ sub search {
 		$c .= "<option value='SUBSTRING'>SUBSTRING (built-in)</option>\n";
 		$GTOOLSUI::TAG{'<!-- CATALOGS -->'} = $c;
 	
-		$GTOOLSUI::TAG{'<!-- SEARCHFOR -->'} = &ZOOVY::incode($ZOOVY::cgiv->{'SEARCHFOR'});
-		$GTOOLSUI::TAG{'<!-- ELEMENT -->'} = &ZOOVY::incode($ZOOVY::cgiv->{'ELEMENT'});
+		$GTOOLSUI::TAG{'<!-- SEARCHFOR -->'} = &ZOOVY::incode($cgiv->{'SEARCHFOR'});
+		$GTOOLSUI::TAG{'<!-- ELEMENT -->'} = &ZOOVY::incode($cgiv->{'ELEMENT'});
 		
 		$c = '';
 		my $i = 0;
@@ -752,17 +753,17 @@ sub search {
 		}
 	
 	if ($VERB eq 'CONFIG-SAVE') {
-		my ($CATALOG) = $ZOOVY::cgiv->{'CATALOG'};
+		my ($CATALOG) = $cgiv->{'CATALOG'};
 		&DBINFO::insert($udbh,'SEARCH_CATALOGS',{
 			'MID'=>$MID,
 			'CATALOG'=>$CATALOG,
-			'ATTRIBS'=>$ZOOVY::cgiv->{'ATTRIBS'},
-			'ISOLATION_LEVEL'=>int($ZOOVY::cgiv->{'ISOLATION_LEVEL'}),
-			'USE_EXACT'=>(defined $ZOOVY::cgiv->{'USE_EXACT'})?1:0,
-			'USE_WORDSTEMS'=>(defined $ZOOVY::cgiv->{'USE_WORDSTEMS'})?1:0,
-			'USE_INFLECTIONS'=>(defined $ZOOVY::cgiv->{'USE_INFLECTIONS'})?1:0,
-			'USE_SOUNDEX'=>(defined $ZOOVY::cgiv->{'USE_SOUNDEX'})?1:0,
-			'USE_ALLWORDS'=>(defined $ZOOVY::cgiv->{'USE_ALLWORDS'})?1:0,
+			'ATTRIBS'=>$cgiv->{'ATTRIBS'},
+			'ISOLATION_LEVEL'=>int($cgiv->{'ISOLATION_LEVEL'}),
+			'USE_EXACT'=>(defined $cgiv->{'USE_EXACT'})?1:0,
+			'USE_WORDSTEMS'=>(defined $cgiv->{'USE_WORDSTEMS'})?1:0,
+			'USE_INFLECTIONS'=>(defined $cgiv->{'USE_INFLECTIONS'})?1:0,
+			'USE_SOUNDEX'=>(defined $cgiv->{'USE_SOUNDEX'})?1:0,
+			'USE_ALLWORDS'=>(defined $cgiv->{'USE_ALLWORDS'})?1:0,
 			},key=>['MID','CATALOG'],debug=>1);
 		$VERB = 'CONFIG';
 		}
@@ -772,7 +773,7 @@ sub search {
 	##
 	if ($VERB eq 'CONFIG') {
 		$template_file = 'config.shtml';
-		my ($CATALOG) = $ZOOVY::cgiv->{'CATALOG'};
+		my ($CATALOG) = $cgiv->{'CATALOG'};
 		
 		my ($ref) = &SEARCH::fetch_catalog($USERNAME,$CATALOG);
 	
@@ -987,7 +988,7 @@ sub search {
 
 sub analytics {
 	my ($JSONAPI,$cgiv) = @_;
-	$ZOOVY::cgiv = $cgiv;
+	$cgiv = $cgiv;
 
 	my ($LU) = $JSONAPI->LU();
 	
@@ -1012,7 +1013,7 @@ sub analytics {
 	
 	my $SO = undef;
 	
-	my $VERB = $ZOOVY::cgiv->{'VERB'};
+	my $VERB = $cgiv->{'VERB'};
 	
 	$::WARN_INSECURE_FOOTER_REFERENCE = "The string 'http:' appears in the footer javascript. This could be a reference to an insecure image/pixel/iframe. The footer is normally shown on checkout/secure pages and so an insecure reference could cause a security warning with IE 8. Please consider changing from http: to https: if possible.";
 	$::WARN_INSECURE_CHKOUT_REFERENCE = "The string 'http:' appears in the checkout javascript. This could be a reference to an insecure image/pixel/iframe. The footer is normally shown on checkout/secure pages and so an insecure reference could cause a security warning with IE 8. Please consider changing from http: to https: if possible.";
@@ -1033,13 +1034,13 @@ sub analytics {
 	## Google Analytics.
 	##
 	if ($VERB eq 'GOOGLETS-SAVE') {
-		$NSREF->{'googlets:search_account_id'} = $ZOOVY::cgiv->{'search_account_id'};
-		$NSREF->{'googlets:badge_code'} = $ZOOVY::cgiv->{'badge_code'};
-		$NSREF->{'googlets:chkout_code'} = $ZOOVY::cgiv->{'chkout_code'};
-	#	$NSREF->{'analytics:headjs'} = $ZOOVY::cgiv->{'head_code'};
-	#	$NSREF->{'analytics:syndication'} = (defined $ZOOVY::cgiv->{'syndication'})?'GOOGLE':'';
+		$NSREF->{'googlets:search_account_id'} = $cgiv->{'search_account_id'};
+		$NSREF->{'googlets:badge_code'} = $cgiv->{'badge_code'};
+		$NSREF->{'googlets:chkout_code'} = $cgiv->{'chkout_code'};
+	#	$NSREF->{'analytics:headjs'} = $cgiv->{'head_code'};
+	#	$NSREF->{'analytics:syndication'} = (defined $cgiv->{'syndication'})?'GOOGLE':'';
 	#	$NSREF->{'analytics:roi'} = 'GOOGLE';
-	#	$NSREF->{'analytics:linker'} = (defined $ZOOVY::cgiv->{'linker'})?time():'';
+	#	$NSREF->{'analytics:linker'} = (defined $cgiv->{'linker'})?time():'';
 		$D->from_legacy_nsref($NSREF); $D->save();
 		$LU->log("SETUP.PLUGIN","Saved GOOGLE TRUSTED STORES plugin code","SAVE");
 		$VERB = 'GOOGLETS';
@@ -1105,8 +1106,8 @@ sub analytics {
 	
 	if ($VERB eq 'FACEBOOK-APP-SAVE') {
 		my ($webdb) = &ZWEBSITE::fetch_website_dbref($USERNAME,$PRT);
-		$webdb->{'facebook_appid'} = int($ZOOVY::cgiv->{'facebook_appid'});
-		$webdb->{'facebook_secret'} = int($ZOOVY::cgiv->{'facebook_secret'});
+		$webdb->{'facebook_appid'} = int($cgiv->{'facebook_appid'});
+		$webdb->{'facebook_secret'} = int($cgiv->{'facebook_secret'});
 		&ZWEBSITE::save_website_dbref($USERNAME,$webdb,$PRT);
 		if ($webdb->{'facebook_appid'} ne '') {
 			push @MSGS, "SUCCESS|Set Facebook Application ID";
@@ -1130,14 +1131,14 @@ sub analytics {
 		my ($webdb) = &ZWEBSITE::fetch_website_dbref($USERNAME,$PRT);
 	
 		$webdb->{'twitter'} = &ZTOOLKIT::buildparams({
-			'access_token'=>$ZOOVY::cgiv->{'twitter:access_token'},
-			'access_secret'=>$ZOOVY::cgiv->{'twitter:access_secret'},
-			'consumer_key'=>$ZOOVY::cgiv->{'twitter:consumer_key'},
-			'consumer_secret'=>$ZOOVY::cgiv->{'twitter:consumer_secret'},
+			'access_token'=>$cgiv->{'twitter:access_token'},
+			'access_secret'=>$cgiv->{'twitter:access_secret'},
+			'consumer_key'=>$cgiv->{'twitter:consumer_key'},
+			'consumer_secret'=>$cgiv->{'twitter:consumer_secret'},
 			});
 		&ZWEBSITE::save_website_dbref($USERNAME,$webdb,$PRT);
 	
-		$NSREF->{'twitter:userid'} = $ZOOVY::cgiv->{'twitter:userid'};
+		$NSREF->{'twitter:userid'} = $cgiv->{'twitter:userid'};
 		$D->from_legacy_nsref($NSREF); $D->save();
 	
 		push @MSGS, "SUCCESS|Saved Twitter Settings";
@@ -1152,7 +1153,7 @@ sub analytics {
 		$GTOOLSUI::TAG{'<!-- CONSUMER_KEY -->'} = &ZOOVY::incode($twitref->{'consumer_key'});
 		$GTOOLSUI::TAG{'<!-- CONSUMER_SECRET -->'} = &ZOOVY::incode($twitref->{'consumer_secret'});
 	
-		$GTOOLSUI::TAG{'<!-- TWITTER_USERID -->'} = &ZOOVY::incode($ZOOVY::cgiv->{'twitter:userid'});
+		$GTOOLSUI::TAG{'<!-- TWITTER_USERID -->'} = &ZOOVY::incode($cgiv->{'twitter:userid'});
 	
 		$template_file = 'twitter.shtml';
 		}
@@ -1163,10 +1164,10 @@ sub analytics {
 	
 	#if ($VERB eq 'BLINKLOGIC-SAVE') {
 	#	my %pref = ();
-	#	$pref{'enable'} = int($ZOOVY::cgiv->{'enable'});
-	#	$pref{'ftp_user'} = $ZOOVY::cgiv->{'ftp_user'};
-	#	$pref{'ftp_pass'} = $ZOOVY::cgiv->{'ftp_pass'};
-	#	$pref{'ftp_server'} = $ZOOVY::cgiv->{'ftp_server'};
+	#	$pref{'enable'} = int($cgiv->{'enable'});
+	#	$pref{'ftp_user'} = $cgiv->{'ftp_user'};
+	#	$pref{'ftp_pass'} = $cgiv->{'ftp_pass'};
+	#	$pref{'ftp_server'} = $cgiv->{'ftp_server'};
 	#	$WEBDB->{'blinklogic'} = &ZTOOLKIT::buildparams(\%pref);
 	#	&ZWEBSITE::save_website_dbref($USERNAME,$WEBDB,$PRT);
 	#	$GTOOLSUI::TAG{'<!-- MESSAGE -->'} = "Settings saved.";
@@ -1193,15 +1194,15 @@ sub analytics {
 		#$SITE::SREF->{'_NS'} = $PROFILE;
 	
 		$SITE::CART2 = CART2->new_memory($USERNAME,$PRT);
-		$SITE::CART2->in_set('cart/refer',$ZOOVY::cgiv->{'meta'});
+		$SITE::CART2->in_set('cart/refer',$cgiv->{'meta'});
 		my ($SITE) = SITE->new($USERNAME,'PRT'=>$PRT,'DOMAIN'=>$LU->domainname(),'*CART2'=>$SITE::CART2);
 	
 		my @MSGS = ();
 		foreach my $i (1..3) {
-			my $sku = $ZOOVY::cgiv->{"sku$i"};
+			my $sku = $cgiv->{"sku$i"};
 			next if ($sku eq '');
 	
-			my $STID = $ZOOVY::cgiv->{"sku$i"};;
+			my $STID = $cgiv->{"sku$i"};;
 			next if ($STID eq '');
 			my $QTY = 1;
 	
@@ -1239,15 +1240,15 @@ sub analytics {
 	
 	
 	if ($VERB eq 'DEBUG') {
-		$GTOOLSUI::TAG{'<!-- SKU1 -->'} = $ZOOVY::cgiv->{'sku1'};
-		$GTOOLSUI::TAG{'<!-- SKU2 -->'} = $ZOOVY::cgiv->{'sku2'};
-		$GTOOLSUI::TAG{'<!-- SKU3 -->'} = $ZOOVY::cgiv->{'sku3'};
-		$GTOOLSUI::TAG{'<!-- META -->'} = $ZOOVY::cgiv->{'meta'};
+		$GTOOLSUI::TAG{'<!-- SKU1 -->'} = $cgiv->{'sku1'};
+		$GTOOLSUI::TAG{'<!-- SKU2 -->'} = $cgiv->{'sku2'};
+		$GTOOLSUI::TAG{'<!-- SKU3 -->'} = $cgiv->{'sku3'};
+		$GTOOLSUI::TAG{'<!-- META -->'} = $cgiv->{'meta'};
 	
 		#my $profref = &DOMAIN::TOOLS::syndication_profiles($USERNAME,PRT=>$PRT);
 		#my $c = '';
 	   #foreach my $ns (sort keys %{$profref}) {
-		#	my ($selected) = ($ZOOVY::cgiv->{'PROFILE'} eq $ns)?'selected':'';
+		#	my ($selected) = ($cgiv->{'PROFILE'} eq $ns)?'selected':'';
 		#	$c .= "<option $selected value=\"$ns\">$profref->{$ns}</option>";
 		#	}
 		#$GTOOLSUI::TAG{'<!-- PROFILES -->'} = $c;
@@ -1257,7 +1258,7 @@ sub analytics {
 	
 	
 	if ($VERB eq 'GOOGAPI-RETURN') {
-		if ($ZOOVY::cgiv->{'RESULT'} eq 'SUCCESS') {
+		if ($cgiv->{'RESULT'} eq 'SUCCESS') {
 			$GTOOLSUI::TAG{'<!-- MESSAGE -->'} = "<font color='blue'>Successfully setup token</font><br>";
 			}
 		else {
@@ -1275,7 +1276,7 @@ sub analytics {
 	
 	
 	#if ($VERB eq 'RM-SAVE') {
-	#	$NSREF->{'razormo:chkoutjs'} = $ZOOVY::cgiv->{'checkout_code'};
+	#	$NSREF->{'razormo:chkoutjs'} = $cgiv->{'checkout_code'};
 	#	&ZOOVY::savemerchantns_ref($USERNAME,$PROFILE,$NSREF);
 	#	$VERB = 'RM';
 	#	}
@@ -1296,7 +1297,7 @@ sub analytics {
 	##
 	
 	if ($VERB eq 'SAS-SAVE') {
-		$NSREF->{'sas:chkoutjs'} = $ZOOVY::cgiv->{'checkout_code'};
+		$NSREF->{'sas:chkoutjs'} = $cgiv->{'checkout_code'};
 		$D->from_legacy_nsref($NSREF); $D->save();
 		$VERB = 'SAS';
 		}
@@ -1316,7 +1317,7 @@ sub analytics {
 	##
 	
 	if ($VERB eq 'LINKSHARE-SAVE') {
-		$NSREF->{'linkshare:chkoutjs'} = $ZOOVY::cgiv->{'checkout_code'};
+		$NSREF->{'linkshare:chkoutjs'} = $cgiv->{'checkout_code'};
 		$D->from_legacy_nsref($NSREF); $D->save();
 		$VERB = 'LINKSHARE';
 		}
@@ -1335,8 +1336,8 @@ sub analytics {
 	##
 	
 	if ($VERB eq 'BECOME-SAVE') {
-		$NSREF->{'become:chkoutjs'} = $ZOOVY::cgiv->{'checkout_code'};
-		$NSREF->{'become:filter'} = int(defined $ZOOVY::cgiv->{'filter'});
+		$NSREF->{'become:chkoutjs'} = $cgiv->{'checkout_code'};
+		$NSREF->{'become:filter'} = int(defined $cgiv->{'filter'});
 		$D->from_legacy_nsref($NSREF); $D->save();
 		$LU->log("SETUP.PLUGIN","Saved PRONTO plugin code","SAVE");
 		$VERB = 'BECOME';
@@ -1363,14 +1364,14 @@ sub analytics {
 	
 	##
 	if ($VERB eq 'OTHER-SAVE') {
-		$NSREF->{'plugin:headjs'} = $ZOOVY::cgiv->{'head_code'};
-		$NSREF->{'zoovy:head_nonsecure'} = $ZOOVY::cgiv->{'head_nonsecure_code'};
-		$NSREF->{'zoovy:head_secure'} = $ZOOVY::cgiv->{'head_secure_code'};
+		$NSREF->{'plugin:headjs'} = $cgiv->{'head_code'};
+		$NSREF->{'zoovy:head_nonsecure'} = $cgiv->{'head_nonsecure_code'};
+		$NSREF->{'zoovy:head_secure'} = $cgiv->{'head_secure_code'};
 	
-		$NSREF->{'plugin:footerjs'} = $ZOOVY::cgiv->{'footer_code'};
-		$NSREF->{'plugin:loginjs'} = $ZOOVY::cgiv->{'login_code'};
-		$NSREF->{'plugin:chkoutjs'} = $ZOOVY::cgiv->{'checkout_code'};
-		$NSREF->{'plugin:invoicejs'} = $ZOOVY::cgiv->{'invoice_code'};
+		$NSREF->{'plugin:footerjs'} = $cgiv->{'footer_code'};
+		$NSREF->{'plugin:loginjs'} = $cgiv->{'login_code'};
+		$NSREF->{'plugin:chkoutjs'} = $cgiv->{'checkout_code'};
+		$NSREF->{'plugin:invoicejs'} = $cgiv->{'invoice_code'};
 	
 		$D->from_legacy_nsref($NSREF); $D->save();
 		$LU->log("SETUP.PLUGIN","Saved OTHER plugin code","SAVE");
@@ -1419,22 +1420,22 @@ sub analytics {
 	
 	#	my $apifile = PLUGIN::KOUNT::pem_file($USERNAME,$PRT,"api");
 	#	open F, ">$apifile";
-	#	print F $ZOOVY::cgiv->{'api'};
+	#	print F $cgiv->{'api'};
 	#	close F;
 	#	chown 65534,65534, $apifile;
 	
 	#	my $risfile = PLUGIN::KOUNT::pem_file($USERNAME,$PRT,"ris");
 	#	open F, ">$risfile";
-	#	print F $ZOOVY::cgiv->{'ris'};
+	#	print F $cgiv->{'ris'};
 	#	close F;
 	#	chown 65534,65534, $risfile;
 		
-		if (($ZOOVY::cgiv->{'RIS-CERT'} ne '') && ($ZOOVY::cgiv->{'RIS-PASS'} ne '')) {
+		if (($cgiv->{'RIS-CERT'} ne '') && ($cgiv->{'RIS-PASS'} ne '')) {
 			## if we have a CERT-RIS then save it.
-			my $fh = $ZOOVY::cgiv->{'RIS-CERT'};
+			my $fh = $cgiv->{'RIS-CERT'};
 			$/ = undef; my $out = <$fh>; $/ = "\n";
 	
-			my $pass = $ZOOVY::cgiv->{'RIS-PASS'};
+			my $pass = $cgiv->{'RIS-PASS'};
 	
 			my $tmpfile = "/tmp/kount-$$.p12";	
 			open F, ">$tmpfile"; print F $out; close F;
@@ -1452,13 +1453,13 @@ sub analytics {
 			}
 	
 		my ($cfg) = PLUGIN::KOUNT::load_config($USERNAME,$PRT);
-		$cfg->{'enable'} = int($ZOOVY::cgiv->{'kount_enable'});
-		$cfg->{'multisite'} = $ZOOVY::cgiv->{'kount_multisite'};
-		$cfg->{'prodtype'} = $ZOOVY::cgiv->{'kount_prodtype'};
+		$cfg->{'enable'} = int($cgiv->{'kount_enable'});
+		$cfg->{'multisite'} = $cgiv->{'kount_multisite'};
+		$cfg->{'prodtype'} = $cgiv->{'kount_prodtype'};
 		
 		PLUGIN::KOUNT::save_config($USERNAME,$PRT,$cfg);
 	
-	#	$WEBDB->{'kount'} = int($ZOOVY::cgiv->{'kount_enable'});
+	#	$WEBDB->{'kount'} = int($cgiv->{'kount_enable'});
 	#	my ($pref) = &ZTOOLKIT::parseparams($WEBDB->{'kount_config'});
 	#	$WEBDB->{'kount_config'} = &ZTOOLKIT::buildparams($pref);
 	#	&ZWEBSITE::save_website_dbref($USERNAME,$WEBDB,$PRT);
@@ -1524,10 +1525,10 @@ sub analytics {
 	## Google Analytics.
 	##
 	if ($VERB eq 'GOOGLEAN-SAVE') {
-		$NSREF->{'analytics:headjs'} = $ZOOVY::cgiv->{'head_code'};
-		$NSREF->{'analytics:syndication'} = (defined $ZOOVY::cgiv->{'syndication'})?'GOOGLE':'';
+		$NSREF->{'analytics:headjs'} = $cgiv->{'head_code'};
+		$NSREF->{'analytics:syndication'} = (defined $cgiv->{'syndication'})?'GOOGLE':'';
 		$NSREF->{'analytics:roi'} = 'GOOGLE';
-		$NSREF->{'analytics:linker'} = (defined $ZOOVY::cgiv->{'linker'})?time():'';
+		$NSREF->{'analytics:linker'} = (defined $cgiv->{'linker'})?time():'';
 		$D->from_legacy_nsref($NSREF); $D->save();
 		$LU->log("SETUP.PLUGIN","Saved GOOGLE plugin code","SAVE");
 		$VERB = 'GOOGLEAN';
@@ -1614,10 +1615,10 @@ sub analytics {
 		my (@domains) = DOMAIN::TOOLS::domains($USERNAME,'PRT'=>$PRT);
 	
 		foreach my $domain (sort @domains) {
-			if (defined($ZOOVY::cgiv->{$domain})) {
+			if (defined($cgiv->{$domain})) {
 				my ($D) = DOMAIN->new($USERNAME,$domain);
 				next if (not defined $D);
-				$D->set('GOOGLE_SITEMAP',$ZOOVY::cgiv->{$domain});
+				$D->set('GOOGLE_SITEMAP',$cgiv->{$domain});
 				$D->save();
 				}
 			}
@@ -1704,10 +1705,10 @@ sub analytics {
 		my (@domains) = DOMAIN::TOOLS::domains($USERNAME,PRT=>$PRT);
 	
 		foreach my $domain (sort @domains) {
-			if (defined($ZOOVY::cgiv->{$domain})) {
+			if (defined($cgiv->{$domain})) {
 				my ($D) = DOMAIN->new($USERNAME,$domain);
 				next if (not defined $D);
-				$D->set('YAHOO_SITEMAP',$ZOOVY::cgiv->{$domain});
+				$D->set('YAHOO_SITEMAP',$cgiv->{$domain});
 				$D->save();
 				}
 			}
@@ -1794,10 +1795,10 @@ sub analytics {
 		my (@domains) = DOMAIN::TOOLS::domains($USERNAME,PRT=>$PRT);
 	
 		foreach my $domain (sort @domains) {
-			if (defined($ZOOVY::cgiv->{$domain})) {
+			if (defined($cgiv->{$domain})) {
 				my ($D) = DOMAIN->new($USERNAME,$domain);
 				next if (not defined $D);
-				$D->set('BING_SITEMAP',$ZOOVY::cgiv->{$domain});
+				$D->set('BING_SITEMAP',$cgiv->{$domain});
 				$D->save();
 				}
 			}
@@ -1874,17 +1875,17 @@ sub analytics {
 	##
 	##
 	if ($VERB eq 'OMNITURE-SAVE') {	
-		$NSREF->{'silverpop:listid'} = $ZOOVY::cgiv->{'silverpop:listid'};
-		$NSREF->{'silverpop:enable'} = ($ZOOVY::cgiv->{'silverpop:enable'})?1:0;
+		$NSREF->{'silverpop:listid'} = $cgiv->{'silverpop:listid'};
+		$NSREF->{'silverpop:enable'} = ($cgiv->{'silverpop:enable'})?1:0;
 	
-		$NSREF->{'omniture:enable'} = (defined $ZOOVY::cgiv->{'enable'})?time():0;
-		$NSREF->{'omniture:headjs'} = $ZOOVY::cgiv->{'head_code'};
-		$NSREF->{'omniture:footerjs'} = $ZOOVY::cgiv->{'footer_code'};
-		$NSREF->{'omniture:checkoutjs'} = $ZOOVY::cgiv->{'checkout_code'};
-		$NSREF->{'omniture:cartjs'} = $ZOOVY::cgiv->{'cart_code'};
-		$NSREF->{'omniture:categoryjs'} = $ZOOVY::cgiv->{'category_code'};
-		$NSREF->{'omniture:productjs'} = $ZOOVY::cgiv->{'product_code'};
-		$NSREF->{'omniture:resultjs'} = $ZOOVY::cgiv->{'result_code'};
+		$NSREF->{'omniture:enable'} = (defined $cgiv->{'enable'})?time():0;
+		$NSREF->{'omniture:headjs'} = $cgiv->{'head_code'};
+		$NSREF->{'omniture:footerjs'} = $cgiv->{'footer_code'};
+		$NSREF->{'omniture:checkoutjs'} = $cgiv->{'checkout_code'};
+		$NSREF->{'omniture:cartjs'} = $cgiv->{'cart_code'};
+		$NSREF->{'omniture:categoryjs'} = $cgiv->{'category_code'};
+		$NSREF->{'omniture:productjs'} = $cgiv->{'product_code'};
+		$NSREF->{'omniture:resultjs'} = $cgiv->{'result_code'};
 		$D->from_legacy_nsref($NSREF); $D->save();
 		$LU->log("SETUP.PLUGIN","Saved OMNITURE plugin code","SAVE");
 		$VERB = 'OMNITURE';
@@ -1913,9 +1914,9 @@ sub analytics {
 	##
 	##
 	if ($VERB eq 'SHOPCOM-SAVE') {
-	#	$NSREF->{'shopcom:headjs'} = $ZOOVY::cgiv->{'head_code'};
-		$NSREF->{'shopcom:filter'} = int(defined $ZOOVY::cgiv->{'filter'});
-		$NSREF->{'shopcom:chkoutjs'} = $ZOOVY::cgiv->{'chkout_code'};
+	#	$NSREF->{'shopcom:headjs'} = $cgiv->{'head_code'};
+		$NSREF->{'shopcom:filter'} = int(defined $cgiv->{'filter'});
+		$NSREF->{'shopcom:chkoutjs'} = $cgiv->{'chkout_code'};
 		$D->from_legacy_nsref($NSREF); $D->save();
 		$LU->log("SETUP.PLUGIN","Saved SHOPCOM plugin code","SAVE");
 		$VERB = 'SHOPCOM';
@@ -1937,9 +1938,9 @@ sub analytics {
 	##
 	##
 	if ($VERB eq 'YAHOO-SAVE') {
-		$NSREF->{'yahooshop:headjs'} = $ZOOVY::cgiv->{'head_code'};
-		$NSREF->{'yahooshop:filter'} = int(defined $ZOOVY::cgiv->{'filter'});
-		$NSREF->{'yahooshop:chkoutjs'} = $ZOOVY::cgiv->{'chkout_code'};
+		$NSREF->{'yahooshop:headjs'} = $cgiv->{'head_code'};
+		$NSREF->{'yahooshop:filter'} = int(defined $cgiv->{'filter'});
+		$NSREF->{'yahooshop:chkoutjs'} = $cgiv->{'chkout_code'};
 		$D->from_legacy_nsref($NSREF); $D->save();
 		$LU->log("SETUP.PLUGIN","Saved YAHOO plugin code","SAVE");
 		$VERB = 'YAHOO';
@@ -1967,8 +1968,8 @@ sub analytics {
 	
 	
 	if ($VERB eq 'FACEBOOK-SAVE') {
-		$NSREF->{'facebook:url'} = $ZOOVY::cgiv->{'facebook:url'};
-		$NSREF->{'facebook:chkout'} = (defined $ZOOVY::cgiv->{'facebook:chkout'})?1:0;
+		$NSREF->{'facebook:url'} = $cgiv->{'facebook:url'};
+		$NSREF->{'facebook:chkout'} = (defined $cgiv->{'facebook:chkout'})?1:0;
 		$D->from_legacy_nsref($NSREF); $D->save();
 		$LU->log("SETUP.PLUGIN","Saved FACEBOOK settings","SAVE");
 		$VERB = 'FACEBOOK';
@@ -1988,8 +1989,8 @@ sub analytics {
 	
 	
 	#if ($VERB eq 'TWITTER-SAVE') {
-	#	$NSREF->{'twitter:url'} = $ZOOVY::cgiv->{'twitter:url'};
-	#	$NSREF->{'twitter:chkout'} = (defined $ZOOVY::cgiv->{'twitter:chkout'})?'checked':'';
+	#	$NSREF->{'twitter:url'} = $cgiv->{'twitter:url'};
+	#	$NSREF->{'twitter:chkout'} = (defined $cgiv->{'twitter:chkout'})?'checked':'';
 	#
 	#	$template_file = 'twitter.shtml';
 	#	push @BC, { name=>'Twitter' };
@@ -2000,9 +2001,9 @@ sub analytics {
 	##
 	
 	if ($VERB eq 'WISHPOT-SAVE') {
-		$NSREF->{'wishpot:merchantid'} = $ZOOVY::cgiv->{'wishpot:merchantid'};
-		$NSREF->{'wishpot:wishlist'} = (defined $ZOOVY::cgiv->{'wishpot:wishlist'})?1:0;
-		$NSREF->{'wishpot:facebook'} = (defined $ZOOVY::cgiv->{'wishpot:facebook'})?1:0;
+		$NSREF->{'wishpot:merchantid'} = $cgiv->{'wishpot:merchantid'};
+		$NSREF->{'wishpot:wishlist'} = (defined $cgiv->{'wishpot:wishlist'})?1:0;
+		$NSREF->{'wishpot:facebook'} = (defined $cgiv->{'wishpot:facebook'})?1:0;
 		$D->from_legacy_nsref($NSREF); $D->save();
 		$LU->log("SETUP.PLUGIN","Saved WISHPOT settings","SAVE");
 	
@@ -2041,10 +2042,10 @@ sub analytics {
 	##
 	##
 	if ($VERB eq 'FETCHBACK-SAVE') {
-		$NSREF->{'fetchback:loginjs'} = $ZOOVY::cgiv->{'fetchback:loginjs'};
-		$NSREF->{'fetchback:chkoutjs'} = $ZOOVY::cgiv->{'fetchback:chkoutjs'};
-		$NSREF->{'fetchback:cartjs'} = $ZOOVY::cgiv->{'fetchback:cartjs'};
-		$NSREF->{'fetchback:footerjs'} = $ZOOVY::cgiv->{'fetchback:footerjs'};	
+		$NSREF->{'fetchback:loginjs'} = $cgiv->{'fetchback:loginjs'};
+		$NSREF->{'fetchback:chkoutjs'} = $cgiv->{'fetchback:chkoutjs'};
+		$NSREF->{'fetchback:cartjs'} = $cgiv->{'fetchback:cartjs'};
+		$NSREF->{'fetchback:footerjs'} = $cgiv->{'fetchback:footerjs'};	
 		$D->from_legacy_nsref($NSREF); $D->save();
 		$LU->log("SETUP.PLUGIN","Saved FETCHBACK plugin code","SAVE");
 		$VERB = 'FETCHBACK';	
@@ -2076,8 +2077,8 @@ sub analytics {
 	##
 	##
 	#if ($VERB eq 'LIVECHAT-SAVE') {
-	#	$NSREF->{'livechat:licenseid'} = $ZOOVY::cgiv->{'licenseid'};
-	#	$NSREF->{'livechat:tracking'} = $ZOOVY::cgiv->{'tracking'};
+	#	$NSREF->{'livechat:licenseid'} = $cgiv->{'licenseid'};
+	#	$NSREF->{'livechat:tracking'} = $cgiv->{'tracking'};
 	#	$D->from_legacy_nsref($NSREF); $D->save();
 	#	$LU->log("SETUP.PLUGIN","Saved LIVECHAT plugin code","SAVE");
 	#	$VERB = 'LIVECHAT';
@@ -2099,7 +2100,7 @@ sub analytics {
 	##
 	
 	if ($VERB eq 'OLARK-SAVE') {
-		$NSREF->{'olark:html'} = $ZOOVY::cgiv->{'html'};
+		$NSREF->{'olark:html'} = $cgiv->{'html'};
 		$D->from_legacy_nsref($NSREF); $D->save();
 		$LU->log("SETUP.PLUGIN","Saved OLARK plugin code","SAVE");
 		$VERB = 'OLARK';
@@ -2120,7 +2121,7 @@ sub analytics {
 	##
 	
 	if ($VERB eq 'PROVIDESUPPORT-SAVE') {
-		$NSREF->{'pschat:html'} = $ZOOVY::cgiv->{'html'};
+		$NSREF->{'pschat:html'} = $cgiv->{'html'};
 		$D->from_legacy_nsref($NSREF); $D->save();
 		$LU->log("SETUP.PLUGIN","Saved PROVIDESUPPORT plugin code","SAVE");
 		$VERB = 'PROVIDESUPPORT';
@@ -2139,8 +2140,8 @@ sub analytics {
 	# UPSELLIT
 	#
 	if ($VERB eq 'UPSELLIT-SAVE') {
-		$NSREF->{'upsellit:footerjs'} = $ZOOVY::cgiv->{'footerjs'};
-		$NSREF->{'upsellit:chkoutjs'} = $ZOOVY::cgiv->{'chkoutjs'};
+		$NSREF->{'upsellit:footerjs'} = $cgiv->{'footerjs'};
+		$NSREF->{'upsellit:chkoutjs'} = $cgiv->{'chkoutjs'};
 		$D->from_legacy_nsref($NSREF); $D->save();
 		$LU->log("SETUP.PLUGIN","Saved UPSELLIT code","SAVE");
 		$VERB = 'UPSELLIT';
@@ -2163,9 +2164,9 @@ sub analytics {
 	##
 	##
 	if ($VERB eq 'POWERREVIEWS-SAVE') {
-		$NSREF->{'powerreviews:merchantid'} = $ZOOVY::cgiv->{'merchantid'};
-		$NSREF->{'powerreviews:enable'} = (defined $ZOOVY::cgiv->{'enable'})?1:0;
-		$NSREF->{'powerreviews:groupid'} = $ZOOVY::cgiv->{'groupid'};
+		$NSREF->{'powerreviews:merchantid'} = $cgiv->{'merchantid'};
+		$NSREF->{'powerreviews:enable'} = (defined $cgiv->{'enable'})?1:0;
+		$NSREF->{'powerreviews:groupid'} = $cgiv->{'groupid'};
 		$D->from_legacy_nsref($NSREF); $D->save();
 		$LU->log("SETUP.PLUGIN","Saved POWERREVIEWS code","SAVE");
 	
@@ -2243,8 +2244,8 @@ sub analytics {
 	##
 	##
 	if ($VERB eq 'MSNADCENTER-SAVE') {
-		$NSREF->{'msnad:filter'} = int(defined $ZOOVY::cgiv->{'filter'});
-		$NSREF->{'msnad:chkoutjs'} = $ZOOVY::cgiv->{'head_code'};
+		$NSREF->{'msnad:filter'} = int(defined $cgiv->{'filter'});
+		$NSREF->{'msnad:chkoutjs'} = $cgiv->{'head_code'};
 		$D->from_legacy_nsref($NSREF); $D->save();
 		$LU->log("SETUP.PLUGIN","Saved MSNADCENTER plugin code","SAVE");
 		$VERB = 'MSNADCENTER';
@@ -2264,8 +2265,8 @@ sub analytics {
 	##
 	##
 	if ($VERB eq 'NEXTAG-SAVE') {
-		$NSREF->{'nextag:chkoutjs'} = $ZOOVY::cgiv->{'checkout_code'};
-		$NSREF->{'nextag:filter'} = int(defined $ZOOVY::cgiv->{'filter'});
+		$NSREF->{'nextag:chkoutjs'} = $cgiv->{'checkout_code'};
+		$NSREF->{'nextag:filter'} = int(defined $cgiv->{'filter'});
 		$D->from_legacy_nsref($NSREF); $D->save();
 		$LU->log("SETUP.PLUGIN","Saved NEXTAG plugin code","SAVE");
 		$VERB = 'NEXTAG';
@@ -2291,8 +2292,8 @@ sub analytics {
 	##
 	##
 	if ($VERB eq 'PRICEGRABBER-SAVE') {
-		$NSREF->{'pgrabber:chkoutjs'} = $ZOOVY::cgiv->{'checkout_code'};
-		$NSREF->{'pgrabber:filter'} = int(defined $ZOOVY::cgiv->{'filter'});
+		$NSREF->{'pgrabber:chkoutjs'} = $cgiv->{'checkout_code'};
+		$NSREF->{'pgrabber:filter'} = int(defined $cgiv->{'filter'});
 		$D->from_legacy_nsref($NSREF); $D->save();
 		$LU->log("SETUP.PLUGIN","Saved PRICEGRABBER plugin code","SAVE");
 		$VERB = 'PRICEGRABBER';
@@ -2315,8 +2316,8 @@ sub analytics {
 	## 
 	##
 	if ($VERB eq 'CJ-SAVE') {
-		$NSREF->{'cj:chkoutjs'} = $ZOOVY::cgiv->{'checkout_code'};
-		$NSREF->{'cj:filter'} = int(defined $ZOOVY::cgiv->{'filter'});
+		$NSREF->{'cj:chkoutjs'} = $cgiv->{'checkout_code'};
+		$NSREF->{'cj:filter'} = int(defined $cgiv->{'filter'});
 		$D->from_legacy_nsref($NSREF); $D->save();
 		$LU->log("SETUP.PLUGIN","Saved CJ plugin code","SAVE");
 		$VERB = 'CJ';
@@ -2338,8 +2339,8 @@ sub analytics {
 	## 
 	##
 	if ($VERB eq 'OMNISTAR-SAVE') {
-		$NSREF->{'omnistar:chkoutjs'} = $ZOOVY::cgiv->{'checkout_code'};
-		$NSREF->{'omnistar:filter'} = int(defined $ZOOVY::cgiv->{'filter'});
+		$NSREF->{'omnistar:chkoutjs'} = $cgiv->{'checkout_code'};
+		$NSREF->{'omnistar:filter'} = int(defined $cgiv->{'filter'});
 		$D->from_legacy_nsref($NSREF); $D->save();
 		$LU->log("SETUP.PLUGIN","Saved OMNISTAR plugin code","SAVE");
 		$VERB = 'OMNISTAR';
@@ -2362,7 +2363,7 @@ sub analytics {
 	## 
 	##
 	if ($VERB eq 'KOWABUNGA-SAVE') {
-		$NSREF->{'kowabunga:chkoutjs'} = $ZOOVY::cgiv->{'checkout_code'};
+		$NSREF->{'kowabunga:chkoutjs'} = $cgiv->{'checkout_code'};
 		$D->from_legacy_nsref($NSREF); $D->save();
 		$LU->log("SETUP.PLUGIN","Saved KOWABUNGA plugin code","SAVE");
 		$VERB = 'KOWABUNGA';
@@ -2381,8 +2382,8 @@ sub analytics {
 	## 
 	##
 	if ($VERB eq 'BIZRATE-SAVE') {
-		$NSREF->{'bizrate:chkoutjs'} = $ZOOVY::cgiv->{'checkout_code'};
-		$NSREF->{'bizrate:filter'} = int(defined $ZOOVY::cgiv->{'filter'});
+		$NSREF->{'bizrate:chkoutjs'} = $cgiv->{'checkout_code'};
+		$NSREF->{'bizrate:filter'} = int(defined $cgiv->{'filter'});
 		$D->from_legacy_nsref($NSREF); $D->save();
 		$LU->log("SETUP.PLUGIN","Saved BIZRATE plugin code","SAVE");
 		$VERB = 'BIZRATE';
@@ -2411,8 +2412,8 @@ sub analytics {
 	## 
 	##
 	if ($VERB eq 'PRONTO-SAVE') {
-		$NSREF->{'pronto:chkoutjs'} = $ZOOVY::cgiv->{'checkout_code'};
-		$NSREF->{'pronto:filter'} = int(defined $ZOOVY::cgiv->{'filter'});
+		$NSREF->{'pronto:chkoutjs'} = $cgiv->{'checkout_code'};
+		$NSREF->{'pronto:filter'} = int(defined $cgiv->{'filter'});
 		$D->from_legacy_nsref($NSREF); $D->save();
 		$LU->log("SETUP.PLUGIN","Saved PRONTO plugin code","SAVE");
 		$VERB = 'PRONTO';
@@ -2446,7 +2447,7 @@ sub analytics {
 	##
 	##
 	if ($VERB eq 'GOOGLEAW-SAVE') {
-		$NSREF->{'googleaw:chkoutjs'} = $ZOOVY::cgiv->{'head_code'};
+		$NSREF->{'googleaw:chkoutjs'} = $cgiv->{'head_code'};
 		$D->from_legacy_nsref($NSREF); $D->save();
 		$LU->log("SETUP.PLUGIN","Saved GOOGLEAW plugin code","SAVE");
 		$VERB = 'GOOGLEAW';
@@ -2473,13 +2474,13 @@ sub analytics {
 	
 		## Syndication isn't setup to support PRTs yet
 		#tie my %s, 'SYNDICATION', THIS=>$so;
-		#$s{'.userid'} =  $ZOOVY::cgiv->{'userid'};
-		## $s{'.pass'} =  $ZOOVY::cgiv->{'pass'};
-		#$s{'IS_ACTIVE'} = int($ZOOVY::cgiv->{'enable'});
+		#$s{'.userid'} =  $cgiv->{'userid'};
+		## $s{'.pass'} =  $cgiv->{'pass'};
+		#$s{'IS_ACTIVE'} = int($cgiv->{'enable'});
 	
 		my ($webdb) = &ZWEBSITE::fetch_website_dbref($USERNAME,$PRT);
-		$webdb->{'upic'} = int($ZOOVY::cgiv->{'enable'});
-		$webdb->{'upic_userid'} = $ZOOVY::cgiv->{'userid'};
+		$webdb->{'upic'} = int($cgiv->{'enable'});
+		$webdb->{'upic_userid'} = $cgiv->{'userid'};
 		&ZWEBSITE::save_website_dbref($USERNAME,$webdb,$PRT);
 	
 		#untie %s;
@@ -2527,9 +2528,9 @@ sub analytics {
 	#
 	#	#require PLUGIN::BUYSAFE;
 	#	my $webdbref = &ZWEBSITE::fetch_website_dbref($USERNAME,$PRT);
-	#	$webdbref->{'buysafe_mode'} = $ZOOVY::cgiv->{'buysafe_mode'};
-	#	$webdbref->{'buysafe_token'} = $ZOOVY::cgiv->{'buysafe_token'};
-	#	$webdbref->{'buysafe_sealhtml'} = $ZOOVY::cgiv->{'buysafe_sealhtml'};
+	#	$webdbref->{'buysafe_mode'} = $cgiv->{'buysafe_mode'};
+	#	$webdbref->{'buysafe_token'} = $cgiv->{'buysafe_token'};
+	#	$webdbref->{'buysafe_sealhtml'} = $cgiv->{'buysafe_sealhtml'};
 	#	&ZWEBSITE::save_website_dbref($USERNAME,$webdbref,$PRT);
 	#
 	#	if ($VERB eq 'BUYSAFE-REFRESH') {
@@ -2553,8 +2554,8 @@ sub analytics {
 	#				$changed++;
 	#				}
 	#			}
-	#		elsif ($d->{'BUYSAFE_TOKEN'} ne $ZOOVY::cgiv->{$name}) {
-	#			$d->{'BUYSAFE_TOKEN'} = $ZOOVY::cgiv->{$name};
+	#		elsif ($d->{'BUYSAFE_TOKEN'} ne $cgiv->{$name}) {
+	#			$d->{'BUYSAFE_TOKEN'} = $cgiv->{$name};
 	#			$changed++;
 	#			}
 	#	
@@ -2567,9 +2568,9 @@ sub analytics {
 	#	foreach my $domain (@domainrefs) {
 	#		my $profile = $domain->{'PROFILE'};
 	#		if ($profile eq '') { $profile = 'DEFAULT'; }
-	#		next if not (defined $ZOOVY::cgiv->{"profile:$profile"});
+	#		next if not (defined $cgiv->{"profile:$profile"});
 	#		my ($ref) = &ZOOVY::fetchmerchantns_ref($USERNAME,$profile);
-	#		$ref->{'zoovy:buysafe_sealhtml'} = $ZOOVY::cgiv->{"profile:$profile"};
+	#		$ref->{'zoovy:buysafe_sealhtml'} = $cgiv->{"profile:$profile"};
 	#		&ZOOVY::savemerchantns_ref($USERNAME,$profile,$ref);
 	#		}
 	#
@@ -2838,7 +2839,7 @@ sub analytics {
 
 sub toxml {
 	my ($JSONAPI,$cgiv) = @_;
-	$ZOOVY::cgiv = $cgiv;
+	$cgiv = $cgiv;
 
 	my ($LU) = $JSONAPI->LU();
 	my ($MID,$USERNAME,$LUSERNAME,$FLAGS,$PRT) = $LU->authinfo();
@@ -2880,11 +2881,11 @@ sub toxml {
 	   push @TABS, { 'name'=>'New Layout', link=>'/biz/vstore/toxml/index.cgi?ACTION=NEW&FORMAT=ZEMAIL' };
 	   }
 	
-	my $ACTION = $ZOOVY::cgiv->{'ACTION'};
+	my $ACTION = $cgiv->{'ACTION'};
 	print STDERR "ACTION: $ACTION\n";
 	
 	
-	my $FORMAT = $ZOOVY::cgiv->{'FORMAT'};
+	my $FORMAT = $cgiv->{'FORMAT'};
 	if ($ACTION eq 'DOWNLOAD') {
 	   }
 	elsif ($ACTION eq 'NEW') {
@@ -2893,17 +2894,17 @@ sub toxml {
 	   $ACTION = ''; 
 	   }	
 	
-	my $DOCID = $ZOOVY::cgiv->{'DOCID'};
+	my $DOCID = $cgiv->{'DOCID'};
 	
-	#print "Content-type: text/plain\n\n"; print Dumper($ZOOVY::cgiv,$ACTION); die();
+	#print "Content-type: text/plain\n\n"; print Dumper($cgiv,$ACTION); die();
 	
 	## choices from top page
 	if ($ACTION eq "Edit XML") {	
-		&ZWEBSITE::save_website_attrib($USERNAME,'pref_template_fmt',uc($ZOOVY::cgiv->{'TYPE'}));
-		if ($ZOOVY::cgiv->{'TYPE'} eq "xml") { $ACTION = "EDITXML"; }
-		elsif ($ZOOVY::cgiv->{'TYPE'} eq "html") { $ACTION = "EDITHTML"; }
-		# elsif ($ZOOVY::cgiv->{'TYPE'} eq "plugin") { $ACTION = "EDITPLUGIN"; }
-		else { $ACTION = ''; $GTOOLSUI::TAG{'<!-- MESSAGE -->'} = "Please choose a File Format ".$ZOOVY::cgiv->{'TYPE'}; } 
+		&ZWEBSITE::save_website_attrib($USERNAME,'pref_template_fmt',uc($cgiv->{'TYPE'}));
+		if ($cgiv->{'TYPE'} eq "xml") { $ACTION = "EDITXML"; }
+		elsif ($cgiv->{'TYPE'} eq "html") { $ACTION = "EDITHTML"; }
+		# elsif ($cgiv->{'TYPE'} eq "plugin") { $ACTION = "EDITPLUGIN"; }
+		else { $ACTION = ''; $GTOOLSUI::TAG{'<!-- MESSAGE -->'} = "Please choose a File Format ".$cgiv->{'TYPE'}; } 
 		}
 	
 	$GTOOLSUI::TAG{'<!-- FORMAT -->'} = $FORMAT;
@@ -2949,12 +2950,12 @@ sub toxml {
 		$DOCID = '*'.$DOCID;
 		
 	   open F, ">/tmp/content";
-	   print F Dumper($ZOOVY::cgiv);
+	   print F Dumper($cgiv);
 	   close F;
 		
 		my $content = '';
-	 	if (not defined $ZOOVY::cgiv->{'CONTENT'}) {
-			my $ORIGDOCID = $ZOOVY::cgiv->{'ORIGDOCID'};
+	 	if (not defined $cgiv->{'CONTENT'}) {
+			my $ORIGDOCID = $cgiv->{'ORIGDOCID'};
 			my ($toxml) = TOXML->new($FORMAT,$ORIGDOCID,USERNAME=>$USERNAME,MID=>$MID);
 	
 			if (defined $toxml) { $content = $toxml->as_xml(); }
@@ -2966,7 +2967,7 @@ sub toxml {
 			#	}
 			}
 		else {
-			$content = $ZOOVY::cgiv->{'CONTENT'};
+			$content = $cgiv->{'CONTENT'};
 			}
 		
 		$GTOOLSUI::TAG{'<!-- DOCID -->'} = $DOCID;
@@ -2988,7 +2989,7 @@ sub toxml {
 	
 	
 	if ($ACTION eq 'DOWNLOAD') {
-		my $DOCID = $ZOOVY::cgiv->{'DOCID'};
+		my $DOCID = $cgiv->{'DOCID'};
 		$GTOOLSUI::TAG{'<!-- DOCID -->'} = $DOCID;
 	
 		my ($toxml) = TOXML->new($FORMAT,$DOCID,USERNAME=>$USERNAME,MID=>$MID);
@@ -3006,7 +3007,7 @@ sub toxml {
 		}
 	
 	if ($ACTION eq 'DELETE') {
-		my $DOCID = $ZOOVY::cgiv->{'DOCID'};
+		my $DOCID = $cgiv->{'DOCID'};
 		my ($toxml) = TOXML->new($FORMAT,$DOCID,USERNAME=>$USERNAME,MID=>$MID);
 		$toxml->nuke();
 		$LU->log("SETUP.TOXML","Confirmed deletion of DOCTYPE:$FORMAT DOC:$DOCID","NUKE");
@@ -3018,7 +3019,7 @@ sub toxml {
 	
 	print STDERR "ACTION: $ACTION\n";
 	if ($ACTION eq 'ACKDELETE') {
-		$GTOOLSUI::TAG{'<!-- DOCID -->'} = $ZOOVY::cgiv->{'DOCID'};
+		$GTOOLSUI::TAG{'<!-- DOCID -->'} = $cgiv->{'DOCID'};
 		$template_file = 'confirmdelete.shtml';
 		}
 	
@@ -3080,8 +3081,8 @@ sub toxml {
 		my ($toxml) = TOXML->new('WRAPPER',$DOCID,USERNAME=>$USERNAME,MID=>$MID);
 		my ($configel) = $toxml->findElements('CONFIG');
 	
-		my $sbtxt = $ZOOVY::cgiv->{'sitebuttons'};
-		if ($sbtxt eq '') { $sbtxt = $ZOOVY::cgiv->{'sitebuttons_txt'}; }	
+		my $sbtxt = $cgiv->{'sitebuttons'};
+		if ($sbtxt eq '') { $sbtxt = $cgiv->{'sitebuttons_txt'}; }	
 		if ($sbtxt eq '') { $sbtxt = 'default'; } ## yipes!?!?
 	
 		if (index($sbtxt,'|')==-1) {
@@ -3267,7 +3268,7 @@ sub toxml {
 sub advwebsite {
 	my ($JSONAPI,$cgiv) = @_;
 
-	$ZOOVY::cgiv = $cgiv;
+	$cgiv = $cgiv;
 	my ($LU) = $JSONAPI->LU();
 
 	my ($MID,$USERNAME,$LUSERNAME,$FLAGS,$PRT) = $LU->authinfo();
@@ -3276,10 +3277,10 @@ sub advwebsite {
 	if ($USERNAME eq '') { exit; }
 	
 	$GTOOLSUI::TAG{'<!-- USERNAME -->'} = $USERNAME;
-	my $VERB = $ZOOVY::cgiv->{'MODE'};
+	my $VERB = $cgiv->{'MODE'};
 	if ($VERB eq '') { $VERB = 'GENERAL'; }
 	
-	my $ACTION = $ZOOVY::cgiv->{'ACTION'};
+	my $ACTION = $cgiv->{'ACTION'};
 	my $HELP = '';
 	
 	
@@ -3297,11 +3298,11 @@ sub advwebsite {
 	
 	if ($VERB eq 'CUSTOMERADMIN-SAVE') {
 		
-		$webdbref->{"order_status_notes_disable"} = (defined $ZOOVY::cgiv->{'order_status_notes_disable'})?1:0;
-		$webdbref->{"order_status_disable_login"} = (defined $ZOOVY::cgiv->{'order_status_disable_login'})?1:0;
-		$webdbref->{"order_status_hide_events"} = (defined $ZOOVY::cgiv->{'order_status_hide_events'})?1:0;
-		$webdbref->{'order_status_reorder'} = (defined $ZOOVY::cgiv->{'order_status_reorder'})?1:0;
-		$webdbref->{"disable_cancel_order"} = (defined $ZOOVY::cgiv->{'disable_cancel_order'})?1:0;
+		$webdbref->{"order_status_notes_disable"} = (defined $cgiv->{'order_status_notes_disable'})?1:0;
+		$webdbref->{"order_status_disable_login"} = (defined $cgiv->{'order_status_disable_login'})?1:0;
+		$webdbref->{"order_status_hide_events"} = (defined $cgiv->{'order_status_hide_events'})?1:0;
+		$webdbref->{'order_status_reorder'} = (defined $cgiv->{'order_status_reorder'})?1:0;
+		$webdbref->{"disable_cancel_order"} = (defined $cgiv->{'disable_cancel_order'})?1:0;
 		$LU->log("SETUP.CHECKOUT.CUSTOMER","Updated Customer Admin Settings","SAVE");
 		&ZWEBSITE::save_website_dbref($USERNAME,$webdbref,$PRT);
 		$VERB = 'CUSTOMERADMIN';
@@ -3330,7 +3331,7 @@ sub advwebsite {
 		my %currency = ( 'USD'=>1 );
 		my %language = ( 'ENG'=>1 );
 		if ($ACTION eq 'INTERNATIONAL-SAVE') {
-			foreach my $x (keys %{$ZOOVY::cgiv}) {
+			foreach my $x (keys %{$cgiv}) {
 				if ($x =~ /C\*(.*?)$/) { $currency{uc($1)}++; }
 				if ($x =~ /L\*(.*?)$/) { $language{uc($1)}++; }			
 				}
@@ -3376,12 +3377,12 @@ sub advwebsite {
 	
 		my $ERROR = '';
 	
-		my $MSGID = $ZOOVY::cgiv->{'ID'};
+		my $MSGID = $cgiv->{'ID'};
 		if ($MSGID eq '') { $ERROR = "MSGID is blank"; }
-		my $LANG = $ZOOVY::cgiv->{'LANG'};
+		my $LANG = $cgiv->{'LANG'};
 		my $MSG = "New Message";
-		my $TITLE = $ZOOVY::cgiv->{'TITLE'};
-		my $CATEGORY = $ZOOVY::cgiv->{'CATEGORY'};
+		my $TITLE = $cgiv->{'TITLE'};
+		my $CATEGORY = $cgiv->{'CATEGORY'};
 		$SM->create($MSGID,$LANG,$LUSERNAME,$TITLE,$CATEGORY);		
 	
 		$GTOOLSUI::TAG{'<!-- MESSAGE -->'} = "<div class='success'>successfully created message $MSGID, go to the appropriate category to edit.</div>";
@@ -3417,14 +3418,14 @@ sub advwebsite {
 		my $LANG = '';
 	
 		if ($ACTION eq 'SAVE') {
-			$EDITID = $ZOOVY::cgiv->{'ID'};
-			$LANG = $ZOOVY::cgiv->{'LANG'};
+			$EDITID = $cgiv->{'ID'};
+			$LANG = $cgiv->{'LANG'};
 	
 			my $BLOCKED = 0;
-			if (not defined $ZOOVY::cgiv->{'MSG'}) {
+			if (not defined $cgiv->{'MSG'}) {
 				## it's always okay to reset it.
 				}
-			elsif ($ZOOVY::cgiv->{'MSG'} =~ /\<script/) {
+			elsif ($cgiv->{'MSG'} =~ /\<script/) {
 				## javascript warning.
 				if ($LU->is_zoovy()) {
 					push @MSGS, "WARNING|ZOOVY EMPLOYEE: It is NOT recommended/support placing Javascript into the System Messages, please use Setup | Plugins instead.";
@@ -3441,7 +3442,7 @@ sub advwebsite {
 					$BLOCKED++;
 					}
 				}
-			elsif ($ZOOVY::cgiv->{'MSG'} =~ /src\=[\"\']?http\:/) {
+			elsif ($cgiv->{'MSG'} =~ /src\=[\"\']?http\:/) {
 				## system messages.
 				if ($LU->is_zoovy()) {
 					push @MSGS, "WARNING|ZOOVY EMPLOYEE: It is NOT recommended/support placing Javascript into the System Messages, please use Setup | Plugins instead.";
@@ -3462,7 +3463,7 @@ sub advwebsite {
 		
 			my ($result) = -1;
 			if (not $BLOCKED) {
-				$result = $SM->save($EDITID,$ZOOVY::cgiv->{'MSG'},$LANG,$LUSERNAME);
+				$result = $SM->save($EDITID,$cgiv->{'MSG'},$LANG,$LUSERNAME);
 				}
 	
 			if ($result==-1) {
@@ -3478,8 +3479,8 @@ sub advwebsite {
 			}
 	
 		if ($ACTION eq 'EDIT') {
-			$EDITID = $ZOOVY::cgiv->{'ID'};
-			$LANG = $ZOOVY::cgiv->{'LANG'};
+			$EDITID = $cgiv->{'ID'};
+			$LANG = $cgiv->{'LANG'};
 	
 			my ($msgref) = $SM->getref($EDITID, $LANG);
 			
@@ -3639,36 +3640,36 @@ sub advwebsite {
 	
 	if (uc($ACTION) eq "GENERAL-SAVE") {
 	
-		$webdbref->{"cart_quoteshipping"} = $ZOOVY::cgiv->{'cart_quoteshipping'};
-		my $customer_management = $ZOOVY::cgiv->{'customer_management'};
+		$webdbref->{"cart_quoteshipping"} = $cgiv->{'cart_quoteshipping'};
+		my $customer_management = $cgiv->{'customer_management'};
 		if (!defined($customer_management)) { $customer_management = 'DEFAULT'; }
 		$webdbref->{"customer_management"} = $customer_management;
 	
-		$webdbref->{'checkout'} = $ZOOVY::cgiv->{'checkout'};
+		$webdbref->{'checkout'} = $cgiv->{'checkout'};
 	
 		if ($FLAGS =~ /WEB/) {	
-			$webdbref->{'chkout_phone'} = $ZOOVY::cgiv->{'chkout_phone'};
+			$webdbref->{'chkout_phone'} = $cgiv->{'chkout_phone'};
 	
-			if ($ZOOVY::cgiv->{'order_num'}+0 != $ZOOVY::cgiv->{'hidden_order_num'}+0) {
-				&CART2::reset_order_id($USERNAME,$ZOOVY::cgiv->{'order_num'}+0);
+			if ($cgiv->{'order_num'}+0 != $cgiv->{'hidden_order_num'}+0) {
+				&CART2::reset_order_id($USERNAME,$cgiv->{'order_num'}+0);
 				}
-			if ($ZOOVY::cgiv->{'chkout_order_notes'}) { $webdbref->{"chkout_order_notes"} = 1; } 
+			if ($cgiv->{'chkout_order_notes'}) { $webdbref->{"chkout_order_notes"} = 1; } 
 			else { $webdbref->{"chkout_order_notes"} = 0; }
 	
-			$webdbref->{'chkout_payradio'} = (defined $ZOOVY::cgiv->{'chkout_payradio'})?1:0;
-			$webdbref->{'chkout_shipradio'} = (defined $ZOOVY::cgiv->{'chkout_shipradio'})?1:0;
+			$webdbref->{'chkout_payradio'} = (defined $cgiv->{'chkout_payradio'})?1:0;
+			$webdbref->{'chkout_shipradio'} = (defined $cgiv->{'chkout_shipradio'})?1:0;
 	
-			$webdbref->{"chkout_save_payment_disabled"} = (defined $ZOOVY::cgiv->{'chkout_save_payment_disabled'})?1:0;
-			$webdbref->{"chkout_allowphone"} = (defined $ZOOVY::cgiv->{'chkout_allowphone'})?1:0;
-			$webdbref->{"chkout_billshipsame"} = (defined $ZOOVY::cgiv->{'chkout_billshipsame'})?1:0;
-			$webdbref->{'chkout_roi_display'} = (defined $ZOOVY::cgiv->{'chkout_roi_display'})?1:0;
+			$webdbref->{"chkout_save_payment_disabled"} = (defined $cgiv->{'chkout_save_payment_disabled'})?1:0;
+			$webdbref->{"chkout_allowphone"} = (defined $cgiv->{'chkout_allowphone'})?1:0;
+			$webdbref->{"chkout_billshipsame"} = (defined $cgiv->{'chkout_billshipsame'})?1:0;
+			$webdbref->{'chkout_roi_display'} = (defined $cgiv->{'chkout_roi_display'})?1:0;
 	
 		
-			my $customer_privacy = $ZOOVY::cgiv->{'customer_privacy'};
+			my $customer_privacy = $cgiv->{'customer_privacy'};
 			if (!defined($customer_privacy)) { $customer_privacy = 'NONE'; }
 			$webdbref->{"customer_privacy"} = $customer_privacy;
 	
-	#		if ($ZOOVY::cgiv->{'adult_content'} =~ /on/i) { 
+	#		if ($cgiv->{'adult_content'} =~ /on/i) { 
 	#			$webdbref->{"adult_content"} = "on";
 	#			if ($FLAGS !~ /,ADULT,/) { &ZACCOUNT::create_exception_flags($USERNAME,'ADULT',0,0); }
 	#			} 
@@ -3797,15 +3798,15 @@ sub advwebsite {
 
 sub builder_themes {
 	my ($JSONAPI,$cgiv) = @_;	
-	$ZOOVY::cgiv = $cgiv;
+	$cgiv = $cgiv;
 	
 	require LUSER;
 	my ($LU) = $JSONAPI->LU();
 	my ($MID,$USERNAME,$LUSERNAME,$FLAGS,$PRT) = $LU->authinfo();
 	
-	my $NS = $ZOOVY::cgiv->{'NS'};
+	my $NS = $cgiv->{'NS'};
 	$GTOOLSUI::TAG{'<!-- NS -->'} = $NS;
-	my $SUBTYPE = $ZOOVY::cgiv->{'SUBTYPE'};
+	my $SUBTYPE = $cgiv->{'SUBTYPE'};
 	## SUBTYPE = "" (wrapper)
 	## SUBTYPE = "P" (Popup)
 	$GTOOLSUI::TAG{'<!-- SUBTYPE -->'} = $SUBTYPE;
@@ -3836,9 +3837,9 @@ sub builder_themes {
 
 	
 	my $template_file = '';
-	my $VERB = $ZOOVY::cgiv->{'VERB'};
+	my $VERB = $cgiv->{'VERB'};
 	my @THEMES = ();
-	if ((defined $ZOOVY::cgiv->{'category'}) || (defined $ZOOVY::cgiv->{'color'})) { $VERB = 'SEARCH'; }
+	if ((defined $cgiv->{'category'}) || (defined $cgiv->{'color'})) { $VERB = 'SEARCH'; }
 	
 	if ($VERB eq '') {
 		$VERB = 'MYTHEMES';
@@ -4013,10 +4014,10 @@ sub builder_themes {
 	##		HEY: this is used by both "developer" mode and the regular save-wrapper mode.
 	##
 	if (($VERB eq 'SAVE-ZEMAIL') || ($VERB eq 'SAVE-WRAPPER') || ($VERB eq 'SAVE-POPUP') || ($VERB eq 'SAVE-WRAPPERB') || ($VERB eq 'SAVE-MOBILE')) {
-		my $wrapper = defined($ZOOVY::cgiv->{'selected'}) ? $ZOOVY::cgiv->{'selected'} : '';
-		if ($wrapper eq '') { $wrapper = $ZOOVY::cgiv->{'wrapper'}; }	
+		my $wrapper = defined($cgiv->{'selected'}) ? $cgiv->{'selected'} : '';
+		if ($wrapper eq '') { $wrapper = $cgiv->{'wrapper'}; }	
 	
-		my $TYPE = $ZOOVY::cgiv->{'TYPE'};
+		my $TYPE = $cgiv->{'TYPE'};
 		# this is if they choose a default theme from the main menu, we should reset both the category and product
 		if ($TYPE eq '') {
 			$TYPE = 'SITE';
@@ -4086,7 +4087,7 @@ sub builder_themes {
 	
 	if ($VERB eq 'REMEMBER-WRAPPER') {
 		
-		my $WRAPPER = $ZOOVY::cgiv->{'wrapper'};
+		my $WRAPPER = $cgiv->{'wrapper'};
 		require TOXML::UTIL;
 		&TOXML::UTIL::remember($USERNAME,'WRAPPER',$WRAPPER,1);
 	
@@ -4095,7 +4096,7 @@ sub builder_themes {
 	
 	if ($VERB eq 'FORGET-WRAPPER') {
 		
-		my $WRAPPER = $ZOOVY::cgiv->{'wrapper'};
+		my $WRAPPER = $cgiv->{'wrapper'};
 		require TOXML::UTIL;
 		&TOXML::UTIL::forget($USERNAME,'WRAPPER',$WRAPPER);
 	
@@ -4150,18 +4151,18 @@ sub builder_themes {
 		$GTOOLSUI::TAG{'<!-- MENUPOS -->'} = 1;
 		
 		my $PROPERTIES = 0;
-		$PROPERTIES += (defined $ZOOVY::cgiv->{'minicart'})?(1<<0):0;
-		$PROPERTIES += (defined $ZOOVY::cgiv->{'sidebar'})?(1<<1):0;
-		$PROPERTIES += (defined $ZOOVY::cgiv->{'subcats'})?(1<<2):0;
-		$PROPERTIES += (defined $ZOOVY::cgiv->{'embed_search'})?(1<<3):0;
-		$PROPERTIES += (defined $ZOOVY::cgiv->{'embed_subscribe'})?(1<<4):0;
-		$PROPERTIES += (defined $ZOOVY::cgiv->{'embed_login'})?(1<<5):0;
-		$PROPERTIES += (defined $ZOOVY::cgiv->{'imagecats'})?(1<<6):0;
+		$PROPERTIES += (defined $cgiv->{'minicart'})?(1<<0):0;
+		$PROPERTIES += (defined $cgiv->{'sidebar'})?(1<<1):0;
+		$PROPERTIES += (defined $cgiv->{'subcats'})?(1<<2):0;
+		$PROPERTIES += (defined $cgiv->{'embed_search'})?(1<<3):0;
+		$PROPERTIES += (defined $cgiv->{'embed_subscribe'})?(1<<4):0;
+		$PROPERTIES += (defined $cgiv->{'embed_login'})?(1<<5):0;
+		$PROPERTIES += (defined $cgiv->{'imagecats'})?(1<<6):0;
 		## 1<<9 = wiki text
 		## 1<<10 = ajax 
 	
-		my $CATEGORIES = int($ZOOVY::cgiv->{'category'});
-		my $COLORS = int($ZOOVY::cgiv->{'color'});
+		my $CATEGORIES = int($cgiv->{'category'});
+		my $COLORS = int($cgiv->{'color'});
 	
 		$pstmt = ' FORMAT=\'WRAPPER\' and MID in (0,'.$MID.') ';	
 		if ($PROPERTIES>0) { $pstmt .= (($pstmt ne '')?' and ':'')."(PROPERTIES&$PROPERTIES)=$PROPERTIES "; }
@@ -4600,7 +4601,7 @@ sub builder_themes {
 sub builder {
 	my ($JSONAPI,$cgiv) = @_;
 
-	$ZOOVY::cgiv = $cgiv;
+	$cgiv = $cgiv;
 	my ($LU) = $JSONAPI->LU();
 
 	my ($MID,$USERNAME,$LUSERNAME,$FLAGS,$PRT) = $LU->authinfo();
@@ -4633,7 +4634,7 @@ sub builder {
 	#	}
 	
 	my $webdbref = &ZWEBSITE::fetch_website_dbref($USERNAME,$PRT);
-	my $ACTION = $ZOOVY::cgiv->{'ACTION'};
+	my $ACTION = $cgiv->{'ACTION'};
 	print STDERR "ACTION:$ACTION\n";
 	
 	
@@ -4718,8 +4719,8 @@ sub builder {
 			elsif ($ACTION eq 'DECALS-SAVE') {
 				my @LINES = ();
 				my $i = 0;
-				while ( defined $ZOOVY::cgiv->{"ELEMENT:$el->{'ID'}.$i"} ) {
-					push @LINES, $ZOOVY::cgiv->{"ELEMENT:$el->{'ID'}.$i"};
+				while ( defined $cgiv->{"ELEMENT:$el->{'ID'}.$i"} ) {
+					push @LINES, $cgiv->{"ELEMENT:$el->{'ID'}.$i"};
 					$i++;
 					}
 				$nsref->{$DATASRC} = join("\n",@LINES);
@@ -4859,7 +4860,7 @@ sub builder {
 					}
 				if (scalar(@FLEXFIELDS)>0) {
 					if ($ACTION eq 'DECALS-SAVE') {
-						PRODUCT::FLEXEDIT::prodsave(undef,\@FLEXFIELDS,$ZOOVY::cgiv,'%dataref'=>$nsref);
+						PRODUCT::FLEXEDIT::prodsave(undef,\@FLEXFIELDS,$cgiv,'%dataref'=>$nsref);
 						}
 					$c .= &PRODUCT::FLEXEDIT::output_html(undef,\@FLEXFIELDS,'USERNAME'=>$USERNAME,'PRT'=>$PRT,'%dataref'=>$nsref);
 					}
@@ -4873,7 +4874,7 @@ sub builder {
 			$c .= "</tr>";	
 			}
 	
-		# 	print STDERR 'INDEX DUMP'.Dumper($ZOOVY::cgiv->{'user:decal5'});
+		# 	print STDERR 'INDEX DUMP'.Dumper($cgiv->{'user:decal5'});
 	
 		$GTOOLSUI::TAG{'<!-- POSITIONS -->'} = $c;
 	
@@ -4891,7 +4892,7 @@ sub builder {
 	
 	if ($ACTION eq 'EDIT-WRAPPER') {
 		$ACTION = 'INITEDIT';
-		$ZOOVY::cgiv->{'FORMAT'} = 'WRAPPER';
+		$cgiv->{'FORMAT'} = 'WRAPPER';
 		}
 	
 	
@@ -4902,30 +4903,30 @@ sub builder {
 	
 	my $SITEstr = undef;
 	my $SITE = undef;
-	if (defined $ZOOVY::cgiv->{'_SREF'}) {
-		$SITE = SITE::sitedeserialize($USERNAME,$ZOOVY::cgiv->{'_SREF'});
+	if (defined $cgiv->{'_SREF'}) {
+		$SITE = SITE::sitedeserialize($USERNAME,$cgiv->{'_SREF'});
 		}
 	elsif ($ACTION eq 'INITEDIT') {
 	
 		$SITE = SITE->new($USERNAME,'PRT'=>$PRT,'DOMAIN'=>$DOMAIN);
 	
-		$SITE->sset('_FORMAT',$ZOOVY::cgiv->{'FORMAT'});
-		if ($ZOOVY::cgiv->{'SKU'}) {
-			$SITE->setSTID($ZOOVY::cgiv->{'SKU'});
+		$SITE->sset('_FORMAT',$cgiv->{'FORMAT'});
+		if ($cgiv->{'SKU'}) {
+			$SITE->setSTID($cgiv->{'SKU'});
 			$SITE->sset('_FORMAT','PRODUCT');
 			}
 	
-		$SITE->sset('_FS',$ZOOVY::cgiv->{'FS'});
+		$SITE->sset('_FS',$cgiv->{'FS'});
 	
-		if ($ZOOVY::cgiv->{'FL'}) {
-			$SITE->layout( $ZOOVY::cgiv->{'FL'} );
+		if ($cgiv->{'FL'}) {
+			$SITE->layout( $cgiv->{'FL'} );
 			}
 		
 		$SITE->{'_is_preview'}++;
 	
 		if ($SITE->format() eq 'WRAPPER') {
 			## WRAPPER ?? EMAIL?? editing a specific docid w/o page namespace.
-			$SITE->pageid( $ZOOVY::cgiv->{'PG'} );
+			$SITE->pageid( $cgiv->{'PG'} );
 			if ($SITE->layout() eq '') {
 				my $nsref = $SITE->nsref();
 				$SITE->layout( $nsref->{'zoovy:site_wrapper'} );
@@ -4941,7 +4942,7 @@ sub builder {
 				}
 			}
 		elsif ($SITE->format() eq 'PAGE') {
-			$SITE->pageid( $ZOOVY::cgiv->{'PG'} );
+			$SITE->pageid( $cgiv->{'PG'} );
 			if ($SITE->layout() eq '') {
 				my $PG = $SITE->pAGE(); 
 				$SITE->layout( $PG->docid() );
@@ -4959,15 +4960,15 @@ sub builder {
 		#	}
 		elsif ($SITE->format() eq 'NEWSLETTER') {
 			my $ID = 0;
-			$SITE->pageid( $ZOOVY::cgiv->{'PG'} );
+			$SITE->pageid( $cgiv->{'PG'} );
 			if ($SITE->layout() eq '') {
 				my $PG = $SITE->pAGE(); 
 				$SITE->layout( $PG->docid() );
 				}		
 			# if ($SITE->pageid() =~ /^\@CAMPAIGN:([\d]+)$/) { $ID = $1; }
-			#$SITE->layout($ZOOVY::cgiv->{'FL'});
+			#$SITE->layout($cgiv->{'FL'});
 			#my ($P) = PAGE->new($USERNAME,$SITE->pageid());
-			#$P->set('FL',$ZOOVY::cgiv->{'FL'});
+			#$P->set('FL',$cgiv->{'FL'});
 			#$P->save();
 			}
 		else {
@@ -4992,11 +4993,11 @@ sub builder {
 	#	push @MSGS, "DEBUG|ZOOVY STAFF ACTION[$ACTION] DEBUG: ".Dumper($SITE);
 	#	}
 	#open F, ">/tmp/format";
-	#print F Dumper($SITE, $ZOOVY::cgiv);
+	#print F Dumper($SITE, $cgiv);
 	#close F;
 	
 	if ($ACTION eq 'DIVSELECT') {
-		$SITE->{'_DIV'} = $ZOOVY::cgiv->{'DIV'};
+		$SITE->{'_DIV'} = $cgiv->{'DIV'};
 		$ACTION = 'EDIT';
 		$SITEstr =  $SITE->siteserialize();
 		}
@@ -5007,8 +5008,8 @@ sub builder {
 	if ($ACTION eq "CHOOSERSAVE") {
 	
 		## NOTE: this should never be reached without $SITE being set.	
-		if ($ZOOVY::cgiv->{'FL'}) {
-			$SITE->layout($ZOOVY::cgiv->{'FL'});
+		if ($cgiv->{'FL'}) {
+			$SITE->layout($cgiv->{'FL'});
 			}
 	
 		if ($SITE->format() eq 'WRAPPER') {	
@@ -5046,13 +5047,13 @@ sub builder {
 	
 		if ($SITE->pid() eq '') {
 			my ($P) = PAGE->new($SITE->username(),$SITE->pageid(),DOMAIN=>$D->domainname(),PRT=>$PRT);
-			$P->set('page_head',$ZOOVY::cgiv->{'HEAD'});
-			$P->set('page_title',$ZOOVY::cgiv->{'PAGE_TITLE'});
-			$P->set('head_title',$ZOOVY::cgiv->{'HEAD_TITLE'});
-			my $keywords = $ZOOVY::cgiv->{'KEYWORDS'};
+			$P->set('page_head',$cgiv->{'HEAD'});
+			$P->set('page_title',$cgiv->{'PAGE_TITLE'});
+			$P->set('head_title',$cgiv->{'HEAD_TITLE'});
+			my $keywords = $cgiv->{'KEYWORDS'};
 			$keywords =~ s/\n/ /gs; # Nuke newlines
 			$P->set('meta_keywords',$keywords);
-			my $description = $ZOOVY::cgiv->{'DESCRIPTION'};
+			my $description = $cgiv->{'DESCRIPTION'};
 			$description =~ s/\n/ /gs; # Nuke newlines
 			$P->set('meta_description',$description);
 			$P->save();
@@ -5060,9 +5061,9 @@ sub builder {
 			}
 		else {
 			my ($P) = PRODUCT->new($LU,$SITE->pid()); 
-			$P->store('zoovy:prod_name',$ZOOVY::cgiv->{'TITLE'}); 
-			$P->store('zoovy:meta_desc',$ZOOVY::cgiv->{'DESCRIPTION'}); 
-			$P->store('zoovy:keywords',$ZOOVY::cgiv->{'KEYWORDS'}); 
+			$P->store('zoovy:prod_name',$cgiv->{'TITLE'}); 
+			$P->store('zoovy:meta_desc',$cgiv->{'DESCRIPTION'}); 
+			$P->store('zoovy:keywords',$cgiv->{'KEYWORDS'}); 
 			$P->save();
 	
 			$LU->log('SETUP.BUILDER.META',"Saved meta properties for SKU: ".$SITE->pid(),"SAVE");
@@ -5077,7 +5078,7 @@ sub builder {
 		$ACTION = 'EDIT';
 		require TOXML::COMPILE;
 		
-		my $content = $ZOOVY::cgiv->{'CONTENT'};
+		my $content = $cgiv->{'CONTENT'};
 		my ($toxml) = TOXML::COMPILE::fromXML('LAYOUT',$SITE->layout(),$content,USERNAME=>$USERNAME,MID=>$MID);
 	
 		$LU->log('SETUP.BUILDER.TOXMLSAVE',"Save layout: ".$SITE->layout(),"SAVE");
@@ -5101,40 +5102,40 @@ sub builder {
 		my ($ref) = $D->as_legacy_nsref();
 		my ($gref) = &ZWEBSITE::fetch_globalref($USERNAME);
 	
-		$ref->{'zoovy:site_wrapper'} = $ZOOVY::cgiv->{'SP_WRAPPER'};
-		$ref->{'zoovy:site_rootcat'} = $ZOOVY::cgiv->{'SP_ROOTCAT'};
-		$ref->{'zoovy:site_schedule'} = $ZOOVY::cgiv->{'SP_SCHEDULE'};
-		$ref->{'prt:id'} = $ZOOVY::cgiv->{'SP_PARTITION'};
+		$ref->{'zoovy:site_wrapper'} = $cgiv->{'SP_WRAPPER'};
+		$ref->{'zoovy:site_rootcat'} = $cgiv->{'SP_ROOTCAT'};
+		$ref->{'zoovy:site_schedule'} = $cgiv->{'SP_SCHEDULE'};
+		$ref->{'prt:id'} = $cgiv->{'SP_PARTITION'};
 		
-		$ref->{'zoovy:support_phone'} = $ZOOVY::cgiv->{'zoovy:support_phone'};
-		$ref->{'zoovy:support_email'} = $ZOOVY::cgiv->{'zoovy:support_email'};
-		$ref->{'zoovy:company_name'} = $ZOOVY::cgiv->{'zoovy:company_name'};
-		$ref->{'zoovy:seo_title'} = $ZOOVY::cgiv->{'zoovy:seo_title'};
-		$ref->{'zoovy:seo_title_append'} = $ZOOVY::cgiv->{'zoovy:seo_title_append'};
-		$ref->{'zoovy:firstname'} = $ZOOVY::cgiv->{'zoovy:firstname'};
-		$ref->{'zoovy:middlename'} = $ZOOVY::cgiv->{'zoovy:middlename'};
-		$ref->{'zoovy:lastname'} = $ZOOVY::cgiv->{'zoovy:lastname'};
-		$ref->{'zoovy:address1'} = $ZOOVY::cgiv->{'zoovy:address1'};
-		$ref->{'zoovy:address2'} = $ZOOVY::cgiv->{'zoovy:address2'};
-		$ref->{'zoovy:city'} = $ZOOVY::cgiv->{'zoovy:city'};
-		$ref->{'zoovy:state'} = $ZOOVY::cgiv->{'zoovy:state'};
-		$ref->{'zoovy:country'} = $ZOOVY::cgiv->{'zoovy:country'};
-		$ref->{'zoovy:zip'} = $ZOOVY::cgiv->{'zoovy:zip'};
-		$ref->{'zoovy:phone'} = $ZOOVY::cgiv->{'zoovy:phone'};
-		$ref->{'zoovy:facsimile'} = $ZOOVY::cgiv->{'zoovy:facsimile'};
-		$ref->{'zoovy:website_url'} = $ZOOVY::cgiv->{'zoovy:website_url'};
+		$ref->{'zoovy:support_phone'} = $cgiv->{'zoovy:support_phone'};
+		$ref->{'zoovy:support_email'} = $cgiv->{'zoovy:support_email'};
+		$ref->{'zoovy:company_name'} = $cgiv->{'zoovy:company_name'};
+		$ref->{'zoovy:seo_title'} = $cgiv->{'zoovy:seo_title'};
+		$ref->{'zoovy:seo_title_append'} = $cgiv->{'zoovy:seo_title_append'};
+		$ref->{'zoovy:firstname'} = $cgiv->{'zoovy:firstname'};
+		$ref->{'zoovy:middlename'} = $cgiv->{'zoovy:middlename'};
+		$ref->{'zoovy:lastname'} = $cgiv->{'zoovy:lastname'};
+		$ref->{'zoovy:address1'} = $cgiv->{'zoovy:address1'};
+		$ref->{'zoovy:address2'} = $cgiv->{'zoovy:address2'};
+		$ref->{'zoovy:city'} = $cgiv->{'zoovy:city'};
+		$ref->{'zoovy:state'} = $cgiv->{'zoovy:state'};
+		$ref->{'zoovy:country'} = $cgiv->{'zoovy:country'};
+		$ref->{'zoovy:zip'} = $cgiv->{'zoovy:zip'};
+		$ref->{'zoovy:phone'} = $cgiv->{'zoovy:phone'};
+		$ref->{'zoovy:facsimile'} = $cgiv->{'zoovy:facsimile'};
+		$ref->{'zoovy:website_url'} = $cgiv->{'zoovy:website_url'};
 	
 		foreach my $k (
 			'zoovy:support_phone','zoovy:support_email',
 			'zoovy:about','zoovy:contact','zoovy:shipping_policy','zoovy:payment_policy',
 			'zoovy:return_policy','zoovy:checkout', 'zoovy:business_description') {
-			$ref->{$k} = $ZOOVY::cgiv->{$k};
+			$ref->{$k} = $cgiv->{$k};
 			}
 	
-		# $ref->{'zoovy:logo_website_pixelmode'} = (defined $ZOOVY::cgiv->{'logo_website_pixelmode'})?1:0;
+		# $ref->{'zoovy:logo_website_pixelmode'} = (defined $cgiv->{'logo_website_pixelmode'})?1:0;
 	
-		my $width = $ZOOVY::cgiv->{'width'};
-		my $height = $ZOOVY::cgiv->{'height'};
+		my $width = $cgiv->{'width'};
+		my $height = $cgiv->{'height'};
 		if ((!defined($width)) || ($width>500) || ($width<1)) { $width = 300; }
 		if ((!defined($height)) || ($height>300) || ($height<1)) { $height = 100; }
 		$ref->{'zoovy:logo_invoice_xy'} = int($width)."x".int($height);
@@ -5237,7 +5238,7 @@ sub builder {
 		push @BC, { name=>"Edit format:".$SITE->format()." pageid:".$SITE->pageid()." layout:".$SITE->layout() };
 		}	
 	elsif ($SITE->format() ne '') {
-		print STDERR Dumper($ZOOVY::cgiv);
+		print STDERR Dumper($cgiv);
 		die("Unsupported SITE->format(".$SITE->format().")");
 		}
 	
@@ -5514,7 +5515,7 @@ sub builder {
 			}	
 	
 		print STDERR "SUBTYPE: ".$SITE->fs()."\n";
-		my $PROFILE = $ZOOVY::cgiv->{'NS'};
+		my $PROFILE = $cgiv->{'NS'};
 		## $GTOOLSUI::TAG{'<!-- FLOW_CHOOSER -->'} = &TOXML::CHOOSER::buildChooser($SITE->username(),$SITE->format(),SREF=>$SITE->siteserialize(),'NS'=>$PROFILE,SUBTYPE=>$SITE->fs(),selected=>$SITE->layout(),'*LU'=>$LU);
 
 
@@ -5571,7 +5572,7 @@ sub builder {
 			push @MSGS, "ISE|Sorry but we could not deference SITE for ACTION $ACTION";
 			}
 	
-		if ($ZOOVY::cgiv->{'FL'}) { $SITE->layout($ZOOVY::cgiv->{'FL'}); }
+		if ($cgiv->{'FL'}) { $SITE->layout($cgiv->{'FL'}); }
 	
 		$GTOOLSUI::TAG{"<!-- USERNAME -->"} = CGI->escape($USERNAME);
 		$GTOOLSUI::TAG{"<!-- FL -->"}       = (defined $SITE->layout())?CGI->escape($SITE->layout()):'';
@@ -5592,7 +5593,7 @@ sub builder {
 			$GTOOLSUI::TAG{'<!-- PRETTYPG -->'} = $SITE->{'_FORMAT'}.': '.$SITE->docid();
 			}
 	
-		my $MSG = defined($ZOOVY::cgiv->{'MSG'}) ? $ZOOVY::cgiv->{'MSG'} : '';
+		my $MSG = defined($cgiv->{'MSG'}) ? $cgiv->{'MSG'} : '';
 		if ($MSG) {
 			$GTOOLSUI::TAG{"<!-- MSG -->"} = "<br><center><table border='1' width='80%'><tr><td><b>$MSG</b></td></tr></table></center><br>";
 			}
@@ -5602,8 +5603,8 @@ sub builder {
 		my $FORMAT = $SITE->format();
 	
 		if ($FORMAT eq 'EMAIL') {
-			if ( ($SITE->layout() eq '') && ($ZOOVY::cgiv->{'FL'} ne '') ) {
-				$SITE->layout( $ZOOVY::cgiv->{'FL'} );
+			if ( ($SITE->layout() eq '') && ($cgiv->{'FL'} ne '') ) {
+				$SITE->layout( $cgiv->{'FL'} );
 				}
 			push @BC, { name=>sprintf("%s",$SITE->layout()) }
 			}
@@ -5826,13 +5827,13 @@ sub builder {
 sub builder_details {
 	my ($JSONAPI,$cgiv) = @_;
 
-	$ZOOVY::cgiv = $cgiv;
+	$cgiv = $cgiv;
 	my ($LU) = $JSONAPI->LU();
 	
 	my ($MID,$USERNAME,$LUSERNAME,$FLAGS,$PRT) = $LU->authinfo();
 	
-	my $DOCID = $ZOOVY::cgiv->{'DOCID'};
-	my $FORMAT = $ZOOVY::cgiv->{'FORMAT'};
+	my $DOCID = $cgiv->{'DOCID'};
+	my $FORMAT = $cgiv->{'FORMAT'};
 	
 	require TOXML::CHOOSER;
 	my ($t) = TOXML->new($FORMAT,$DOCID,USERNAME=>$USERNAME);

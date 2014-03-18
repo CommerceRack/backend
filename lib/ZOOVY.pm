@@ -105,15 +105,6 @@ $ZOOVY::LOCALPATH  = "/httpd/local";
 
 # cached copy of the data.
 # experimental!
-$ZOOVY::GLOBAL_MERCHANTREF   = undef;
-$ZOOVY::GLOBAL_MERCHANTUSER  = undef;
-$ZOOVY::GLOBAL_PRODUCTUSER   = undef;
-$ZOOVY::GLOBAL_PRODUCTID     = undef;
-$ZOOVY::GLOBAL_PRODUCTTS     = undef;
-$ZOOVY::GLOBAL_PRODUCTDATA   = undef;
-$ZOOVY::GLOBAL_AUTOCOMMIT    = 1;       # only disable if you know what the fuck you're doing.
-$ZOOVY::GLOBAL_CACHE_FLUSH = undef;	# turns of cache flushing for a period of time.
-
 $ZOOVY::USERNAME = undef;					 # set when you call authenticate (the account name)
 $ZOOVY::LUSER = undef;						 # set when you call authenticate (the login e.g. "brian")
 $ZOOVY::FLAGS = undef;                  # set when you call authenticate (flags)
@@ -1936,59 +1927,6 @@ sub nuke_product_cache {
 	#	closedir($D);
 	#	}
 	}
-
-## this function MUST be run to cleanup any persistent data so mod_per doesn't have a fit.
-sub init {
-	my ($options) = @_;
-
-	if (not defined $options) { $options = 0; }
-
-	$ZOOVY::LAST_MID 			 = undef;
-	$ZOOVY::LAST_MIDUSER		 = undef;
-
-	$ZOOVY::SERVER               = undef;
-
-	$ZOOVY::RESELLER             = undef;    # Reset for the next instance
-	$ZOOVY::GLOBAL_PRODUCTUSER   = undef;
-	$ZOOVY::GLOBAL_PRODUCTID     = undef;
-	$ZOOVY::GLOBAL_PRODUCTTS     = undef;
-	$ZOOVY::GLOBAL_PRODUCTDATA   = undef;
-	$ZOOVY::GLOBAL_MERCHANTREF   = undef;
-	$ZOOVY::GLOBAL_MERCHANTUSER  = undef;
-	$ZOOVY::GLOBAL_AUTOCOMMIT    = 1;        # only disable if you know what the fuck you're doing.
-
-	$ZOOVY::FLAGS = undef;                   # set when you call authenticate
-	$ZOOVY::USERNAME = undef;					 # set when you call authenticate (the account name)
-	$ZOOVY::LUSER = undef;						 # set when you call authenticate (the login e.g. "brian")
-
-
-	$ZOOVY::USEDB = 1;
-
-
-	$ZOOVY::cgiv    = undef;
-	$ZOOVY::cookies = undef;
-	if (($options & 1)==0) {
-		my $q = new CGI;
-
-		foreach my $p ($q->param())  { 
-			my ($x) = $q->param($p);
-			
-			if (substr($p,0,1) eq '_') {}		## special variables which might be corrupted by UTF8
-			elsif (utf8::is_utf8($x) eq '') {
-				$x = Encode::decode("utf8",$x);
-				utf8::decode($x);
-				}
-			$ZOOVY::cgiv->{$p} = $x;
-			}
-
-		foreach my $p ($q->cookie()) { 
-			$ZOOVY::cookies->{$p} = $q->cookie($p); 
-			}
-		}
-	# use Data::Dumper;
-
-} ## end sub init
-
 
 
 ################################
@@ -3825,118 +3763,8 @@ sub deleteproduct {
 #		);
 
 	&DBINFO::db_user_close();
-
-	$ZOOVY::GLOBAL_PRODUCTUSER = undef;
-	$ZOOVY::GLOBAL_PRODUCTID = undef;
-	$ZOOVY::GLOBAL_PRODUCTTS = undef;
-	$ZOOVY::GLOBAL_PRODUCTDATA = undef;
-
 	return ($result);
 } ## end sub deleteproduct
-
-#################################
-## 
-## ZOOVY::fetchproduct_data
-## description: given the product name, returns all attributes
-## 
-## parameters: MERCHANT_ID, PRODUCT_NAME
-##
-## returns: the product buffer contents.
-##
-####################################
-#sub fetchproduct_data {
-#	my ($USERNAME, $PID, $ATTEMPTS) = @_;
-#
-#	# print STDERR "running fetchproduct_data USERNAME=[$USERNAME] PRODUCT_NAME=[$PID]\n";
-#
-#	if (index($PID,':')>=0) {
-#		## if we are requesting data for an option - just return the product.
-#		$PID = substr($PID,0,index($PID,':'));
-#		}
-#
-#	# strip all NON-alpha numeric characters 
-#	$PID =~ s/[^\w\-\*\@]+//og;
-#
-#	## if the product is a virtual product
-#	if (index($PID,'@')>=0) {
-#		## @ = zoovy@
-#		## alldropship@ = pull from marketplace default url
-#		## username@ = pull from remote url
-#
-#		## strip the @
-#		if (substr($PID,0,1) eq '@') { $PID = substr($PID,1); }
-#		}
-#
-#	## if the product has an external item
-#	if (index($PID,'*')>=0) {
-#		$PID = substr($PID,index($PID,'*')+1);
-#		}
-#
-#	if (($ZOOVY::GLOBAL_PRODUCTUSER eq $USERNAME) && ($ZOOVY::GLOBAL_PRODUCTID eq $PID)) {
-#		# print STDERR "LOADING FROM CACHE\n";
-#		return($ZOOVY::GLOBAL_PRODUCTDATA);
-#		}
-#
-##	if (not defined $USERNAME) { return undef; }
-##	if ($USERNAME eq '') { return undef; }
-#
-#	my $udbh 	 = &DBINFO::db_user_connect($USERNAME);
-#	my $MID = &resolve_mid($USERNAME);
-#	if ($MID<=0) { return undef; }
-#
-#	my $TB = &resolve_product_tb($USERNAME);
-#
-#	my $pstmt = "select DATA from $TB where MID=".$udbh->quote($MID)." and PRODUCT=" . $udbh->quote($PID);
-#	my $DATA = undef;
-#	if (($MID>0) && ($TB ne '')) {
-#		#print STDERR $pstmt."\n";
-#		my $sth = $udbh->prepare($pstmt);
-#		my $rv  = $sth->execute();
-#		($DATA) = $sth->fetchrow();
-#
-#		if (utf8::is_utf8($DATA) eq '') {
-#			$DATA = Encode::decode("utf8",$DATA);
-#			utf8::decode($DATA);
-#			}
-#
-#		if (length($DATA)>1000000) { 
-#			# this will stop people from doing stupid HTML tricks,
-#			# or at least stop those stupid tricks from taking down our
-#			# our system .. so max product length is 1mb
-#			$DATA = '<zoovy:prod_name>Product Corrupt - exceeds 1mb</zoovy:prod_name>'; 
-#			}		
-#		$sth->finish();	
-#		}
-#	&DBINFO::db_user_close();
-#
-#	$ZOOVY::GLOBAL_PRODUCTUSER = $USERNAME;
-#	$ZOOVY::GLOBAL_PRODUCTID = $PID;
-#	$ZOOVY::GLOBAL_PRODUCTDATA = $DATA;
-#	$ZOOVY::GLOBAL_PRODUCTTS = undef;
-#
-#	return ($DATA);
-#	} ## end sub fetchproduct_data
-#
-
-
-
-#################################
-## 
-## ZOOVY::saveproduct_data
-## description: given the product name, saves the contents.
-##
-## NOTE: This is *NOT* used anymore
-##
-## returns: zero on success.
-##          
-##
-####################################
-#sub saveproduct_data {
-#	my ($USERNAME, $PID, $DATA, $CATEGORY) = @_;
-#	return(&ZOOVY::saveproduct_from_hashref($USERNAME,$PID,&ZOOVY::attrib_handler_ref($DATA),$CATEGORY));
-#	} 
-
-# -------- M E R C H A N T   C O D E   S T A R T S   H E R E -------------
 
 ###########################################
 ##

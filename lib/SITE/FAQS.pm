@@ -193,7 +193,7 @@ sub list_topics {
 	$sth->finish();
 	&DBINFO::db_user_close();
 
-	print STDERR Dumper(\@result);
+	# print STDERR Dumper(\@result);
 
 	return(\@result);
 	}

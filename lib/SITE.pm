@@ -324,6 +324,9 @@ sub new {
 			## I intentionally used a different parameter so it'd be easier to track/locate
 			$self->{'%NSREF'} = $params{$k};
 			}
+		elsif ($k eq 'HOST') {
+			## disregard	
+			}
 		else {
 			warn "UNKNOWN PARAMETER '$k'=>'$params{$k}' PASSED TO SITE->new\n";
 			}
