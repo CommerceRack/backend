@@ -55,8 +55,8 @@ body { font-family: helvetica; }
 <tr>
 <td>
 <b>Unsubscribe from receiving additional reminders for this transaction:</b><br>
-<a href=\"http://%SDOMAIN%/customer/newsletter/unsubscribe?aolemail=$RECIPIENT\">
-<a href=\"http://%SDOMAIN%/customer/newsletter/unsubscribe?aolemail=$RECIPIENT&claim=$options{'CLAIM'}">
+<a href="http://%SDOMAIN%/customer/newsletter/unsubscribe?aolemail=$RECIPIENT">
+<a href="http://%SDOMAIN%/customer/newsletter/unsubscribe?aolemail=$RECIPIENT&claim=$options{'CLAIM'}">
 </td>
 </tr>
 </table>
