@@ -9103,10 +9103,10 @@ sub adminBlastMsg {
 			my $msgid = $v->{'MSGID'};
 			$R{'%MSG'} = {
 				'MSGID'=>$msgid,
-				'FORMAT'=>$BLAST::DEFAULTS::MSGS{$msgid}->{'MSGFORMAT'},
-				'OBJECT'=>( $BLAST::DEFAULTS::MSGS{$msgid}->{'MSGOBJECT'} || 'UNKNOWN' ),
-				'SUBJECT'=>$BLAST::DEFAULTS::MSGS{$msgid}->{'MSGSUBJECT'},
-				'BODY'=>$BLAST::DEFAULTS::MSGS{$msgid}->{'MSGBODY'},
+				'MSGFORMAT'=>$BLAST::DEFAULTS::MSGS{$msgid}->{'MSGFORMAT'},
+				'MSGOBJECT'=>( $BLAST::DEFAULTS::MSGS{$msgid}->{'MSGOBJECT'} || 'UNKNOWN' ),
+				'MSGSUBJECT'=>$BLAST::DEFAULTS::MSGS{$msgid}->{'MSGSUBJECT'},
+				'MSGBODY'=>$BLAST::DEFAULTS::MSGS{$msgid}->{'MSGBODY'},
 				'MODIFIED_TS'=>'0',
 				'CREATED_TS'=>'0',
 				};			
