@@ -2150,7 +2150,7 @@ sub __SYNC__ {
 		## now compare @PROMOS_WAS and @PROMOS_ISNOW
 		my $promos_was = join("|",sort @PROMOSTIDS_WAS);
 		my $promos_isnow = join("|",sort @PROMOSTIDS_NOW);
-		print STDERR "PROMO_WAS:$promos_was PROMO_NOW:$promos_isnow\n";
+		## print STDERR "PROMO_WAS:$promos_was PROMO_NOW:$promos_isnow\n";
 		if ($promos_was ne $promos_isnow) {
 			## alright so our promotions/coupons have changed, we *might* need to recompute shipping here.
 			warn "cart geometry has changed due to promotions, re-running shipping\n";

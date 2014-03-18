@@ -7014,7 +7014,6 @@ sub RENDER_ADDTOCART {
 			## Standard HTML Output  
 			##
 			# my @struct = &POGS::text_to_struct($USERNAME, $prod->{'zoovy:pogs'}, 1, $SITE->{'+cache'});
-			print STDERR "POG_STANDARD\n";
 			my ($pogs2) = $P->pogs();
 
 			# print STDERR 'POGS2: '.Dumper($pogs2);

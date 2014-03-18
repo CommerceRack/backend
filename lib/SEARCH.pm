@@ -1534,7 +1534,7 @@ sub search {
 			$INDEXED{$set->{'id'}} = $set;
 			}
 
-		print STDERR "ATTRIB: $CATREF->{'attribs'} [catalog:$catalog]\n";
+		# print STDERR "ATTRIB: $CATREF->{'attribs'} [catalog:$catalog]\n";
 		foreach my $attrib (split(/[\r\n,\s]+/,$CATREF->{'ATTRIBS'})) {
 			next if ($attrib eq '');
 			# print STDERR "ATTRIB: [$attrib]\n";
@@ -1629,7 +1629,7 @@ sub search {
 
 		if ($options{'debug'}) { $params{'explain'} = 'true'; }
 
-		$params{'type'} = 'product';
+		# $params{'type'} = 'product';
 		$params{'query'} = { 			
 			# query_string=>{ analyze_wildcard=>'true', fields=>\@FIELDS, query => $keywords, "default_operator"=>$mode } 
 			query_string=>{ fields=>\@FIELDS, query => $keywords, "default_operator"=>$mode } 
@@ -1660,10 +1660,8 @@ sub search {
 			$params{'query'} = $1;
 			}
 
-		print STDERR "DOING ELASTIC A\n";
-		open F, ">/dev/shm/elasticsearch.debug";
-		print F Dumper(\%params);
-		close F;
+		# print STDERR "DOING ELASTIC A\n";
+		# open F, ">/dev/shm/elasticsearch.debug"; print F Dumper(\%params); close F;
 		
 	   my $results = undef;
 		eval {
@@ -1672,8 +1670,7 @@ sub search {
 		#open F, ">>/tmp/elastic";
 		#print F Dumper($USERNAME,\%params);
 		#close F;
-
-		print STDERR "DONE ELASTIC A\n";
+		# print STDERR "DONE ELASTIC A\n";
 
 		if ($DEBUG) {	
 			require JSON::XS;
