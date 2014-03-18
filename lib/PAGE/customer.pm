@@ -14,7 +14,7 @@ require WHOLESALE;
 require ZPAY;
 require CART2;
 require CART2::VIEW;
-requite BLAST;
+require BLAST;
 
 $PAGE::customer::debug = 0;
 
