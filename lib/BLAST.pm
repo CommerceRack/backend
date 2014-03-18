@@ -113,12 +113,12 @@ sub send {
 		$sendmsg = Storable::dclone($msg);
 		bless $sendmsg, 'BLAST::MSG';
 
-		open F, ">/dev/shm/tlc";
-		print F Dumper({
-			'BODY'=>$sendmsg->body(),
-			'SUBJECT'=>$sendmsg->subject(),
-			'DATA'=>\%data});
-		close F;
+		#open F, ">/dev/shm/tlc";
+		#print F Dumper({
+		#	'BODY'=>$sendmsg->body(),
+		#	'SUBJECT'=>$sendmsg->subject(),
+		#	'DATA'=>\%data});
+		#close F;
 
 		my $tlc = TLC->new('username'=>$self->username());
 		($sendmsg->{'BODY'}) = $tlc->render_html($sendmsg->body(), \%data);
@@ -157,9 +157,9 @@ sub recipient {
 	my $class = "BLAST::RECIPIENT::$TYPE";
 	my ($recipient) = $class->new($self, @params);
 
-	open F, ">/tmp/msgclass";
-	print F Dumper($class,\@params,$recipient);
-	close F;
+	#open F, ">/tmp/msgclass";
+	#print F Dumper($class,\@params,$recipient);
+	#close F;
 
 	return($recipient);
 	}
