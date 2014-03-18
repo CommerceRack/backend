@@ -10532,7 +10532,7 @@ sub run_macro_cmds {
 			#$se->sendmail($pref->{'msg'},%msgparams);
 			#$se = undef;
 			my ($BLAST) = BLAST->new($self->username(),$self->prt());
-			my ($rcpt) = $BLAST->recipient('CUSTOMER',$self->customer(),{'%CART'=>$self,'%CUSTOMER'=>$self->customer()});
+			my ($rcpt) = $BLAST->recipient('CUSTOMER',$self->customer(),{'%ORDER'=>$self,'%CUSTOMER'=>$self->customer()});
 			if ($pref->{'msg'} eq 'PTELLAF') { $pref->{'msg'} = 'PRODUCT.SHARE'; }
 			my ($msg) = $BLAST->msg($pref->{'msg'});
 			$BLAST->send($rcpt,$msg);
@@ -13578,6 +13578,7 @@ sub TO_JSON {
 #		push @r, $i;
 #		}
 	$O{'@ITEMS'} = $self->stuff2()->TO_JSON();
+	delete $O{'*stuff2'};
 
 	return(\%O);
 	}

@@ -9098,15 +9098,20 @@ sub adminBlastMsg {
 				$R{'%MSG'}->{'%META'} = JSON::XS->new()->decode($R{'%MSG'}->{'METAJSON'});
 				}
 			delete $R{'%MSG'}->{'METAJSON'};
+			
+			$R{'%MSG'}->{'BODY'} = $R{'%MSG'}->{'MSGBODY'}; delete $R{'%MSG'}->{'MSGBODY'};
+			$R{'%MSG'}->{'FORMAT'} = $R{'%MSG'}->{'MSGFORMAT'}; delete $R{'%MSG'}->{'MSGFORMAT'};
+			$R{'%MSG'}->{'SUBJECT'} = $R{'%MSG'}->{'MSGSUBJECT'}; delete $R{'%MSG'}->{'MSGSUBJECT'};
+			$R{'%MSG'}->{'OBJECT'} = $R{'%MSG'}->{'MSGOBJECT'}; delete $R{'%MSG'}->{'MSGOBJECT'};
 			}
 		elsif (defined $BLAST::DEFAULTS::MSGS{$v->{'MSGID'}}) {
 			my $msgid = $v->{'MSGID'};
 			$R{'%MSG'} = {
 				'MSGID'=>$msgid,
-				'MSGFORMAT'=>$BLAST::DEFAULTS::MSGS{$msgid}->{'MSGFORMAT'},
-				'MSGOBJECT'=>( $BLAST::DEFAULTS::MSGS{$msgid}->{'MSGOBJECT'} || 'UNKNOWN' ),
-				'MSGSUBJECT'=>$BLAST::DEFAULTS::MSGS{$msgid}->{'MSGSUBJECT'},
-				'MSGBODY'=>$BLAST::DEFAULTS::MSGS{$msgid}->{'MSGBODY'},
+				'FORMAT'=>$BLAST::DEFAULTS::MSGS{$msgid}->{'MSGFORMAT'},
+				'OBJECT'=>( $BLAST::DEFAULTS::MSGS{$msgid}->{'MSGOBJECT'} || 'UNKNOWN' ),
+				'SUBJECT'=>$BLAST::DEFAULTS::MSGS{$msgid}->{'MSGSUBJECT'},
+				'BODY'=>$BLAST::DEFAULTS::MSGS{$msgid}->{'MSGBODY'},
 				'MODIFIED_TS'=>'0',
 				'CREATED_TS'=>'0',
 				};			

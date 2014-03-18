@@ -679,7 +679,6 @@ sub core_is {
 		else {
 			## print Dumper($command);
 			warn "'is' against unmatched: ".Dumper($arg)."\n";
-			die();
 			}
 		}
 

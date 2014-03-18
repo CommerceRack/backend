@@ -10,7 +10,8 @@ sub email { return(@_[0]->{'CONSOLE'}); }
 sub new {
 	my ($class, $BLASTER, $CONSOLE, $METAREF) = @_;
 
-	my $self = $METAREF || {};
+	my $self = {};
+	$self->{'%META'} = $METAREF || {};
 	$self->{'*BLASTER'} = $BLASTER;
 	bless $self, 'BLAST::RECIPIENT::CONSOLE';
 	return($self);

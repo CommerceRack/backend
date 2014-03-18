@@ -11,7 +11,8 @@ sub email { return($_[0]->{'EMAIL'}); }
 sub new {
 	my ($class, $BLASTER, $EMAIL, $METAREF) = @_;
 
-	my $self = $METAREF || {};
+	my $self = {};
+	$self->{'%META'} = $METAREF || {};
 	$self->{'*BLASTER'} = $BLASTER;
 	$self->{'EMAIL'} = $EMAIL;
 	bless $self, 'BLAST::RECIPIENT::EMAIL';

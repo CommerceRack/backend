@@ -3,6 +3,8 @@ package BLAST;
 use strict;
 use Data::Dumper;
 use Storable;
+use Scalar::Util;
+use Data::Structure::Util;
 
 
 #require BLAST::MSG::LEGACY;
@@ -86,15 +88,37 @@ sub send {
 
 	## MAKE A COPY OF ALL FIELDS
 	my $sendmsg = $msg;
-	if ($msg->format() eq 'HTML5') {
+
+
+	if ($msg->format() ne 'XXX') {
 		my %data = ();
 		foreach my $k (keys %{$msg->meta()}) { $data{$k} = $msg->meta()->{$k}; }
 		foreach my $k (keys %{$recipient->meta()}) { $data{$k} = $recipient->meta()->{$k}; }
 		foreach my $k (keys %{$self->meta()}) { $data{$k} = $self->meta()->{$k}; }
 
+		## now attempt to serialize any blessed objects
+		foreach my $k (keys %data) {
+			if ((substr($k,0,1) eq '%') && (ref($data{$k}) ne 'HASH')) {
+				## we have a %KEY which is not actually a hash
+				if ( Scalar::Util::blessed($data{$k}) && $data{$k}->can('TO_JSON') ) {
+					## run the TO_JSON function (which will return a unblessed, cloned copy)
+					$data{$k} = $data{$k}->TO_JSON();
+					} 
+				$data{$k} = Data::Structure::Util::unbless($data{$k});
+				}
+			}
+
+
 		## already, now create a new sendmsg that's a clone of the original msg
 		$sendmsg = Storable::dclone($msg);
 		bless $sendmsg, 'BLAST::MSG';
+
+		open F, ">/dev/shm/tlc";
+		print F Dumper({
+			'BODY'=>$sendmsg->body(),
+			'SUBJECT'=>$sendmsg->subject(),
+			'DATA'=>\%data});
+		close F;
 
 		my $tlc = TLC->new('username'=>$self->username());
 		($sendmsg->{'BODY'}) = $tlc->render_html($sendmsg->body(), \%data);
@@ -116,19 +140,26 @@ sub recipient {
 		## type "CART" isn't actually a valid destination (at this point) so we'll try and find the best route.
 		my ($CART2) = shift @params;
 		
-		if ($CART2->customerid()>0) {
-			($TYPE,@params) = ('CUSTOMER',$CART2->customer(),@params);
+		if ($CART2->customerid()>0) {			
+			($TYPE) = 'CUSTOMER';
+			unshift @params, $CART2->customer();
 			}
 		elsif ($CART2->in_get('bill/email') ne '') {
-			($TYPE,@params) = ('EMAIL',$CART2->in_get('bill/email'),@params);
+			($TYPE) = 'EMAIL';
+			unshift @params, $CART2->in_get('bill/email');
 			}
 		else {
-			($TYPE,@params) = ('CONSOLE',@params);
+			($TYPE) = 'CONSOLE';
+			unshift @params, '';
 			}
 		}
 
 	my $class = "BLAST::RECIPIENT::$TYPE";
 	my ($recipient) = $class->new($self, @params);
+
+	open F, ">/tmp/msgclass";
+	print F Dumper($class,\@params,$recipient);
+	close F;
 
 	return($recipient);
 	}
@@ -143,10 +174,10 @@ sub msg {
 	my ($msg) = BLAST::MSG->new($self,$MSGID,@params);
 
 	if ($msg->format() =~ /^(HTML|WIKI|TEXT|XML)$/) {
-		$self->{'BODY'} = &ZTOOLKIT::interpolate( $self->macros(), $self->{'BODY'} );
+		$msg->{'BODY'} = &ZTOOLKIT::interpolate( $self->macros(), $msg->{'BODY'} );
 		# use Data::Dumper; print Dumper(\%BLAST::MSG::LEGACY::TLC); die();
-		$self->{'SUBJECT'} = &ZTOOLKIT::interpolate( $self->macros(), $self->{'SUBJECT'} );
-		$self->{'FORMAT'} = 'HTML5';
+		$msg->{'SUBJECT'} = &ZTOOLKIT::interpolate( $self->macros(), $msg->{'SUBJECT'} );
+		$msg->{'FORMAT'} = 'HTML5';
 		}
 
 

@@ -9,7 +9,8 @@ use strict;
 sub new {
 	my ($class, $BLASTER, $EBAY2, $EBAYSite, $EBAYItemID, $EBAYQuestionType, $EBAYRecipientID, $METAREF) = @_;
 
-	my $self = $METAREF || {};
+	my $self = {};
+	$self->{'%META'} = $METAREF || {};
 	$self->{'*BLASTER'} = $BLASTER;
 	$self->{'*eb2'} = $EBAY2;
 	$self->{'%call'} = {};

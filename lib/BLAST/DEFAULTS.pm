@@ -721,7 +721,7 @@ bind $var '.notes'; apply --append;
 </template>
 |,	
 	#[ 'ORDER',
-	'%ORDERDATE%'=> q|<div data-tlc="bind $var '.%ORDER.our.created_ts'; datetime --gmt=$var --out='pretty'; apply --append;"></div>|,
+	'%ORDERDATE%'=> q|<div data-tlc="bind $var '.%ORDER.%our.order_ts'; datetime --gmt=$var --out='pretty'; apply --append;"></div>|,
 	'%TODAY%'=> q|<div data-tlc="datetime --now --out='ymd'; apply --append;"></div>|,
 	'%FULLNAME%'=> q|
 <span data-tlc="bind $var '.%CUSTOMER.INFO.FIRSTNAME'; apply --replace;"></span>

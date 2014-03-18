@@ -7,7 +7,8 @@ require BLAST::RECIPIENT::EMAIL;
 sub new {
 	my ($class, $BLASTER, $CUSTOMER, $METAREF) = @_;
 
-	my $self = $METAREF || {};
+	my $self = {};
+	$self->{'%META'} = $METAREF || {};
 	$self->{'*BLASTER'} = $BLASTER;
 	bless $self, 'BLAST::RECIPIENT::CUSTOMER';
 
