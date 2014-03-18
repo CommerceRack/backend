@@ -3,6 +3,8 @@ package BLAST::RECIPIENT::EMAIL;
 use strict;
 use parent 'BLAST::RECIPIENT';
 use Net::AWS::SES;
+use HTML::TreeBuilder;
+use CSS::Tiny;
 
 require MIME::Lite;
 
@@ -19,12 +21,21 @@ sub new {
 	return($self);
 	}
 
+##
+##
+##
 sub send {
 	my ($self, $msg) = @_;
 
 	my $RECIPIENT = $self->email();
 	my $BCC = $self->bcc();
 	my $BODY = $msg->body();
+
+#	open F, ">/tmp/email";
+#	print F $BODY;
+#	close F;
+	
+	$BODY = &emailify_html($BODY);
 
 	#my $FROM = $MSGREF->{'MSGFROM'};
 	my $webdbref = $self->blaster()->webdb();
@@ -109,5 +120,117 @@ sub send {
 
 	return(1);
 	}
+
+
+#####
+
+##
+## ebay doesn't allow base urls, or meta tags so this rewrites the document.
+##
+## my $html = File::Slurp::read_file('index.html');
+## print ebayify_html($html);
+##
+sub emailify_html {
+	my ($HTML) = @_;
+
+	my $tree = HTML::TreeBuilder->new(no_space_compacting=>1,ignore_unknown=>0,store_comments=>1); # empty tree
+	$tree->parse_content("$HTML");
+	my %META = ();
+
+	my $el = $tree->elementify();
+	&email_parseElement($el,\%META);
+	$HTML = $el->as_HTML();
+
+	$HTML =~ s/\<([\/]?[Mm][Ee][Tt][Aa].*?)\>/<!-- $1 -->/gs;   ## ebay doesn't allow metas
+	$HTML =~ s/\<([\/]?[Bb][Aa][Ss][Ee].*?)\>/<!-- $1 -->/gs;   ## ebay doesn't allow base urls
+	return($HTML);
+	}
+
+
+sub email_parseElement {
+	my ($el, $METAREF) = @_;
+
+	if ($el->tag() eq 'base') {
+		$METAREF->{'base'} = $el->attr('href');
+		}
+
+	if ($el->tag() eq 'a') {
+		## <a href="">
+		if ($METAREF->{'base'}) {
+			$el->attr('href',URI::URL->new($el->attr('href'),$METAREF->{'base'})->abs());
+			}
+		}
+	elsif ($el->tag() eq 'img') {
+		## <img src="">
+		my $src = $el->attr('src');
+ 			
+		if ($METAREF->{'base'} ne '') {
+			$el->attr('src',URI::URL->new($el->attr('src'),$METAREF->{'base'})->abs());			
+			}
+		elsif (substr($src,0,2) eq '//') { 
+			## gmail doesn't appreciate //www.domain.com urls
+			$el->attr('src','https:'.$el->attr('src'));
+			}
+		}
+	elsif ($el->tag() eq 'style') {
+		my $sheet = $el->as_HTML();
+		$sheet =~ s/\<[Ss][Tt][Yy][Ll][Ee].*?\>(.*)\<\/[Ss][Tt][Yy][Ll][Ee]\>/$1/s;
+		$sheet =~ s/\<\!\-\-(.*)\-\-\>/$1/s;
+
+		my $CSS = CSS::Tiny->new()->read_string($sheet);
+		foreach my $property (keys %{$CSS}) {
+			foreach my $k (keys %{$CSS->{$property}}) {
+				if ($CSS->{$property}->{$k} =~ /^[Uu][Rr][Ll]\((.*?)\)/) {
+					my $url = $1;
+					if ($METAREF->{'base'}) {
+						my $absurl = URI::URL->new($url,$METAREF->{'base'})->abs();
+						$CSS->{$property}->{$k} =~ s/^[Uu][Rr][Ll]\(.*?\)/url($absurl)/;
+						}
+					}
+				}
+			}
+		$sheet = $CSS->html();
+		my $sheetnode = HTML::Element->new('style','type'=>'text/css');
+		$sheetnode->push_content("<!-- \n".$CSS->write_string()."\n -->");
+		$el->replace_with($sheetnode);
+		}
+	
+	if (not $METAREF->{'base'}) {
+		}
+	elsif ($el->attr('style') ne '') {
+		## parse the style tag
+		# print $el->attr('style')."\n";
+		my $sheet = sprintf("style { %s }",$el->attr('style'));
+		my $CSS = CSS::Tiny->new()->read_string($sheet);
+		foreach my $k (keys %{$CSS->{'style'}}) {
+			if ($CSS->{'style'}->{$k} =~ /^[Uu][Rr][Ll]\((.*?)\)/) {
+				if ($METAREF->{'base'}) {
+					my $url = $1;
+					my $absurl = URI::URL->new($url,$METAREF->{'base'})->abs();
+					$CSS->{'style'}->{$k} =~ s/^[Uu][Rr][Ll]\(.*?\)/url($absurl)/;
+					}
+				}
+			}
+		$sheet = $CSS->write_string();
+		$sheet =~ s/\n/ /gs;
+		$sheet =~ s/\t/ /gs;
+		$sheet =~ s/[\s]+/ /gs;
+		$sheet =~ s/^.*?\{(.*)\}/$1/gs;
+		$sheet =~ s/^[\s]+//gs;
+		$sheet =~ s/[\s]+$//gs;
+		$el->attr('style',$sheet);
+		}
+
+	foreach my $elx (@{$el->content_array_ref()}) {
+		if (ref($elx) eq '') {
+			}
+		else {
+			&email_parseElement($elx,$METAREF);
+			}
+		}
+
+	}
+
+
 
 1;

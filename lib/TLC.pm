@@ -10,6 +10,8 @@ use Pegex::Tree::DataTLC;
 use POSIX qw(strftime);
 use JSON::XS;
 
+require ZOOVY;
+
 our $VERSION = '1.00';
 our $TLC_GRAMMAR = q!
 ##
