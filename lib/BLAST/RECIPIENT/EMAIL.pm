@@ -2,6 +2,7 @@ package BLAST::RECIPIENT::EMAIL;
 
 use strict;
 use parent 'BLAST::RECIPIENT';
+use Net::AWS::SES;
 
 require MIME::Lite;
 
