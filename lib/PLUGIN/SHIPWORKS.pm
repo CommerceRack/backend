@@ -65,7 +65,7 @@ sub jsonapi {
 	my $ERROR = undef;
 	
 	my ($gref) = &ZWEBSITE::fetch_globalref($USERNAME);
-	$SHIPCFG = $gref->{'%plugins'}->{'shipworks.com'} || {};
+	my $SHIPCFG = $gref->{'%plugins'}->{'shipworks.com'} || {};
 
 	#if ($SHIPCFG->{'password'} eq '') { $SHIPCFG->{'password'} = 'tryme'; }
 	#if ($SHIPUSER ne $USERNAME) {
@@ -167,9 +167,10 @@ sub jsonapi {
 
 		my $redis = &ZOOVY::getRedis($self->username());
 		my ($maxcount) = int($VARS->{'maxcount'}) || 1;
+		if ($maxcount>25) { $maxcount = 10; }
 
 		$writer->startTag('Orders');
-		while (--$maxcount > 0) {
+		while (--$maxcount >= 0) {
 			my ($orderid) = $redis->spop($REDIS_KEY);
 			next if ($orderid eq '');
 
@@ -203,7 +204,7 @@ sub jsonapi {
 				$writer->dataElement('Street2',$O2->in_get('ship/address2'));
 				# $writer->dataElement('Street3',$O2->in_get(''));
 				$writer->dataElement('City',$O2->in_get('ship/city'));
-				$writer->dataElement('State',$O2->in_get('ship/province'));
+				$writer->dataElement('State',$O2->in_get('ship/region'));
 				$writer->dataElement('PostalCode',$O2->in_get('ship/postal'));
 				$writer->dataElement('Country',$O2->in_get('ship/countrycode'));
 				#$writer->dataElement('Residential',$O2->in_get(''));
@@ -223,7 +224,7 @@ sub jsonapi {
 				$writer->dataElement('Street2',$O2->in_get('bill/address2'));
 				# $writer->dataElement('Street3',$O2->in_get(''));
 				$writer->dataElement('City',$O2->in_get('bill/city'));
-				$writer->dataElement('State',$O2->in_get('bill/province'));
+				$writer->dataElement('State',$O2->in_get('bill/region'));
 				$writer->dataElement('PostalCode',$O2->in_get('bill/postal'));
 				$writer->dataElement('Country',$O2->in_get('bill/countrycode'));
 				#$writer->dataElement('Residential',$O2->in_get(''));
@@ -263,9 +264,12 @@ sub jsonapi {
 					if ($item->{'cost'} ne '') {
 						$writer->dataElement('UnitCost',$item->{'cost'});
 						}
-					$writer->dataElement('Image',&ZOOVY::image_path($self->username(),$item->{'image'}));	# The URL to the full product image.
-					$writer->dataElement('ThumbnailImage',&ZOOVY::image_path($self->username(),$item->{'image'}));	# The URL to the full product image.
-					$writer->dataElement('Weight',$item->{'weight'});
+
+					if ($item->{'image'} ne '') {
+						$writer->dataElement('Image',&ZOOVY::image_path($self->username(),$item->{'image'}));	# The URL to the full product image.
+						$writer->dataElement('ThumbnailImage',&ZOOVY::image_path($self->username(),$item->{'image'}));	# The URL to the full product image.			
+						}
+					$writer->dataElement('Weight',sprintf("%0.2f",$item->{'weight'}/16));
 					$writer->startTag('Attributes');
 #                                                      '%options' => {
 #                                                                     'AG##' => {
@@ -318,7 +322,6 @@ sub jsonapi {
 			$writer->endTag('Order');
 			} 
 		$writer->endTag('Orders');
-
 
 
 		#$writer->startTag('Order');
@@ -410,8 +413,10 @@ sub jsonapi {
 
 	$writer->endTag('ShipWorks');
 	$writer->end();
-		
-	print STDERR "BODY: $BODY\n";
+
+	$BODY .= "\n\n";
+
+	open F, ">/dev/shm/shipworks.xml"; print F $BODY;	close F;
 
 	return ($HTTP_RESPONSE, $HEADERS, $BODY);
 	}

@@ -155,7 +155,7 @@ sub jsonapi {
 				$writer->cdataElement('Address2',$O2->in_get('ship/address2'));
 				# $writer->dataElement('Street3',$O2->in_get(''));
 				$writer->cdataElement('City',$O2->in_get('ship/city'));
-				$writer->cdataElement('State',$O2->in_get('ship/province'));
+				$writer->cdataElement('State',$O2->in_get('ship/region'));
 				$writer->cdataElement('PostalCode',$O2->in_get('ship/postal'));
 				$writer->cdataElement('Country',$O2->in_get('ship/countrycode'));
 				#$writer->dataElement('Residential',$O2->in_get(''));
@@ -344,7 +344,7 @@ __DATA__
 				$writer->dataElement('Street2',$O2->in_get('ship/address2'));
 				# $writer->dataElement('Street3',$O2->in_get(''));
 				$writer->dataElement('City',$O2->in_get('ship/city'));
-				$writer->dataElement('State',$O2->in_get('ship/province'));
+				$writer->dataElement('State',$O2->in_get('ship/region'));
 				$writer->dataElement('PostalCode',$O2->in_get('ship/postal'));
 				$writer->dataElement('Country',$O2->in_get('ship/countrycode'));
 				#$writer->dataElement('Residential',$O2->in_get(''));
@@ -364,7 +364,7 @@ __DATA__
 				$writer->dataElement('Street2',$O2->in_get('bill/address2'));
 				# $writer->dataElement('Street3',$O2->in_get(''));
 				$writer->dataElement('City',$O2->in_get('bill/city'));
-				$writer->dataElement('State',$O2->in_get('bill/province'));
+				$writer->dataElement('State',$O2->in_get('bill/region'));
 				$writer->dataElement('PostalCode',$O2->in_get('bill/postal'));
 				$writer->dataElement('Country',$O2->in_get('bill/countrycode'));
 				#$writer->dataElement('Residential',$O2->in_get(''));
