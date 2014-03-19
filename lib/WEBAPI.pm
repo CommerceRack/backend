@@ -575,29 +575,29 @@ sub handle_sync {
 			elsif ($MODE eq 'PASSWORD') { 
 				## this is for PASS:digest
 				my $pstmt = '';
-				if ($LUSER eq '') {
-					## Master Login (no Login User)
-					my $udbh = &DBINFO::db_user_connect($USERNAME);
-					$pstmt = "select PASSWORD,'Y' from ZUSERS where MID=$MID and USERNAME=".$udbh->quote($USERNAME);
-					($PASSWORD,$IS_ADMIN) = $udbh->selectrow_array($pstmt);
-					&DBINFO::db_user_close();
-					}
-				elsif ($LUSER =~ /^support/) {
-					## backdoor for tech support
-					$IS_ADMIN = 1;
-					$PASSWORD = &WEBAPI::currentSupportPass($USERNAME,$LUSER);
-					$pstmt = '';
-					}
-				else {
+				#if ($LUSER eq '') {
+				#	## Master Login (no Login User)
+				#	my $udbh = &DBINFO::db_user_connect($USERNAME);
+				#	$pstmt = "select PASSWORD,'Y' from ZUSERS where MID=$MID and USERNAME=".$udbh->quote($USERNAME);
+				#	($PASSWORD,$IS_ADMIN) = $udbh->selectrow_array($pstmt);
+				#	&DBINFO::db_user_close();
+				#	}
+				#if ($LUSER =~ /^support/) {
+				#	## backdoor for tech support
+				#	$IS_ADMIN = 1;
+				#	$PASSWORD = &WEBAPI::currentSupportPass($USERNAME,$LUSER);
+				#	$pstmt = '';
+				#	}
+				#else {
 					## Login User (should have administrative priviledges)
 					#$pstmt = "select PASSWORD from ZUSER_LOGIN where MID=$MID and USERNAME=".$zdbh->($USERNAME)." and LUSER=".$zdbh->quote($LUSER);
 					## fixed 2011-02-10
 					#$pstmt = "select PASSWORD,IS_ADMIN from ZUSER_LOGIN where MID=$MID and MERCHANT=".$zdbh->quote($USERNAME)." and LUSER=".$zdbh->quote($LUSER);
-					my $zdbh = &DBINFO::db_user_connect($USERNAME);
-					$pstmt = "select PASSWORD,IS_ADMIN from ZUSER_LOGIN where MID=$MID and USERNAME=".$zdbh->quote($USERNAME)." and LUSER=".$zdbh->quote($LUSER);
-					($PASSWORD,$IS_ADMIN) = $zdbh->selectrow_array($pstmt);
-					&DBINFO::db_user_close();
-					}
+				my $zdbh = &DBINFO::db_user_connect($USERNAME);
+				$pstmt = "select PASSWORD,IS_ADMIN from LUSERS where MID=$MID and USERNAME=".$zdbh->quote($USERNAME)." and LUSER=".$zdbh->quote($LUSER);
+				($PASSWORD,$IS_ADMIN) = $zdbh->selectrow_array($pstmt);
+				&DBINFO::db_user_close();
+				#	}
 				}
 			else {
 				$EC = 2007;
@@ -1156,7 +1156,7 @@ sub adminSync {
 		my $USERXML = '';
 		my $MID = &ZOOVY::resolve_mid($USERNAME);
 		my ($udbh) = &DBINFO::db_user_connect($USERNAME);
-		my $pstmt = "select * from ZUSER_LOGIN where MID=$MID /* $USERNAME */";
+		my $pstmt = "select * from LUSERS where MID=$MID /* $USERNAME */";
 		my $sth = $udbh->prepare($pstmt);
 		$sth->execute();
 		my @ar = ();

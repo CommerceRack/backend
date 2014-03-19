@@ -1172,14 +1172,10 @@ sub providerExec {
 		my ($LU) = LUSER->new_app($USERNAME,"admin");
 		$LU->log('ZOOVY.SUPPORT',"User $REMOTE_USER support login reason=[$note] ","INFO");
 
-		#open F, ">>/tmp/login.txt";
-		#print F time().",$REMOTE_USER,$USERNAME,$note\n";
-		#close F;
-	
 		$R{'version'} = $JSONAPI::VERSION;
 		$R{'%params'} = { 
 			"trigger"=>"support", "username"=>$USERNAME, "userid"=>$USERID,
-			"authtoken"=>$AUTHTOKEN, "deviceid"=>$DEVICEID, "flush"=>1 
+			"authtoken"=>$AUTHTOKEN, "deviceid"=>$DEVICEID,"flush"=>1 
 			};
 		}
 	else {
@@ -1872,17 +1868,6 @@ sub psgiinit {
 	elsif ($AUTHTOKEN ne '') {
 		## AUTHENTICATION: they are attempting to be a specific user
 		my $CLIENTINFO = &JSONAPI::lookup_client($CLIENTID);
-		#if (defined $R) {
-		#	}
-		#elsif ($CLIENTID eq '') {
-		#	&JSONAPI::set_error($R = {}, 'apperr', 2, "X-CLIENTID header or _clientid is required");
-		#	}
-		#elsif (not defined $CLIENTINFO) {
-		#	&JSONAPI::set_error($R = {}, 'apperr', 3, "X-CLIENTID header or _clientid is unfortunately invalid");
-		#	}
-		#elsif ($HEADERS->header('Origin') eq 'null') {
-		#	## clientid is always allowed from 'null'
-		#	}
 
 		if (defined $R) {
 			}
@@ -3753,7 +3738,7 @@ sub authAdminLogin {
 		else {
 			my ($udbh) = &DBINFO::db_user_connect($USERNAME);
 			my ($MID) = &ZOOVY::resolve_mid($USERNAME);
-			my $pstmt = "select LUSER from ZUSER_LOGIN where MID=$MID and EMAIL=".$udbh->quote($api->{'email'});
+			my $pstmt = "select LUSER from LUSERS where MID=$MID and EMAIL=".$udbh->quote($api->{'email'});
 			($LUSER) = $udbh->selectrow_array($pstmt);
 			&DBINFO::db_user_close();
 			if ($LUSER eq '') {
@@ -15530,7 +15515,7 @@ sub adminLUserTag {
 sub bossUser {
 	my ($self,$v) = @_;
 
-#mysql> desc ZUSER_LOGIN;
+#mysql> desc LUSERS;
 #+--------------------+----------------------------+------+-----+---------------------+----------------+
 #| Field              | Type                       | Null | Key | Default             | Extra          |
 #+--------------------+----------------------------+------+-----+---------------------+----------------+
@@ -15550,13 +15535,6 @@ sub bossUser {
 #| IS_CUSTOMERSERVICE | enum('Y','N')              | YES  |     | NULL                |                |
 #| IS_ADMIN           | enum('Y','N')              | YES  |     | NULL                |                |
 #| EXPIRES_GMT        | int(11)                    | NO   |     | 0                   |                |
-#| FLAG_SETUP         | int(11)                    | NO   |     | 0                   |                |
-#| FLAG_PRODUCTS      | int(11)                    | NO   |     | 0                   |                |
-#| FLAG_ORDERS        | int(11)                    | NO   |     | 0                   |                |
-#| FLAG_MANAGE        | int(11)                    | NO   |     | 0                   |                |
-#| FLAG_ZOM           | int(10) unsigned           | NO   |     | 0                   |                |
-#| FLAG_ZWM           | int(10) unsigned           | NO   |     | 0                   |                |
-#| FLAG_CRM           | int(10) unsigned           | NO   |     | 0                   |                |
 #| PASSWORD           | varchar(50)                | NO   |     | NULL                |                |
 #| PASSWORD_CHANGED   | datetime                   | NO   |     | 0000-00-00 00:00:00 |                |
 #| DT_CUID            | varchar(128)               | NO   |     | NULL                |                |
@@ -15588,7 +15566,7 @@ sub bossUser {
 		$UREF{'MID'} = $self->mid();
 		$UREF{'LUSER'} = $LOGIN;
 
-		my $pstmt = "select count(*) from ZUSER_LOGIN where MID=$MID and LUSER=".$udbh->quote($LOGIN);
+		my $pstmt = "select count(*) from LUSERS where MID=$MID and LUSER=".$udbh->quote($LOGIN);
 		my ($exists) = $udbh->selectrow_array($pstmt);
 
 		if ($v->{'_cmd'} eq 'bossUserCreate') {
@@ -15628,14 +15606,14 @@ sub bossUser {
 
 			if ($v->{'_cmd'} eq 'bossUserCreate') {
 				$self->accesslog('SETUP.USERMGR',"ACTION: CREATE SUB-USER: $LOGIN",'INFO');
-				my $pstmt = &DBINFO::insert($udbh,'ZUSER_LOGIN',\%UREF,'verb'=>'insert','sql'=>1);
+				my $pstmt = &DBINFO::insert($udbh,'LUSERS',\%UREF,'verb'=>'insert','sql'=>1);
 				print STDERR "$pstmt\n";
 				$udbh->do($pstmt);
 				}
 			if ($v->{'_cmd'} eq 'bossUserUpdate') {
 				$self->accesslog('SETUP.USERMGR',"ACTION: UPDATE SUB-USER: $LOGIN",'INFO');
 				delete $UREF{'LUSER'};
-				my $pstmt = &DBINFO::insert($udbh,'ZUSER_LOGIN',\%UREF,'verb'=>'update',key=>{'MID'=>$self->mid(),'LUSER'=>$LOGIN},'sql'=>1);
+				my $pstmt = &DBINFO::insert($udbh,'LUSERS',\%UREF,'verb'=>'update',key=>{'MID'=>$self->mid(),'LUSER'=>$LOGIN},'sql'=>1);
 				print STDERR "$pstmt\n";
 				$udbh->do($pstmt);
 				}
@@ -15647,14 +15625,14 @@ sub bossUser {
 		my ($MID) = $self->mid();
 		my $pstmt = '';
 		if ($v->{'_cmd'} eq 'bossUserList') {
-			$pstmt = "select UID,LUSER,FULLNAME,EMAIL,JOBTITLE,PHONE,CREATED_GMT,PASSWORD_CHANGED,ROLES from ZUSER_LOGIN where MID=$MID order by LUSER";
+			$pstmt = "select UID,LUSER,FULLNAME,EMAIL,JOBTITLE,PHONE,CREATED_GMT,PASSWORD_CHANGED,ROLES from LUSERS where MID=$MID order by LUSER";
 			}
 		if ($v->{'_cmd'} eq 'bossUserDetail') {
 			my $LOGIN = lc($v->{'login'});
 			if ($LOGIN eq '') {
 				&JSONAPI::set_error(\%R,'apperr',23094,'login parameter was not received');
 				}
-			$pstmt = "select * from ZUSER_LOGIN where MID=$MID and LUSER=".$udbh->quote($LOGIN);
+			$pstmt = "select * from LUSERS where MID=$MID and LUSER=".$udbh->quote($LOGIN);
 			}
 		print STDERR $pstmt."\n";
 		my $sth = $udbh->prepare($pstmt);
@@ -15689,14 +15667,17 @@ sub bossUser {
 		
 		my $LOGIN = lc($v->{'login'});
 		my $MID = $self->mid();
-		my $pstmt = "select count(*) from ZUSER_LOGIN where MID=$MID and LUSER=".$udbh->quote($LOGIN);
+		my $pstmt = "select count(*) from LUSERS where MID=$MID and LUSER=".$udbh->quote($LOGIN);
 		print STDERR "$pstmt\n";
 		my ($exists) = $udbh->selectrow_array($pstmt);
 
 		if (not &JSONAPI::validate_required_parameter(\%R,$v,'login')) {
 			}
+		elsif ($v->{'login'} eq 'admin') {
+			&JSONAPI::set_error(\%R,'youerr',23095,'Cannot remove the admin user');
+			}
 		elsif ($exists) {
-			my $pstmt = "delete from ZUSER_LOGIN where MID=$MID and LUSER=".$udbh->quote($LOGIN);
+			my $pstmt = "delete from LUSERS where MID=$MID and LUSER=".$udbh->quote($LOGIN);
 			print STDERR "$pstmt\n";
 			$udbh->do($pstmt);
 			}		
@@ -27045,7 +27026,7 @@ sub adminAccountDetail {
 		my $USERXML4XSL = '';
 		my $MID = &ZOOVY::resolve_mid($USERNAME);
 		my ($udbh) = &DBINFO::db_user_connect($USERNAME);
-		my $pstmt = "select * from ZUSER_LOGIN where MID=$MID /* $USERNAME */";
+		my $pstmt = "select * from LUSERS where MID=$MID /* $USERNAME */";
 		my $sth = $udbh->prepare($pstmt);
 		$sth->execute();
 		my @USERS = ();

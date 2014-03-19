@@ -365,26 +365,27 @@ sub create_authtoken {
 		$ERROR = "User: $USERNAME not found";
 		}
 	elsif ($options{'trusted'}==1) {
-		my ($udbh) = &DBINFO::db_user_connect($USERNAME);
-		my $pstmt = "select USERNAME,DATA,MID,CACHED_FLAGS,RESELLER from ZUSERS where MID=".$MID." /* $USERNAME */";
-		($dbresult) = $udbh->selectrow_hashref($pstmt);
+		#my ($udbh) = &DBINFO::db_user_connect($USERNAME);
+		#my $pstmt = "select USERNAME,DATA,MID,CACHED_FLAGS,RESELLER from ZUSERS where MID=".$MID." /* $USERNAME */";
+		#($dbresult) = $udbh->selectrow_hashref($pstmt);
+		$dbresult->{'USERNAME'} = $USERNAME;
+		$dbresult->{'MID'} = &ZOOVY::resolve_mid($USERNAME);
 		$dbresult->{'LUSER'} = $LUSERNAME;
 		push @MYROLES, 'BOSS';
-		&DBINFO::db_user_close();
+		# &DBINFO::db_user_close();
 		}
-	elsif ($LUSERNAME eq 'ADMIN') {
-		my ($udbh) = &DBINFO::db_user_connect($USERNAME);
-		my $pstmt = "select USERNAME,DATA,MID,CACHED_FLAGS,RESELLER from ZUSERS where MID=".$MID." /* $USERNAME */";
-		($dbresult) = $udbh->selectrow_hashref($pstmt);
-		$dbresult->{'LUSER'} = 'ADMIN';
-		if ($dbresult->{'CACHED_FLAGS'} =~ /,ZM,/) { $dbresult->{'HAS_EMAIL'} = 'Y'; }
-		push @MYROLES, 'BOSS';
-		&DBINFO::db_user_close();
-		}
+	#elsif ($LUSERNAME eq 'ADMIN') {
+	#	my ($udbh) = &DBINFO::db_user_connect($USERNAME);
+	#	my $pstmt = "select USERNAME,DATA,MID,CACHED_FLAGS,RESELLER from ZUSERS where MID=".$MID." /* $USERNAME */";
+	#	($dbresult) = $udbh->selectrow_hashref($pstmt);
+	#	$dbresult->{'LUSER'} = 'ADMIN';
+	#	if ($dbresult->{'CACHED_FLAGS'} =~ /,ZM,/) { $dbresult->{'HAS_EMAIL'} = 'Y'; }
+	#	push @MYROLES, 'BOSS';
+	#	&DBINFO::db_user_close();
+	#	}
 	else {
 		my ($udbh) = &DBINFO::db_user_connect($USERNAME);
-		my $pstmt = "select ZL.UID as UID, ZL.USERNAME as USERNAME, ZL.LUSER as LUSER, ZL.MID as MID, ZU.CACHED_FLAGS as CACHED_FLAGS, ";
-		$pstmt .= " ZL.EXPIRES_GMT, ZL.ROLES as ROLES from ZUSER_LOGIN ZL, ZUSERS ZU where ZU.MID=ZL.MID and ZL.MID=".$MID." /* $USERNAME */ and ZL.LUSER=".$udbh->quote($LUSERNAME);
+		my $pstmt = "select UID, USERNAME, LUSER, MID, EXPIRES_GMT, ROLES from LUSERS where MID=".$MID." /* $USERNAME */ and LUSER=".$udbh->quote($LUSERNAME);
 		($dbresult) = $udbh->selectrow_hashref($pstmt);
 		$dbresult->{'LUSER'} = $LUSERNAME;
 		&DBINFO::db_user_close();
@@ -457,13 +458,13 @@ sub verify_credentials {
 	my $REALHASHPASS = undef;
 	if ($ERROR) {
 		}
-	elsif ($LUSER eq 'admin') {
-		my $pstmt = "select $HASHTYPE(concat(password,$qtSECURITY)) from ZUSERS where MID=".$MID;
-		print STDERR $pstmt."\n";
-		($REALHASHPASS) = $udbh->selectrow_array($pstmt);
-		}
+	#elsif ($LUSER eq 'admin') {
+	#	my $pstmt = "select $HASHTYPE(concat(password,$qtSECURITY)) from ZUSERS where MID=".$MID;
+	#	print STDERR $pstmt."\n";
+	#	($REALHASHPASS) = $udbh->selectrow_array($pstmt);
+	#	}
 	else {
-		my $pstmt = "select $HASHTYPE(concat(password,$qtSECURITY)) from ZUSER_LOGIN where MID=".$MID." and LUSER=".$udbh->quote($LUSER);
+		my $pstmt = "select $HASHTYPE(concat(password,$qtSECURITY)) from LUSERS where MID=".$MID." and LUSER=".$udbh->quote($LUSER);
 		print STDERR $pstmt."\n";
 		($REALHASHPASS) = $udbh->selectrow_array($pstmt);
 		}

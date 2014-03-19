@@ -193,12 +193,10 @@ sub login {
 sub passmatches {
 	my ($self,$password) = @_;
 
-
 	$password = lc($password);		## passwords are case insensitive
 	if ($password eq '') { return(0); }		## never return true if password is not set.
 
 	my $MID = int($self->{'MID'});
-
 	my $UID = int($self->{'UID'});
 
 	my $udbh = &DBINFO::db_user_connect($self->username());
@@ -207,12 +205,8 @@ sub passmatches {
 	my $qtDIGEST = $udbh->quote($digest);
 
 	my $pstmt = '';
-	if ($self->{'UID'} == 0) {
-		$pstmt = "select count(*) from ZUSERS where MID=$MID /* $self->{'USERNAME'} */ and md5(lower(PASSWORD))=$qtDIGEST";
-		}
-	else {
-		$pstmt = "select count(*) from ZUSER_LOGIN where MID=$MID /* $self->{'USERNAME'} */ and UID=$UID and md5(lower(PASSWORD))=$qtDIGEST";
-		}
+	$pstmt = "select count(*) from LUSERS where MID=$MID /* $self->{'USERNAME'} */ and UID=$UID and md5(lower(PASSWORD))=$qtDIGEST";
+
 	print STDERR $pstmt."\n";
 	my $sth = $udbh->prepare($pstmt);
 	$sth->execute();
@@ -235,12 +229,7 @@ sub set_password {
 	my $UID = int($self->{'UID'});
 	my $qtPASS = $udbh->quote($password);
 	
-	if ($self->{'UID'} == 0) {
-		$pstmt = "update ZUSERS set PASSWORD_CHANGED=now(),PASSWORD=$qtPASS where MID=$MID /* $self->{'USERNAME'} */ limit 1";
-		}
-	else {
-		$pstmt = "update ZUSER_LOGIN set PASSWORD_CHANGED=now(),PASSWORD=$qtPASS where MID=$MID and UID=$UID /* $self->{'LUSER'} */";		
-		}
+	$pstmt = "update LUSERS set PASSWORD_CHANGED=now(),PASSWORD=$qtPASS where MID=$MID and UID=$UID /* $self->{'LUSER'} */";		
 	$udbh->do($pstmt);
 	&DBINFO::db_user_close();
 	}
@@ -349,13 +338,10 @@ sub save {
 		if (not defined $USERNAME) {
 			}
 		elsif (defined $LUSER) {
-			$pstmt = "update ZUSER_LOGIN set EMAIL=$qtEMAIL,DATA=".$qtDATA." where MID=".$MID." /* $USERNAME */ and LUSER=".$udbh->quote($self->{'LUSER'});
+			$pstmt = "update LUSERS set EMAIL=$qtEMAIL,DATA=".$qtDATA." where MID=".$MID." /* $USERNAME */ and LUSER=".$udbh->quote($self->{'LUSER'});
+			print STDERR "$pstmt\n";	
+			$udbh->do($pstmt);
 			}
-		else {
-			$pstmt = "update ZUSERS set EMAIL=$qtEMAIL,PHONE=$qtPHONE,DATA=".$qtDATA." where MID=".$MID." /* $USERNAME */";
-			}
-		print STDERR "$pstmt\n";
-		$udbh->do($pstmt);
 		
 
 		&DBINFO::db_user_close();
@@ -463,16 +449,9 @@ sub new_trusted {
 	if ($MID<=0) {
 		$ERROR = "User: $USERNAME not found";
 		}
-	elsif ($SUBUSER eq 'ADMIN') {
-		my ($udbh) = &DBINFO::db_user_connect($USERNAME);
-		my $pstmt = "select DATA from ZUSERS where MID=".$MID." /* $USERNAME */";
-		print STDERR "$pstmt\n";
-		$self = $udbh->selectrow_hashref($pstmt);
-		&DBINFO::db_user_close();
-		}
 	else {
 		my ($udbh) = &DBINFO::db_user_connect($USERNAME);
-		my $pstmt = "select UID, DATA from ZUSER_LOGIN where MID=".$MID." /* $USERNAME */ and LUSER=".$udbh->quote($SUBUSER);
+		my $pstmt = "select UID, DATA from LUSERS where MID=".$MID." /* $USERNAME */ and LUSER=".$udbh->quote($SUBUSER);
 		print STDERR "$pstmt\n";
 		$self = $udbh->selectrow_hashref($pstmt);
 		&DBINFO::db_user_close();
