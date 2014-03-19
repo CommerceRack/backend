@@ -9098,11 +9098,12 @@ sub adminBlastMsg {
 				$R{'%MSG'}->{'%META'} = JSON::XS->new()->decode($R{'%MSG'}->{'METAJSON'});
 				}
 			delete $R{'%MSG'}->{'METAJSON'};
-			
-			$R{'%MSG'}->{'BODY'} = $R{'%MSG'}->{'MSGBODY'}; delete $R{'%MSG'}->{'MSGBODY'};
-			$R{'%MSG'}->{'FORMAT'} = $R{'%MSG'}->{'MSGFORMAT'}; delete $R{'%MSG'}->{'MSGFORMAT'};
-			$R{'%MSG'}->{'SUBJECT'} = $R{'%MSG'}->{'MSGSUBJECT'}; delete $R{'%MSG'}->{'MSGSUBJECT'};
-			$R{'%MSG'}->{'OBJECT'} = $R{'%MSG'}->{'MSGOBJECT'}; delete $R{'%MSG'}->{'MSGOBJECT'};
+
+			## THESE FIELD WERE RENAMED AS PART OF A DB ALTER!			
+			#$R{'%MSG'}->{'BODY'} = $R{'%MSG'}->{'MSGBODY'}; delete $R{'%MSG'}->{'MSGBODY'};
+			#$R{'%MSG'}->{'FORMAT'} = $R{'%MSG'}->{'MSGFORMAT'}; delete $R{'%MSG'}->{'MSGFORMAT'};
+			#$R{'%MSG'}->{'SUBJECT'} = $R{'%MSG'}->{'MSGSUBJECT'}; delete $R{'%MSG'}->{'MSGSUBJECT'};
+			#$R{'%MSG'}->{'OBJECT'} = $R{'%MSG'}->{'MSGOBJECT'}; delete $R{'%MSG'}->{'MSGOBJECT'};
 			}
 		elsif (defined $BLAST::DEFAULTS::MSGS{$v->{'MSGID'}}) {
 			my $msgid = $v->{'MSGID'};
@@ -24226,6 +24227,7 @@ sub adminDebugShippingPromoTaxes {
 <input id="payments">include @PAYMENTS in response</input>
 <input id="shipping">include %SHIPPING in response</input>
 <input id="shipmethods">include @SHIPMENTS in response</input>
+<input id="blast">include %BLAST in response</input>
 </API>
 
 =cut
@@ -24556,6 +24558,14 @@ sub adminConfigDetail {
 		#	'inv_notify'=>$gref->{'inv_notify'},
 			'inv_website_remove'=>($gref->{'inv_rexceed_action'})?1:0,
 			}
+		}
+
+	if ($v->{'blast'}) {
+		## xxx
+		my ($webdb) = $self->webdbref();
+		$R{'%BLAST'} = {
+			'from_email'=>$webdb->{'from_email'},
+			};
 		}
 
 	## 'prt'
@@ -25704,7 +25714,7 @@ sub adminConfigMacro {
 		}
 
 	my $gref = undef;
-	my $webdb = &ZWEBSITE::fetch_website_dbref($USERNAME,$self->prt()); 
+	my $webdb = $self->webdbref();
 
 	my $FLAGS = '';
 	if (not &JSONAPI::hadError(\%R)) {
@@ -25729,6 +25739,9 @@ sub adminConfigMacro {
 					$webdb->{"%plugin.$PLUGIN"} = $params;
 					delete $params->{'plugin'};
 					}
+				}
+			elsif ($cmd eq 'BLAST/SET') {
+				$webdb->{'from_email'} = $params->{'from_email'};
 				}
 			elsif ($cmd eq 'GLOBAL/WMS') {
 				if (not defined $gref) { $gref = $self->globalref(); }
