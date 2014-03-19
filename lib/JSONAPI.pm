@@ -28616,7 +28616,8 @@ The file type may also be overridden in the header. See the CSV import documenta
 descriptions of the file. 
 </hint>
 <input id="filetype">PRODUCT|INVENTORY|CUSTOMER|ORDER|CATEGORY|REVIEW|REWRITES|RULES|LISTINGS</input>
-<input id="fileguid">guid from fileupload</input>
+<input id="fileguid" optional="1"> (required if base64 not set) guid from fileupload</input>
+<input id="base64" optional="1"> (required if fileguid not set) base64 encoded payload</input>
 <input id="[headers]">any specific headers for the file import</input>
 <output id="JOBID"></output>
 </API>
@@ -28780,6 +28781,19 @@ sub adminCSVImport {
 
 	my $DATA = undef;
 	if (&JSONAPI::hadError(\%R)) {
+		}
+	elsif ($v->{'base64'}) {
+		$DATA = MIME::Base64::decode_base64($v->{'base64'});
+		if ($DATA ne '') {
+			## base64 decode success
+			}
+		elsif ($v->{'base64'} eq '') {
+			&JSONAPI::set_error(\%R,'apperr',23412,'adminCSVImport base64 parameter was specified as blank');
+			}
+		else {
+			&JSONAPI::set_error(\%R,'iseerr',23411,'adminCSVImport could not decode base64 payload');
+			}
+		
 		}
 	elsif ($v->{'fileguid'} ne '') {
 		my ($pfu) = PLUGIN::FILEUPLOAD->new($self->username());
