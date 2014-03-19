@@ -128,7 +128,7 @@ sub list_roles {
 		'detail'=>'Looks up orders, tickets, customers, processes payment, issues credits, changes order contents and pricing.',
 		'%objects'=>{
 			'DOMAIN'=>{ 'L'=>'+' },
-			'ORDER'=>{'R'=>'+','C'=>'+','L'=>'+','S'=>'+'},
+			'ORDER'=>{'R'=>'+','U'=>'+','C'=>'+','L'=>'+','S'=>'+'},
 			'INVENTORY'=>{'R'=>'+','C'=>'+','L'=>'+','S'=>'+'},
 			'PRODUCT'=>{'R'=>'+','L'=>'+','S'=>'+'},
 			},
