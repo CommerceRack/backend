@@ -43,8 +43,8 @@ use strict;
 ## 
 $JSONAPI::MAX_CARTS_PER_SESSION = 8;
 
-$JSONAPI::VERSION = "201401";
-$JSONAPI::VERSION_MINIMUM = 201252;
+$JSONAPI::VERSION = "201402";
+$JSONAPI::VERSION_MINIMUM = 201312;
 @JSONAPI::TRACE = ();
 
 # http://api-writing.blogspot.com/2008/04/api-template.html
@@ -54,7 +54,7 @@ $JSONAPI::VERSION_MINIMUM = 201252;
 
 <SECTION>
 <h1>Version</h1>
-API RELEASE DATE: 2014/01
+API RELEASE DATE: 2014/02
 
 </SECTION>
 
@@ -173,14 +173,6 @@ use strict;
 %JSONAPI::CMDS = (
 	## LEGACY::
 
-	## 201304
-	'adminCustomerGet'=>[\&JSONAPI::adminCustomerDetail, { 'deprecated'=>201304, 'admin'=>1, }, 'admin', { 'CUSTOMER'=>'R' } ],
-	'adminCustomerLookup'=>[\&JSONAPI::adminCustomerSearch, { 'deprecated'=>201304, 'admin'=>1, }, 'admin', { 'CUSTOMER'=>'S' } ],
-	'appNewslettersList' =>[  \&JSONAPI::appNewsletterList,  { 'deprecated'=>201304 }, 'deprecated', ],
-	## 201311
-	'cartItemsAdd'=>[ \&JSONAPI::cartItemsAdd,  { 'deprecated'=>201311, }, 'deprecated', ],
-	'buyerPurchaseHistoryDetail'=>[ \&JSONAPI::buyerPurchaseHistoryDetail,  { 'deprecated'=>201311, 'buyer'=>1 }, 'customer', ],
-
 	## 201324
 	'adminWholesaleScheduleList'=>[ \&JSONAPI::adminPriceSchedule, { 'deprecated'=>201324, 'admin'=>1, }, 'admin', { 'CUSTOMER'=>'L' } ],
 
@@ -269,7 +261,6 @@ use strict;
 	'cartSet'=>[ \&JSONAPI::cartSet,  { }, 'cart', ],
 	'cartItemAppend'=>[ \&JSONAPI::cartItemAppend,  { 'cart'=>1 }, 'cart', ],
 	'cartDetail'=>[ \&JSONAPI::cartDetail,  { 'cart'=>1 }, 'cart', ],
-	'cartItemsAddSerialized'=>[ \&JSONAPI::cartItemsAddSerialized, { 'cart'=>1 }, 'cart', ],
 	'cartItemUpdate'=>[ \&JSONAPI::cartItemUpdate,  { 'cart'=>1 }, 'cart', ],
 	'cartCSRShortcut'=>[ \&JSONAPI::cartCSRShortcut, { 'cart'=>1 }, 'cart', ],	# 6 digit id for call center {} ],
 	'cartShippingMethods'=>[ \&JSONAPI::cartShippingMethods,  { 'cart'=>1 }, 'cart', ],	
@@ -1816,9 +1807,6 @@ sub psgiinit {
 	elsif (my $CLIENTINFO = OAUTH::lookup_client($CLIENTID)) {
 		$self->{'CLIENTID'} = $CLIENTID;
 		}
-	elsif ($self->apiversion()<201301) {
-		## versions before 201252 don't *require* clientid
-		}
 	else {
 		&JSONAPI::set_error($R = {}, 'apperr', 6, sprintf("CLIENTID not registered."));
 		}
@@ -1937,15 +1925,7 @@ sub psgiinit {
 	elsif ($self->is_config_js()) {
 		## we're being init'd for config.js, nothing to see here.
 		}
-	elsif ($self->apiversion()<201310) {
-		if (defined $v->{'_cartid'}) {
-			## version 201247 to 201310 pass $v->{'_cartid'} at the root level with @cmds and cmd=pipeline
-			## $self->PRE201311cartid($v->{'_cartid'});
-			$self->sessionInit($v->{'_cartid'});
-			$self->PRE201311cartid($v->{'_cartid'});			
-			}
-		}
-	elsif ($self->apiversion()>201310) {
+	else {
 		## version 201311+ 
 		##		pass $v->{'_session'} at the root level with @cmds and cmd=pipeline
 		my $session = $HEADERS->header('x-session');
@@ -2360,19 +2340,10 @@ sub sessionInit {
 	## 
 	## backward compatibility - this stuff is *probably* necessary as long as there are still vstores
 	##
-	if ($self->apiversion() < 201311) {
-		## versions before 201311 only support one cart and it's called *CART2
-		($self->{'*CART2'}) = values %{ $self->{'%CARTS'} };
-		if (($self->{'*CUSTOMER'}) && (defined $self->{'*CART2'})) {
-			$self->{'*CART2'}->customer( $self->{'*CUSTOMER'} );
-			}
-		}
-	else {
-		## versions after 201311 store customer auth in the session and simply update the cart
-		if ($self->{'*CUSTOMER'}) {
-			foreach my $cartid (keys %{$self->{'%CARTS'}}) {
-				$self->{'%CARTS'}->{ $cartid }->customer( $self->{'*CUSTOMER'} );
-				}
+	## versions after 201311 store customer auth in the session and simply update the cart
+	if ($self->{'*CUSTOMER'}) {
+		foreach my $cartid (keys %{$self->{'%CARTS'}}) {
+			$self->{'%CARTS'}->{ $cartid }->customer( $self->{'*CUSTOMER'} );
 			}
 		}
 
@@ -2386,18 +2357,6 @@ sub sessionSave {
 	my ($self) = @_;
 
 	my %DATA = ();
-
-	if ($self->apiversion() < 201311) {
-		## versions before 201311 used *CART2 and the customer auth was part of the cart object
-		## so we'll upgrade the auth for the session so it 
-		if (defined $self->{'*CART2'}) {
-			$self->{'%CARTS'}->{ $self->{'*CART2'}->cartid() } = $self->{'*CART2'};
-			if (defined $self->{'*CART2'}->customer()) {
-				$self->{'*CUSTOMER'} = $self->{'*CART2'}->customer();
-				}
-			}
-		}
-
 
 	print STDERR sprintf("!!!! SAVE SESION: %s [%s]\n",$self->sessionid(),$self->username());
 
@@ -2436,42 +2395,19 @@ sub sessionSave {
 		}
 
 	
-	if ($self->apiversion() < 201311) {
-		# print STDERR Dumper($self);
-		if (not defined $self->{'*CART2'}) {
-			# no cart
+	## version 201311 started using %CARTS (with multi-cart support)
+	foreach my $cartid (keys %{$self->{'%CARTS'}}) {
+		print STDERR "SAVING CART: $cartid\n";
+		if ((not defined $self->{'%CARTS'}->{$cartid}) || (ref($self->{'%CARTS'}->{$cartid}) ne 'CART2')) {
+			warn "sessionSave attempt to save a cart object $cartid that is invalid\n";
 			}
-		elsif (ref($self->{'*CART2'}) ne 'CART2') {
-			warn "CART2 appears to be corrupt\n";
-			}
-		elsif ($self->{'*CART2'}->is_readonly()) {
+		elsif ($self->{'%CARTS'}->{$cartid}->is_readonly()) {
 			## no saving for you!
 			}
-		elsif ($self->{'*CART2'}->is_order()) {
-			warn "CART2 called order_save\n";
-			$self->{'*CART2'}->order_save();
-			}
-		elsif ($self->{'*CART2'}->is_cart()) {	
-			warn "CART2 called cart_save\n";
-			$self->{'*CART2'}->cart_save();
+		else {
+			$self->{'%CARTS'}->{$cartid}->cart_save();
 			}
 		}
-	else {
-		## version 201311 started using %CARTS (with multi-cart support)
-		foreach my $cartid (keys %{$self->{'%CARTS'}}) {
-			print STDERR "SAVING CART: $cartid\n";
-			if ((not defined $self->{'%CARTS'}->{$cartid}) || (ref($self->{'%CARTS'}->{$cartid}) ne 'CART2')) {
-				warn "sessionSave attempt to save a cart object $cartid that is invalid\n";
-				}
-			elsif ($self->{'%CARTS'}->{$cartid}->is_readonly()) {
-				## no saving for you!
-				}
-			else {
-				$self->{'%CARTS'}->{$cartid}->cart_save();
-				}
-			}
-		}
-
 
 	return();
 	}
@@ -2483,51 +2419,6 @@ sub sessionid {
 	}
 
 
-sub PRE201311cartid { 
-	if (defined $_[1]) { $_[0]->{'CARTID'} = $_[1]; } return($_[0]->{'CARTID'}); 
-	}
-
-sub PRE201311cart2 { 
-	my ($self, %params) = @_;
-
-	if ($self->apiversion() > 201310) {
-		my $result = undef;
-		warn sprintf("PRE201311cart2 called at API release: %s by %s",$self->apiversion(),join("|",caller(0)));
-		}
-	elsif ($self->apiversion() > 201245) {
-		## this is how it SHOULD work --- it assumes *CART2 is setup properly by JSONAPI in it's init stage
-		my $result = undef;
-		if ((defined $_[0]->{'*CART2'})?1:0) {
-			## it's all good, already loaded ?? [maybe we should match cartid]?? nahh..
-			$result = $self->{'*CART2'};
-			}
-		elsif (defined $params{'try'}) {
-			## this was probably sent to us by appCartExists
-			$result = $self->{'*CART2'} = CART2->new_persist($self->username(),$self->prt(),$params{'try'},'is_fresh'=>0);  
-			}
-		elsif ($params{'create'}) {
-			my $IP = $ENV{'REMOTE_ADDR'};
-			$result = $self->{'*CART2'} = CART2->new_persist($self->username(),$self->prt(),$params{'create'},'is_fresh'=>1,'ip'=>$IP);
-			}
-		return($result);
-		}
-	#else {
-	#	if (not defined $self->{'*CART2'}) { 
-	#		## versions 201245 and below
-	#		warn Carp::cluck("creating a new_memory cart for cartid:".$self->PRE201311cartid()."\n");
-	#	
-	#		$self->{'*CART2'} = CART2->new_memory($self->username(),$self->prt(),'cartid'=>$self->PRE201311cartid());  
-	#		if ($self->customer()) {
-	#			## we have a customer, share it with this cart.
-	#			$self->{'*CART2'}->customer($self->customer()); 
-	#			}
-	#		}
-	#	return($self->{'*CART2'}); 
-	#	}
-
-	## NEVER REACHED	
-	die();
-	}
 
 sub gref { return(&JSONAPI::globalref(@_)); }	## legacy name
 sub globalref {
@@ -2557,33 +2448,8 @@ sub webdb {
 sub customer { 
 	my ($self, $C) = @_;
 
-	## if we have a cart2 , let the cart2 know.. provide the cart2 also doesn't have the same customer
-	if ($self->apiversion() < 201311) {
-		## in version 201311 we switched from *CART2 authentication to just storing the buyer in the session.
-		if (defined $C) { 
-			$self->{'*CUSTOMER'} = $C; 
-			## if we have a cart2 - update that as well
-			if (defined $self->PRE201311cart2()) {
-				$self->PRE201311cart2()->customer($C);
-				}
-			}
-	
-		if (defined $self->{'*CUSTOMER'}) {
-			}
-		elsif ($self->PRE201311cart2()->customer()) {
-			## this is a temporary case until we can store the customer inside the json session itself
-			$self->{'*CUSTOMER'} = $self->PRE201311cart2()->customer();
-			}
-		elsif ($self->PRE201311cart2()->__GET__('customer/cid')>0) {
-			my ($C) = CUSTOMER->new($self->username(),'PRT'=>$self->prt(),'CID'=>$self->PRE201311cart2()->__GET__('customer/cid'),'INIT'=>0xFF);
-			$self->PRE201311cart2()->customer($C);
-			$self->{'*CUSTOMER'} = $C;
-			}
-		}
-	else {
-		if (defined $C) { 
-			$self->{'*CUSTOMER'} = $C; 
-			}
+	if (defined $C) { 
+		$self->{'*CUSTOMER'} = $C; 
 		}
 
 	return($self->{'*CUSTOMER'}); 
@@ -2793,36 +2659,14 @@ sub isLoggedIn {
 
 	my $success = 0;
 	
-	if ($self->apiversion() < 201311) {
-		## in version 201311 we switched from *CART2 authentication to just storing the buyer in the session.
-		my $CART2 = $self->PRE201311cart2();
-		if (not defined $CART2) {
-			&JSONAPI::set_error($R,'iseerr',111,"Invalid or Corrupted Cart");
-			}
-		elsif ($self->PRE201311cart2()->__GET__('customer/cid') > 0) {
-			## this is the most reliable way to tell if a person is logged in
-			$success = $self->PRE201311cart2()->__GET__('customer/cid');
-			}
-		elsif (not $self->PRE201311cart2()->customer()) {
-			&JSONAPI::set_error($R,'apperr',137,"Cart Authentication is required to make this call");
-			}
-		elsif (ref($self->PRE201311cart2()->customer()) ne 'CUSTOMER') {
-			&JSONAPI::set_error($R,'apperr',124,"Customer object is not valid, or customer is not logged in.");
-			}
-		else {
-			$success = $self->customer()->cid();
-			}
+	if (not $self->customer()) {
+		&JSONAPI::set_error($R,'apperr',123,"Buyer Authentication is required to make this call");
+		}
+	elsif (ref($self->customer()) ne 'CUSTOMER') {
+		&JSONAPI::set_error($R,'apperr',124,"Customer object is not valid, or customer is not logged in.");
 		}
 	else {
-		if (not $self->customer()) {
-			&JSONAPI::set_error($R,'apperr',123,"Buyer Authentication is required to make this call");
-			}
-		elsif (ref($self->customer()) ne 'CUSTOMER') {
-			&JSONAPI::set_error($R,'apperr',124,"Customer object is not valid, or customer is not logged in.");
-			}
-		else {
-			$success = $self->customer()->cid();		
-			}
+		$success = $self->customer()->cid();		
 		}
 
 	return($success);
@@ -3115,173 +2959,9 @@ sub handle {
 	#elsif (($self->clientid() eq 'admin') && ($self->apiversion()<=201320)) {
 	#	&JSONAPI::set_error(\%R,'apperr',186,'To prevent data corruption, this version of the app is no longer available.');
 	#	}	
-	elsif ($self->apiversion()<201311) {
+	elsif ($self->apiversion()>201311) {
 		##
-		##	versions below 201311 will fail the whole/entire command stack when a single call's authentication
-		##  requirements aren't satisified.
-		##
-		my $cart_is_required = 0;
-		my $buyer_is_required = 0;
-		my $admin_is_required = 0;
-		my @BUYER_REQUIRED = ();
-
-		foreach my $cmd (@CMDLINES) {
-
-			my ($function) = $JSONAPI::CMDS{ $cmd->[1]->{'_cmd'} };
-			next if (not defined $function);
-
-			my $cmdv = $cmd->[1];
-			my $cmdr = $cmd->[2];
-			$APICALLS{ $cmd->[1]->{'_cmd'} }++;		## appCartExists=>1, etc.
-
-			## if a call doesn't have a 'cartid'=>1|0 set, then default to '1'
-			## ex: appCartCreate, appAdminInit, appCartExists do not require _cartid
-			if (not defined $function->[1]->{'admin'}) { $function->[1]->{'admin'} = 0; } 	
-			if ($function->[1]->{'admin'} == 1) {
-				## admin calls do not require cart
-				$admin_is_required++;
-				}
-
-			## buyer functions often allow soft-auth
-			if (not defined $function->[1]->{'buyer'}) {
-				}
-			elsif ($function->[1]->{'buyer'}==0) {
-				## NO SOFT AUTHENTICATION
-				$buyer_is_required |= int($function->[1]->{'buyer'});
-				}
-			elsif ( $cmd->[1]->{'_cmd'} eq 'buyerAddressList' ) {
-				## this does NOT require buyer_is_required (it just really likes it)
-				}
-			elsif ((($function->[1]->{'buyer'}&2)==2) && (defined $cmdv->{'softauth'}) && ($cmdv->{'softauth'} eq 'order')) {
-				push @BUYER_REQUIRED,  $cmd->[1]->{'_cmd'};
-				##
-				## SOFT AUTHENTICATION
-				## softauth is requested, and allowed so lets try that.
-				##
-				my ($orderid) = ($cmdv->{'orderid'});
-				if ((not defined $orderid) || ($orderid eq '')) { $orderid = undef; }
-				if ((not defined $orderid) && ($cmdv->{'erefid'} ne '')) {
-					## lookup by erefid if orderid was not specified
-					($orderid) = CART2::lookup($self->username(),'EREFID'=>$cmdv->{'erefid'});
-					}
-
-				my ($O2,$err) = (undef,undef);
-				if ($orderid eq '') {
-					&JSONAPI::set_error($cmdr,'apperr',184,'Soft-auth failure: order could not be found using orderid or erefid');
-					}
-				else {
-					($O2) = CART2->new_from_oid($self->username(),$orderid);
-					if (not defined $O2) {
-						&JSONAPI::set_error($cmdr,'iseerr',180,sprintf('Soft-auth order error: %s',$err));
-						}
-					}
-
-				if (&hadError($cmdr)) {
-					## something went wrong, if we didn't go here, then $O2 is assumed to be valid.
-					$O2 = undef;
-					}	
-				elsif ($O2->in_get('cart/cartid') eq '') {		
-					&JSONAPI::set_error($cmdr,'apperr',185,'Soft-auth failure: cartid was specified in order.');
-					$O2 = undef;
-					}
-				elsif ($O2->in_get('cart/cartid') ne $cmdv->{'cartid'}) {
-					&JSONAPI::set_error($cmdr,'apperr',186,'Soft-auth failure: supplied cartid does not match order');
-					$O2 = undef;
-					}
-				else {
-					$cmdv->{'orderid'} = $O2->oid();
-					$CACHE{ sprintf("*CART2[%s]",$O2->oid()) } = $O2;
-					}
-
-				if (not defined $O2) {
-					$buyer_is_required |= int($function->[1]->{'buyer'});
-					}
-				## END BUYER/ORDER SOFTAUTH
-				}
-			elsif (defined $function->[1]->{'buyer'}) { 
-				## NO softauth, buyer is required.
-				$buyer_is_required |= int($function->[1]->{'buyer'});	
-				push @BUYER_REQUIRED,  '*'.$cmd->[1]->{'_cmd'};
-				}
-			 }
-	
-		## instantiate a cart if we need one.
-		#if (substr($v->{'_cartid'},0,1) eq '*') {
-		#	## ignore admin session cartids, they can't have carts!
-		#	}
-		
-		## CAN HAS BEEN KICKED.
-		#if ($self->apiversion()<201246) {
-		#	## we need to try and instantiate a cart if appCartExists is being called
-		#	if ($APICALLS{'appCartExists'}) { $cart_is_required |= 1; }
-		#	}
-
-		if (($self->clientid() eq '1pc') && ($self->apiversion()<201249)) {
-			## this is just a cheap backward compatibility hack for 1pc -- we ALWAYS need a cart.
-			if ($APICALLS{'appCartExists'}) { $cart_is_required |= 1; }
-			}
-
-		if ($cart_is_required || $buyer_is_required) {
-			if (defined $self->{'*CART2'}) { 
-				## woot already got this.
-				}
-			#elsif (($self->apiversion()<201239) && (ref($v->{'_cartid'}) eq 'JSON::XS::Boolean')) {
-			#	## there was a bug in releases pre 201239 that caused it to return _cartid:false 
-			#	$self->{'*CART2'} = CART2->new_persist($self->username(),$self->prt(),&CART2::generate_cart_id(),'is_fresh'=>1); 
-			#	}
-			elsif ((defined $v->{'_cartid'}) || ($v->{'_cartid'} ne '')) {
-				$self->{'*CART2'} = CART2->new_persist($self->username(),$self->prt(),$v->{'_cartid'},'cartid'=>$v->{'_cartid'},'is_fresh'=>0);  
-				}
-			else {
-				$self->{'*CART2'} = CART2->new_memory($self->username(),$self->prt());
-				}
-
-			if (not $TRACE) {
-				}
-			elsif (not defined $self->PRE201311cart2()) {
-				push @JSONAPI::TRACE, sprintf("object->cart2 is not defined after cart_is_required");
-				}
-			else {
-				push @JSONAPI::TRACE, sprintf("cart _cartid:%s cart_digest:%s",$self->PRE201311cart2()->cartid(),$self->PRE201311cart2()->digest());
-				}
-
-			## buyer authentication
-			if (not $buyer_is_required) {
-				}
-			elsif (&hadError(\%R)) {
-				## something bad already happened.
-				}
-			elsif ($self->isLoggedIn(\%R,$v)) {
-				## woot, we're logged in, we should setup some buyer stuff to make it easier.
-				}
-			# my $try_softauth = $self->webdb()->{'order_status_disable_login'};
-			elsif ( (($buyer_is_required & 2)==2) && ( $v->{'softauth'} eq 'order' ) ) {
-				}
-			elsif ($self->apiversion() < 201314) {
-				&JSONAPI::set_error(\%R, 'warning', 89, 'Call(s) on stack requires customer authentication : Calls ['.join(';',@BUYER_REQUIRED).'] v.'.$self->apiversion());
-				}
-			else {
-				&JSONAPI::set_error(\%R, 'apperr', 89, 'Call requires customer authentication');
-				}
-
-			## admin authentication
-			if (not $admin_is_required) {
-				}
-			elsif (&hadError(\%R)) {
-				## something bad already happened.
-				}
-			elsif ($self->is_admin()) {
-				}
-			else {
-				($R{'_rcmd'},$R{'errid'},$R{'errmsg'}) = ('err',150,sprintf('Admin session is required'));
-				}
-			}
-	
-
-		}
-	elsif ($self->apiversion()>=201311) {
-		##
-		## version 201311+ can fail a 
+		## version 201311+ can fail a command based strictly on permissions/formatting
 		##
 
 		foreach my $cmdline (@CMDLINES) {
@@ -5023,15 +4703,6 @@ sub adminOrderDetail {
 	elsif (not $self->checkACL(\%R,'ORDER','R')) {
 		## this will set it's own error
 		}
-	#elsif ($self->apiversion() < 201239) {
-	#	my %j = ();
-	#	## white list of variables output in the cart
-	#	foreach my $k (keys %{$self}) {
-	#		$j{$k} = $self->{$k};
-	#		}
-	#	$j{'stuff'} = $self->stuff2();
-	#	$R{'order'} = \%j;
-	#	}
 	else {
 		%R = %{$CART2->jsonify()};
 		}
@@ -9060,7 +8731,7 @@ sub adminBlastMacro {
 <input id="MSGID">ORDER.CREATED</input>
 <input id="RECIEVER">EMAIL|CUSTOMER|GCN|APNS|ADN</input>
 <input id="EMAIL" optional="1" hint="only if RECIPIENT=EMAIL">user@domain.com</input>
-<input id="
+<input id=""></input>
 </API>
 
 
@@ -16806,63 +16477,46 @@ sub whoAmI {
 			}
 		}
 
-	if ($self->apiversion()<201311) {
-		## in version 201311 we switched from *CART2 authentication to just storing the buyer in the session.
-		if (not defined $self->PRE201311cart2()) {
-			&JSONAPI::set_error(\%R,'apperr',8000,'Cart is not valid.');		
+	##
+	##	in version 201311 we switched from using *CUSTOMER in CART2 to using a customer object linked to the
+	##		session .. this causes a bunch of *fun* (not really) issues with vstore, etc.
+	##
+
+	if ($self->clientid() eq '1pc') {
+		## this is specifically to address an issue with legacy vstore, where the the customer is stored in the cart
+		## there can be only one cart in these circumstances and we must have it as _cartid
+		if (ref($self->customer()) eq 'CUSTOMER') {
+			## we're already cool. 
 			}
-		elsif ($self->customer()) {
-			$R{'cid'} = $self->customer()->cid();
-			$R{'email'} = $self->customer()->email();
+		elsif (not $v->{'_cartid'}) {
+			## no cart id, this will not go well.
 			}
 		else {
-			&JSONAPI::append_msg_to_response(\%R,'warning',8001,'Sorry, but we have no clue who you are.');		
+			## alright, no NEW CUSTOMER, so we need to try and lookup old customer. 
+			my $CART2 = undef;
+			if ((defined $self->{'%CARTS'}) && ($self->{'%CARTS'}->{$v->{'_cartid'}})) {
+				$CART2 = $self->{'%CARTS'}->{$v->{'_cartid'}};
+				}
+			if (not $CART2) {
+				$CART2 = CART2->new_persist($self->username(),$self->prt(),$v->{'_cartid'},'is_fresh'=>0); 
+				}
+
+			if ((defined $CART2) && (ref($CART2) eq 'CART2')) {
+				if ($CART2->in_get('customer/cid')>0) {
+					$self->{'#CUSTOMER'} = $CART2->in_get('customer/cid');
+					$self->{'*CUSTOMER'} = CUSTOMER->new($self->username(), 'PRT'=>$self->prt(), 'CID'=>$self->{'#CUSTOMER'}, 'INIT'=>0x1);
+					}
+				}
 			}
+		}
+
+	if (ref($self->customer()) eq 'CUSTOMER') {
+		$R{'cid'} = $self->customer()->cid();
+			$R{'email'} = $self->customer()->email();
 		}
 	else {
-		##
-		##	in version 201311 we switched from using *CUSTOMER in CART2 to using a customer object linked to the
-		##		session .. this causes a bunch of *fun* (not really) issues with vstore, etc.
-		##
-
-		if ($self->clientid() eq '1pc') {
-			## this is specifically to address an issue with legacy vstore, where the the customer is stored in the cart
-			## there can be only one cart in these circumstances and we must have it as _cartid
-			if (ref($self->customer()) eq 'CUSTOMER') {
-				## we're already cool. 
-				}
-			elsif (not $v->{'_cartid'}) {
-				## no cart id, this will not go well.
-				}
-			else {
-				## alright, no NEW CUSTOMER, so we need to try and lookup old customer. 
-				my $CART2 = undef;
-				if ((defined $self->{'%CARTS'}) && ($self->{'%CARTS'}->{$v->{'_cartid'}})) {
-					$CART2 = $self->{'%CARTS'}->{$v->{'_cartid'}};
-					}
-				if (not $CART2) {
-					$CART2 = CART2->new_persist($self->username(),$self->prt(),$v->{'_cartid'},'is_fresh'=>0); 
-					}
-
-				if ((defined $CART2) && (ref($CART2) eq 'CART2')) {
-					if ($CART2->in_get('customer/cid')>0) {
-						$self->{'#CUSTOMER'} = $CART2->in_get('customer/cid');
-						$self->{'*CUSTOMER'} = CUSTOMER->new($self->username(), 'PRT'=>$self->prt(), 'CID'=>$self->{'#CUSTOMER'}, 'INIT'=>0x1);
-						}
-					}
-				}
-			}
-
-		if (ref($self->customer()) eq 'CUSTOMER') {
-			$R{'cid'} = $self->customer()->cid();
-			$R{'email'} = $self->customer()->email();
-			}
-		else {
-			&JSONAPI::append_msg_to_response(\%R,'warning',8001,'Sorry, but we have no clue who you are.');		
-			}
+		&JSONAPI::append_msg_to_response(\%R,'warning',8001,'Sorry, but we have no clue who you are.');		
 		}
-
-	# print STDERR Dumper($CART2);
 
 	return(\%R);
 	}
@@ -17230,13 +16884,8 @@ sub cartDetail {
 
 	my $CART2 = undef;
 	my $cartid = $v->{'_cartid'};
-	if ($self->apiversion() < 201311) {
-		$CART2 = $self->PRE201311cart2();
-		if (defined $CART2) { 
-			$CART2->__SYNC__(); 
-			}
-		}
-	elsif (not &JSONAPI::validate_required_parameter(\%R,$v,'_cartid')) {
+
+	if (not &JSONAPI::validate_required_parameter(\%R,$v,'_cartid')) {
 		## yeah, umm.. so if you could just pass that, that'd be ummm.. great.
 		}
 	else {
@@ -17258,8 +16907,6 @@ sub cartDetail {
 	if (&JSONAPI::hadError(\%R)) {
 		}
 	elsif (&JSONAPI::hadMissing(\%R)) {
-		}
-	elsif ((not defined $CART2) && ($self->apiversion()<201311)) {
 		}
 	else {
 		%R = %{$CART2->make_public()->jsonify()};
@@ -17606,13 +17253,7 @@ sub appCartCreate {
 		$R{'_cartid'} = $CART2->cartid();
 		}
 
-	#if ($self->apiversion()<201246) {
-	#	$R{'_zjsid'} = $R{'_cartid'};
-	#	return(\%R);
-	#	}
-	if (0) {
-		}
-	elsif ($v->{'cartDetail'}) {
+	if ($v->{'cartDetail'}) {
 		## sometimes its useful to have appCartCreate return cartDetail format
 		return($self->cartDetail($v));
 		}
@@ -17649,50 +17290,11 @@ sub appCartExists {
 
 	my %R = ();
 
-	## NOTE: this call be loaded *WITHOUT* a cart
-
-	if ($self->apiversion() >= 201311) {
-		my $cartid = $v->{'_cartid'};
-		my ($CART2) = $self->cart2($cartid,'create'=>0);
-		$R{'exists'} = (defined $CART2)?1:0;
-		$R{'valid'} = 1;
-		}
-	elsif ($self->apiversion() >= 201246) {
-		## we're allowed to get here without *CART2 being set because it's not *REQUIRED*
-		$R{'_cartid'} = $v->{'_cartid'};
-		my $CART2 = $self->PRE201311cart2();
-		my $oldCARTid = $self->PRE201311cartid($v->{'_cartid'});
-		if ((not $CART2) && ($R{'_cartid'} ne '')) { 
-			$CART2 = $self->PRE201311cart2('try'=>$self->PRE201311cartid()); 
-			$self->PRE201311cartid($R{'_cartid'} = $CART2->id());
-			}
-		$R{'valid'} = (defined $CART2)?1:0;
-		$R{'exists'} = ($oldCARTid eq $self->PRE201311cartid())?1:0;	
-		}
-	#else {
-	#	## 201246 and below
-	#	my $CART2 = $self->PRE201311cart2();
-	#	if (not $CART2) {
-	#		warn "CART2 not defined\n";
-	#		$R{'reason'} = "CART2 object not created";
-	#		$R{'exists'} = 0;
-	#		}
-	#	elsif ($CART2->is_memory()) {
-	#		warn "CART2 is memory\n";
-	#		$R{'reason'} = "CART2 is memory (temporary) cart";
-	#		$R{'exists'} = 0;
-	#		}
-	#	else {
-	#		$R{'_cartid'} = $self->PRE201311cartid();
-	#		$R{'exists'} = $CART2->exists();
-	#		warn "CART2 is defined, .. exists?  $R{'exists'}\n";
-	#		if ($self->apiversion()<201239) {
-	#			## releases before 201239 want a 1 or 0
-	#			$R{'exists'} = ($R{'exists'}>0)?1:0;
-	#			}
-	#		}
-	#	$R{'_zjsid'} = $R{'_cartid'};
-	#	}
+	## NOTE: this call cannot be loaded *WITHOUT* a cart
+	my $cartid = $v->{'_cartid'};
+	my ($CART2) = $self->cart2($cartid,'create'=>0);
+	$R{'exists'} = (defined $CART2)?1:0;
+	$R{'valid'} = 1;
 
 	return(\%R);
 	}
@@ -17701,48 +17303,8 @@ sub appCartExists {
 
 
 
-#################################################################################
-##
-##
 
 =pod
-
-<API id="cartItemsAdd">
-<purpose></purpose>
-<input id="_cartid"></input>
-<note>the same variables as the CGI post variables to the cart. [[LINKDOC]50110]</note>
-<response id="_msgs">(contains a count of the number of messages)</response>
-<response id="_msg_x_type"> warning|youerr|apperr|apierr|iseerr|success</response>
-<response id="_msg_x_id">	unique identifier for this message ex: 10000</response>
-<response id="_msg_x_txt">	the specific warning ex: No items added/removed from cart</response>
-<note>** the x in the example above will be a number 1.._msgs</note>
-<hint>
-Best practices involve displaying any errors, and warnings, and then suppressing any specific 
-warnings that you do not want to show (ex: ones that are caused by normal behavior).
-There may be zero messages.
-</hint>
-<errors>
-<err id="9101" type="cfgerr">Item cannot be added to cart due to price not set.</err>
-<err id="9102" type="cfgerr">could not lookup pogs</err>
-<err id="9103" type="cfgerr">Some of the items in this kit are not available for purchase: </err>
-<err id="9000" type="cfgerr">Unhandled item detection error</err>
-<err id="9001" type="cfgerr">Product xyz is no longer available</err>
-<err id="9002" type="cfgerr">Product xyz has already been purchased</err>
-</errors>
-</API>
-
-<API id="cartItemsAddSerialized">
-<purpose></purpose>
-<input id="_cartid"></input>
-<input id="data">which is a form serializes (jquery.serialize) variables the cart. [[LINKDOC]50110]</input>
-<note>Returns: see addToCart</note>
-<hint>
-<![CDATA[
-This internally decodes 'data' from key1=value1&key2=value2 and passes it to addToCart, it's provided
-as a convenience to developers who want to quickly use jquery serialize to a form.
-]]>
-</hint>
-</API>
 
 <API id="cartItemAppend">
 <purpose></purpose>
@@ -17934,110 +17496,6 @@ sub cartItemAppend {
 	}
 
 
-sub cartItemsAddSerialized {
-	my ($self,$v) = @_;
-
-	if ($self->apiversion()>=201311) {
-		my %R = ();
-		&JSONAPI::append_msg_to_response(\%R,'apperr',9999,"API call cartItemsAdd not compatible with API version > 201310");
-		return(\%R);
-		}
-	else {
-		my $params = &ZTOOLKIT::parseparams($v->{'data'});
-		foreach my $k (keys %{$v}) {
-			next if ($k eq 'data');
-			$params->{$k} = $v->{$k};
-			}
-
-		push @JSONAPI::TRACE, [ 'cartItemsAddSerialized', $params ];
-		return(cartItemsAdd($params));
-		}
-	}
-
-##
-##
-##
-sub cartItemsAdd {
-	my ($self,$v) = @_;
-
-	my %R = ();	
-	if ($self->apiversion()>=201311) {
-		&JSONAPI::append_msg_to_response(\%R,'apperr',9999,"API call cartItemsAdd not compatible with API version > 201310");
-		}
-	else {
-		my $cartid = $v->{'_cartid'};
-
-		require STUFF::CGI;
-		require LISTING::MSGS;
-
-		my $CART2 = $self->PRE201311cart2();
-		my $olddigest = $CART2->stuff2()->digest();
-
-		push @JSONAPI::TRACE, [ 'cartItemsAdd-v', $v ];
-
-		# my @ERRORS = ();
-		my $lm = LISTING::MSGS->new();
-		my ($s2) = STUFF2->new($self->username());
-		my @items = &STUFF::CGI::legacy_parse($s2,$v,'*LM'=>$lm,'is_admin'=>$self->is_admin());
-		foreach my $msg (@{$lm->msgs()}) {
-			my $errtype = 'apperr';
-			my $errid = 0;
-			my ($msgref,$status) = LISTING::MSGS::msg_to_disposition($msg);
-			if ($status eq 'ERROR') { $errtype = 'youerr'; $errid = 9001; }
-			if ($status eq 'WARN') { $errtype = 'youerr'; $errid = 9002; }
-			if ($status eq 'STOP') { $errtype = 'youerr'; $errid = 9002; }
-			if ($msgref->{'+'} =~ /is no longer available/) { $errtype = 'youerr'; $errid = 9001; }			# these older style errors don't return error id's.
-			if ($msgref->{'+'} =~ /has already been purchased/) { $errtype = 'youerr'; $errid = 9002; }
-
-			if ($errid>0) {
-				&JSONAPI::append_msg_to_response(\%R,$errtype,$errid,$msgref->{'+'});
-				}
-			}
-
-		my $count = $CART2->count();
-		my $i = 0;
-		foreach my $item (@{$s2->items()}) {
-		## make sure no duplicate items get into the cart.
-		
-			
-			$CART2->stuff2()->drop( 'stid'=>$item->{'stid'} );
-			$CART2->stuff2()->fast_copy_cram($item);
-			$R{sprintf("uuid%d",$i+1)} = $item->{'uuid'};
-			$R{sprintf("stid%d",$i+1)} = $item->{'stid'};
-			$R{sprintf("product%d",$i+1)} = $item->{'product'};
-			$R{sprintf("qty%d",$i+1)} = $item->{'qty'};
-			$i++;
-			}
-		$R{'items-attempted'} = $i;
-		#if ($self->apiversion() < 201239) {
-		#	if ($i>0) {
-		#		&JSONAPI::append_msg_to_response(\%R,'success',0,sprintf("%d items added to cart",$i));
-		#		}
-		#	}
-
-		my $nowdigest = $CART2->stuff2()->digest();
-		if ($olddigest ne $nowdigest) {
-			## yay! something (stid+qty) changed 
-			}
-		elsif ($i==0) {
-			## $i keeps track of how many items were successfully parsed
-			&JSONAPI::append_msg_to_response(\%R,'warning',10000,'No items added/removed from cart');
-			}
-		else {
-			## we never get here unless the cart geometry was not modified.
-			&JSONAPI::append_msg_to_response(\%R,'warning',10001,'All items were already in cart.');
-			}
-
-		#if ($self->apiversion() < 201239) {
-		#	## _msgs was only sent on errors, so sending it on success causes shit to break.
-		#	delete $R{'_msgs'};
-		#	}
-		}
-
-	return(\%R);
-	}
-
-
 
 
 
@@ -18081,10 +17539,8 @@ sub cartItemUpdate {
 	
 	my $item = undef;
 	my $CART2 = undef;
-	if ($self->apiversion() < 201311) {
-		$CART2 = $self->PRE201311cart2();
-		}
-	elsif (not &JSONAPI::validate_required_parameter(\%R,$v,'_cartid')) {
+
+	if (not &JSONAPI::validate_required_parameter(\%R,$v,'_cartid')) {
 		}
 	else {
 		$CART2 = $self->cart2( $cartid );
@@ -18288,14 +17744,7 @@ sub appProduct {
 		#	}
 		elsif ($src =~ /cart:/) {
 			@products = ();
-			if ($self->apiversion() < 201311) {
-				foreach my $item (@{$self->PRE201311cart2()->stuff2()->items()}) {
-					push @products, $item->{'stid'};
-					}
-				}
-			else {
-				&JSONAPI::append_msg_to_response(\%R,'apperr',9999,"API call appProductsList not available in api > 201310");
-				}
+			&JSONAPI::append_msg_to_response(\%R,'apperr',9999,"API call appProductsList not available in api > 201310");
 			}
 		#elsif ($src =~ /csv:(.*?)/) {
 		#	}
@@ -18702,10 +18151,7 @@ sub appProductGet {
 	my $SCHEDULE = undef;
 	if ($v->{'withSchedule'}==1) {
 		my $CART2 = undef;
-		if ($self->apiversion()<201311) {
-			$CART2 = $self->PRE201311cart2();
-			}
-		elsif ($v->{'_cartid'} eq '') {
+		if ($v->{'_cartid'} eq '') {
 			&JSONAPI::append_msg_to_response(\%R,'apperr',9998,"_cartid parameter is required for apiversion > 201310");			
 			}
 		else {
@@ -19213,24 +18659,10 @@ sub appGiftcardValidate {
 sub cartPaymentQ {
 	my ($self, $v) = @_;
 
-	
-	#if (($self->clientid() eq '1pc') && ($self->apiversion()<201249)) {
-	#	## fixes a bug in early 1pc that sends 'cc', 'yy' instead of 'CC'
-	#	foreach my $k (keys %{$v}) {
-	#		next if (length($k) != 2);
-	#		next if (uc($k) eq $k);
-	#		next if (defined $v->{uc($k)});
-	#		warn "UPGRADING cartPaymentQ parameter $k to ".uc($k)."\n";
-	#		$v->{uc($k)} = $v->{$k};
-	#		}
-	#	}
-
 	my %R = ();
 	my $CART2 = undef;
-	if ($self->apiversion() < 201311) {
-		$CART2 = $self->PRE201311cart2();
-		}
-	elsif ($v->{'_cartid'} eq '') {
+
+	if ($v->{'_cartid'} eq '') {
 		&JSONAPI::append_msg_to_response(\%R,'apperr',9998,"_cartid parameter is required for apiversion > 201310");			
 		}
 	else {
@@ -19382,10 +18814,7 @@ sub cartPromoCodeOrGiftcardOrCouponToCartAdd {
 
 	my $cartid = $v->{'_cartid'};
 	my $CART2 = undef;
-	if ($self->apiversion() < 201311) {
-		$CART2 = $self->PRE201311cart2();
-		}
-	elsif ($v->{'_cartid'} eq '') {
+	if ($v->{'_cartid'} eq '') {
 		push @ERRORS, "9998|apperr|_cartid parameter is required for apiversion > 201310";
 		&JSONAPI::append_msg_to_response(\%R,'apperr',9998,"_cartid parameter is required for apiversion > 201310");			
 		}
@@ -19932,21 +19361,6 @@ sub buyerWalletList {
 	if (ref($C) ne 'CUSTOMER') {
 		&JSONAPI::append_msg_to_response(\%R,"iseerr",18349,"customer object was not available or valid.");	
 		}
-	#elsif ($self->apiversion()<201239) {
-	#	my $payments_on_file = $C->wallet_list();	
-	#	if (not defined $payments_on_file) {
-	#		$payments_on_file = [];
-	#		}
-	#	foreach my $payment (@{$payments_on_file}) {
-	#		$payment->{'EXPIRES'} = $payment->{'TE'};
-	#		$payment->{'CREATED'} = $payment->{'TC'};
-	#		$payment->{'DESCRIPTION'} = $payment->{'TD'};	
-	#		$payment->{'ATTEMPTS'} = $payment->{'##'};
-	#		$payment->{'FAILURES'} = $payment->{'#!'};
-	#		$payment->{'IS_DEFAULT'} = $payment->{'#*'};
-	#		}
-	#	$R{'@wallets'} = $payments_on_file;
-	#	}
 	else {
 		my $payments_on_file = $C->wallet_list();	
 		if (not defined $payments_on_file) {
@@ -20143,14 +19557,6 @@ sub appBuyerLogin {
 				}
 			elsif ($customer_id <= 0) {
 				&JSONAPI::append_msg_to_response(\%R,"youerr",6005,"login attempt failed");
-				}
-			elsif ($self->apiversion()<201311) {
-				## versions <201311 authenticate to the cart
-				$self->PRE201311cart2()->login($login,$password,authenticated=>1);
-				$R{'cartid'} = $self->PRE201311cart2()->cartid();
-				$R{'cid'} = $customer_id;
-				$self->customer( $self->PRE201311cart2()->customer() );
-				&JSONAPI::append_msg_to_response(\%R,'success',0);				
 				}
 			else {
 				## version >=201311 auth to session, not a specific cart.
@@ -20876,17 +20282,7 @@ sub buyerOrder {
 	if (&hadError(\%R)) {
 		}
 	elsif (defined $O2) {
-		#if ($self->apiversion()<201239) {
-		#	$R{'order'} = $O2->as_legacy();
-		#	}
-		if (0) {
-			}
-		elsif ($self->apiversion()<201311) {
-			$R{'order'} = $O2;
-			}
-		else {
-			$R{'order'} = $O2->make_public()->jsonify();
-			}
+		$R{'order'} = $O2->make_public()->jsonify();
 		&JSONAPI::append_msg_to_response(\%R,'success',0);	
 		}
 	else {
@@ -20995,13 +20391,9 @@ sub buyerLogout {
 	my ($self,$v) = @_;
 	my %R = ();
 
-	if ($self->apiversion() < 201311) {
-		$self->PRE201311cart2()->logout();
-		}
-	else {
-		delete $self->{'*CUSTOMER'};
-		$R{'schedule'} = '';
-		}
+	delete $self->{'*CUSTOMER'};
+	$R{'schedule'} = '';
+
 	&JSONAPI::append_msg_to_response(\%R,'success',0);		
 
 	return(\%R);
@@ -21248,10 +20640,8 @@ sub appCheckoutDestinations {
 	my %R = ();
 
 	my $CART2 = undef;
-	if ($self->apiversion()<201311) {
-		$CART2 = $self->PRE201311cart2();
-		}
-	elsif ($v->{'_cartid'} eq '') {
+
+	if ($v->{'_cartid'} eq '') {
 		&JSONAPI::append_msg_to_response(\%R,'apperr',9998,"_cartid parameter is required for apiversion > 201310");			
 		}
 	else {
@@ -21300,10 +20690,8 @@ sub cartPaypalSetExpressCheckout {
 	my %R = ();
 
 	my $CART2 = undef;
-	if ($self->apiversion()<201311) {
-		$CART2 = $self->PRE201311cart2();
-		}
-	elsif ($v->{'_cartid'} eq '') {
+
+	if ($v->{'_cartid'} eq '') {
 		&JSONAPI::append_msg_to_response(\%R,'apperr',9998,"_cartid parameter is required for apiversion > 201310");			
 		}
 	else {
@@ -21370,80 +20758,6 @@ sub cartPaypalSetExpressCheckout {
 
 
 
-
-#################################################################################
-##
-##
-##
-
-#=pod
-#
-#<API id="cartPaypalGetExpressCheckoutDetails">
-#<purpose></purpose>
-#<caution>DEPRECATED USE cartPaymentQ with tender 'PAYPALEC' and tender variables PT (Paypal Payment Token) and PI (Paypal Payer ID)</caution>
-#<input id="_cartid"></input>
-#<input id="token"> returned by paypal</input>
-#<input id="payerid"> returned by paypal</input>
-#</API>
-#
-#=cut
-#
-#sub cartPaypalGetExpressCheckoutDetails {
-#	my ($self,$v) = @_;
-#	my %R = ();
-#
-#
-#		my $CART2 = undef;
-#		if ($self->apiversion()<201311) {
-#			$CART2 = $self->PRE201311cart2();
-#			}
-#		elsif ($v->{'_cartid'} eq '') {
-#			&JSONAPI::append_msg_to_response(\%R,'apperr',9998,"_cartid parameter is required for apiversion > 201310");			
-#			}
-#		else {
-#			$CART2 = $self->cart2( $v->{'_cartid'} );
-#			}
-#
-#
-#	if (&JSONAPI::deprecated($self,\%R,201239)) {
-#		## replaced by 
-#		}
-#	elsif (&JSONAPI::hadError(\%R)) {
-#		## shit already happened.
-#		}
-#	elsif ((not defined $v->{'payerid'}) || ($v->{'payerid'} eq '')) {
-#		&JSONAPI::append_msg_to_response(\%R,'apperr',3590,"payerid must be non blank");
-#		}
-#	elsif ((not defined $v->{'token'}) || ($v->{'token'} eq '')) {
-#		&JSONAPI::append_msg_to_response(\%R,'apperr',3591,"token must be defined");		
-#		}
-##	elsif (1) {
-##		 &JSONAPI::append_msg_to_response(\%R,'apperr',3599,'JT is an ass');
-##		}
-#	else {
-#		require ZPAY::PAYPALEC;
-#		my ($api) = ZPAY::PAYPALEC::GetExpressCheckoutDetails($CART2,$v->{'token'},$v->{'payerid'});
-#		%R = %{$api};
-#
-#		if ($api->{'ERR'}) {
-#			&JSONAPI::append_msg_to_response(\%R,'apierr',3589,$api->{'ERR'});
-#			}
-#		elsif ($api->{'ACK'} eq 'Failure') {
-#			if ($api->{'ERR'} eq '') { $api->{'ERR'} = sprintf("Paypal error[%d] %s",$api->{'L_ERRORCODE0'},$api->{'L_LONGMESSAGE0'}); }
-#			if ($api->{'ERR'} eq '') { $api->{'ERR'} = "Paypal ACK=Failure but no ERR message set"; }
-#			&JSONAPI::append_msg_to_response(\%R,'apierr',3588,$api->{'ERR'});
-#			}
-#		elsif ($api->{'ACK'} eq 'Success') {
-#			&JSONAPI::append_msg_to_response(\%R,'success',0);
-#			}
-#		else {
-#			&JSONAPI::append_msg_to_response(\%R,'iseerr',3584,sprintf('Unhandled internal ACK status:%s',$api->{'ACK'}));
-#			}
-#		}
-#
-#	return(\%R);
-#	}
-#
 
 
 
@@ -21513,54 +20827,9 @@ sub cartGoogleCheckoutURL {
 	my ($self,$v) = @_;
 	my %R = ();
 
-#	my $CART2 = undef;
 	if (&JSONAPI::deprecated($self,\%R,201352)) {
 		## discontinued by Google Nov 2013
 		}
-
-#	elsif ($self->apiversion()<201311) {
-#		$CART2 = $self->PRE201311cart2();
-#		}
-#	elsif ($v->{'_cartid'} eq '') {
-#		&JSONAPI::append_msg_to_response(\%R,'apperr',9998,"_cartid parameter is required for apiversion > 201310");			
-#		}
-#	else {
-#		$CART2 = $self->cart2( $v->{'_cartid'} );
-#		}
-#	$R{'googleCheckoutMerchantId'} = sprintf("%s",$self->webdb()->{'google_merchantid'});
-#	if ($R{'googleCheckoutMerchantId'} eq '') {
-#		&JSONAPI::append_msg_to_response(\%R,'apperr',3555,"store configuration error: googleCheckoutMerchantId is blank, cannot use googleCheckout");
-#		}
-#	if (&JSONAPI::hadError(\%R)) {
-#		## shit already happened.
-#		}
-#	elsif (not defined $v->{'analyticsdata'}) {
-#		&JSONAPI::append_msg_to_response(\%R,'apperr',3565,"analyticsdata must be defined (even if blank)");		
-#		}
-#	elsif (not defined $v->{'edit_cart_url'}) {
-#		&JSONAPI::append_msg_to_response(\%R,'apperr',3566,"edit_cart_url must be defined");		
-#		}
-#	elsif (not defined $v->{'continue_shopping_url'}) {
-#		&JSONAPI::append_msg_to_response(\%R,'apperr',3567,"continue_shopping_url must be defined");		
-#		}
-#	else {
-#		require ZPAY::GOOGLE;
-#		my ($success,$url) = &ZPAY::GOOGLE::getCheckoutURL(
-#			$CART2,
-#			$self->_SITE(),
-#			'analytics'=>$v->{'analyticsdata'},
-#			'edit_cart_url'=>$v->{'edit_cart_url'},
-#			'continue_shopping_url'=>$v->{'continue_shopping_url'},
-#			);
-#
-#		if (not $success) {
-#			&JSONAPI::append_msg_to_response(\%R,'iseerr',3568,"googleCheckout error: $url");		
-#			}
-#		else {
-#			$R{'URL'} = $url;
-#			&JSONAPI::append_msg_to_response(\%R,'success',0);
-#			}		
-#		}
 
 	return(\%R);
 	}
@@ -21642,10 +20911,7 @@ sub cartAmazonPaymentURL {
 		}
 
 	my $CART2 = undef;
-	if ($self->apiversion()<201311) {
-		$CART2 = $self->PRE201311cart2();
-		}
-	elsif ($v->{'_cartid'} eq '') {
+	if ($v->{'_cartid'} eq '') {
 		&JSONAPI::append_msg_to_response(\%R,'apperr',9998,"_cartid parameter is required for apiversion > 201310");			
 		}
 	else {
@@ -21726,10 +20992,7 @@ sub cartSet {
 	# print STDERR Dumper($v);
 
 	my $CART2 = undef;
-	if ($self->apiversion()<201311) {
-		$CART2 = $self->PRE201311cart2();
-		}
-	elsif ($v->{'_cartid'} eq '') {
+	if ($v->{'_cartid'} eq '') {
 		&JSONAPI::append_msg_to_response(\%R,'apperr',9998,"_cartid parameter is required for apiversion > 201310");			
 		}
 	else {
@@ -21747,28 +21010,6 @@ sub cartSet {
 	if (&JSONAPI::hadError(\%R)) {
 		## shit happened
 		}
-	#elsif ($self->apiversion()<201239) {
-	#	## note: this should delete keys which aren't actually part of the request, or even better, use a whitelist.
-	#	my ($olddigest) = $CART2->digest();
-
-	#	# $CART2->save_properties($v);
-	#	foreach my $k (keys %{$v}) {
-	#		next if (substr($k,0,1) eq '_');	# skip reserved fields ex. _cartid
-	#		my ($cart2key) = &CART2::legacy_resolve_cart_property($k);
-	#		if (defined $cart2key) {
-	#			$CART2->pu_set($cart2key,$v->{$k});
-	#			}
-	#		else {
-	#			warn "LEGACY-201239: upgrading value $k to app/$k";
-	#			$CART2->pu_set("app/$k",$v->{$k});
-	#			}
-	#		}
-	#	$R{'success'} = scalar(keys %{$v});
-	#	if ($CART2->digest() ne $olddigest) {
-	#		# $CART2->recalc();
-	#		# $CART2->shipping();
-	#		}
-	#	}
 	else {
 		## CURRENT RELEASE
 
@@ -21990,16 +21231,13 @@ in cart the following pieces of data must be set:
 
 =cut
 
-## NOTE: JT says this may not be necessary since 201311
+## NOTE: JT says this may not be necessary since 201311 -- need to check
 sub cartShippingMethods {
 	my ($self,$v) = @_;
 	my %R = ();
 
 	my $CART2 = undef;
-	if ($self->apiversion()<201311) {
-		$CART2 = $self->PRE201311cart2();
-		}
-	elsif ($v->{'_cartid'} eq '') {
+	if ($v->{'_cartid'} eq '') {
 		&JSONAPI::append_msg_to_response(\%R,'apperr',9998,"_cartid parameter is required for apiversion > 201310");			
 		}
 	else {
@@ -22013,9 +21251,6 @@ sub cartShippingMethods {
 	if (not defined $v->{'update'}) { $v->{'update'} = 0; }
 
 	if (&JSONAPI::hadError(\%R)) {
-		}
-	elsif ((not defined $CART2) && ($self->apiversion()<201311)) {
-		## sometimes the cart doesn't exist yet, but this call should not fail.
 		}
 	else {
 		$R{'@methods'} = $CART2->shipmethods();
@@ -22063,10 +21298,7 @@ sub cartItemsInventoryVerify {
 	my %R = ();
 
 	my $CART2 = undef;
-	if ($self->apiversion()<201311) {
-		$CART2 = $self->PRE201311cart2();
-		}
-	elsif ($v->{'_cartid'} eq '') {
+	if ($v->{'_cartid'} eq '') {
 		&JSONAPI::append_msg_to_response(\%R,'apperr',9998,"_cartid parameter is required for apiversion > 201310");			
 		}
 	else {
@@ -22112,12 +21344,8 @@ sub cartOrderCreate {
 
 	## populate %payment 
  	##ex : "chkout.payby":"CREDIT","payment.cc":"4111111111111111","payment.mm":"1","payment.yy":"2013","payment.cv":"123",
-	## my $CART2 = $self->PRE201311cart2();
 	my $CART2 = undef;
-	if ($self->apiversion()<201311) {
-		$CART2 = $self->PRE201311cart2();
-		}
-	elsif ($v->{'_cartid'} eq '') {
+	if ($v->{'_cartid'} eq '') {
 		&JSONAPI::append_msg_to_response(\%R,'apperr',9998,"_cartid parameter is required for apiversion > 201310");			
 		}
 	else {
@@ -22608,10 +21836,7 @@ sub adminOrderCreate {
  	##ex : "chkout.payby":"CREDIT","payment.cc":"4111111111111111","payment.mm":"1","payment.yy":"2013","payment.cv":"123",
 
 	my $CART2 = undef;
-	if ($self->apiversion()<201311) {
-		$CART2 = $self->PRE201311cart2();
-		}
-	elsif ($v->{'_cartid'} eq '') {
+	if ($v->{'_cartid'} eq '') {
 		&JSONAPI::append_msg_to_response(\%R,'apperr',9998,"_cartid parameter is required for apiversion > 201310");			
 		}
 	else {
@@ -22930,14 +22155,6 @@ sub buyerPurchaseHistory {
 	my ($self,$v) = @_;
 	my %R = ();
 
-	my $CART2 = undef;
-	if ($self->apiversion()<201311) {
-		$CART2 = $self->PRE201311cart2();
-		if (not defined $self->PRE201311cart2()) {
-			&JSONAPI::append_msg_to_response(\%R,'apperr',8000,'Cart is not valid.');		
-			}
-		}
-
 	if (not $self->isLoggedIn(\%R,$v)) {
 		## handles it's own errors
 		}
@@ -23002,9 +22219,6 @@ sub buyerPurchaseHistoryDetail {
 	my ($self,$v) = @_;
 	my %R = ();
 
-	#if (not defined $self->PRE201311cart2()) {
-	#	&JSONAPI::append_msg_to_response(\%R,'apperr',8000,'Cart is not valid.');		
-	#	}
 	if (not defined $v->{'orderid'}) {
 		&JSONAPI::append_msg_to_response(\%R,'apperr',9001,'orderid is a required parameter');
 		}
@@ -23024,9 +22238,6 @@ sub buyerPurchaseHistoryDetail {
 	if (not defined $O2) {
 		&JSONAPI::append_msg_to_response(\%R,'apperr',9001,'orderid is not valid/could not lookup order');
 		}
-	#elsif ($self->apiversion()<201239) {
-	#	$R{'order'} = $O2->make_public()->make_legacy_order();
-	#	}
 	else {
 		%R = %{$O2->make_public()->jsonify()};
 		}
