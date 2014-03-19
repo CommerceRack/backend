@@ -3683,13 +3683,13 @@ sub authAdminLogin {
 		}
 
 	my ($CLIENTINFO) = $self->clientinfo();
-	if (not defined $CLIENTINFO) {
-		my $CLIENTID = $self->clientid();
-		if (not defined $CLIENTID) { $CLIENTID = $ENV{'HTTP_X_CLIENTID'}; }
-		if (not defined $CLIENTID) { $CLIENTID = $v->{'_clientid'}; }
-		if (not defined $CLIENTID) { $CLIENTID = $v->{'clientid'}; }	
-		$CLIENTINFO = JSONAPI::lookup_client($CLIENTID);
-		}
+	#if (not defined $CLIENTINFO) {
+	#	my $CLIENTID = $self->clientid();
+	#	if (not defined $CLIENTID) { $CLIENTID = $ENV{'HTTP_X_CLIENTID'}; }
+	#	if (not defined $CLIENTID) { $CLIENTID = $v->{'_clientid'}; }
+	#	if (not defined $CLIENTID) { $CLIENTID = $v->{'clientid'}; }	
+	#	$CLIENTINFO = JSONAPI::lookup_client($CLIENTID);
+	#	}
 
 	if (&JSONAPI::hadError(\%R)) {
 		}

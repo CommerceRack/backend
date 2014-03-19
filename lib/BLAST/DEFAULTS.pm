@@ -139,16 +139,16 @@ apply --img --media=$var --width=75 --height=75 --bgcolor='#ffffff' --replace;" 
 
 	'%SHIPADDR%'=> q|
  <div class="addressFullname">
-  <span data-tlc="bind $var '.%ORDER.%bill.firstname'; if (is $var --notblank) {{apply --append;}};" title="first name"></span>
-  <span data-tlc="bind $var '.%ORDER.%bill.lastname'; if (is $var --notblank) {{apply --append;}};" title="last name"></span>
+  <span data-tlc="bind $var '.%ORDER.%ship.firstname'; if (is $var --notblank) {{apply --append;}};" title="first name"></span>
+  <span data-tlc="bind $var '.%ORDER.%ship.lastname'; if (is $var --notblank) {{apply --append;}};" title="last name"></span>
  </div>
  <div class="address">
-  <div data-tlc="bind $var '.%ORDER.%bill.address1'; if (is $var --notblank) {{apply --append;}};" title="address"></div>
-  <div data-tlc="bind $var '.%ORDER.%bill.address2'; if (is $var --notblank) {{apply --append;}};" title="address 2"></div>
-  <span data-tlc="bind $var '.%ORDER.%bill.city'; if (is $var --notblank) {{apply --append;}};" title="city"></span>,
-  <span data-tlc="bind $var '.%ORDER.%bill.region'; if (is $var --notblank) {{apply --append;}};" title="state"></span>.
-  <span data-tlc="bind $var '.%ORDER.%bill.postal'; if (is $var --notblank) {{apply --append;}};" title="zip"></span>
-  <div data-tlc="bind $var '.%ORDER.%bill.countrycode'; if (is $var --notblank) {{apply --append;}};" title="country"></div>
+  <div data-tlc="bind $var '.%ORDER.%ship.address1'; if (is $var --notblank) {{apply --append;}};" title="address"></div>
+  <div data-tlc="bind $var '.%ORDER.%ship.address2'; if (is $var --notblank) {{apply --append;}};" title="address 2"></div>
+  <span data-tlc="bind $var '.%ORDER.%ship.city'; if (is $var --notblank) {{apply --append;}};" title="city"></span>,
+  <span data-tlc="bind $var '.%ORDER.%ship.region'; if (is $var --notblank) {{apply --append;}};" title="state"></span>.
+  <span data-tlc="bind $var '.%ORDER.%ship.postal'; if (is $var --notblank) {{apply --append;}};" title="zip"></span>
+  <div data-tlc="bind $var '.%ORDER.%ship.countrycode'; if (is $var --notblank) {{apply --append;}};" title="country"></div>
  </div>
 |,
 
