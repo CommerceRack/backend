@@ -1037,10 +1037,6 @@ sub analytics {
 		$NSREF->{'googlets:search_account_id'} = $cgiv->{'search_account_id'};
 		$NSREF->{'googlets:badge_code'} = $cgiv->{'badge_code'};
 		$NSREF->{'googlets:chkout_code'} = $cgiv->{'chkout_code'};
-	#	$NSREF->{'analytics:headjs'} = $cgiv->{'head_code'};
-	#	$NSREF->{'analytics:syndication'} = (defined $cgiv->{'syndication'})?'GOOGLE':'';
-	#	$NSREF->{'analytics:roi'} = 'GOOGLE';
-	#	$NSREF->{'analytics:linker'} = (defined $cgiv->{'linker'})?time():'';
 		$D->from_legacy_nsref($NSREF); $D->save();
 		$LU->log("SETUP.PLUGIN","Saved GOOGLE TRUSTED STORES plugin code","SAVE");
 		$VERB = 'GOOGLETS';
@@ -1051,27 +1047,7 @@ sub analytics {
 		$GTOOLSUI::TAG{'<!-- SEARCH_ACCOUNT_ID -->'} = $NSREF->{'googlets:search_account_id'};
 		$GTOOLSUI::TAG{'<!-- BADGE_CODE -->'} = &ZOOVY::incode($NSREF->{'googlets:badge_code'});
 		$GTOOLSUI::TAG{'<!-- CHKOUT_CODE -->'} = &ZOOVY::incode($NSREF->{'googlets:chkout_code'});
-	#	$GTOOLSUI::TAG{'<!-- CHK_ROI -->'} = ($NSREF->{'analytics:roi'} eq 'GOOGLE')?'checked':'';
-	#	$GTOOLSUI::TAG{'<!-- CHK_SYNDICATION -->'} = ($NSREF->{'analytics:syndication'} eq 'GOOGLE')?'checked':'';
-	#	$GTOOLSUI::TAG{'<!-- CHK_LINKER -->'} = ($NSREF->{'analytics:linker'}>0)?'checked':'';
-	#
-	#	if ($GTOOLSUI::TAG{'<!-- HEAD_CODE -->'} =~ /XXXXX/) {
-	#		$GTOOLSUI::TAG{'<!-- MESSAGE -->'} = qq~ <div class="error">Zoovy Marketing Services Google Analytics Code has not been customized and will not work.</div>~;
-	#		}
-	
-	#	if ($NSREF->{'analytics:headjs'} =~ /urchin/) {
-	#		push @WARNINGS, "Appears to have older 'urchin' version of the google code. Many zoovy features (such as Google Checkout) will not work.";
-	#		}
-	
-	#	require DOMAIN::TOOLS;
-	#	my ($DOMAIN) = &DOMAIN::TOOLS::domain_for_profile($USERNAME,$PROFILE);
-	#	my $ztscode = '';
-	#	open F, "<googlets.txt";
-	#	$/ = undef; $ztscode = <F>; $/ = "\n";
-	#	close F;
-	#	require URI::Escape;
-	#	$GTOOLSUI::TAG{'<!-- ZTSCODE -->'} = ZOOVY::incode($ztscode);
-		
+
 		$template_file = 'googlets.shtml';
 		push @BC, { name=>'Google Trusted Stores' };
 		}
@@ -2861,7 +2837,6 @@ sub toxml {
 
 	my @TABS = ();
 	## determine tabs available 	
-	## WEB flag should see layout and wrapper tabs
 	if (index($FLAGS,',WEB,') > 0 ) {
 		push @TABS, { name=>'Wrappers', link=>'/biz/vstore/toxml/index.cgi?FORMAT=WRAPPER', },
 						{ name=>'Layouts', link=>'/biz/vstore/toxml/index.cgi?FORMAT=LAYOUT', },
@@ -4989,13 +4964,7 @@ sub builder {
 		$SITEstr =  $SITE->siteserialize();
 		}
 	
-	#if (&ZOOVY::is_zoovy_ip()) {
-	#	push @MSGS, "DEBUG|ZOOVY STAFF ACTION[$ACTION] DEBUG: ".Dumper($SITE);
-	#	}
-	#open F, ">/tmp/format";
-	#print F Dumper($SITE, $cgiv);
-	#close F;
-	
+
 	if ($ACTION eq 'DIVSELECT') {
 		$SITE->{'_DIV'} = $cgiv->{'DIV'};
 		$ACTION = 'EDIT';
@@ -5132,29 +5101,22 @@ sub builder {
 			$ref->{$k} = $cgiv->{$k};
 			}
 	
-		# $ref->{'zoovy:logo_website_pixelmode'} = (defined $cgiv->{'logo_website_pixelmode'})?1:0;
-	
-		my $width = $cgiv->{'width'};
-		my $height = $cgiv->{'height'};
-		if ((!defined($width)) || ($width>500) || ($width<1)) { $width = 300; }
-		if ((!defined($height)) || ($height>300) || ($height<1)) { $height = 100; }
-		$ref->{'zoovy:logo_invoice_xy'} = int($width)."x".int($height);
+	#	my $width = $cgiv->{'width'};
+	#	my $height = $cgiv->{'height'};
+	#	if ((!defined($width)) || ($width>500) || ($width<1)) { $width = 300; }
+	#	if ((!defined($height)) || ($height>300) || ($height<1)) { $height = 100; }
+	#	$ref->{'zoovy:logo_invoice_xy'} = int($width)."x".int($height);
 	
 		push @MSGS, "SUCCESS|+Saved settings for DOMAIN:$DOMAIN | prt:$ref->{'prt:id'} root:$ref->{'zoovy:site_rootcat'} wrapper:$ref->{'zoovy:site_wrapper'}";
 		$LU->log('SETUP.BUILDER.COMPANY',"Saved settings for DOMAIN:$DOMAIN | prt:$ref->{'prt:id'} root:$ref->{'zoovy:site_rootcat'} wrapper:$ref->{'zoovy:site_wrapper'}","SAVE");
-		## &ZOOVY::savemerchantns_ref($USERNAME,$NS,$ref);
 		$D->from_legacy_nsref($ref);
 		$D->save();
 		$ACTION = 'COMPANYEDIT';
-	
-	
+		
 		foreach my $tag (keys %GTOOLSUI::TAG) {
 			$GTOOLSUI::TAG{$tag} = &ZTOOLKIT::stripUnicode($GTOOLSUI::TAG{$tag});
 			}
 		}
-	
-	
-	
 	
 	print STDERR "ACTION: $ACTION\n";
 	$GTOOLSUI::TAG{'<!-- SREF -->'} = $SITEstr;
@@ -5284,15 +5246,8 @@ sub builder {
 		}
 	
 	
-	if ($ACTION eq 'SPECIALTYSAVE') {
-	
-	
-		}
-	
-	
 	if ($ACTION eq 'COMPANYEDIT') {
 		# handle general parameters.
-	
 		my $ref = $D->as_legacy_nsref();
 		$GTOOLSUI::TAG{"<!-- COMPANY_NAME -->"} = $ref->{'zoovy:company_name'};
 		$GTOOLSUI::TAG{"<!-- SEO_TITLE -->"} = $ref->{'zoovy:seo_title'};
@@ -5445,23 +5400,10 @@ sub builder {
 				&ZOOVY::resolve_media_host($USERNAME),
 				&ZOOVY::image_path($USERNAME,$logo,W=>100,H=>100,B=>'FFFFFF')
 				);
-	#		&IMGLIB::Lite::url_to_image($USERNAME,$logo,100,100,'ffffff');
-	#	$GTOOLSUI::TAG{"<!-- LOGO_WEBSITE_PIXELMODE -->"} = ($ref->{'zoovy:logo_website_pixelmode'})?'CHECKED':'';
-	
-		## NOTE:
-		## LOGOYES 
-		## http://www.cj.com/, u: tom@zoovy.com, p: SLcsaUK 
 	
 		my $prt = $ref->{'prt:id'};
-		#if ($NS eq 'DEFAULT') { 
-		#	$prt = 0; 
-		#	}
-		#elsif ($prt ne '') {
-			## verify we are on the correct profile
 		my ($prtinfo) = &ZOOVY::fetchprt($USERNAME,$prt);
-		#	if ($prtinfo->{'profile'} ne $NS) { $prt = ''; }
-		#	}
-	
+
 		## types of logo's:
 		# zoovy:logo_invoice : logo at the top of an invoice (for this sdomain)
 		# zoovy:logo_website : logo that is used for the wrapper
@@ -5472,19 +5414,18 @@ sub builder {
 		# zoovy:company_logo_m
 		# zoovy:company_logo
 	
-		my ($logo_invoice_width,$logo_invoice_height) = split('x',$ref->{'zoovy:logo_invoice_xy'});
-		if ((!defined($logo_invoice_width)) || ($logo_invoice_width>500) || ($logo_invoice_width<1)) { $logo_invoice_width = 300; }
-		if ((!defined($logo_invoice_height)) || ($logo_invoice_height>500) || ($logo_invoice_height<1)) { $logo_invoice_height = 100; }
-		$GTOOLSUI::TAG{'<!-- LOGO_INVOICE_WIDTH -->'} = $logo_invoice_width;
-		$GTOOLSUI::TAG{'<!-- LOGO_INVOICE_HEIGHT -->'} = $logo_invoice_height;
-	
-		my $logo = $ref->{'zoovy:logo_invoice'};
-	#	my $logo_invoice_url = &IMGLIB::Lite::url_to_image($USERNAME,$logo,$logo_invoice_width,$logo_invoice_height,'ffffff');
-		my $logo_invoice_url = sprintf('//%s%s',
-				&ZOOVY::resolve_media_host($USERNAME),
-				&ZOOVY::image_path($USERNAME,$logo,W=>$logo_invoice_width,H=>$logo_invoice_height,B=>'FFFFFF')
-				);
-		$GTOOLSUI::TAG{'<!-- LOGO_INVOICE_URL -->'} = $logo_invoice_url;
+		#my ($logo_invoice_width,$logo_invoice_height) = split('x',$ref->{'zoovy:logo_invoice_xy'});
+		#if ((!defined($logo_invoice_width)) || ($logo_invoice_width>500) || ($logo_invoice_width<1)) { $logo_invoice_width = 300; }
+		#if ((!defined($logo_invoice_height)) || ($logo_invoice_height>500) || ($logo_invoice_height<1)) { $logo_invoice_height = 100; }
+		#$GTOOLSUI::TAG{'<!-- LOGO_INVOICE_WIDTH -->'} = $logo_invoice_width;
+		#$GTOOLSUI::TAG{'<!-- LOGO_INVOICE_HEIGHT -->'} = $logo_invoice_height;
+	#
+	#	my $logo = $ref->{'zoovy:logo_invoice'};
+	#	my $logo_invoice_url = sprintf('//%s%s',
+	#			&ZOOVY::resolve_media_host($USERNAME),
+	#			&ZOOVY::image_path($USERNAME,$logo,W=>$logo_invoice_width,H=>$logo_invoice_height,B=>'FFFFFF')
+	#			);
+	#	$GTOOLSUI::TAG{'<!-- LOGO_INVOICE_URL -->'} = $logo_invoice_url;
 		
 		$template_file = 'company.shtml';
 		}
@@ -5503,22 +5444,17 @@ sub builder {
 			$title = "Choose a Newsletter Layout";
 			$GTOOLSUI::TAG{"<!-- TITLE -->"} = "Step 2: $title";
 			$SITE->sset('_FS','I');
-			# $default = &ZOOVY::fetchmerchantns_attrib($USERNAME,$D->profile(),'zoovy:default_flow'.$SITE->fs());
 			 $default = $nsref->{ 'zoovy:default_flow'.$SITE->fs() };
 			}
 		else {
 			$title = "Choose a Page Layout";
 			push @BC, { name=>"Choose Layout: ".$SITE->pageid(), };
 			$GTOOLSUI::TAG{"<!-- TITLE -->"} = $title;
-			# $default = &ZOOVY::fetchmerchantns_attrib($USERNAME,$D->profile(),'zoovy:default_flow'.$SITE->fs());
 			$default = $nsref->{ 'zoovy:default_flow'.$SITE->fs() };
 			}	
 	
 		print STDERR "SUBTYPE: ".$SITE->fs()."\n";
 		my $PROFILE = $cgiv->{'NS'};
-		## $GTOOLSUI::TAG{'<!-- FLOW_CHOOSER -->'} = &TOXML::CHOOSER::buildChooser($SITE->username(),$SITE->format(),SREF=>$SITE->siteserialize(),'NS'=>$PROFILE,SUBTYPE=>$SITE->fs(),selected=>$SITE->layout(),'*LU'=>$LU);
-
-
 		$GTOOLSUI::TAG{'<!-- FLOW_CHOOSER -->'} = &TOXML::CHOOSER::buildChooser(
 			$SITE->username(),
 			$SITE->format(),
