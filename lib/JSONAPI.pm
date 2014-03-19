@@ -855,12 +855,12 @@ sub lookup_client {
 	my ($clientid) = @_;
 
 	@OAUTH::CLIENTS = (
-		{ 'clientid'=>'1pc' },
-		{ 'clientid'=>'mvc', },		## JT's typo fixed in 201342
-		{ 'clientid'=>'zmvc', },
-		{ 'clientid'=>'droid-inv', },
-		{ 'clientid'=>'admin', } ,
-		{ 'clientid'=>'michael', },
+		{ 'clientid'=>'1pc', 'secret'=>'cheese' },
+		{ 'clientid'=>'mvc', 'secret'=>'cheese' },		## JT's typo fixed in 201342
+		{ 'clientid'=>'zmvc', 'secret'=>'cheese' },
+		{ 'clientid'=>'droid-inv', 'secret'=>'cheese' },
+		{ 'clientid'=>'admin', 'secret'=>'cheese' } ,
+		{ 'clientid'=>'michael', 'secret'=>'cheese' },
 		{ 'clientid'=>'wms-client' },
 		);
 	
@@ -1785,7 +1785,7 @@ sub psgiinit {
 	##
 	##	_clientid or the HTTP Header HTTP_X_CLIENTID is required.
 	##
-	$CLIENTID = $v->{'_clientid'} || $HEADERS->header('x-clientid');   ## set by application
+	$self->{'CLIENTID'} = $v->{'_clientid'} || $HEADERS->header('x-clientid');   ## set by application
 	if (not defined $CLIENTID) {
 		}
 	elsif ($self->is_config_js()) {
@@ -1794,12 +1794,12 @@ sub psgiinit {
 	elsif (($options{'ws'}) && (not defined $CLIENTID)) {
 		## websockets, no clientid check required (it is optional)
 		}
-	elsif (my $CLIENTINFO = JSONAPI::lookup_client($CLIENTID)) {
-		$self->{'CLIENTID'} = $CLIENTID;
-		}
-	else {
-		&JSONAPI::set_error($R = {}, 'apperr', 6, sprintf("CLIENTID not registered."));
-		}
+	#elsif (my $CLIENTINFO = JSONAPI::lookup_client($CLIENTID)) {
+	#	$self->{'CLIENTID'} = $CLIENTID;
+	#	}
+	#else {
+	#	&JSONAPI::set_error($R = {}, 'apperr', 6, sprintf("CLIENTID not registered."));
+	#	}
 
 	##
 	##
@@ -1872,17 +1872,17 @@ sub psgiinit {
 	elsif ($AUTHTOKEN ne '') {
 		## AUTHENTICATION: they are attempting to be a specific user
 		my $CLIENTINFO = &JSONAPI::lookup_client($CLIENTID);
-		if (defined $R) {
-			}
-		elsif ($CLIENTID eq '') {
-			&JSONAPI::set_error($R = {}, 'apperr', 2, "X-CLIENTID header or _clientid is required");
-			}
-		elsif (not defined $CLIENTINFO) {
-			&JSONAPI::set_error($R = {}, 'apperr', 3, "X-CLIENTID header or _clientid is unfortunately invalid");
-			}
-		elsif ($HEADERS->header('Origin') eq 'null') {
-			## clientid is always allowed from 'null'
-			}
+		#if (defined $R) {
+		#	}
+		#elsif ($CLIENTID eq '') {
+		#	&JSONAPI::set_error($R = {}, 'apperr', 2, "X-CLIENTID header or _clientid is required");
+		#	}
+		#elsif (not defined $CLIENTINFO) {
+		#	&JSONAPI::set_error($R = {}, 'apperr', 3, "X-CLIENTID header or _clientid is unfortunately invalid");
+		#	}
+		#elsif ($HEADERS->header('Origin') eq 'null') {
+		#	## clientid is always allowed from 'null'
+		#	}
 
 		if (defined $R) {
 			}
@@ -1896,7 +1896,6 @@ sub psgiinit {
 			$self->{'_IS_ADMIN'}++;
 			$self->{'_AUTHTOKEN'} = $AUTHTOKEN;
 			$self->{'_DEVICEID'} = $DEVICEID;
-			print STDERR "IS ADMIN\n";
 			}
 		else {
 			print STDERR "IS *NOT* AUTHENTICATED\n";

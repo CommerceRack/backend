@@ -315,9 +315,7 @@ sub validate_authtoken {
 
 	my ($v,$randomstr,$trydigest) = split(/\|/,$AUTHTOKEN);
 	my $str = sprintf("%s-%s-%s-%s-%s-%s",lc($USERNAME),lc($LUSERNAME),$CLIENTINFO->{'clientid'},$DEVICEID,$CLIENTINFO->{'secret'},$randomstr);
-#	print STDERR "str:$str\n";
 	my $validdigest = Digest::SHA1::sha1_hex($str);
-#	print STDERR "validdigest:$validdigest\n";
 	return( ($trydigest eq $validdigest)?1:0 );
 	}
 
