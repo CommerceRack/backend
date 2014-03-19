@@ -20,28 +20,6 @@ require TXLOG;
 # tools.ietf.org/html/draft-ietf-oauth-v2-31#section-10.1
 
 
-@OAUTH::CLIENTS = (
-	{ 'clientid'=>'1pc' },
-	{ 'clientid'=>'mvc', 'secret'=>'cheese', 'callback'=>'??',  },		## JT's typo fixed in 201342
-	{ 'clientid'=>'zmvc', 'secret'=>'cheese', 'callback'=>'??',  },
-	{ 'clientid'=>'droid-inv', 'secret'=>'cheese', 'callback'=>'??',  },
-	{ 'clientid'=>'admin', 'secret'=>'cheese', 'callback'=>'??', 'domain'=>'.zoovy.com', 'challenges'=>'captcha|sms|voicepin|email' },
-	{ 'clientid'=>'michael', 'secret'=>'cheese', 'callback'=>'??', 'domain'=>'.zoovy.com', 'challenges'=>'email' },
-	{ 'clientid'=>'wms-client' },
-	);
-
-
-sub lookup_client {
-	my ($clientid) = @_;
-	
-	my $this = undef;
-	foreach my $client (@OAUTH::CLIENTS) {
-		if ($client->{'clientid'} eq $clientid) { $this = $client; }
-		}
-	return($this);
-	}
-
-
 @OAUTH::OBJECTS = (
 	'ORG',		# organization
 	'CONFIG',	# partition configuration 

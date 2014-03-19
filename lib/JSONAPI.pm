@@ -848,6 +848,38 @@ sub call_deserialize {
 
 
 
+##
+##
+##
+sub lookup_client {
+	my ($clientid) = @_;
+
+	@OAUTH::CLIENTS = (
+		{ 'clientid'=>'1pc' },
+		{ 'clientid'=>'mvc', },		## JT's typo fixed in 201342
+		{ 'clientid'=>'zmvc', },
+		{ 'clientid'=>'droid-inv', },
+		{ 'clientid'=>'admin', } ,
+		{ 'clientid'=>'michael', },
+		{ 'clientid'=>'wms-client' },
+		);
+	
+	my $this = undef;
+	foreach my $client (@OAUTH::CLIENTS) {
+		if ($client->{'clientid'} eq $clientid) { $this = $client; }
+		}
+	if (not defined $this) {
+		$this = { 'clientid'=>$clientid };
+		}
+
+	return($this);
+	}
+
+
+
+
+
+
 =pod
 
 <API id="adminControlPanelAction">
@@ -1124,15 +1156,15 @@ sub providerExec {
 		my $LUSER = uc("SUPPORT/$REMOTE_USER");
 		my $USERID = lc("SUPPORT/$REMOTE_USER\@$USERNAME");
 		$USERNAME = lc($USERNAME);
-		my ($CLIENTINFO) = &OAUTH::lookup_client("admin");
+		my ($CLIENTINFO) = &JSONAPI::lookup_client("admin");
 		my ($DEVICEID) = &OAUTH::device_initialize($USERNAME,$LUSER,$self->ipaddress(),sprintf("%s",$note));
 		my ($AUTHTOKEN) = OAUTH::create_authtoken($USERNAME,$LUSER,$CLIENTINFO,$DEVICEID,'trusted'=>1);
 		my $SECRET = $CLIENTINFO->{'secret'};
 		my $CLIENTID = $CLIENTINFO->{'clientid'};
 		print STDERR 'providerExecLogin: '.Dumper({
 			LUSER=>$LUSER,NOTE=>sprintf("%s",$note),CLIENTID=>$CLIENTID,
-			USERNAME=>$USERNAME,CLIENT=>&OAUTH::lookup_client("admin"),AUTHTOKEN=>$AUTHTOKEN,DEVICEID=>$DEVICEID,
-			VALIDATE=>OAUTH::validate_authtoken($USERNAME,$LUSER,&OAUTH::lookup_client("admin"),$DEVICEID,$AUTHTOKEN),
+			USERNAME=>$USERNAME,CLIENT=>&JSONAPI::lookup_client("admin"),AUTHTOKEN=>$AUTHTOKEN,DEVICEID=>$DEVICEID,
+			VALIDATE=>OAUTH::validate_authtoken($USERNAME,$LUSER,&JSONAPI::lookup_client("admin"),$DEVICEID,$AUTHTOKEN),
 			STR=>sprintf("%s-%s-%s-%s-%s-%s",lc($USERNAME),lc($LUSER),$CLIENTID,$DEVICEID,$SECRET,$AUTHTOKEN)
 			});
 	
@@ -1762,7 +1794,7 @@ sub psgiinit {
 	elsif (($options{'ws'}) && (not defined $CLIENTID)) {
 		## websockets, no clientid check required (it is optional)
 		}
-	elsif (my $CLIENTINFO = OAUTH::lookup_client($CLIENTID)) {
+	elsif (my $CLIENTINFO = JSONAPI::lookup_client($CLIENTID)) {
 		$self->{'CLIENTID'} = $CLIENTID;
 		}
 	else {
@@ -1794,13 +1826,13 @@ sub psgiinit {
 			&JSONAPI::set_error($R = {}, 'apperr', 6, sprintf("USERID did not correspond to a valid USERNAME"));
 			}
 
-		$DOMAIN =  $v->{'_domain'} || $HEADERS->header('x-domain'); 		## not required (optional, sets focus)
+		$DOMAIN = $v->{'_domain'} || $HEADERS->header('x-domain'); 		## not required (optional, sets focus)
 		$self->{'SDOMAIN'} = $DOMAIN;
 
 		$DEVICEID = $v->{'_deviceid'} || $HEADERS->header('x-deviceid'); 	## initialized by device/stored locally
 		$self->{'DEVICEID'} = $DEVICEID;
 
-		$AUTHTOKEN =   $v->{'_authtoken'} || $HEADERS->header('x-authtoken'); 	## returned by authUserLogin
+		$AUTHTOKEN = $v->{'_authtoken'} || $HEADERS->header('x-authtoken'); 	## returned by authUserLogin
 		}
 	
 	##
@@ -1839,7 +1871,7 @@ sub psgiinit {
 		}
 	elsif ($AUTHTOKEN ne '') {
 		## AUTHENTICATION: they are attempting to be a specific user
-		my $CLIENTINFO = &OAUTH::lookup_client($CLIENTID);
+		my $CLIENTINFO = &JSONAPI::lookup_client($CLIENTID);
 		if (defined $R) {
 			}
 		elsif ($CLIENTID eq '') {
@@ -2143,7 +2175,7 @@ sub cached_navcat {
 	}
 
 sub clientid { return($_[0]->{'CLIENTID'}); }
-sub clientinfo { return(OAUTH::lookup_client($_[0]->{'CLIENTID'})); }
+sub clientinfo { return(JSONAPI::lookup_client($_[0]->{'CLIENTID'})); }
 sub deviceid { return($_[0]->{'DEVICEID'} || $_[0]->{'_DEVICEID'}); }
 
 ##
@@ -2903,8 +2935,6 @@ sub handle {
 	# $CACHE{"foo"}++;
 	my %APICALLS = ();		## a hash of api calls and their counts
 
-	## print STDERR sprintf("!!!!!!!!!!!!!!!!!!!!!! [%s] [%s]\n",$self->clientid(),$self->apiversion());
-
 	if (defined $R{'errid'}) {
 		## no sense going any further, something bad already happened.
 		warn "ERR: $R{'errid'}\n";
@@ -2914,9 +2944,6 @@ sub handle {
 		$R{'_rcmd'} = 'err';
 		&JSONAPI::set_error(\%R, 'apperr', 92, 'No valid commands could be found, please check your formatting.');
 		}
-	#elsif (($self->clientid() eq 'admin') && ($self->apiversion()<=201320)) {
-	#	&JSONAPI::set_error(\%R,'apperr',186,'To prevent data corruption, this version of the app is no longer available.');
-	#	}	
 	elsif ($self->apiversion()>201311) {
 		##
 		## version 201311+ can fail a command based strictly on permissions/formatting
@@ -3571,7 +3598,7 @@ sub authAdminLogout {
 	my %R = ();
 	my $DEVICEID = $self->deviceid();
 	my ($USERNAME,$LUSERNAME,$DOMAIN) = &OAUTH::resolve_userid($self->userid());
-	my ($CLIENTINFO) = OAUTH::lookup_client($self->clientid());
+	my ($CLIENTINFO) = JSONAPI::lookup_client($self->clientid());
 	&OAUTH::destroy_authtoken($USERNAME,$LUSERNAME,$CLIENTINFO,$DEVICEID);
 	&JSONAPI::append_msg_to_response(\%R,'success',0);
 
@@ -3661,7 +3688,7 @@ sub authAdminLogin {
 		if (not defined $CLIENTID) { $CLIENTID = $ENV{'HTTP_X_CLIENTID'}; }
 		if (not defined $CLIENTID) { $CLIENTID = $v->{'_clientid'}; }
 		if (not defined $CLIENTID) { $CLIENTID = $v->{'clientid'}; }	
-		$CLIENTINFO = OAUTH::lookup_client($CLIENTID);
+		$CLIENTINFO = JSONAPI::lookup_client($CLIENTID);
 		}
 
 	if (&JSONAPI::hadError(\%R)) {
@@ -21940,9 +21967,6 @@ sub appPageGet {
 		}
 	elsif (($self->clientid() ne 'admin') && ($self->apiversion() >= 201317)) {
 		my $PROJECTDIR = $self->projectdir($self->projectid());
-		#open F, ">>/tmp/asdf";
-		#use Data::Dumper; print F 'PROJECT: '.Dumper($PROJECTDIR, $self->projectid());
-		#close F;
 
 		if (not $self->projectid()) {
 			&JSONAPI::append_msg_to_response(\%R,'iseerr',71220,"projectid is not set (check DNS config)");
@@ -24351,6 +24375,8 @@ sub adminWarehouse {
 <purpose>to create/update/delete/modify (via macro) a configuration object</purpose>
 <input id="@updates">an array of cmd objects</input>
 <example><![CDATA[
+* PLUGIN/SET?plugin=domain.com
+* BLAST/SET?from_email=
 * GLOBAL/WMS?active=1|0
 * GLOBAL/ERP?active=1|0
 * GLOBAL/ORDERID?start=####
