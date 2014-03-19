@@ -8925,10 +8925,11 @@ sub adminTicket {
 <output id="@MSGS"></output>
 </API>
 
-
-<API id="adminBlastMacroDetail">
-<input id="MSGID"></input>
-<output id="%MSG"></output>
+<API id="adminBlastMacroList">
+<input id="custom" default="1" optional="1">set to zero to exclude custom macros</input>
+<input id="system" default="1" optional="1">set to zero to exclude system macros (note: if a CUSTOM macro has been created with the same name it will NOT appear in the system list)</input>
+<output id="@MACROS">
+</output>
 </API>
 
 <API id="adminBlastMacroCreate">
@@ -8970,13 +8971,31 @@ sub adminBlastMacro {
 		}
 	elsif ($v->{'_cmd'} eq 'adminBlastMacroList') {
 		my @MSGS = ();
-		my $pstmt = "select MACROID,TITLE,PRT,BODY,CREATED_TS,LUSER from BLAST_MACROS where MID=$MID";
+		if (not defined $v->{'custom'}) { $v->{'custom'} = 1; }
+		if (not defined $v->{'system'}) { $v->{'system'} = 1; }
+
+		my %HAS_CUSTOM = ();
+		my $pstmt = "select MACROID,TITLE,BODY,CREATED_TS,LUSER from BLAST_MACROS where MID=$MID";
 		my $sth = $udbh->prepare($pstmt);
 		$sth->execute();
 		while ( my $row = $sth->fetchrow_hashref() ) {
+			$HAS_CUSTOM{$row->{'MACROID'}}++;
+			next if (not $v->{'custom'});
 			push @MSGS, $row;
 			}
 		$sth->finish();
+
+		## now show the system list.
+		foreach my $macroid (keys %BLAST::DEFAULTS::MACROS) {
+			next if ($HAS_CUSTOM{$macroid});
+			next if (not $v->{'system'});
+			my %ROW = ();
+			$ROW{'MACROID'} = $macroid;
+			$ROW{'BODY'} = $BLAST::DEFAULT::MACROS{$macroid};
+			$ROW{'LUSER'} = '*system';
+			push @MSGS, \%ROW;
+			}
+
 		$R{'@MACROS'} = \@MSGS;
 		}
 	elsif (not &JSONAPI::validate_required_parameter(\%R,$v,'MACROID')) {
@@ -24560,11 +24579,11 @@ sub adminConfigDetail {
 			}
 		}
 
+	## BLAST SETTINGS 
 	if ($v->{'blast'}) {
-		## xxx
 		my ($webdb) = $self->webdbref();
 		$R{'%BLAST'} = {
-			'from_email'=>$webdb->{'from_email'},
+			'from_email'=>sprintf("%s",$webdb->{'from_email'}),
 			};
 		}
 

@@ -45,7 +45,7 @@ sub macros {
 		$self->{'%MACROS'} = Storable::dclone \%BLAST::DEFAULTS::MACROS;
 		my ($udbh) = &DBINFO::db_user_connect($self->username());
 		my ($MID) = $self->mid();
-		my $pstmt = "select MACROID,PRT,BODY from BLAST_MACROS where MID=$MID";
+		my $pstmt = "select MACROID,BODY from BLAST_MACROS where MID=$MID";
 		my $sth = $udbh->prepare($pstmt);
 		$sth->execute();
 		while ( my ($MACROID, $BODY) = $sth->fetchrow() ) {
