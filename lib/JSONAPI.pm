@@ -162,8 +162,6 @@ use strict;
 	['customer','Buyer/Customer','API calls that can be used by registered customer/buyers'],
 	['admin','Administrative','API calls intended for site owners (and require administrative authentication)'],
 	['admin-ui','Administrative User Interface','Administrative Compatibility Calls (internal use only)'],
-#	['supplier','Supplier','*** NOT FINISHED ***'],
-#	['merchandising','Merchandising','*** NOT FINISHED ***'],
 	['utility','Utilities','API calls that can be used by anybody, and are mostly useful for diagnostic reasons (ex: echo, time, geolocation)'],
 	['deprecated','Legacy/Deprecated','DO NOT USE THESE - deprecated calls will be removed in future releases after a period of notification, followed by a period of selective availability'],
 	);
@@ -171,7 +169,7 @@ use strict;
 
 
 %JSONAPI::CMDS = (
-	## LEGACY::
+	## LEGACY ##
 
 	## 201324
 	'adminWholesaleScheduleList'=>[ \&JSONAPI::adminPriceSchedule, { 'deprecated'=>201324, 'admin'=>1, }, 'admin', { 'CUSTOMER'=>'L' } ],
@@ -181,12 +179,6 @@ use strict;
 
 	## 201336
 	'appCategoryDetail'=>[ \&JSONAPI::adminNavcat,  { 'deprecated'=>201335 }, 'deprecated', ],
-	'adminUIProductPanelList'=>[\&JSONAPI::adminUIProductPanelList, { 'deprecated'=>201335, 'admin'=>1, }, 'admin-ui', { 'PRODUCT'=>'U' } ],
-	'adminUIProductPanelExecute'=>[\&JSONAPI::adminUIProductPanelExecute, { 'deprecated'=>201335, 'admin'=>1, }, 'admin-ui', { 'PRODUCT'=>'U'} ],
-
-	## 201338
-   #'adminSupplierProductList'=> [ \&JSONAPI::adminSupplier, { 'admin'=>1, }, 'deprecated', { 'SUPPLIER'=>'R','PRODUCT'=>'R' } ], ## added by JT
-	#'adminOrderUpdate'=>[ \&JSONAPI::adminCartOrderMacro,  { 'admin'=>1, }, 'deprecated', { 'ORDER'=>'U'} ],
 	
 	## 201352
 	'cartCheckoutValidate'=>[ \&JSONAPI::cartCheckoutValidate,  { 'cart'=>1 }, 'deprecated', ],
@@ -205,13 +197,13 @@ use strict;
 	'domainLookup'=>[ \&JSONAPI::domainLookup, { }, 'utility' ],
 	'cryptoTool'=>[ \&JSONAPI::cryptoTool, {}, 'utility' ],
 
-## &ZSHIP::correct_state
-## &ZSHIP::correct_zip 
-## ZSHIP::validate_address
+	## future utility methods:
+	## &ZSHIP::correct_state
+	## &ZSHIP::correct_zip 
+	## ZSHIP::validate_address
 
 	## app level (no cart rqeuired)
 	'appProductGet'=>[ \&JSONAPI::appProductGet,  { }, 'app', ],
-	# 'appProductGetCategories'=>[ \&JSONAPI::appProductGetCategories,  { }, 'app', ],
 	'appProductList'=>[ \&JSONAPI::appProduct,  { }, 'app', ],
 	'appProductSelect'=>[ \&JSONAPI::appProduct,  { }, 'app', ],
 	'appPublicSearch'=>[ \&JSONAPI::appPublicSearch,  { }, 'app', ],
@@ -244,10 +236,9 @@ use strict;
 	'authPasswordRecover'=>[ \&JSONAPI::authPassword, {  'auth'=>1 }, 'auth' ],
 	'authPasswordUpdate'=>[ \&JSONAPI::authPassword, { 'auth'=>1 }, 'auth' ],
 	'authNewAccountCreate'=>[ \&JSONAPI::authNewAccountCreate, { 'auth'=>1 }, 'auth' ],
-	#'authUserValidate'=>[ \&JSONAPI::authUserValidate, { 'auth'=>0,, }, 'auth' ],
 
-
-	## provider calls
+	##
+	## support provider calls
 	'providerExecLogin'=>[ \&JSONAPI::providerExec, { 'provider'=>1 } ],
 	'providerExecTodoCreate'=>[ \&JSONAPI::providerExec, { 'provider'=>1 } ],
 	'providerExecAccountGet'=>[ \&JSONAPI::providerExec, { 'provider'=>1 } ],
@@ -598,17 +589,6 @@ use strict;
 	'adminRSSUpdate'=>[ \&JSONAPI::adminRSS, { 'admin'=>1, }, 'admin', { 'RSS'=>'U' } ],
 	'adminRSSDetail'=>[ \&JSONAPI::adminRSS, { 'admin'=>1, }, 'admin', { 'RSS'=>'D' } ],
 
-#	## adminEmailMessage
-#	'adminEmailList'=>[\&JSONAPI::adminEmail,  { 'admin'=>1, }, 'admin', { 'MESSAGE'=>'L' } ],
-#	'adminEmailSave'=>[\&JSONAPI::adminEmail,  { 'admin'=>1, }, 'admin', { 'MESSAGE'=>'U' } ],
-#	'adminEmailMessageList'=>[ \&JSONAPI::adminEmailMessage, { 'admin'=>1, }, 'admin', { 'MESSAGE'=>'L' } ],
-#	'adminEmailMessageClone'=>[ \&JSONAPI::adminEmailMessage, { 'admin'=>1, }, 'admin', { 'MESSAGE'=>'R' } ],
-#	'adminEmailMessageCreate'=>[ \&JSONAPI::adminEmailMessage, { 'admin'=>1, }, 'admin', { 'MESSAGE'=>'C' } ],
-#	'adminEmailMessageRemove'=>[ \&JSONAPI::adminEmailMessage, { 'admin'=>1, }, 'admin', { 'MESSAGE'=>'R' } ],
-#	'adminEmailMessageUpdate'=>[ \&JSONAPI::adminEmailMessage, { 'admin'=>1, }, 'admin', { 'MESSAGE'=>'U' } ],
-#	'adminEmailMessageDetail'=>[ \&JSONAPI::adminEmailMessage, { 'admin'=>1, }, 'admin', { 'MESSAGE'=>'D' } ],
-
-
 	## adminAffiliates (not live)
 	'adminAffiliateList'=>[ \&JSONAPI::adminAffiliates, { 'admin'=>1, }, 'admin', { 'AFFILIATE'=>'L' } ],
 	'adminAffiliateClone'=>[ \&JSONAPI::adminAffiliates, { 'admin'=>1, }, 'admin', { 'AFFILIATE'=>'R' } ],
@@ -627,10 +607,8 @@ use strict;
 	'adminSyndicationDebug'=>[ \&JSONAPI::adminSyndication, { 'admin'=>1, }, 'admin', { 'SYNDICATION'=>'S' } ],
 	'adminSyndicationListFiles'=>[ \&JSONAPI::adminSyndication, { 'admin'=>1, }, 'admin', { 'SYNDICATION'=>'R' } ],
 #	'adminSyndicationCategories'=>[ \&JSONAPI::adminSyndication, { 'admin'=>1, }, 'admin', { 'SYNDICATION'=>'R' } ],
-#	'adminSyndicationAMZCategories'=>[ \&JSONAPI::adminSyndication, { 'admin'=>1, }, 'admin', { 'SYNDICATION'=>'R' } ],
 	'adminSyndicationBUYDownloadDBMaps'=>[ \&JSONAPI::adminSyndication, { 'admin'=>1, }, 'admin', { 'SYNDICATION'=>'R' } ],
 	'adminSyndicationAMZOrders'=>[ \&JSONAPI::adminSyndication, { 'admin'=>1, }, 'admin', { 'SYNDICATION'=>'R' } ],
-#	'adminSyndicationAMZThesaurii'=>[ \&JSONAPI::adminSyndication, { 'admin'=>1, }, 'admin', { 'SYNDICATION'=>'R' } ],
 	'adminSyndicationAMZLogs'=>[ \&JSONAPI::adminSyndication, { 'admin'=>1, }, 'admin', { 'SYNDICATION'=>'R' } ],
 	'adminSyndicationMacro'=>[ \&JSONAPI::adminSyndication, { 'admin'=>1, }, 'admin', { 'SYNDICATION'=>'U' } ],
 
@@ -641,7 +619,6 @@ use strict;
 	'adminGiftcardSearch'=>[ \&JSONAPI::adminGiftcard, { 'admin'=>1, }, 'admin', { 'GIFTCARD'=>'L' } ],
 	'adminGiftcardSetupProduct'=>[ \&JSONAPI::adminGiftcard, { 'admin'=>1, }, 'admin', { 'GIFTCARD'=>'L' } ],
 	'adminGiftcardCreate'=>[ \&JSONAPI::adminGiftcard, { 'admin'=>1, }, 'admin', { 'GIFTCARD'=>'C' } ],
-	#'adminGiftcardRemove'=>[ \&JSONAPI::adminGiftcard, { 'admin'=>1, }, 'admin', { 'GIFTCARD'=>'R' } ],
 	'adminGiftcardMacro'=>[ \&JSONAPI::adminGiftcard, { 'admin'=>1, }, 'admin', { 'GIFTCARD'=>'U' } ],
 	'adminGiftcardDetail'=>[ \&JSONAPI::adminGiftcard, { 'admin'=>1, }, 'admin', { 'GIFTCARD'=>'D' } ],
 
@@ -730,17 +707,10 @@ use strict;
    'adminDomainDiagnostics'=>[\&JSONAPI::adminDomain, { 'admin'=>1, }, 'admin', { 'DOMAIN'=>'L' } ],
 	'adminDomainMacro'=>[\&JSONAPI::adminDomain, { 'admin'=>1, }, 'admin', { 'DOMAIN'=>'L' } ],
 
-
 	'adminPartitionList'=>[\&JSONAPI::adminPartitionList, { 'admin'=>1, }, 'admin' ],
 	'adminUIExecuteCGI'=>[\&JSONAPI::adminUIExecuteCGI, { 'admin'=>1, }, 'admin-ui', ],
 	'adminUIBuilderPanelExecute'=>[\&JSONAPI::adminUIBuilderPanelExecute, { 'admin'=>1,, }, 'admin-ui', { 'LEGACY'=>'U'} ],
-#	'adminUIEBAYPowerListerPanelExecute'=>[\&JSONAPI::adminUIEBAYPowerListerPanelExecute, { 'admin'=>1,, }, 'admin-ui', { 'EBAY'=>'U' } ],
-#	'adminUIDomainPanelExecute'=>[\&JSONAPI::adminUIDomainPanelExecute, { 'admin'=>1,, }, 'admin-ui', { 'DOMAIN'=>'L' } ],
-#	'adminUITOXMLChooserShow'=>[\&JSONAPI::adminUITOXMLChooserShow, { 'admin'=>1,, }, 'admin-ui', ],
 	'adminUIMediaLibraryExecute'=>[ \&JSONAPI::adminUIMediaLibraryExecute, { 'admin'=>1,, }, 'admin-ui', { 'IMAGE'=>'C' } ],
-#	'adminUIOrderPanelExecute'=>[ \&JSONAPI::adminUIOrderPanelExecute, { 'admin'=>1,, }, 'admin-ui' ],
-#	'adminTOXMLChooserList'=>[\&JSONAPI::adminTOXMLChooserList, { 'admin'=>1,, }, 'admin-ui', ],
-#	'adminTOXMLChooserDetail'=>[\&JSONAPI::adminTOXMLChooserDetail, { 'admin'=>1,, }, 'admin-ui', ],
 	'adminTOXMLSetFavorite'=>[\&JSONAPI::adminTOXMLSetFavorite, { 'admin'=>1,, }, 'admin-ui', { 'LEGACY'=>'U' } ],
 
 	'adminTechnicalRequest'=>[ \&JSONAPI::adminTechnicalRequest, { 'admin'=>1, }, 'admin', { 'HELP'=>'C' } ],
@@ -749,24 +719,14 @@ use strict;
 	'adminMessagesList'=>[ \&JSONAPI::adminMessages, { 'admin'=>1, }, 'admin', ],
 	'adminMessagesCleanup'=>[ \&JSONAPI::adminMessages, { 'admin'=>1, }, 'admin', ],
 
-#	'WEBDBSYNC' => \&WEBAPI::webdbSync,
-#	'INVENTORYSYNC' => \&WEBAPI::inventorySync,
-#	'SKULIST' => \&WEBAPI::skulistSync,
 	'adminVersionCheck'=>[ \&JSONAPI::adminVersionCheck, {}, 'admin', ],
-#	'PAYMENTMETHODS' => \&WEBAPI::paymentMethodsSync,
-#	'LOOKUP' => \&WEBAPI::lookup,
-#	'SENDMAIL' => \&WEBAPI::sendMail,
 	'adminAccountDetail'=>[ \&JSONAPI::adminAccountDetail, { 'admin'=>1, }, 'admin', ],
-#	'REGISTER' => \&WEBAPI::registerSync,
-#	'GIFTCARDSYNC' => \&WEBAPI::giftCardSync,
-#	'WALLETSYNC' => \&WEBAPI::walletSync,
 	'adminCSVImport'=>[ \&JSONAPI::adminCSVImport, { 'admin'=>1, }, 'admin', { 'JOB'=>'C' } ],
 	'adminCSVExport'=>[ \&JSONAPI::adminCSVExport, { 'admin'=>1, }, 'admin', { 'JOB'=>'C' } ],
 	'adminPublicFileUpload'=>[ \&JSONAPI::adminPublicFileUpload, { 'admin'=>1, }, 'admin', { 'IMAGE'=>'C' } ],
 	'adminPublicFileList'=>[ \&JSONAPI::adminPublicFileList, { 'admin'=>1, }, 'admin', { 'IMAGE'=>'L' } ],
 	'adminPublicFileDelete'=>[ \&JSONAPI::adminPublicFileDelete, { 'admin'=>1, }, 'admin', { 'IMAGE'=>'D' } ],
 	'adminWalletList'=>[ \&JSONAPI::adminWalletList, { 'admin'=>1, }, 'admin', { 'CUSTOMER/WALLET'=>'L' } ],
-#	'SUPPLIERSYNC' => \&WEBAPI::supplierSync,	
 
 	## Suppliers
 	'appSupplierInit'=>[ \&JSONAPI::appSupplierInit,  {}, 'supplier', ],
@@ -1167,7 +1127,6 @@ sub providerExec {
 		my ($CLIENTINFO) = &OAUTH::lookup_client("admin");
 		my ($DEVICEID) = &OAUTH::device_initialize($USERNAME,$LUSER,$self->ipaddress(),sprintf("%s",$note));
 		my ($AUTHTOKEN) = OAUTH::create_authtoken($USERNAME,$LUSER,$CLIENTINFO,$DEVICEID,'trusted'=>1);
-		my $CLIENTINFO = &OAUTH::lookup_client("admin");
 		my $SECRET = $CLIENTINFO->{'secret'};
 		my $CLIENTID = $CLIENTINFO->{'clientid'};
 		print STDERR 'providerExecLogin: '.Dumper({
@@ -1666,7 +1625,6 @@ sub psgiinit {
 	my $HEADERS = $plackreq->headers();
 	$ENV{'REMOTE_ADDR'} = $plackreq->address();
 
-	my $HEADERS = $plackreq->headers();
 	foreach my $header ($HEADERS->header_field_names()) {
 		# print STDERR sprintf("HEADER: $header %s\n",$HEADERS->header($header));
 		my $ENV_HEADER = uc("HTTP-$header"); $ENV_HEADER =~ s/-/_/gs;
@@ -4853,7 +4811,6 @@ sub adminCartOrderMacro {
 		&JSONAPI::append_msg_to_response(\%R,'apperr',9005,'Issue with @updates formatting [we did not understand the format you sent]');
 		}
 
-	# &JSONAPI::append_msg_to_response(\%R,'apperr',9001,'adminOrderUpdate temporarily no longer available for this version');
    return(\%R);
 	}
 		
@@ -5529,12 +5486,6 @@ sub adminSupplier {
 		}
 	elsif ($v->{'_cmd'} eq 'adminSupplierRemove') {
 		## already handled!
-		}
-	elsif ($v->{'_cmd'} eq 'adminSupplierProductList') {
-		&JSONAPI::set_error(\%R,'apierr',4901,"adminSupplierProductList no longer supported (please upgrade)");
-		#my ($sup_to_prodref,$prod_to_supref) = $S->fetch_supplier_products();
-		#my @skus = (sort keys %{$prod_to_supref});
-		$R{'@SKUS'} = [];
 		}
 	elsif ($v->{'_cmd'} eq 'adminSupplierInventoryList') {
 		$R{'@ROWS'} = INVENTORY2->new($USERNAME)->detail( 'WHERE'=>[ 'SUPPLIER_ID', 'EQ', $VENDORID ]);
@@ -7785,7 +7736,7 @@ sub adminProduct {
 			push @HEAD, { 'id'=>'VENDOR_ORDER_DBID' };
 			push @HEAD, { 'id'=>'VENDOR_SKU' };
 
-			my $pstmt = "select * from INVENTORY_DETAIL where MID=$MID and PID=$qtPID order by ID desc";
+			$pstmt = "select * from INVENTORY_DETAIL where MID=$MID and PID=$qtPID order by ID desc";
 			my $sth = $udbh->prepare($pstmt);
 			$sth->execute();
 			while ( my $dbref = $sth->fetchrow_hashref() ) {
@@ -8662,7 +8613,7 @@ sub adminBlastMacro {
 			next if (not $v->{'system'});
 			my %ROW = ();
 			$ROW{'MACROID'} = $macroid;
-			$ROW{'BODY'} = $BLAST::DEFAULT::MACROS{$macroid};
+			$ROW{'BODY'} = $BLAST::DEFAULTS::MACROS{$macroid};
 			$ROW{'LUSER'} = '*system';
 			push @MSGS, \%ROW;
 			}
@@ -8844,7 +8795,7 @@ sub adminBlastMsg {
 		my ($exists) = $udbh->selectrow_array($pstmt);
 		my $VERB = ($exists)?'update':'insert';
 	
-		my $pstmt =	&DBINFO::insert($udbh,'SITE_EMAILS',\%params,debug=>2,key=>['MID','PRT','MSGID','LANG'],sql=>1,verb=>$VERB);
+		$pstmt =	&DBINFO::insert($udbh,'SITE_EMAILS',\%params,debug=>2,key=>['MID','PRT','MSGID','LANG'],sql=>1,verb=>$VERB);
 		print STDERR "$pstmt\n";
 		$udbh->do($pstmt);
 		}
@@ -10682,7 +10633,8 @@ sub adminEBAY {
 					foreach my $line (@lines) { my $svc = &ZTOOLKIT::parseparams($line);	push @ship_domservices, $svc;	}
 					$new{'@ship_domservices'} = \@ship_domservices;
 					my @ship_intservices = ();
-					my @lines = split(/[\n\r]+/,$epnsref->{'ebay:ship_intservices'});
+
+					@lines = split(/[\n\r]+/,$epnsref->{'ebay:ship_intservices'});
 					foreach my $line (@lines) { my $svc = &ZTOOLKIT::parseparams($line);	push @ship_intservices, $svc;	}
 					$new{'@ship_intservices'} = \@ship_intservices;
 					
@@ -11276,7 +11228,7 @@ sub adminSyndication {
 
 			## adminSyndicationAMZThesaurii  Thesauruses
 			my @THESAURII = ();
-			my $pstmt = "select ID as THID,
+			$pstmt = "select ID as THID,
 				NAME as name,
 				GUID as guid,
 				ITEMTYPE as itemtype,
@@ -11289,7 +11241,8 @@ sub adminSyndication {
 				ISGIFTMESSAGEAVAILABLE as isgiftmessageavailable,
 				SEARCH_TERMS as search_terms
 				from AMAZON_THESAURUS where MID=$MID order by NAME";
-			my $sth = $udbh->prepare($pstmt);
+
+			$sth = $udbh->prepare($pstmt);
 			$sth->execute();
 			while ( my $ref = $sth->fetchrow_hashref()) {
 				## note: THID is no longer used as of 201334
@@ -11334,32 +11287,10 @@ sub adminSyndication {
 		$R{'@ROWS'} = \@ROWS;
 		}
 	elsif ($v->{'_cmd'} eq 'adminSyndicationBUYDownloadDBMaps') {
-		my $ref = $ZOOVY::cgiv;	## we'll copy from CGI params incase we're reloading
 		require SYNDICATION::BUYCOM;
 		my @maps = &SYNDICATION::BUYCOM::fetch_dbmaps($USERNAME);
 		$R{'@MAPS'} = \@maps;
-		## my $mapjrefs = JSON::XS::decode_json($map->{'MAPTXT'});
 		}
-#	elsif ($v->{'_cmd'} eq 'adminSyndicationAMZCategories') {
-#	   my ($NC) = NAVCAT->new($USERNAME,PRT=>$PRT);
-#		my $theref = &AMAZON3::fetch_thesaurus($USERNAME);
-#		my @CATEGORIES = ();
-#		foreach my $safe (sort $NC->paths()) {
-#			next if (substr($safe,0,1) eq '*');
-#			next if ($safe eq '');
-#			my ($pretty, $children, $productstr, $sortby, $metaref) = $NC->get($safe);
-#			if ($pretty eq '') { $pretty = "UN-NAMED: $safe"; }
-#			my $name = ''; foreach (split(/\./,$safe)) { $name .= "&nbsp;"; } $name .= $pretty;
-#			if ($safe eq '.') { $name = 'HOMEPAGE'; }
-#			my $val = $metaref->{'AMAZON_THE'};
-#			my @values = ZTOOLKIT::value_sort($theref);
-#			my @CATEGORIES = ();
-#			foreach my $id (@values) {
-#				push @CATEGORIES, [ $safe, $pretty, $id, $theref->{$id} ];
-#				}
-#			}
-#		$R{'@CATEGORIES'} = \@CATEGORIES;
-#		}
 	elsif ($v->{'_cmd'} eq 'adminSyndicationAMZOrders') {
 		require CART2;
 		## only select from the last 50 days
@@ -11385,18 +11316,6 @@ sub adminSyndication {
  		$sth->finish;
 		$R{'@ORDERS'} = \@ORDERS;
 		}
-	#elsif ($v->{'_cmd'} eq 'adminSyndicationAMZThesaurii') {
-	## THIS IS NOT RETURNED HERE ANYMORE -- GO LOOK IN adminSyndicationDetail for AMZ
-	#	my @THESAURII = ();
-	#	my $pstmt = "select * from AMAZON_THESAURUS where MID=$MID";
-	#	my $sth = $udbh->prepare($pstmt);
-	#	$sth->execute();
-	#	while ( my ($ref) = $sth->fetchrow_hashref()) {
-	#		push @THESAURII, $ref;
-	#		}
-	#	$sth->finish();
-	#	$R{'@THESAURII'} = \@THESAURII;
-	#	}
 	elsif ($v->{'_cmd'} eq 'adminSyndicationListFiles') {
 		require LUSER::FILES;
 		my ($LF) = LUSER::FILES->new($USERNAME,LU=>$LU);
@@ -12061,11 +11980,6 @@ sub adminAffiliate {
 <input id="quantity">defaults to 1 (if not specified)</input>
 <input id="email" optional="1">if a customer exists this will be matched to the cid, if a customer cannot be found a new customer account will be created, not compatible with qty > 1</input>
 <input id="series" optional="1">a mechanism for grouping cards, usually used with quantity greater than 1</input>
-</API>
-
-<API id="adminGiftcardRemove">
-<purpose></purpose>
-Not finished
 </API>
 
 <API id="adminGiftcardMacro">
@@ -13156,8 +13070,6 @@ sub adminAppTicket {
 	require CUSTOMER;
 
 	my $TKTCODE = $v->{'TKTCODE'};
-
-	my @MSGS = ();
 
 	#mysql> desc CHECKOUTS;
 	#+----------------+-------------------------------+------+-----+---------+----------------+
@@ -15263,422 +15175,6 @@ sub adminUIExecuteCGI {
 
 =pod
 
-<API id="adminUIProductPanelExecute">
-<purpose></purpose>
-<input id="pid">Product Identifier</input>
-<input id="sub">LOAD|SAVE|.. (other behaviors may be specified by the actual panel content)</input>
-<input id="panel">Panel Identifier (the 'id' field returned by adminUIProductList</input>
-<response id="html">the html content of the product editor panel</response>
-<response id="js">the js which is required by the panel.</response>
-</API>
-
-=cut
-
-
-sub adminUIProductPanelExecute {
-	my ($self,$v) = @_;
-
-	my %R = ();
-
-	&JSONAPI::append_msg_to_response(\%R,'apperr',127,'adminUIProductPanelExecute no longer available (please upgrade)');
-
-#	require PRODUCT::PANELS;
-#
-#	## print STDERR sprintf("LUSER:'%s' '%s'\n",$self->username(),$self->luser());
-#	# my $PRT = $self->prt();
-#
-#	my ($P) = PRODUCT->new($self->username(),$v->{'pid'});
-#	my $SUB = $v->{'sub'};
-#	$R{'pid'} = $v->{'pid'};
-#
-#	my $panelref = &PRODUCT::PANELS::get_panelref($v->{'panel'});
-#	if (not defined $P) {
-#		&JSONAPI::append_msg_to_response(\%R,'apperr',9393,'Invalid product (pid) requested');
-#		}
-#	elsif (not defined $panelref) {
-#		&JSONAPI::append_msg_to_response(\%R,'apperr',9394,'Invalid panel reference requested');
-#		}
-#	elsif ($SUB eq '') {
-#		&JSONAPI::append_msg_to_response(\%R,'apperr',9395,'parameter sub is required for adminUIProductPanelExecute');
-#		}
-#	else {
-#		&JSONAPI::append_msg_to_response(\%R,'success',0);
-#		my ($content,my $js) = $panelref->{'func'}->($self,$P,$SUB,$v);
-#		$R{'html'} = $content;
-#		$R{'js'} = $js;
-#		}
-
-	return(\%R);
-	}
-
-
-
-
-=pod
-
-<API id="adminUIBuilderPanelExecute">
-<purpose></purpose>
-<input id="sub">EDIT|SAVE|SAVE-EDIT</input>
-<input id="id">element id</input>
-
-<input id="panel">Panel Identifier (the 'id' field returned by adminUIProductList</input>
-<response id="html">the html content of the product editor panel</response>
-<response id="js">the js which is required by the panel.</response>
-</API>
-
-=cut
-
-sub adminUIBuilderPanelExecute {
-	my ($self,$v) = @_;
-
-	my %R = ();
-	require TOXML::EDIT;
-	require TOXML::SAVE;
-	require TOXML::PREVIEW;
-	require SITE;
-
-
-	my $USERNAME = $self->username();
-	my $SUB = uc($v->{'sub'});
-	my $ID = $v->{'id'};
-
-	require LUSER;
-
-	my $SITE = 	undef; ## SITE->new($USERNAME,'PRT'=>$self->prt(),'DOMAIN'=>$self->sdomain());
-	if ($v->{'_SREF'}) {
-		$SITE = SITE::sitedeserialize($USERNAME,$v->{'_SREF'});
-		}
-	else {
-		&JSONAPI::set_error(\%R,'apperr',9134,"_SREF (SITE) was not passed to method BUILDER!\n");		
-		}
-
-	my $html = '';
-	my ($t,$el,$TYPE);
-	my $LOGTYPE = '';
-	my $out = '';
-
-	my $FORMAT = $SITE->format();
-	my $LAYOUT = $SITE->layout();
-
-	if (&JSONAPI::hadError(\%R)) {
-		## skip if we encountered an error
-		}				
-	elsif ($SITE->format() eq 'WRAPPER') {
-		# $LAYOUT = $SITE->layout();
-		$LOGTYPE = "WRAPPER=$LAYOUT";
-		}
-	elsif ($SITE->format() eq 'PRODUCT') {	## if sku is set, then set $SREF->{'
-		# $LAYOUT = PRODUCT->new($USERNAME,$SITE->sku())->fetch('zoovy:fl');
-		# $LAYOUT = &ZOOVY::fetchproduct_attrib($USERNAME,$SITE->sku(),'zoovy:fl');
-		# set flow style to 'P' for proper defaulting?!?! (probably not necessary)
-		$LOGTYPE = sprintf("PRODUCT=%s LAYOUT=$LAYOUT",$SITE->sku());
-		}
-	elsif ($SITE->format() eq 'PAGE') { 		## default 
-		$LOGTYPE = sprintf("PAGE=%s LAYOUT=$LAYOUT",$SITE->pageid());
-		}
-	else {	
-		## yeah it's all good.
-		}
-
-	print STDERR "LOG TPE $LOGTYPE\n";
-	
-	if (&JSONAPI::hadError(\%R)) {
-		}
-	else {
-		($t) = TOXML->new($SITE->format(),$SITE->layout(),USERNAME=>$USERNAME,SUBTYPE=>$SITE->fs());
-		if (not defined $t) { 
-			&JSONAPI::set_error(\%R,'apperr',9135,"Could not load TOXML layout FORMAT=[$FORMAT] LAYOUT=[$LAYOUT]");
-			}
-		}
-
-	if (not &JSONAPI::hadError(\%R)) {
-		($el) = $t->fetchElement($ID,$SITE->div());
-		$LOGTYPE .= " ELEMENT=".$el->{'ID'};
-		if (not defined $el) { 
-			&JSONAPI::set_error(\%R,'apperr',9136,"Could not find element ID[$ID] from Toxml file FORMAT[$FORMAT] LAYOUT[$LAYOUT]");
-			}
-		}
-
-	##
-	## SANITY: at this point the following variables are either setup or $ERROR is set.
-	##		p=Current Page, t=Current TOXML document, el=current element in focus, type=>
-	##
-
-	if (&JSONAPI::hadError(\%R)) {
-		}
-	elsif (($SUB eq 'SAVE') || ($SUB eq 'SAVE-EDIT')) {	
-		## note if we recive a variable of ACTION=reload then we'll go back and try editing again.
-		## used to reload options based on a choice (e.g. prodlist)
-		$TYPE = $el->{'TYPE'};
-		if (($TYPE eq 'PRODLIST') && ($v->{'func'} eq 'LISTEDITOR')) {	$TYPE = 'LISTEDITOR'; }
-		if ($TYPE eq '') { 
-			&JSONAPI::set_error(\%R,'apperr',9140,"Element type was not set (how odd??)[1]");
-			}
-		elsif (not defined $TOXML::EDIT::edit_element{ $TYPE }) { 
-			&JSONAPI::set_error(\%R,'apperr',9141,"Undefined editor for TYPE=[$TYPE]"); 
-			}
-		else {
-			# use Data::Dumper; print STDERR Dumper($el,$v,$SREF); 
-			# print STDERR "SAVING: $TYPE\n";
-			($TYPE,my $prompt,$html) = $TOXML::SAVE::save_element{$TYPE}->($el,$v,$SITE); 
-			$self->accesslog("AJAX.BUILDER.SAVE",$LOGTYPE,"INFO");
-			}
-
-		# push @CMDS, { m=>'hideeditor' };
-		# $out .= "?m=hideeditor";
-		# if (uc($v->{'ACTION'}) eq 'RELOAD') { $SUB = 'EDIT'; $out =''; }	
-
-		## we always return the full page because an element earlier on a page might affect an element later
-		my ($html) = $t->render('*SITE'=>$SITE);
-
-		#$html = qq~
-		#	<div id="editorDiv" style="width: 780px; display: none"></div>
-		#	<div style="border: 1px solid #999999">
-		#		<table  bgcolor="<!-- BGCOLOR -->" width="100%">
-		#		<tr><td align="left" valign='top'><div style="text-align: left" id="contentDiv">$html</div></td></tr>
-		#		</table>
-		#	</div>
-		#	~;
-
-		$html .= qq~<button class="button2" onClick="navigateTo('/biz/vstore/builder/index.cgi');">Exit</button>~;
-		$R{'html'} = $html;
-
-		# $html = "FL: $SREF->{'_FL'} | PG: $SREF->{'_PG'} | SKU: $SREF->{'_SKU'} | FS: $SREF->{'_FS'}<br><hr>".$html;
-		# $out .= "?m=loadcontent&html=".&js_encode($html);
-		
-		# push @CMDS, { m=>'loadcontent', html=>$html };
-
-		if ($SUB eq 'SAVE-EDIT') { $SUB = 'EDIT'; }
-		# if (uc($CMD) eq 'RELOAD') { $SUB = 'EDIT'; }
-		}
-
-
-	if (&JSONAPI::hadError(\%R)) {
-		}
-	elsif ($SUB eq 'EDIT') {
-		$TYPE = $el->{'TYPE'};
-		if (($TYPE eq 'PRODLIST') && ($v->{'func'} eq 'LISTEDITOR')) {	$TYPE = 'LISTEDITOR'; }
-
-		# print STDERR "TYPE IS: $TYPE\n";
-		if ($TYPE eq '') { 
-			&JSONAPI::set_error(\%R,'apperr',9144,"Element type was not set (how odd??)[2]");
-			}
-		elsif (not defined $TOXML::EDIT::edit_element{ $TYPE }) { 
-			&JSONAPI::set_error(\%R,'apperr',9142,"Undefined editor for TYPE=[$TYPE]");
-			}
-		else { 
-			# $el->{'_FORM'} = "thisFrm-$ID";
-			(my $STYLE,my $prompt,$html,my $extra) = $TOXML::EDIT::edit_element{$TYPE}->($el,$t,$SITE,$v); 
-			
-			## normally we'd just call saveElement, but for LISTEDITOR we need to do some other stuff.
-			# my $jsaction = qq~saveElement('$TYPE','$ID');~;
-			#if ($TYPE eq 'LISTEDITOR') {
-			#	$jsaction = qq~setorder(document.thisFrm.list1,document.thisFrm.listorder); $jsaction~;
-			#	}
-				## NOTE: textarea's return the input in the PROMPT (how dumb!)
-			if ($STYLE eq 'TEXTAREA') {
-				$html = $prompt; $prompt = $el->{'PROMPT'};
-				}
-			elsif ($STYLE eq 'IMAGE') {
-				$html = "<table border=0><tr><td valign='top'>$html</td><td valign='top'>$extra</td></tr></table>";
-				}
-
-			$R{'id'} = $ID;
-			$R{'type'} = $TYPE;
-			$R{'prompt'} = $prompt;
-			$R{'html'} = $html;
-			$R{'_SREF'} = $SITE->siteserialize();
-			}
-		}
-	
-	if ($SUB eq 'RELOAD') {
-		# use Data::Dumper; print STDERR Dumper($SREF);
-		my ($html) = $t->render('*SITE'=>$SITE);
-		# $html = "FL: $SREF->{'_FL'} | PG: $SREF->{'_PG'} | SKU: $SREF->{'_SKU'} | FS: $SREF->{'_FS'}<br><hr>".$html;
-		# $out = "?m=loadcontent&id=$ID&html=".&js_encode($html);
-		# push @CMDS, { m=>'loadcontent', id=>$ID, html=>$html };
-		$R{'html'} = $html;
-		}
-
-	if ($R{'html'}) {
-		## strip head and body tags
-		$R{'html'} =~ s/\<[\/]?[Hh][Tt][Mm][Ll]>//gs;
-		$R{'html'} =~ s/\<[Hh][Ee][Aa][Dd]\>.*?\<\/[Hh][Ee][Aa][Dd]\>//gs;
-		$R{'html'} =~ s/\<[\/]?[Bb][Oo][Dd][Yy].*?\>//gs;
-		}
-	
-	undef $t; undef $el;
-	# $R{'@CMDS'} = \@CMDS;
-
-	return(\%R);
-	}
-
-
-#=pod
-#
-#<API id="adminUIEBAYPowerListerPanelExecute">
-#<purpose></purpose>
-#<input id="sub"></input>
-#<input id="_id"></input>
-#<input id="_sku"></input>
-#<input id="_requuid"></input>
-#</API>
-#
-#=cut
-#	'adminUIEBAYPowerListerPanelExecute'=>[\&JSONAPI::adminUIEBAYPowerListerPanelExecute, { 'admin'=>1, }, 'admin-ui', ],
-#sub adminUIEBAYPowerListerPanelExecute {
-#	my ($self,$v) = @_;
-#	my %R = ();
-#	my $USERNAME = $self->username();
-#
-#	require EBAY2::POWER;
-#	my $SUB = uc($v->{'sub'});
-#	my $id = int($v->{'_id'});
-#	my $sku = $v->{'_sku'};
-#	my $requuid = $v->{'requuid'};
-#	my $udbh = &DBINFO::db_user_connect($USERNAME);
-#
-#	my @CMDS = ();
-#	
-#	require LISTING::EVENT;
-#	my $VERB = '';
-#	if ($SUB eq 'NUKE') { $VERB = 'END'; $SUB = 'INFO'; }
-#	if ($SUB eq 'CLEANUP') { $VERB = 'CLEANUP'; }
-#
-#	my $LAUNCH_MESSAGE = '';
-#	if ($VERB ne '') {
-#		my ($le) = LISTING::EVENT->new(USERNAME=>$USERNAME,LUSER=>$self->luser(),
-#			REQUEST_APP=>'PWRMANAGE',
-#			REQUEST_APP_UUID=>$requuid,
-#			SKU=>$sku,
-#			QTY=>0,
-#			TARGET=>"POWERLISTER",
-#			TARGET_UUID=>$id,
-#			TARGET_LISTINGID=>$id,
-#			PRT=>$self->prt(),
-#			VERB=>$VERB,LOCK=>1);
-#			$le->dispatch($udbh);
-#		$LAUNCH_MESSAGE = $le->html_result();
-#		# $out .= "?m=loadcontent&div=$id!info&html=".&js_encode($LAUNCH_MESSAGE);
-#		push @CMDS, { m=>'loadcontent', div=>"$id!info", html=>"$LAUNCH_MESSAGE" };
-#		}
-#
-#
-#	#if ($SUB eq 'NUKE') {
-#	#	my ($le) = 
-#	#	&EBAY2::POWER::delete_channel($id,$USERNAME);		
-#	#	}
-#
-#	#if ($SUB eq 'CLEANUP') {
-#	#	&EBAY2::POWER::cleanup_channel($id,$USERNAME);
-#	#	$SUB = 'INFO';
-#	#	}
-#
-#	if ($SUB eq 'SAVE') {
-#		$SUB = 'INFO';		
-#	
-#		## effectively we initialize a new hashref with each of the fields on the form
-#		my %dataref = ();
-#		foreach my $id (split(/\|/,$v->{'_fields'})) { $dataref{$id} = ''; }
-#	
-#		## then we pull a list of fields from powerfields for those fields on the form
-#		my @FIELDS = EBAY2::POWER::powerfields(\%dataref);
-#		
-#		## then we save it to dataref
-#		PRODUCT::FLEXEDIT::save($USERNAME,$sku,\@FIELDS,\%dataref,$v);
-#		&EBAY2::POWER::info_panel_save($USERNAME,$id,$v,\%dataref);
-#		}
-#
-#	if ($SUB eq 'INFO') {		
-#		require EBAY2::PANELS;
-#		my $html = $LAUNCH_MESSAGE;
-#		$html .= &EBAY2::POWER::info_panel($USERNAME,$id);
-#		$html .= '<br><table border=0 cellspacing=0 cellpadding=5><tr><td>';
-#		my $queryset = &EBAY2::POWER::queryset($USERNAME,$id);
-#		$html .= &EBAY2::PANELS::listings_panel($USERNAME,0,$queryset)."<br>";
-#		$html .= '</td></tr></table>';
-#		
-#
-#		# $out .= "?m=loadcontent&div=$id!info&html=".&js_encode($html);
-#		push @CMDS, { m=>'loadcontent', id=>"$id!info", html=>$html };
-#		}
-#	&DBINFO::db_user_close();
-#
-#	$R{'@CMDS'} = \@CMDS;
-#
-#	# print STDERR "OUT: $out\n";
-#	return(\%R);
-#	}
-#
-#
-
-#=pod 
-#
-#<API id="adminUIDomainPanelExecute">
-#<purpose></purpose>
-#<input id="domain">domain.com</input>
-#<input id="verb">LOAD|ADD-ALIAS|KILL-ALIAS|ADD-MAP|KILL-MAP|NUKE|MAKE-PRIMARY|UPDATE-EDIT|UPDATE-SAVE</input>
-#</API>
-#
-#=cut
-#
-##	'adminUIDomainPanelExecute'=>[\&JSONAPI::adminUIDomainPanelExecute, { 'admin'=>1, }, 'admin-ui', ],
-#sub adminUIDomainPanelExecute {
-#	my ($self, $v) = @_;
-#	my %R = ();
-#
-#	require DOMAIN;
-#	require DOMAIN::PANELS;
-#	my ($LU) = $self->LU();
-#	# (my $FUNC,my $DOMAINNAME) = split(/:/,lc($v->{'panel'}));		
-#
-#	my $d = undef;
-#	if (not &JSONAPI::validate_required_parameter(\%R,$v,'domain')) {
-#		}
-#	else {
-#		my $DOMAINNAME = $v->{'domain'};
-#		($d) = DOMAIN->new($self->username(),$DOMAINNAME);
-#		}
-#
-#	if (&JSONAPI::hadError(\%R)) {
-#		}
-#	elsif (not defined $d) {
-#		&JSONAPI::set_error(\%R,'apperr',7483,'Domain is invalid');
-#		}
-#	else {
-#		$R{'html'} = DOMAIN::PANELS::panel_domain($LU,$v->{'verb'},$d,$v);
-#		}
-#	return(\%R);
-#	}
-#
-
-
-#=pod
-#
-#<API id="adminUITOXMLChooserShow">
-#<input id="format">PAGE|PRODUCT|WRAPPER|LAYOUT|EMAIL</input>
-#<input id="SUBTYPE">P|C|T|S|etc.<input>
-#</API>
-#
-#=cut
-#
-##	'adminUITOXMLChooserShow'=>[\&JSONAPI::adminUITOXMLChooserShow, { 'admin'=>1, }, 'admin-ui', ],
-#sub adminUITOXMLChooserShow {
-#	my ($self,$v) = @_;
-#
-#	my %R = ();
-#	require TOXML::CHOOSER;
-#	$R{'html'} = TOXML::CHOOSER::buildChooser($self->username(),$self->{'format'},%{$v});;	
-#
-#	return(\%R);
-#	}
-#
-
-#	'adminUIMediaLibraryExecute'=>[\&JSONAPI::adminUIMediaLibraryExecute, { 'admin'=>1, 'cartid'=>0, }, 'admin-ui' ],
-
-
-=pod
-
 <API id="adminUIMediaLibraryExecute">
 <purpose></purpose>
 <input id="verb">LOAD|SAVE</input>
@@ -17712,7 +17208,6 @@ sub appProduct {
 			if (substr($productstr,0,1) eq ',') { $productstr = substr($productstr,1); }	# strip leading ,
 			if (substr($productstr,-1) eq ',') { $productstr = substr($productstr,0,-1); }	# strip trailing ,		
 			if (not defined $productstr) { $productstr = ''; }
-			$TOXML::RENDER::DEBUG && &msg("\$productstr = '$productstr'");
 			@products = split (/\,/, $productstr);
 			}
 		elsif ($src =~ /search:(.*?)$/) {
@@ -19972,7 +19467,7 @@ payment, and in some cases cancel orders.
 <input id="orderid">2012-01-1234</input>
 <input id="@updates">see example below</input>
 <note>
-This uses the same syntax as adminOrderUpdate, but only a subset are supported (actually at this point ALL commands are supported, but we'll restrict this eventually), 
+This uses the same syntax as adminCartMacro adminOrderMacro, but only a subset are supported (actually at this point ALL commands are supported, but we'll restrict this eventually), 
 and may (eventually) differ based on business logic and/or add some custom ones. 
 </note>
 <example>
@@ -23014,7 +22509,7 @@ sub adminDebugProduct {
 
    	## prepend finalization pending records.
 		my @INVENTORY_UPDATES = ();
-   	my $pstmt = "select LUSER,TIMESTAMP,TYPE,PRODUCT,SKU,QUANTITY,APPID,ORDERID from INVENTORY_UPDATES where MID=$MID /* $USERNAME */ and PRODUCT=".$udbh->quote($PID)." order by ID desc";
+   	$pstmt = "select LUSER,TIMESTAMP,TYPE,PRODUCT,SKU,QUANTITY,APPID,ORDERID from INVENTORY_UPDATES where MID=$MID /* $USERNAME */ and PRODUCT=".$udbh->quote($PID)." order by ID desc";
    	print STDERR $pstmt."\n";
    	$sth = $udbh->prepare($pstmt);
    	$sth->execute();
@@ -24173,7 +23668,8 @@ sub adminConfigDetail {
 				}
 			$insurance{sprintf("\@%s",$TB)} = \@ROWS;
 			}
-		my @RULES = &ZSHIP::RULES::export_rules($USERNAME,$PRT,"SHIP-INSURANCE");
+
+		@RULES = &ZSHIP::RULES::export_rules($USERNAME,$PRT,"SHIP-INSURANCE");
 		$insurance{'@RULES'} = \@RULES;
 		push @SHIPMETHODS, \%insurance;
 		## RE: WHOLESALE
@@ -24454,14 +23950,11 @@ sub adminVendor {
 
 	my %R = ();
 	my $USERNAME = $self->username();
+	my $MID = $self->mid();
 	my $PRT = $self->prt();
 	my $LU = $self->LU();
 
 	my @MSGS = ();
-
-	my ($MID,$USERNAME,$LUSERNAME,$FLAGS,$PRT) = $LU->authinfo();
-	if ($MID<=0) { exit; }
-	if (index($FLAGS,'BASIC')==-1) { print "Location: /biz\n\n"; exit; }
 
 	my ($udbh) = &DBINFO::db_user_connect($USERNAME);
 
@@ -28271,7 +27764,7 @@ sub appSEO {
 		print $out $indexxml;
 		$out->close();
 
-		my $pstmt = "delete from SEO_PAGES where MID=$MID and DOMAIN=$qtHOSTDOMAIN and GUID!=$qtGUID";
+		$pstmt = "delete from SEO_PAGES where MID=$MID and DOMAIN=$qtHOSTDOMAIN and GUID!=$qtGUID";
 		print STDERR $pstmt."\n";
 		$udbh->do($pstmt);
 		}
