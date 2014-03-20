@@ -2090,10 +2090,6 @@ sub analytics {
 		}
 	
 	
-	if (($VERB eq 'POWERREVIEWS') && ($FLAGS =~ /,PR,/)) {
-		
-		}
-	
 	if ($VERB eq 'POWERREVIEWS') {
 		## POWERREVIEWS security key:
 		require ZTOOLKIT::SECUREKEY;
@@ -2743,15 +2739,8 @@ sub toxml {
 
 	my @TABS = ();
 	## determine tabs available 	
-	if (index($FLAGS,',WEB,') > 0 ) {
-		push @TABS, { name=>'Wrappers', link=>'/biz/vstore/toxml/index.cgi?FORMAT=WRAPPER', },
-						{ name=>'Layouts', link=>'/biz/vstore/toxml/index.cgi?FORMAT=LAYOUT', },
-						{ name=>'Emails', link=>'/biz/vstore/toxml/index.cgi?FORMAT=ZEMAIL', };
-		}
-	## EBAY flag should see the wizard tab
-	if (index($FLAGS,',EBAY,') > 0 ) {
-		push @TABS, { name=>'Wizards', link=>'/biz/vstore/toxml/index.cgi?FORMAT=WIZARD', };
-		}
+	push @TABS, { name=>'Wrappers', link=>'/biz/vstore/toxml/index.cgi?FORMAT=WRAPPER', },
+					{ name=>'Layouts', link=>'/biz/vstore/toxml/index.cgi?FORMAT=LAYOUT', };
 	
 	## no authorization to edit TOXML
 	push @TABS, { name=>'Help', link=>'/biz/vstore/toxml/index.cgi?ACTION=HELP', };
@@ -2821,7 +2810,7 @@ sub toxml {
 	if ($ACTION eq 'SAVEAS') {
 		## when the user does a raw edit.
 		# load the flow style
-		my ($CTYPE,$FLAGS,$SHORTNAME,$LONGNAME) = ();
+		my ($CTYPE,$SHORTNAME,$LONGNAME) = ();
 	
 		$DOCID =~ s/[^\w\-\_]+//gs;
 		if ($DOCID eq '') { $DOCID = 'unnamed_'.time(); }
@@ -3524,7 +3513,6 @@ sub advwebsite {
 	
 		$webdbref->{'checkout'} = $cgiv->{'checkout'};
 	
-		if ($FLAGS =~ /WEB/) {	
 			$webdbref->{'chkout_phone'} = $cgiv->{'chkout_phone'};
 	
 			if ($cgiv->{'order_num'}+0 != $cgiv->{'hidden_order_num'}+0) {
@@ -3554,12 +3542,6 @@ sub advwebsite {
 	#			$webdbref->{"adult_content"} = "off";
 	#			if ($FLAGS =~ /,ADULT,/) { &ZACCOUNT::delete_exception_flags(0,$USERNAME,'ADULT'); }
 	#			}
-	
-			}
-		else {
-			$GTOOLSUI::TAG{'<!-- MESSAGE -->'} = 
-			"<div>Some settings on this page require the <a href='/biz/configurator?VERB=VIEW&BUNDLE=WEB'>WEB</a><br> feature bundle to change, because they require functionality which is not currently available to your account.</div>";
-			}
 	
 		push @MSGS, "SUCCESS|Updated Settings";
 		$LU->log("SETUP.CHECKOUT","Updated Checkout Settings","SAVE");
@@ -3641,14 +3623,12 @@ sub advwebsite {
 	my @TABS = ();
 	push @TABS, { selected=>($VERB eq 'GENERAL')?1:0, name=>'Checkout Config', link=>'/biz/vstore/checkout/index.cgi', target=>'_top' };
 	push @TABS, { selected=>($VERB eq 'CUSTOMERADMIN')?1:0, name=>'Customer Admin Config', link=>'/biz/vstore/checkout/index.cgi?MODE=CUSTOMERADMIN', target=>'_top' };
-	if ($FLAGS =~ /,WEB,/) {
-		push @TABS, {  selected=>($VERB eq 'CHK-MESSAGES')?1:0, name=>'Checkout Msgs', link=>'/biz/vstore/checkout/index.cgi?MODE=CHK-MESSAGES', target=>'_top' };
-		push @TABS, {  selected=>($VERB eq 'SYS-MESSAGES')?1:0, name=>'System Msgs', link=>'/biz/vstore/checkout/index.cgi?MODE=SYS-MESSAGES', target=>'_top' };
-		push @TABS, {  selected=>($VERB eq 'PAY-MESSAGES')?1:0, name=>'Payment Msgs', link=>'/biz/vstore/checkout/index.cgi?MODE=PAY-MESSAGES', target=>'_top' };
-		push @TABS, {  selected=>($VERB eq 'PAGE-MESSAGES')?1:0, name=>'Special Page Msgs', link=>'/biz/vstore/checkout/index.cgi?MODE=PAGE-MESSAGES', target=>'_top' };
+	#	push @TABS, {  selected=>($VERB eq 'CHK-MESSAGES')?1:0, name=>'Checkout Msgs', link=>'/biz/vstore/checkout/index.cgi?MODE=CHK-MESSAGES', target=>'_top' };
+	push @TABS, {  selected=>($VERB eq 'SYS-MESSAGES')?1:0, name=>'System Msgs', link=>'/biz/vstore/checkout/index.cgi?MODE=SYS-MESSAGES', target=>'_top' };
+	#	push @TABS, {  selected=>($VERB eq 'PAY-MESSAGES')?1:0, name=>'Payment Msgs', link=>'/biz/vstore/checkout/index.cgi?MODE=PAY-MESSAGES', target=>'_top' };
+	push @TABS, {  selected=>($VERB eq 'PAGE-MESSAGES')?1:0, name=>'Special Page Msgs', link=>'/biz/vstore/checkout/index.cgi?MODE=PAGE-MESSAGES', target=>'_top' };
 		# push @TABS, {  selected=>($VERB eq 'CC-MESSAGES')?1:0, name=>'CallCenter Msgs', link=>'/biz/vstore/checkout/index.cgi?MODE=CC-MESSAGES', target=>'_top' };
-		push @TABS, {  selected=>($VERB eq 'NEW-MESSAGE')?1:0, name=>'Create Message', link=>'/biz/vstore/checkout/index.cgi?MODE=NEW-MESSAGE', target=>'_top' };
-		}
+	push @TABS, {  selected=>($VERB eq 'NEW-MESSAGE')?1:0, name=>'Create Message', link=>'/biz/vstore/checkout/index.cgi?MODE=NEW-MESSAGE', target=>'_top' };
 	
 	return(
 	   'title'=>'Setup : Checkout Properties',
@@ -4131,7 +4111,7 @@ sub builder_themes {
 			next if (($SUBTYPE eq '') && ($t->{'SUBTYPE'} ne '_') && ($t->{'SUBTYPE'} ne ''));
 			next if ($t->{'DOCID'} eq '');
 			
-			$out .= &format($JSONAPI->LU(),&lookup_theme($USERNAME,$DOCTYPE,$t->{'DOCID'}),$VERB,$counter++,$SUBTYPE,$FLAGS);
+			$out .= &format($JSONAPI->LU(),&lookup_theme($USERNAME,$DOCTYPE,$t->{'DOCID'}),$VERB,$counter++,$SUBTYPE);
 			}
 
 		if ($out eq '') { 
@@ -4147,8 +4127,8 @@ sub builder_themes {
 			$out = qq~
 				<table>
 					<tr><td><b>Selected Site Theme:</b><br>
-					~.&format($JSONAPI->LU(),&lookup_theme('WRAPPER',$wrapper),'SELECTED',-1,$SUBTYPE,$FLAGS).qq~</td></tr>				
-					~.(($popwrapper ne '')?("<tr><td><b>Selected Popup Theme:</b><br>".&format($JSONAPI->LU(),&lookup_theme('WRAPPER',$popwrapper),'SELECTED',-1,$SUBTYPE,$FLAGS)."</td></tr>"):'').qq~
+					~.&format($JSONAPI->LU(),&lookup_theme('WRAPPER',$wrapper),'SELECTED',-1,$SUBTYPE).qq~</td></tr>				
+					~.(($popwrapper ne '')?("<tr><td><b>Selected Popup Theme:</b><br>".&format($JSONAPI->LU(),&lookup_theme('WRAPPER',$popwrapper),'SELECTED',-1,$SUBTYPE)."</td></tr>"):'').qq~
 				</table>
 				<br><br>
 	
@@ -4213,7 +4193,7 @@ sub builder_themes {
 	
 	
 	sub format {
-		my ($LU,$tinfo,$VERB,$counter,$SUBTYPE,$FLAGS) = @_;
+		my ($LU,$tinfo,$VERB,$counter,$SUBTYPE) = @_;
 	
 		my ($PRT) = $LU->prt();
 		my ($DOMAIN) = $LU->domain();
@@ -4283,10 +4263,6 @@ sub builder_themes {
 	
 		if ($tinfo->{'PROJECT'} ne '') {
 			$out .= "Project: $tinfo->{'PROJECT'}<br>\n";
-			}
-	
-		if (($FLAGS =~ /,EBAY,/) && (defined $tinfo->{'BW_PROPERTIES'})) {
-			$out .= "Matching Wizard: ".( (($tinfo->{'BW_PROPERTIES'}&(1<<13))>0)?'Yes':'No' )."<br>";
 			}
 	
 		if (substr($tinfo->{'DOCID'},0,1) eq '~') {}
@@ -5046,7 +5022,7 @@ sub builder {
 		push @TABS, { name=>'Product Editor', 'jsexec'=>"adminApp.ext.admin_prodEdit.a.showPanelsFor('$PID');", };
 		push @TABS, { name=>'Layout', link=>'/biz/vstore/builder/index.cgi?ACTION=CHOOSER&_SREF='.$SITEstr, color=>(($ACTION eq 'CHOOSER')?'orange':undef), };
 		push @TABS, { name=>'Page Edit', link=>'/biz/vstore/builder/index.cgi?ACTION=EDIT&_SREF='.$SITEstr, color=>(($ACTION eq 'EDIT')?'orange':undef), };
-		if (($webdbref->{'pref_template_fmt'} ne '') && (index($FLAGS,',WEB,')>=0) && (substr($SITE->{'_FL'},0,1) eq '~')) {
+		if (($webdbref->{'pref_template_fmt'} ne '') && (substr($SITE->{'_FL'},0,1) eq '~')) {
 			push @TABS, { name=>'Edit Template', link=>'/biz/vstore/builder/index.cgi?ACTION=TOXMLEDIT&_SREF='.$SITEstr, color=>(($ACTION eq 'TOXMLEDIT')?'orange':undef), };
 			}
 		push @BC, { name=>"Edit format:".$SITE->format()." | pageid:".$SITE->pageid()." | layout:".$SITE->layout() };
@@ -5072,7 +5048,7 @@ sub builder {
 		$SITEstr =  $SITE->siteserialize();
 		push @TABS, { name=>'Page Edit', link=>'/biz/vstore/builder/index.cgi?ACTION=EDIT&_SREF='.$SITEstr, color=>(($ACTION eq 'EDIT')?'orange':undef), };
 		push @TABS, { name=>'Layout', link=>'/biz/vstore/builder/index.cgi?ACTION=CHOOSER&_SREF='.$SITEstr, color=>(($ACTION eq 'CHOOSER')?'orange':undef), };
-		if (($webdbref->{'pref_template_fmt'} ne '') && (index($FLAGS,',WEB,')>=0) && (substr($SITE->{'_FL'},0,1) eq '~')) {
+		if (($webdbref->{'pref_template_fmt'} ne '') && (substr($SITE->{'_FL'},0,1) eq '~')) {
 			push @TABS, { name=>'Edit Template', link=>'/biz/vstore/builder/index.cgi?ACTION=TOXMLEDIT&_SREF='.$SITEstr, color=>(($ACTION eq 'TOXMLEDIT')?'orange':undef), };
 			}
 		if (substr($SITE->pageid(),0,1) eq '*') {
@@ -5091,7 +5067,7 @@ sub builder {
 		</center>
 		~;
 		push @TABS, { name=>'Page Edit', link=>'/biz/vstore/builder/index.cgi?ACTION=EDIT&_SREF='.$SITEstr, color=>(($ACTION eq 'EDIT')?'orange':undef), };
-		if (($webdbref->{'pref_template_fmt'} ne '') && (index($FLAGS,',WEB,')>=0) && (substr($SITE->{'_FL'},0,1) eq '~')) {
+		if (($webdbref->{'pref_template_fmt'} ne '') && (substr($SITE->{'_FL'},0,1) eq '~')) {
 			push @TABS, { name=>'Edit Template', link=>'/biz/vstore/builder/index.cgi?ACTION=TOXMLEDIT&_SREF='.$SITEstr, color=>(($ACTION eq 'TOXMLEDIT')?'orange':undef), };
 			}
 		push @BC, { name=>"Edit format:".$SITE->format()." pageid:".$SITE->pageid()." layout:".$SITE->layout() };

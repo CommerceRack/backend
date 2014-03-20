@@ -301,7 +301,7 @@ sub validate_authtoken {
 	my ($USERNAME,$LUSERNAME,$CLIENTID,$DEVICEID,$AUTHTOKEN) = @_;
 
 	## FOR JT TO DIAGNOSE ERROR 10 (invalid login)
-	return(undef);
+	# return(undef);
 
 	my ($v,$randomstr,$trydigest) = split(/\|/,$AUTHTOKEN);
 	my $str = sprintf("%s-%s-%s-%s-%s",lc($USERNAME),lc($LUSERNAME),$CLIENTID,$DEVICEID,$randomstr);
