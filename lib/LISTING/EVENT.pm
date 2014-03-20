@@ -27,9 +27,6 @@ require INVENTORY2;
 sub html_result {
 	my ($self) = @_;
 	
-	my $is_support = ($self->luser() eq 'SUPPORT')?1:0;
-	#$is_support++;
-
 	my $c = '';
 	if ($self->has_win()) {
 		if ($self->verb() eq 'PREVIEW') {
@@ -63,7 +60,6 @@ sub html_result {
 				$c .= "<div class=\"hint\">HINT:$ref->{'hint'}</div>";
 				}
 
-		#	$c .= (($is_support)?'':'<!--')."<div class=\"hint\">".&ZOOVY::incode(Dumper($ref))."</div>".(($is_support)?'':'-->');
 			}
 		$c .= $fees;
 
@@ -89,8 +85,6 @@ sub html_result {
 				}
 
 			$c .= "</div>";
-			
-		#	$c .= (($is_support)?'':'<!--')."<div class=\"hint\">".&ZOOVY::incode(Dumper($ref))."</div>".(($is_support)?'':'-->');
 			}
 		}
 	else {

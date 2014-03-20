@@ -1897,7 +1897,7 @@ sub psgiinit {
 		if ($self->luser() eq '') {
 			&JSONAPI::set_error($R = {}, 'apperr', 8, sprintf("Authentication issue - LUSER not valid"));
 			}
-		elsif (&OAUTH::validate_authtoken($self->username(),$self->luser(),$self->clientid(),$DEVICEID,$AUTHTOKEN)) {
+		elsif (my $ACL = &OAUTH::validate_authtoken($self->username(),$self->luser(),$self->clientid(),$DEVICEID,$AUTHTOKEN)) {
 			$self->{'_IS_ADMIN'}++;
 			$self->{'_AUTHTOKEN'} = $AUTHTOKEN;
 			$self->{'_DEVICEID'} = $DEVICEID;
@@ -2061,7 +2061,7 @@ sub LU {
 		}
 	elsif ($self->authtoken() ne '') {
 		## since we have an authtoken we'll use the LUSER from OAUTH
-		$LU = $self->{'*LU'} = LUSER->new_oauth($self->username(),$self->authtoken());
+		$LU = $self->{'*LU'} = LUSER->new_authtoken($self->username(),$self->luser(),$self->authtoken());
 		if (defined $LU) {
 			$LU->prt($self->prt());
 			$LU->domain($self->sdomain());
@@ -4126,13 +4126,6 @@ sub adminPlatform {
 	my ($MID) = &ZOOVY::resolve_mid($USERNAME);
 
 	my ($sec,$min,$hour,$mday,$mon,$year,$wday,$yday,$isdst) = localtime(time);
-	if ($LU->is_zoovy()) {
-		## support can run this anytime!
-		}
-	elsif ((1) && (not ($hour < 7 || $hour > 18))) {
-		# &JSONAPI::set_error('youerr',234994,'Tool only available between 8pm and 7am pst.');
-		}
-
 
 	if ($v->{'_cmd'} eq 'adminPlatformLogList') {
 		my ($path) = &ZOOVY::resolve_userpath($USERNAME);
@@ -11654,10 +11647,6 @@ sub adminSyndication {
 
 				## done with validation
 
-				if ($LU->is_zoovy()) {
-					$s{'INFORM_ZOOVY_MARKETING'} = (defined $params->{'INFORM_ZOOVY_MARKETING'})?1:0;
-					}
-
 				$s{'.schedule'} = $params->{'SCHEDULE'};
 				if (defined $ERROR) {
 					}
@@ -14344,9 +14333,9 @@ sub adminCustomerWalletPeek {
 
 	my $LU = $self->LU();
 	my %R = ();
-	if ($LU->is_zoovy()) {
+	if ($LU->is_support()) {
 		## sorry but zoovy employees cannot view the contents of wallets
-		&JSONAPI::set_error(\%R,'iseerr',23403,'Zoovy employee not allowed');
+		&JSONAPI::set_error(\%R,'iseerr',23403,'Provider employee not allowed');
 		}
 	elsif ($LU->is_admin()) {
 		my $CID = $v->{'CID'};

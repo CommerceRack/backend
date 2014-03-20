@@ -477,15 +477,10 @@ sub handler {
 	
 	my $OUTPUT = '';
 	my $TH = $SITE::CONFIG->{'%THEME'};
-	my $is_zoovy = &ZOOVY::is_zoovy_ip();
 
 	foreach my $msg (@{$lm->msgs()}) {
 		my ($ref,$status) = LISTING::MSGS::msg_to_disposition($msg);
 
-		#if ($is_zoovy) {		
-		# 	# make sure our staff can see debug messages
-		#	if ($ref->{'_'} eq 'DEBUG') { $ref->{'_'} = 'ZOOVY'; }
-		#	}
 		my $msg = $ref->{'+'};
 		$msg =~ s/^[\+]+//gs;
 		$msg =~ s/<!--//gs;

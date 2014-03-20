@@ -43,28 +43,28 @@ sub hasACL {
 ##
 ## 'OBJECT'=>'C|D|R'
 ##
-sub acl_require {
-	my ($self, %flags) = @_;
-	my @ISSUES = ();
-	
-	foreach my $object (keys %flags) {
-		if (not $self->{'%ACL'}->{$object}) {
-			push @ISSUES, "No roles provide access to '$object'";
-			}
-		else {
-			foreach my $perm (@{$flags{$object}}) {
-				if ($self->{'%ACL'}->{$object}->{$perm} eq '+') {
-					## GOOD TO GO
-					}
-				else {
-					push @ISSUES, "No roles provide $OAUTH::ACL_PRETTY{$perm} to '$object'";
-					}
-				}
-			}
-		}	
-
-	return(@ISSUES);
-	}
+#sub acl_require {
+#	my ($self, %flags) = @_;
+#	my @ISSUES = ();
+#	
+#	foreach my $object (keys %flags) {
+#		if (not $self->{'%ACL'}->{$object}) {
+#			push @ISSUES, "No roles provide access to '$object'";
+#			}
+#		else {
+#			foreach my $perm (@{$flags{$object}}) {
+#				if ($self->{'%ACL'}->{$object}->{$perm} eq '+') {
+#					## GOOD TO GO
+#					}
+#				else {
+#					push @ISSUES, "No roles provide $OAUTH::ACL_PRETTY{$perm} to '$object'";
+#					}
+#				}
+#			}
+#		}	
+#
+#	return(@ISSUES);
+#	}
 
 
 ##
@@ -84,11 +84,9 @@ sub is_admin {
 sub account { my ($self) = @_; require ACCOUNT; return(ACCOUNT->new($self->username(),$self->luser())); }
 
 
-
 ##
 ## is zoovy employee?
 ##
-sub is_zoovy { return($_[0]->is_support()) };
 sub is_support {
 	my ($self) = @_;
 
@@ -326,19 +324,29 @@ sub authinfo {
 	}
 
 
-sub new_oauth {
-	my ($class,$USERNAME,$AUTHTOKEN) = @_;
+sub new_authtoken {
+	my ($class,$USERNAME,$LUSER,$AUTHTOKEN) = @_;
 
+	my ($memd) = &ZOOVY::getMemd($USERNAME);
+	my ($ACL) = $memd->get("SESSION+$AUTHTOKEN");
 	my ($MID) = &ZOOVY::resolve_mid($USERNAME);
+
 	my $self = undef;
-	my ($udbh) = &DBINFO::db_user_connect($USERNAME);
-	my $pstmt = "select * from OAUTH_SESSIONS where MID=$MID and AUTHTOKEN=".$udbh->quote($AUTHTOKEN);
-	$self = $udbh->selectrow_hashref($pstmt);
+	if ($ACL ne '') {
+		## yay memcache got it!
+		$self = { 'MID'=>$MID, 'USERNAME'=>$USERNAME, 'LUSERNAME'=>$LUSER, 'ACL'=>$ACL };
+		}
+	else {	
+		## db lookup
+		my ($udbh) = &DBINFO::db_user_connect($USERNAME);
+		my $pstmt = "select * from OAUTH_SESSIONS where MID=$MID and AUTHTOKEN=".$udbh->quote($AUTHTOKEN);
+		$self = $udbh->selectrow_hashref($pstmt);
+		&DBINFO::db_user_close();
+		}
+
 	if (defined $self) {
-		$self->{'CACHED_FLAGS'} = sprintf(",%s,",$self->{'CACHED_FLAGS'}); 
 		bless $self, 'LUSER';
 		}
-	&DBINFO::db_user_close();
 
 	if (ref($self) eq 'LUSER') {
 		$self->{'%ACL'} = YAML::Syck::Load($self->{'ACL'});

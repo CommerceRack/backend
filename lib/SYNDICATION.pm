@@ -88,9 +88,6 @@ modify syndication generic so when support is in the interface they can check a 
 which enables/disables that property, which should be a logged event 
 (in the SYNDICATION LOG)
 
-when a non $LU->is_zoovy() user is logged in and INFORM_ZOOVY_MARKETING is enabled
-then it clearly says "zoovy marketing is watching this blah blah blah.."
-
 when a SYNDICATION.FAILURE is fired for a marketplace that has INFORM_ZOOVY_MARKETING
 enabled then we can send an email to marketing@zoovy.com 
 

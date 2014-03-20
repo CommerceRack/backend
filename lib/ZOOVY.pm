@@ -1038,20 +1038,6 @@ sub is_not_happytime {
 	return($reason);
 	}
 
-## is_zoovy_ip($ENV{'REMOTE_ADDR'})
-sub is_zoovy_ip {
-	my ($IP) = @_;
-
-	if (not $IP) { $IP = $ENV{'REMOTE_ADDR'}; }
-	if ($IP eq '127.0.0.1') { return(1); }
-
-	#if ($IP =~ /^66\.240\.244\./o) { return(1); }	# 
-	#elsif ($IP =~ /^192\.168\./o) { return(1); }		# internal ip
-	#elsif ($IP eq '66.134.76.34') { return(1); }  # dsl circuit
-
-	return(0);
-	}
-
 ##
 ## prints k1=[value1] k2=[value2]
 ##

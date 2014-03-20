@@ -225,22 +225,6 @@ sub search {
 		push @MSGS, "WARN|Search catalogs (and logs) are shared across partitions - however it is possible to specify a different catalog per partition";
 		}	
 	
-	if (($VERB eq 'GLOBAL') || ($VERB eq 'SAVE-GLOBAL')) {
-		#if (not $LU->is_level(7)) {
-		if ($LU->is_zoovy()) {
-			push @MSGS, "WARN|Account level is insufficient (Zoovy support - you can save changes)";
-			}
-		elsif (not $LU->is_admin()) {
-			push @MSGS, "WARN|Requires Administrative priviledges (you can view, but not save changes)";
-			$VERB = 'GLOBAL-DENY';
-			}
-		#else {
-		#	push @MSGS, "WARN|Account level is insufficient (you can view, but not save changes)";
-		#	$VERB = 'GLOBAL-DENY';
-		#	}
-	   }
-	
-	
 	
 	if ($VERB eq 'SAVE-GLOBAL') {
 		my $USER_PATH = &ZOOVY::resolve_userpath($USERNAME);
@@ -1408,10 +1392,10 @@ sub analytics {
 	
 		require PLUGIN::KOUNT;
 		my ($pk) = PLUGIN::KOUNT->new($USERNAME,prt=>$PRT);
-	#	$GTOOLSUI::TAG{'<!-- RIS_FILE -->'} = (-f $pk->pem_file('RIS'))?'installed':qq~<b>Not Installed/Required:</b>
-	#<br>PKCS12 RIS File: <input type="file" name="RIS-CERT"><br>
-	#PCKS12 Pass: <input type="textbox" name="RIS-PASS"><br>~;
-	#	$GTOOLSUI::TAG{'<!-- API_FILE -->'} = (-f $pk->pem_file('API'))?'installed':'not installed';
+		#	$GTOOLSUI::TAG{'<!-- RIS_FILE -->'} = (-f $pk->pem_file('RIS'))?'installed':qq~<b>Not Installed/Required:</b>
+		#<br>PKCS12 RIS File: <input type="file" name="RIS-CERT"><br>
+		#PCKS12 Pass: <input type="textbox" name="RIS-PASS"><br>~;
+		#	$GTOOLSUI::TAG{'<!-- API_FILE -->'} = (-f $pk->pem_file('API'))?'installed':'not installed';
 		$GTOOLSUI::TAG{'<!-- PASSWORD -->'} = ($LU->is_admin())?$pk->password():'** REQUIRES ADMIN **';
 	
 		$template_file = 'kount.shtml';
@@ -2772,11 +2756,8 @@ sub toxml {
 	## no authorization to edit TOXML
 	push @TABS, { name=>'Help', link=>'/biz/vstore/toxml/index.cgi?ACTION=HELP', };
 	
-	if ($LU->is_zoovy()) {
-	   push @TABS, { 'name'=>'New Wrapper', link=>'/biz/vstore/toxml/index.cgi?ACTION=NEW&FORMAT=WRAPPER' };
-	   push @TABS, { 'name'=>'New Layout', link=>'/biz/vstore/toxml/index.cgi?ACTION=NEW&FORMAT=LAYOUT' };
-	   push @TABS, { 'name'=>'New Layout', link=>'/biz/vstore/toxml/index.cgi?ACTION=NEW&FORMAT=ZEMAIL' };
-	   }
+   push @TABS, { 'name'=>'New Wrapper', link=>'/biz/vstore/toxml/index.cgi?ACTION=NEW&FORMAT=WRAPPER' };
+   push @TABS, { 'name'=>'New Layout', link=>'/biz/vstore/toxml/index.cgi?ACTION=NEW&FORMAT=LAYOUT' };
 	
 	my $ACTION = $cgiv->{'ACTION'};
 	print STDERR "ACTION: $ACTION\n";
@@ -2827,7 +2808,7 @@ sub toxml {
 		my ($toxml) = TOXML->new($FORMAT,$DOCID,USERNAME=>$USERNAME,MID=>$MID);
 		my ($cfg) = $toxml->findElements('CONFIG');
 	
-		if ($LU->is_zoovy()) { $cfg->{'EXPORT'} = 1; }
+		$cfg->{'EXPORT'} = 1;
 		if ($ACTION eq 'EDITXML') {
 			$GTOOLSUI::TAG{'<!-- AS_TYPE -->'} = ' as Strict XML';
 			$GTOOLSUI::TAG{'<!-- CONTENT -->'} = &ZOOVY::incode($toxml->as_xml());
@@ -3187,14 +3168,13 @@ sub advwebsite {
 	my @MSGS = ();
 	push @MSGS, "WARN|REMINDER: VStore end-of-life is January 1st, 2015.";
 	
-	if (my @FAILURES = $LU->acl_require('CONFIG'=>['R','U'])) {
-		foreach my $msg (@FAILURES) {	push @MSGS, "DENY|$msg"; }
-		$VERB = 'DENY';
-	   $template_file = '_/denied.shtml';
-		}
+	#if (my @FAILURES = $LU->acl_require('CONFIG'=>['R','U'])) {
+	#	foreach my $msg (@FAILURES) {	push @MSGS, "DENY|$msg"; }
+	#	$VERB = 'DENY';
+	#   $template_file = '_/denied.shtml';
+	#	}
 	
 	if ($VERB eq 'CUSTOMERADMIN-SAVE') {
-		
 		$webdbref->{"order_status_notes_disable"} = (defined $cgiv->{'order_status_notes_disable'})?1:0;
 		$webdbref->{"order_status_disable_login"} = (defined $cgiv->{'order_status_disable_login'})?1:0;
 		$webdbref->{"order_status_hide_events"} = (defined $cgiv->{'order_status_hide_events'})?1:0;
@@ -3324,9 +3304,9 @@ sub advwebsite {
 				}
 			elsif ($cgiv->{'MSG'} =~ /\<script/) {
 				## javascript warning.
-				if ($LU->is_zoovy()) {
-					push @MSGS, "WARNING|ZOOVY EMPLOYEE: It is NOT recommended/support placing Javascript into the System Messages, please use Setup | Plugins instead.";
-					}
+				#if ($LU->is_zoovy()) {
+				#	push @MSGS, "WARNING|ZOOVY EMPLOYEE: It is NOT recommended/support placing Javascript into the System Messages, please use Setup | Plugins instead.";
+				#	}
 				#elsif ($LU->is_bpp()) {
 				#	push @MSGS, "ERROR|BPP settings prohibit Javascript from being placed into System Messages, please Setup | Plugins instead.";
 				#	$BLOCKED++;
@@ -3334,16 +3314,16 @@ sub advwebsite {
 				#elsif ($LU->is_level('7')) {
 				#	push @MSGS, "WARNING|It is NOT recommended/support placing Javascript into the System Messages, please use Setup | Plugins instead.";
 				#	}
-				else {
-					push @MSGS, "ERROR|Your account type may not place Javascript into System Messages. Please use Setup | Plugins instead."; 
-					$BLOCKED++;
-					}
+				#else {
+				#	push @MSGS, "ERROR|Your account type may not place Javascript into System Messages. Please use Setup | Plugins instead."; 
+				#	$BLOCKED++;
+				#	}
 				}
 			elsif ($cgiv->{'MSG'} =~ /src\=[\"\']?http\:/) {
 				## system messages.
-				if ($LU->is_zoovy()) {
-					push @MSGS, "WARNING|ZOOVY EMPLOYEE: It is NOT recommended/support placing Javascript into the System Messages, please use Setup | Plugins instead.";
-					}
+				#if ($LU->is_zoovy()) {
+				#	push @MSGS, "WARNING|ZOOVY EMPLOYEE: It is NOT recommended/support placing Javascript into the System Messages, please use Setup | Plugins instead.";
+				#	}
 				#elsif ($LU->is_bpp()) {
 				#	push @MSGS, "ERROR|BPP settings prohibit insecure (http) references from being placed into System Messages, please Setup | Plugins instead.";
 				#	$BLOCKED++;
@@ -3352,10 +3332,10 @@ sub advwebsite {
 				#	## no warning, 
 				#	push @MSGS, "WARNING|Please review your content, it appears you may have an insecure reference in your html that could cause issues.";
 				#	}
-				else {
-					push @MSGS, "ERROR|Your account type may not place Javascript into System Messages. Please use Setup | Plugins instead."; 
-					$BLOCKED++;
-					}
+				#else {
+				#	push @MSGS, "ERROR|Your account type may not place Javascript into System Messages. Please use Setup | Plugins instead."; 
+				#	$BLOCKED++;
+				#	}
 				}
 		
 			my ($result) = -1;
@@ -6206,18 +6186,6 @@ sub gimmewebdoc {
 	my ($LU,$docid) = @_;
 	my $out = '';
 
-#	if (not defined $LU) {
-#		}
-#	elsif ($LU->is_zoovy()) {
-#		$out .= "<center><table width=800><tr><td><i>Welcome Zoovy staff</i> <a target=\"webdoc\" href=\"https://admin.zoovy.com/webdoc/index.cgi?VERB=EDIT&docid=$docid\">[EDIT]</a></td></tr></table></center>";
-#		}
-#
-#	my ($w) = WEBDOC->new($docid,public=>1);
-#	$out .= $w->wiki2html();
-#
-#	if ($out eq '') {
-#		$out = "<i>No content for docid:$docid</i>";
-#		}
 	$out = "<b>not available</b>";
 
 	$GTOOLSUI::TAG{'<!-- BODY -->'} = $out;
