@@ -149,6 +149,8 @@ require ZSHIP;
 require ZSHIP::UPSAPI;	# ZSHIP::UPSAPI::global vars are used here
 require BLAST;
 require POGS;
+require BLAST;
+require TLC;
 use strict;
 
 
@@ -20982,8 +20984,15 @@ sub cartOrderCreate {
 
 	if ($LM->can_proceed()) {
 		($LM) = $CART2->finalize_order( '*LM'=>$LM, 'app'=>sprintf("JSONAPI %s",$self->apiversion()), 'domain'=>$v->{'domain'} );
-		$R{'payment_status_detail'} = $CART2->explain_payment_status('html'=>1,'format'=>'detail','*SITE'=>$self->_SITE());
-		$R{'payment_status_msg'} = $CART2->explain_payment_status('html'=>1,'format'=>'summary','*SITE'=>$self->_SITE());
+
+		my ($BLAST) = BLAST->new($self->username(),$self->prt());
+		my ($TLC) = TLC->new('username'=>$self->username());
+		$R{'payment_status_msg'} = $BLAST->macros()->{'%PAYINFO%'} || "%PAYINFO% macro";
+		$R{'payment_status_msg'} = $TLC->render_html($R{'payment_status_msg'}, { '%ORDER'=>$CART2->TO_JSON() });
+		$R{'payment_status_detail'} = $BLAST->macros()->{'%PAYINSTRUCTIONS%'} || "%PAYINSTRUCTIONS% macro";
+		$R{'payment_status_detail'} = $TLC->render_html($R{'payment_status_detail'}, { '%ORDER'=>$CART2->TO_JSON() });
+		#$R{'payment_status_detail'} = $CART2->explain_payment_status('html'=>1,'format'=>'detail','*SITE'=>$self->_SITE());
+		#$R{'payment_status_msg'} = $CART2->explain_payment_status('html'=>1,'format'=>'summary','*SITE'=>$self->_SITE());
 		}
 
 	my $DISPLAY = 0;
@@ -21444,8 +21453,14 @@ sub adminOrderCreate {
 	($LM) = $CART2->finalize_order('*LM'=>$LM, 'app'=>sprintf("JSONAPI (%s) %s",$self->clientid(),$self->apiversion()) );
 	# print STDERR "LM: ".Dumper($LM);
 
-	$R{'payment_status_detail'} = $CART2->explain_payment_status('html'=>1,'format'=>'detail','*SITE'=>$self->_SITE());
-	$R{'payment_status_msg'} = $CART2->explain_payment_status('html'=>1,'format'=>'summary','*SITE'=>$self->_SITE());
+	my ($BLAST) = BLAST->new($self->username(),$self->prt());
+	my ($TLC) = TLC->new('username'=>$self->username());
+	$R{'payment_status_msg'} = $BLAST->macros()->{'%PAYINFO%'} || "%PAYINFO% macro";
+	$R{'payment_status_msg'} = $TLC->render_html($R{'payment_status_msg'}, { '%ORDER'=>$CART2->TO_JSON() });
+	$R{'payment_status_detail'} = $BLAST->macros()->{'%PAYINSTRUCTIONS%'} || "%PAYINSTRUCTIONS% macro";
+	$R{'payment_status_detail'} = $TLC->render_html($R{'payment_status_detail'}, { '%ORDER'=>$CART2->TO_JSON() });
+	#$R{'payment_status_detail'} = $CART2->explain_payment_status('html'=>1,'format'=>'detail','*SITE'=>$self->_SITE());
+	#$R{'payment_status_msg'} = $CART2->explain_payment_status('html'=>1,'format'=>'summary','*SITE'=>$self->_SITE());
 
 	my $DISPLAY = 0;
 	$DISPLAY |= ($self->webdb()->{'chkout_roi_display'}) ?1:0;

@@ -15,6 +15,7 @@ require ZPAY;
 require CART2;
 require CART2::VIEW;
 require BLAST;
+require TLC;
 
 $PAGE::customer::debug = 0;
 
@@ -1394,7 +1395,14 @@ sub verb_order_status {
 		if ($O2->in_get('flow/paid_ts')>0) {
 			push @details, [ "Paid Date" => &ZTOOLKIT::pretty_date($O2->in_get('flow/paid_ts'),1) ];
 			}
-		push @details, [ "Payment Detail", $O2->explain_payment_status('*SITE'=>$SITE,'format'=>'summary','html'=>1) ];
+
+		my ($BLAST) = BLAST->new($O2->username(),$O2->prt());
+		my ($TLC) = TLC->new('username'=>$O2->username());
+		my $payment_status = $BLAST->macros()->{'%PAYINFO%'} || "%PAYINFO% macro";
+		$payment_status = $TLC->render_html($payment_status, { '%ORDER'=>$O2->TO_JSON() });
+		push @details, [ "Payment", $payment_status ];
+
+		# push @details, [ "Payment Detail", $O2->explain_payment_status('*SITE'=>$SITE,'format'=>'summary','html'=>1) ];
 
 		if ($O2->in_get('flow/shipped_date')>0) {
 			push @details, [ "Shipped Date" => &ZTOOLKIT::pretty_date($O2->in_get('flow/shipped_ts'),1) ]; 
@@ -1571,38 +1579,45 @@ sub verb_order_status {
 					$LINE .= qq~This transaction has been voided.~;
 					}
 				}
-			elsif (scalar(@{$chainedpayments})>0) {
-				## CHAINED PAYMENTS
-				$LINE .= $O2->explain_payment_status(
-					format=>"detail",
-					try_prefix=>"admin_",
-					uuid=>$payrec->{'uuid'},
-					'*SITE'=>$SITE,
-					'html'=>1,
-					);
-				$LINE .= "<div>The following changes were made to transaction $payrec->{'uuid'}:<ul>";
-				foreach my $cpayrec (@{$chainedpayments}) {
-					$LINE .= "<li>".$O2->explain_payment_status(
-						format=>"summary",
-						try_prefix=>"admin_",
-						uuid=>$cpayrec->{'uuid'},
-						'*SITE'=>$SITE,
-						'skip_chained'=>0,
-						'html'=>1,
-						);			
-					$LINE .= "</li>";	
-					}
-				$LINE .= "</ul></div>";
+			else {
+				my ($BLAST) = BLAST->new($O2->username(),$O2->prt());
+				my ($TLC) = TLC->new('username'=>$O2->username());
+				my $payment_status_detail = $BLAST->macros()->{'%PAYINSTRUCTIONS%'} || "%PAYINSTRUCTIONS% macro";
+				$payment_status_detail = $TLC->render_html($payment_status_detail, { '%ORDER'=>$O2->TO_JSON() });
+				$LINE .= $payment_status_detail;
 				}
-			elsif (&ZPAY::ispsa($payrec->{'ps'},['0','1','2'])) {
-				$LINE .= $O2->explain_payment_status(
-					format=>"detail",
-					try_prefix=>"admin_",
-					uuid=>$payrec->{'uuid'},
-					'*SITE'=>$SITE,
-					'html'=>1,
-					);
-				}
+			#elsif (scalar(@{$chainedpayments})>0) {
+			#	## CHAINED PAYMENTS
+			#	$LINE .= $O2->explain_payment_status(
+			#		format=>"detail",
+			#		try_prefix=>"admin_",
+			#		uuid=>$payrec->{'uuid'},
+			#		'*SITE'=>$SITE,
+			#		'html'=>1,
+			#		);
+			#	$LINE .= "<div>The following changes were made to transaction $payrec->{'uuid'}:<ul>";
+			#	foreach my $cpayrec (@{$chainedpayments}) {
+			#		$LINE .= "<li>".$O2->explain_payment_status(
+			#			format=>"summary",
+			#			try_prefix=>"admin_",
+			#			uuid=>$cpayrec->{'uuid'},
+			#			'*SITE'=>$SITE,
+			#			'skip_chained'=>0,
+			#			'html'=>1,
+			#			);			
+			#		$LINE .= "</li>";	
+			#		}
+			#	$LINE .= "</ul></div>";
+			#	}
+			#elsif (&ZPAY::ispsa($payrec->{'ps'},['0','1','2'])) {
+			#	$LINE .= $O2->explain_payment_status(
+			#		format=>"detail",
+			#		try_prefix=>"admin_",
+			#		uuid=>$payrec->{'uuid'},
+			#		'*SITE'=>$SITE,
+			#		'html'=>1,
+			#		);
+			#	}
 #			elsif (($payrec->{'tender'} eq 'PAYPAL') && ($payrec->{'ps'} eq '106')) {
 #				## PAYPAL PAYMENTS
 #				$LINE .= qq~
@@ -1703,9 +1718,9 @@ sub verb_order_status {
 #</div>
 #~;
 #				}
-			else {
-				$LINE .= "<div>UNKNOWN TENDER:$payrec->{'tender'} PS:$payrec->{'ps'} AMT:$payrec->{'amt'}</div>";
-				}
+			#else {
+			#	$LINE .= "<div>UNKNOWN TENDER:$payrec->{'tender'} PS:$payrec->{'ps'} AMT:$payrec->{'amt'}</div>";
+			#	}
 			$LINE .= "</div>";
 
 			$OUTPUT .= qq~<div>$LINE</div>~;

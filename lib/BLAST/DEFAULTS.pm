@@ -422,6 +422,7 @@ We have received and processed the payment for the amount of: $%GRANDTOTAL%
 The Buy.com Transaction ID (if available) is: <span data-tlc="bind $txn '.txn'; apply --append;"></span>
 </p>
 </template>
+
 <template id='payment_cash_pending'>
 <!-- Displayed when cash payment is waiting (usually this is only for point of sale) Checkout cash pending --><div align="left">
 <p>You have chosen to pay by cash.  Please do not send cash by mail.
@@ -429,13 +430,13 @@ This payment should be made in person at our location:</p>
 <b>%MYADDRESS%</b>
 <p><i>we are not responsible for lost or stolen payments.</i></p>
 </div>
-
 </template>
+
 <template id='payment_cash_success'>
 <!-- Displayed when cash payment has been received (usually this is for point of sale). Checkout cash success --><div align="left">
 <p>Your cash payment is appreciated.</p>
-
 </template>
+
 <template id='payment_check_pending'>
 <!-- Pending Company Check Payment Message (EMAIL)  --><p>You must make the check for the amount $%GRANDTOTAL% payable to %PAYABLETO%.</p>
 
@@ -447,10 +448,12 @@ Please send the payment to the mailing address located on our website.
 <p><i>we are not responsible for lost or stolen payments.</i></p>
 			
 </template>
+
 <template id='payment_check_success'>
 <!-- Checkout check success Displayed to customers who are paying by check (includes name, address, mailing instructions). -->
 <div align="left"><p>You paid by check.  Thank you!</p></div>
 </template>
+
 <template id='payment_chkod_pending'>
 <!-- Pending Check OD Payment Message (EMAIL)  -->
 The check you will present upon delivery must be payable to %PAYABLETO%
@@ -459,6 +462,7 @@ made for the amount $%GRANDTOTAL%.
 To speed processing of the order, please print "Order Number %ORDERID%"
 in the memo of the check.
 </template>
+
 <template id='payment_chkod_success'>
 <!-- Checkout Check on Delivery message Displayed to customers who have selected Check on Delivery. -->
 <p align="left">You have chosen to pay by personal or company check on delivery.  
@@ -466,6 +470,7 @@ You must have the check for the amount <b>$%GRANDTOTAL%</b> ready when your deli
 please contact us if you have any questions.
 In the memo of the check please put "Order %ORDERID%".</p>
 </template>
+
 <template id='payment_cod_pending'>
 <!-- Pending COD Payment Message (EMAIL)  -->
 The cashier check or money order you will present upon delivery must be
@@ -475,40 +480,47 @@ To speed processing of the order, please print "Order Number %ORDERID%" in
 the memo of the cashier check or money order.
 
 </template>
+
 <template id='payment_cod_success'>
 <!-- Checkout COD message Displayed to customers who have selected COD. -->
 <p align="left">You have chosen to pay by cashier's check or money order on delivery. 
 You must have the cashier's check or money order for the amount <b>$%GRANDTOTAL%</b> ready when your delivery arrives, 
 payable to <b>%PAYABLETO%</b>.  In the memo of the cashier's check or money order please put "Order %ORDERID%".</p>
 </template>
+
 <template id='payment_credit_denied'>
 <!-- Denied Credit Card  payment  -->
 <p>Your Credit Card payment has been denied.  If you do not have a customer account, please contact %MYEMAIL% for assistance.  
 If you have an account, please login to your account to correct your payment</p>
 </template>
+
 <template id='payment_credit_failure'>
 <!-- Credit card failed charge. Checkout credit charge failed (2xx and 3xx result codes) -->
 <p align="left">There was a problem processing your order.  Please contact us by email or phone.</p>
 <p align="left">%REASON%</p>
 </template>
+
 <template id='payment_credit_pending'>
 <!-- Pending Credit Payment Message  -->
 <p align="left">You have chosen to pay via Credit Card.  Your Credit Card payment is considered Pending and funds have not been released at this time.</p><br>
 </template>
+
 <template id='payment_credit_success'>
 <!-- Credit card successfully charged message. Checkout credit charge success (0xx and 1xx result codes) -->
 <p align="left">Thank you for your order!</p>
 </template>
+
 <template id='payment_custom_success'>
 <!-- Checkout custom success message Displayed to customers who have selected the custom payment option for payment. -->
 <p align="left">You have chosen to pay via a custom method.</p><br>
 <p align="left">If you are the merchant, you really ought to configure this message to something other than it's default.</p>
-
 </template>
+
 <template id='payment_denied'>
 <!-- Denied Payment Message (EMAIL)  -->
 <p>Your payment has been denied.  Please login to your account to fix the payment.</p>
 </template>
+
 <template id='payment_ebay_success'>
 <!-- payment_ebay_success  -->
 <p align="left">
@@ -516,94 +528,112 @@ We have received and processed the payment for your eBay order for the amount of
 The eBay/Paypal Transaction ID (if available) is: %PAYMENT_TXN%
 </p>
 </template>
+
 <template id='payment_echeck_pending'>
 <!-- Checkout electronic checkout payment is pending (funds waiting transfer) Electronic check is pending. -->
 <p align="left">Thank you for your order!</p>
 </template>
+
 <template id='payment_echeck_success'>
 <!-- Checkout electronic check charge success Success message for electronic check processed. -->
 <p align="left">Thank you for your order!</p>
 </template>
+
 <template id='payment_giftcard_pending'>
 <!-- Pending Giftcard payment  -->
 <p align="left">You have chosen to pay by use of Store Giftcard.  Your payment is considered Pending and your Giftcard has not been debited at this time.</p><br>
 </template>
+
 <template id='payment_giftcard_success'>
 <!-- Credit card successfully charged message. Checkout giftcard success (0xx and 1xx result codes) -->
 <p align="left">Thank you for your payment!</p>
 </template>
+
 <template id='payment_google_denied'>
 <!-- Denied Google Checkout Payment Message (EMAIL)  -->
 <p>Your Google Checkout payment has been denied.  Please click the link below to correct your payment:</p>
 <a href="%PAYMENT_FIXNOWURL%">%PAYMENT_FIXNOWURL%</a>
 </template>
+
 <template id='payment_google_pending'>
 <!-- Pending Google Checkout Payment Message (EMAIL)  -->
 <p>You have chosen to pay via Google Checkout.  Your payment is considered Pending and funds have not been released at this time<p>
 </template>
+
 <template id='payment_layaway_pending'>
 <!-- Pending Layaway Payment Message (EMAIL)  -->
 <p>You have chosen to pay via Layaway.  Your payment is considered Pending and funds have not been released at this time<p>
 </template>
+
 <template id='payment_mixed_failure'>
 <!-- Mixed Payment Method Failure Checkout credit charge success (non succes error codees) -->
 <p align="left">Thank you for your order! Your order used more than one payment method, and experienced at least one failure. Please review below.</p>
 </template>
+
 <template id='payment_mixed_success'>
 <!-- Mixed Payment successfully charged message. Checkout mixed payment success (0xx and 1xx result codes) -->
 <p align="left">Thank you for your order! Your order used more than one payment method, below is a summary of each method.</p>
 </template>
+
 <template id='payment_mo_pending'>
 <!-- Pending Cashiers Check Payment Message (EMAIL)  -->
 <p>You should prepare a cashiers check or money order for the amount $%GRANDTOTAL% payable to %PAYABLETO%.</p>
 <p>To speed processing of the order, please print "Order Number %ORDERID%" in the memo of the check.</p>
 <p>If payment is not received within 2 weeks, your order will be automatically cancelled.</p>
 <div>
-Please send the payment to:
 Please send the payment to the mailing address located on our website.
-
 </div>
 <p><i>we are not responsible for lost or stolen payments.</i></p>
 </template>
+
 <template id='payment_mo_success'>
 <!-- Displayed when a cashiers check or money order has been received. Checkout cash success -->
 <div align="left"><p>Your cashiers check or money order payment was received.</p></div>
 </template>
+
 <template id='payment_other_pending'>
 <!-- Other Pending Payment Message (EMAIL)  -->
 <p>Thank you for your order.</p>
 </template>
+
 <template id='payment_paypalec_denied'>
 <!-- Denied Paypal Express Checkout payment  -->
 <p>The PayPal Express Checkout payment has been denied.  Please click the link below to correct your payment:</p>
 <a href="%PAYMENT_FIXNOWURL%">%PAYMENT_FIXNOWURL%</a>
 </template>
+
 <template id='payment_paypalec_pending'>
 <!-- Pending Paypal Express Checkout payment  -->
 <p align="left">You have chosen to pay via PayPal Express Checkout.  Your payment is considered Pending and funds have not been released at this time.</p><br>
 </template>
+
 <template id='payment_paypalec_success'>
 <!-- Successful Paypal Express Checkout payment  -->
 <p align="left">Thank you for your PayPal Express Checkout payment. </p><br>
 </template>
+
 <template id='payment_pickup_pending'>
 <!-- Checkout pickup pending Displayed to customers who are paying at pickup -->
 <p align="left">You have chosen to pay upon pickup.  Thank you for your order, we look forward to seeing you!</p>
 </template>
+
 <template id='payment_pickup_success'>
 <!-- Checkout pickup success Displayed to customers who are paying at pickup -->
 <p align="left">Your order during pickup was received. Thank you!</p>
 </template>
+
 <template id='payment_po_pending'>
 <!-- Checkout PO success message Thank you displayed to PO users after PO is put in. -->
 <p align="left">You have chosen to pay by purchase order, 
 we will ship your order once we have confirmed your available credit limit. 
 If there is an issue we will contact you.</p>
 </template>
+
 <template id='payment_po_success'>
 <!-- Checkout PO success message Thank you displayed to PO users after PO is put in. -->
 <p align="left">Thank you for your order!</p>
 </template>
+
 <template id='payment_wire_pending'>
 <!-- Pending Wire Transfer Message  -->
 <p>You send a wire transfer for the amount $%GRANDTOTAL%.
@@ -611,11 +641,11 @@ Our account number is: [[PLEASE CONTACT US FOR ROUTING / ACCOUNT NUMBER]]
 <p>To speed processing of the order, please print "Order Number %ORDERID%" in the memo of the transfer.</p>
 <p>If payment is not received within 2 weeks, your order will be automatically cancelled.</p>
 </template>
+
 <template id='payment_wire_success'>
 <!-- Checkout wire transfer message Displayed to customers who have selected wire transfer -->
-%PAYWIREINSTRUCTIONS%
+Please contact us for wire transfer instructions.
 </template>
-
 
 </div>
 |,

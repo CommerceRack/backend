@@ -1859,18 +1859,6 @@ sub fetch_addresses {
 	elsif ($TYPE eq 'SHIP') {
 		return($self->{'@SHIP'});		
 		}
-	#elsif ($TYPE eq 'WS') {
-	#	## there will only be one 'WS' address ever, but this returns it as a CUSTOMER::ADDRESS object for convenience
-	#	my ($ws) = $self->fetch_attrib('WS');
-	#	if (defined $ws) {
-	#		my ($wsaddr) = CUSTOMER::ADDRESS->new($self,'WS',$ws);
-	#		return([$wsaddr]);
-	#		}
-	#	else {
-	#		## no wholesale address, return empty array.
-	#		return([]);
-	#		}
-	#	}
 	else {
 		warn "CUSTOMER::fetch_addresses UNKNOWN ADDRESS TYPE: $TYPE - returning []\n";
 		return([]);

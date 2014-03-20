@@ -12663,318 +12663,313 @@ sub from_xml {
 ##		skip_voided=>1|0
 ##		html=>1|0
 ##
-sub explain_payment_status {
-	my ($self, %options) = @_;
-
-	my $out = undef;
-
-	## default behavior is to skip chained payments	
-	if (not defined $options{'skip_chained'}) { $options{'skip_chained'}++; }
-
-	if (ref($options{'*SITE'}) ne 'SITE') {
-		warn Carp::confess("CART2::explain payment status *requires* *SITE  paramter to be passed"); 
-		}
-	my $SITE = $options{'*SITE'};
-
-	my $ERROR = $self->check();
-	if ($ERROR eq '') { $ERROR = undef; }
-
-	my $PACSREF = [];	# an arrayref, each element is a two position array
-							# 0: parent payrec
-							# 1: an array of chained payrecs (associated to element 0)
-
-	if (defined $ERROR) {
-		}
-	elsif (defined $options{'uuid'}) {
-		## did we receive a specific uuid, or do we need to show an "overall" status
-		my $payrec = $self->payment_by_uuid($options{'uuid'});
-		if (not defined $payrec) {
-			$ERROR = "UUID:$options{'uuid'} does not exist";
-			}
-		else {
-			push @{$PACSREF}, [ $payrec, $self->payments(is_child=>1,uuid=>$options{'uuid'}) ];
-			}
-		}
-	else {
-		$PACSREF = $self->payments_as_chain();
-		if (scalar(@{$PACSREF})==0) {
-			$ERROR = "no payments were attached to order, or the order was not fully processed when this status message was generated.";
-			}
-		}
-
-	if ($0 eq '-e') {
-		print STDERR 'CART2::explain_payment_status (payments_as_chain) '.Dumper($PACSREF);
-		}
-
-	## SANITY: at this point @PAYRECS will be initalized or $out will be set to an error message
-	require ZPAY;	
-	if (defined $ERROR) {
-		}
-	elsif ($options{'format'} eq 'summary') {
-		}
-	elsif ($options{'format'} eq 'detail') {
-		}
-	else {
-		$ERROR = "function tell_payment_status 'format' param=$options{'format'} is invalid";
-		}
-
-
-	if (defined $ERROR) {
-		## SHIT ALREADY HAPPENED
-		$out = "EXPLAIN PAYMENT STATUS ERROR: $ERROR";
-		}
-	elsif ($options{'format'} eq 'summary') {
-		## SUMMARY MODE
-		$out = '';
-		if (scalar(@{$PACSREF})==0) {
-			$out .= "<div class=\"ztxt\">There are no payments currently applied to this order.</div>\n";
-			}
-		elsif (scalar(@{$PACSREF})==1) {
-			## nothing to do here!
-			}
-		elsif (scalar(@{$PACSREF})>1) {	
-			$out .= sprintf("<div class=\"ztxt\">[%d PAYMENTS TOTAL]</div>\n",scalar(@{$PACSREF}));
-			}
-		
-		foreach my $pacref (@{$PACSREF}) {			
-			my ($payrec,$cpayrecs) = @{$pacref};
-			next if (($payrec->{'voided'}) && ($options{'skip_voided'}));
-			next if (($payrec->{'puuid'} ne '') && ($options{'skip_chained'}==1)); # chained payment
-
-			my $acct = &ZPAY::unpackit($payrec->{'acct'});
-			my $line = '';
-			my $amt = $payrec->{'amt'};
-			if ($payrec->{'voided'}) { $amt = 0; }
-			$line .= sprintf("\$%.2f ",$amt);
-
-			if ($payrec->{'tender'} eq 'CREDIT') {
-				my ($CCorCM) = ($acct->{'CC'})?$acct->{'CC'}:$acct->{'CM'};
-				if ((not defined $CCorCM) || ($CCorCM eq '')) { 
-					$line .= 'Credit Card';
-					}
-				else {
-					$line .= &ZPAY::cc_type_from_number($CCorCM).' '; 
-					$line .= 'Credit Card';	
-					$line .= ' '.('X' x (length($CCorCM) - 4)).substr($CCorCM,-4,4); 
-					}
-				}
-			elsif (defined $payrec) {
-				# my %methods = &ZPAY::fetch_payment_methods_general();
-				my $pretty = $payrec->{'tender'};
-				foreach my $paymethod (@ZPAY::PAY_METHODS) {
-					if ($paymethod->[0] eq $payrec->{'tender'}) { $pretty = $paymethod->[1]; }
-					}
-				$line .= sprintf('%s',$pretty);
-				}
-			
-			if ($payrec->{'voided'}) {
-				$line .= " (VOIDED)";
-				}
-			else {
-				$line .= sprintf(" (%s)",,&ZPAY::payment_status_short_desc($payrec->{'ps'}));
-				}
-			$out .= "<div class=\"ztxt\">$line</div>\n";
-			## if we have any chained payment records, lets show them here:
-			}
-		}
-	elsif ($options{'format'} eq 'detail') {
-		$out .= '';
-
-
-		#if ((scalar(@{$PACSREF})>1) || ($o->legacy_order_get('payment_method') eq 'MIXED')) {
-		#	## this is a mixed type, it has one or more payment methods on it.
-		#	}
-
-		my %global_macros = ();
-		$global_macros{'%ORDERID%'} = $self->oid();
-		$global_macros{'%GRANDTOTAL%'} = $self->in_get('sum/order_total');
-		$global_macros{'%BALANCEDUE%'} = $self->in_get('sum/balance_due_total');
-		$global_macros{'%CUSTOMER_REFERENCE%'} = sprintf("%s",$self->in_get('want/po_number'));
-
-		if (scalar(@{$PACSREF})>0) {
-			## there is more than one payment method we will be displaying!
-			if (&ZPAY::ispsa($self->legacy_order_get('payment_status'),['0','1','4'])) {
-				$out .= $SITE->msgs()->get('invoice_mixed_success',\%global_macros);
-				}
-			else {
-				$out .= $SITE->msgs()->get('invoice_mixed_failure',\%global_macros);
-				}
-			}
-
-
-		foreach my $pacref (@{$PACSREF}) {
-			my ($payrec,$cpayrecs) = @{$pacref};
-
-			next if (($payrec->{'voided'}) && ($options{'skip_voided'}));
-			next if ($payrec->{'puuid'} ne ''); # chained payment
-
-
-			# Depending on the type of payment method of the order, return
-			# pay instructions for that particular payment type.
-			my $line = '';
-			my %macros = %global_macros;
-			# $macros{'%GRANDTOTAL%'} = $payrec->{'amt'};
-			# $macros{'%ORDERSTATUSURL%'} = '';
-
-			my $acctref = &ZPAY::unpackit($payrec->{'acct'});
-			if ($payrec->{'acct'} ne '') {
-				## copy in any acct fields, such as %PAYMENT_CC% or %PAYMENT_CY%
-				foreach my $id (keys %{$acctref}) {
-					$macros{ uc('%PAYMENT_'.$id.'%') } = $acctref->{$id};
-					}
-				}
-
-			$macros{'%PAYMENT_FIXNOWURL%'} = $SITE->URLENGINE()->get('customer_url').'/order/status?orderid='.$self->oid();
-
-			if ($payrec->{'tender'} eq 'CREDIT') {
-				#%CCTYPE%	Type of credit card the customer has entered
-				# $macros{'%CCTYPE%'} = q~<% /* CCTYPE macro */ loadurp("CART::chkout.cc_number"); format(payment=>"cc_type"); default(""); print(); %>~;
-				$macros{'%CREDIT_TYPE%'} = &ZPAY::cc_type_from_number( ($acctref->{'CC'})?$acctref->{'CC'}:$acctref->{'CM'} );
-				#%CCNUMBER%	Credit card number the customer has entered, with only the last few numbers showing
-				# $macros{'%CCNUMBER%'} = q~<% /* CCNUMBER macro */ loadurp("CART::chkout.cc_number"); format(payment=>"cc_masked"); default(""); print(); %>~;
-				$macros{'%CREDIT_NUMBER%'} = ($acctref->{'CM'})?$acctref->{'CM'}:&ZPAY::cc_hide_number($acctref->{'CC'});
-				#%CCEXPMONTH%	Customer-entered credit card expiration month
-				# $macros{'%CCEXPMONTH%'} = q~<% /* CCEXPMONTH macro */ loadurp("CART::chkout.cc_exp_month"); default(""); print(); %>~;
-				$macros{'%CREDIT_EXPMONTH%'} = $acctref->{'MM'};
-				#%CCEXPYEAR%	Customer-entered credit card expiration year				
-				# $macros{'%CCEXPYEAR%'} = q~<% /* CCEXPYEAR macro */ loadurp("CART::chkout.cc_exp_year"); default(""); print(); %>~;
-				$macros{'%CREDIT_EXPYEAR%'} = $acctref->{'YY'};
-				}
-
-			$macros{'%PAYMENT_TENDER%'} = $payrec->{'tender'};
-			$macros{'%PAYMENT_AMT%'} = $payrec->{'amt'};
-			$macros{'%PAYMENT_AMT_CURRENCY%'} = 'USD';
-			$macros{'%PAYMENT_AMT_PRETTY%'} = sprintf("\$%.2f",$payrec->{'amt'});
-			$macros{'%PAYMENT_NOTE%'} = $payrec->{'note'};
-			$macros{'%PAYMENT_TXN%'} = $payrec->{'txn'};
-			$macros{'%PAYMENT_AUTH%'} = $payrec->{'auth'};
-			$macros{'%PAYMENT_DEBUG%'} = $payrec->{'debug'};
-			$macros{'%PAYMENT_UUID%'} = $payrec->{'uuid'};
-
-			my @TRY_MSGID = ();
-			push @TRY_MSGID, sprintf('payment_%s_%s',lc($payrec->{'tender'}),$payrec->{'ps'});
-
-			if (&ZPAY::ispsa($payrec->{'ps'},['1'])) {
-				## payinstruction messages are for payments which are pending/waiting
-				push @TRY_MSGID, sprintf("payment_%s_pending",lc($payrec->{'tender'}));
-				push @TRY_MSGID, sprintf("payment_pending");
-				}
-			elsif (&ZPAY::ispsa($payrec->{'ps'},['2'])) {
-				## denied payment
-				push @TRY_MSGID, sprintf("payment_%s_denied",lc($payrec->{'tender'}));
-				push @TRY_MSGID, sprintf("payment_denied");
-				}
-			elsif (&ZPAY::ispsa($payrec->{'ps'},['0','4'])) {
-				## PAID/REVIEW
-				push @TRY_MSGID, sprintf("payment_%s_success",lc($payrec->{'tender'}));
-				push @TRY_MSGID, sprintf("payment_success");
-				}
-			elsif (&ZPAY::ispsa($payrec->{'ps'},['6'])) {
-				## voided payment
-				push @TRY_MSGID, sprintf('payment_%s_void',lc($payrec->{'tender'}));
-				push @TRY_MSGID, sprintf('payment_void');
-				}
-			elsif (&ZPAY::ispsa($payrec->{'ps'},['5'])) {
-				## processing payment
-				push @TRY_MSGID, sprintf('payment_%s_processing',lc($payrec->{'tender'}));
-				push @TRY_MSGID, sprintf('payment_processing');
-				}
-			elsif (&ZPAY::ispsa($payrec->{'ps'},['3'])) {
-				## voided payment
-				push @TRY_MSGID, sprintf('payment_%s_returned',lc($payrec->{'tender'}));
-				push @TRY_MSGID, sprintf('payment_returned');
-				}
-			elsif (&ZPAY::ispsa($payrec->{'ps'},['9'])) {
-				## error payment
-				push @TRY_MSGID, sprintf('payment_%s_error',lc($payrec->{'tender'}));
-				push @TRY_MSGID, sprintf('payment_%d_error',lc($payrec->{'ps'}));
-				push @TRY_MSGID, sprintf('payment_error');
-				}
-			else {
-				push @TRY_MSGID, sprintf('payment_unknown_status');
-				}
-
-			if (defined $options{'try_prefix'}) {
-				## if we get a try prefix ex: admin_ then we'll try those messages first ex:
-				## msgid=payment_credit_success  try_prefix=admin_ then we try: admin_payment_credit_success
-				my @NEW = ();
-				foreach my $msgid (@TRY_MSGID) { push @NEW, sprintf("%s%s",$options{'try_prefix'},$msgid); }
-				foreach my $msgid (@TRY_MSGID) {	push @NEW, $msgid; }
-				@TRY_MSGID = @NEW;
-				}
-			
-			foreach my $msgid (@TRY_MSGID) {
-				# print sprintf("MSGID: $msgid %d\n",($SM->exists($msgid));
-				next if ($line ne '');
-				if ($SITE->msgs()->exists($msgid)) { 
-					$line = $SITE->msgs()->get($msgid,\%macros); 
-					}
-				if ($line ne '') {
-					$line = sprintf("<!-- $msgid  --><div class=\"ztxt %s\">%s</div><!-- /$msgid -->",join(" ",@TRY_MSGID),$line);
-					}
-				}
-			
-			if ($line eq '') {
-				$line = "UNKNOWN PAYMENT STATUS TENDER=$payrec->{'tender'} PS=$payrec->{'ps'} UUID=$payrec->{'uuid'}\n";
-				$line .= "THE FOLLOWING MSGID'S COULD NOT BE FOUND: ".join(",",@TRY_MSGID);
-				}
-
-			$out .= qq~
-<!-- TENDER=$payrec->{'tender'} UUID=$payrec->{'uuid'} PS=$payrec->{'ps'} -->
-<div id="$payrec->{'uuid'}" class="payment_tender_$payrec->{'tender'} payment_ps_$payrec->{'ps'}">\n$line\n</div>
-~;
-			}
-
-
-
-		## PAID IN FULL/BALANCE DUE MESSAGING
-		if ($options{'uuid'}) {
-			## skip when we're just looking at one transaction.
-			}
-		elsif ($self->legacy_order_get('balance_due')>0) {
-			## balance due
-			$out .= sprintf("<!-- invoice_has_balancedue --><div class=\"ztxt invoice_has_balancedue\">%s</div><!-- /invoice_has_balancedue -->\n",$SITE->msgs()->get('invoice_has_balancedue',\%global_macros));
-			}
-		elsif ($self->is_paidinfull()) {
-			## paid in full
-			$out .= sprintf("<!-- invoice_is_paidinfull --><div class=\"ztxt invoice_is_paidinfull\">%s</div><!-- /invoice_is_paidinfull -->\n",$SITE->msgs()->get('invoice_is_paidinfull',\%global_macros));
-			}
-
-		## REVIEW STATUS
-		my $RS = $self->__GET__('flow/review_status');
-		if (not defined $RS) { $RS = ''; } else { $RS = substr($RS,0,1); }	# just keep the A of AOK
-		if ($options{'uuid'}) {
-			## skip when we're just looking at one transaction.
-			}
-		elsif ($RS eq '') {
-			## risk: not initialized!
-			}
-		elsif ($RS eq 'A') {
-			## risk: approved
-			$out .= sprintf("<!-- invoice_risk_approved --><div class=\"ztxt invoice_risk_approved\">%s</div><!-- /invoice_risk_approved -->\n",$SITE->msgs()->get('invoice_risk_approved',\%global_macros));
-			}
-		elsif (($RS eq 'R') || ($RS eq 'E')) {
-			## risk: risking
-			$out .= sprintf("<!-- invoice_risk_review --><div class=\"ztxt invoice_risk_review\">%s</div><!-- /invoice_risk_review -->\n",$SITE->msgs()->get('invoice_risk_review',\%global_macros));
-			}
-		elsif ($RS eq 'D') {
-			## risk: declined
-			$out .= sprintf("<!-- invoice_risk_declined --><div class=\"ztxt invoice_risk_declined\">%s</div><!-- /invoice_risk_declined -->\n",$SITE->msgs()->get('invoice_risk_declined',\%global_macros));
-			}	
-		}
-
-	if (not $options{'html'}) {
-		$out = &ZTOOLKIT::htmlstrip($out);
-		}
-
-
-	return($out);
-	}
-
-
-
-
-
+#sub explain_payment_status {
+#	my ($self, %options) = @_;
+#
+#	my $out = undef;
+#
+#	## default behavior is to skip chained payments	
+#	if (not defined $options{'skip_chained'}) { $options{'skip_chained'}++; }
+#
+#	if (ref($options{'*SITE'}) ne 'SITE') {
+#		warn Carp::confess("CART2::explain payment status *requires* *SITE  paramter to be passed"); 
+#		}
+#	my $SITE = $options{'*SITE'};
+#
+#	my $ERROR = $self->check();
+#	if ($ERROR eq '') { $ERROR = undef; }
+#
+#	my $PACSREF = [];	# an arrayref, each element is a two position array
+#							# 0: parent payrec
+#							# 1: an array of chained payrecs (associated to element 0)
+#
+#	if (defined $ERROR) {
+#		}
+#	elsif (defined $options{'uuid'}) {
+#		## did we receive a specific uuid, or do we need to show an "overall" status
+#		my $payrec = $self->payment_by_uuid($options{'uuid'});
+#		if (not defined $payrec) {
+#			$ERROR = "UUID:$options{'uuid'} does not exist";
+#			}
+#		else {
+#			push @{$PACSREF}, [ $payrec, $self->payments(is_child=>1,uuid=>$options{'uuid'}) ];
+#			}
+#		}
+#	else {
+#		$PACSREF = $self->payments_as_chain();
+#		if (scalar(@{$PACSREF})==0) {
+#			$ERROR = "no payments were attached to order, or the order was not fully processed when this status message was generated.";
+#			}
+#		}
+#
+#	#if ($0 eq '-e') {
+#	#	print STDERR 'CART2::explain_payment_status (payments_as_chain) '.Dumper($PACSREF);
+#	#	}
+#
+#	## SANITY: at this point @PAYRECS will be initalized or $out will be set to an error message
+#	require ZPAY;	
+#	if (defined $ERROR) {
+#		}
+#	elsif ($options{'format'} eq 'summary') {
+#		}
+#	elsif ($options{'format'} eq 'detail') {
+#		}
+#	else {
+#		$ERROR = "function tell_payment_status 'format' param=$options{'format'} is invalid";
+#		}
+#
+#
+#	if (defined $ERROR) {
+#		## SHIT ALREADY HAPPENED
+#		$out = "EXPLAIN PAYMENT STATUS ERROR: $ERROR";
+#		}
+#	elsif ($options{'format'} eq 'summary') {
+#		## SUMMARY MODE
+#		$out = '';
+#		if (scalar(@{$PACSREF})==0) {
+#			$out .= "<div class=\"ztxt\">There are no payments currently applied to this order.</div>\n";
+#			}
+#		elsif (scalar(@{$PACSREF})==1) {
+#			## nothing to do here!
+#			}
+#		elsif (scalar(@{$PACSREF})>1) {	
+#			$out .= sprintf("<div class=\"ztxt\">[%d PAYMENTS TOTAL]</div>\n",scalar(@{$PACSREF}));
+#			}
+#		
+#		foreach my $pacref (@{$PACSREF}) {			
+#			my ($payrec,$cpayrecs) = @{$pacref};
+#			next if (($payrec->{'voided'}) && ($options{'skip_voided'}));
+#			next if (($payrec->{'puuid'} ne '') && ($options{'skip_chained'}==1)); # chained payment
+#
+#			my $acct = &ZPAY::unpackit($payrec->{'acct'});
+#			my $line = '';
+#			my $amt = $payrec->{'amt'};
+#			if ($payrec->{'voided'}) { $amt = 0; }
+#			$line .= sprintf("\$%.2f ",$amt);
+#
+#			if ($payrec->{'tender'} eq 'CREDIT') {
+#				my ($CCorCM) = ($acct->{'CC'})?$acct->{'CC'}:$acct->{'CM'};
+#				if ((not defined $CCorCM) || ($CCorCM eq '')) { 
+#					$line .= 'Credit Card';
+#					}
+#				else {
+#					$line .= &ZPAY::cc_type_from_number($CCorCM).' '; 
+#					$line .= 'Credit Card';	
+#					$line .= ' '.('X' x (length($CCorCM) - 4)).substr($CCorCM,-4,4); 
+#					}
+#				}
+#			elsif (defined $payrec) {
+#				# my %methods = &ZPAY::fetch_payment_methods_general();
+#				my $pretty = $payrec->{'tender'};
+#				foreach my $paymethod (@ZPAY::PAY_METHODS) {
+#					if ($paymethod->[0] eq $payrec->{'tender'}) { $pretty = $paymethod->[1]; }
+#					}
+#				$line .= sprintf('%s',$pretty);
+#				}
+#			
+#			if ($payrec->{'voided'}) {
+#				$line .= " (VOIDED)";
+#				}
+#			else {
+#				$line .= sprintf(" (%s)",,&ZPAY::payment_status_short_desc($payrec->{'ps'}));
+#				}
+#			$out .= "<div class=\"ztxt\">$line</div>\n";
+#			## if we have any chained payment records, lets show them here:
+#			}
+#		}
+#	elsif ($options{'format'} eq 'detail') {
+#		$out .= '';
+#
+#
+#		#if ((scalar(@{$PACSREF})>1) || ($o->legacy_order_get('payment_method') eq 'MIXED')) {
+#		#	## this is a mixed type, it has one or more payment methods on it.
+#		#	}
+#
+#		my %global_macros = ();
+#		$global_macros{'%ORDERID%'} = $self->oid();
+#		$global_macros{'%GRANDTOTAL%'} = $self->in_get('sum/order_total');
+#		$global_macros{'%BALANCEDUE%'} = $self->in_get('sum/balance_due_total');
+#		$global_macros{'%CUSTOMER_REFERENCE%'} = sprintf("%s",$self->in_get('want/po_number'));
+#
+#		if (scalar(@{$PACSREF})>0) {
+#			## there is more than one payment method we will be displaying!
+#			if (&ZPAY::ispsa($self->legacy_order_get('payment_status'),['0','1','4'])) {
+#				$out .= $SITE->msgs()->get('invoice_mixed_success',\%global_macros);
+#				}
+#			else {
+#				$out .= $SITE->msgs()->get('invoice_mixed_failure',\%global_macros);
+#				}
+#			}
+#
+#
+#		foreach my $pacref (@{$PACSREF}) {
+#			my ($payrec,$cpayrecs) = @{$pacref};
+#
+#			next if (($payrec->{'voided'}) && ($options{'skip_voided'}));
+#			next if ($payrec->{'puuid'} ne ''); # chained payment
+#
+#
+#			# Depending on the type of payment method of the order, return
+#			# pay instructions for that particular payment type.
+#			my $line = '';
+#			my %macros = %global_macros;
+#			# $macros{'%GRANDTOTAL%'} = $payrec->{'amt'};
+#			# $macros{'%ORDERSTATUSURL%'} = '';
+#
+#			my $acctref = &ZPAY::unpackit($payrec->{'acct'});
+#			if ($payrec->{'acct'} ne '') {
+#				## copy in any acct fields, such as %PAYMENT_CC% or %PAYMENT_CY%
+#				foreach my $id (keys %{$acctref}) {
+#					$macros{ uc('%PAYMENT_'.$id.'%') } = $acctref->{$id};
+#					}
+#				}
+#
+#			$macros{'%PAYMENT_FIXNOWURL%'} = $SITE->URLENGINE()->get('customer_url').'/order/status?orderid='.$self->oid();
+#
+#			if ($payrec->{'tender'} eq 'CREDIT') {
+#				#%CCTYPE%	Type of credit card the customer has entered
+#				# $macros{'%CCTYPE%'} = q~<% /* CCTYPE macro */ loadurp("CART::chkout.cc_number"); format(payment=>"cc_type"); default(""); print(); %>~;
+#				$macros{'%CREDIT_TYPE%'} = &ZPAY::cc_type_from_number( ($acctref->{'CC'})?$acctref->{'CC'}:$acctref->{'CM'} );
+#				#%CCNUMBER%	Credit card number the customer has entered, with only the last few numbers showing
+#				# $macros{'%CCNUMBER%'} = q~<% /* CCNUMBER macro */ loadurp("CART::chkout.cc_number"); format(payment=>"cc_masked"); default(""); print(); %>~;
+#				$macros{'%CREDIT_NUMBER%'} = ($acctref->{'CM'})?$acctref->{'CM'}:&ZPAY::cc_hide_number($acctref->{'CC'});
+#				#%CCEXPMONTH%	Customer-entered credit card expiration month
+#				# $macros{'%CCEXPMONTH%'} = q~<% /* CCEXPMONTH macro */ loadurp("CART::chkout.cc_exp_month"); default(""); print(); %>~;
+#				$macros{'%CREDIT_EXPMONTH%'} = $acctref->{'MM'};
+#				#%CCEXPYEAR%	Customer-entered credit card expiration year				
+#				# $macros{'%CCEXPYEAR%'} = q~<% /* CCEXPYEAR macro */ loadurp("CART::chkout.cc_exp_year"); default(""); print(); %>~;
+#				$macros{'%CREDIT_EXPYEAR%'} = $acctref->{'YY'};
+#				}
+#
+#			$macros{'%PAYMENT_TENDER%'} = $payrec->{'tender'};
+#			$macros{'%PAYMENT_AMT%'} = $payrec->{'amt'};
+#			$macros{'%PAYMENT_AMT_CURRENCY%'} = 'USD';
+#			$macros{'%PAYMENT_AMT_PRETTY%'} = sprintf("\$%.2f",$payrec->{'amt'});
+#			$macros{'%PAYMENT_NOTE%'} = $payrec->{'note'};
+#			$macros{'%PAYMENT_TXN%'} = $payrec->{'txn'};
+#			$macros{'%PAYMENT_AUTH%'} = $payrec->{'auth'};
+#			$macros{'%PAYMENT_DEBUG%'} = $payrec->{'debug'};
+#			$macros{'%PAYMENT_UUID%'} = $payrec->{'uuid'};
+#
+#			my @TRY_MSGID = ();
+#			push @TRY_MSGID, sprintf('payment_%s_%s',lc($payrec->{'tender'}),$payrec->{'ps'});
+#
+#			if (&ZPAY::ispsa($payrec->{'ps'},['1'])) {
+#				## payinstruction messages are for payments which are pending/waiting
+#				push @TRY_MSGID, sprintf("payment_%s_pending",lc($payrec->{'tender'}));
+#				push @TRY_MSGID, sprintf("payment_pending");
+#				}
+#			elsif (&ZPAY::ispsa($payrec->{'ps'},['2'])) {
+#				## denied payment
+#				push @TRY_MSGID, sprintf("payment_%s_denied",lc($payrec->{'tender'}));
+#				push @TRY_MSGID, sprintf("payment_denied");
+#				}
+#			elsif (&ZPAY::ispsa($payrec->{'ps'},['0','4'])) {
+#				## PAID/REVIEW
+#				push @TRY_MSGID, sprintf("payment_%s_success",lc($payrec->{'tender'}));
+#				push @TRY_MSGID, sprintf("payment_success");
+#				}
+#			elsif (&ZPAY::ispsa($payrec->{'ps'},['6'])) {
+#				## voided payment
+#				push @TRY_MSGID, sprintf('payment_%s_void',lc($payrec->{'tender'}));
+#				push @TRY_MSGID, sprintf('payment_void');
+#				}
+#			elsif (&ZPAY::ispsa($payrec->{'ps'},['5'])) {
+#				## processing payment
+#				push @TRY_MSGID, sprintf('payment_%s_processing',lc($payrec->{'tender'}));
+#				push @TRY_MSGID, sprintf('payment_processing');
+#				}
+#			elsif (&ZPAY::ispsa($payrec->{'ps'},['3'])) {
+#				## voided payment
+#				push @TRY_MSGID, sprintf('payment_%s_returned',lc($payrec->{'tender'}));
+#				push @TRY_MSGID, sprintf('payment_returned');
+#				}
+#			elsif (&ZPAY::ispsa($payrec->{'ps'},['9'])) {
+#				## error payment
+#				push @TRY_MSGID, sprintf('payment_%s_error',lc($payrec->{'tender'}));
+#				push @TRY_MSGID, sprintf('payment_%d_error',lc($payrec->{'ps'}));
+#				push @TRY_MSGID, sprintf('payment_error');
+#				}
+#			else {
+#				push @TRY_MSGID, sprintf('payment_unknown_status');
+#				}
+#
+#			if (defined $options{'try_prefix'}) {
+#				## if we get a try prefix ex: admin_ then we'll try those messages first ex:
+#				## msgid=payment_credit_success  try_prefix=admin_ then we try: admin_payment_credit_success
+#				my @NEW = ();
+#				foreach my $msgid (@TRY_MSGID) { push @NEW, sprintf("%s%s",$options{'try_prefix'},$msgid); }
+#				foreach my $msgid (@TRY_MSGID) {	push @NEW, $msgid; }
+#				@TRY_MSGID = @NEW;
+#				}
+#			
+#			foreach my $msgid (@TRY_MSGID) {
+#				# print sprintf("MSGID: $msgid %d\n",($SM->exists($msgid));
+#				next if ($line ne '');
+#				if ($SITE->msgs()->exists($msgid)) { 
+#					$line = $SITE->msgs()->get($msgid,\%macros); 
+#					}
+#				if ($line ne '') {
+#					$line = sprintf("<!-- $msgid  --><div class=\"ztxt %s\">%s</div><!-- /$msgid -->",join(" ",@TRY_MSGID),$line);
+#					}
+#				}
+#			
+#			if ($line eq '') {
+#				$line = "UNKNOWN PAYMENT STATUS TENDER=$payrec->{'tender'} PS=$payrec->{'ps'} UUID=$payrec->{'uuid'}\n";
+#				$line .= "THE FOLLOWING MSGID'S COULD NOT BE FOUND: ".join(",",@TRY_MSGID);
+#				}
+#
+#			$out .= qq~
+#<!-- TENDER=$payrec->{'tender'} UUID=$payrec->{'uuid'} PS=$payrec->{'ps'} -->
+#<div id="$payrec->{'uuid'}" class="payment_tender_$payrec->{'tender'} payment_ps_$payrec->{'ps'}">\n$line\n</div>
+#~;
+#			}
+#
+#
+#
+#		## PAID IN FULL/BALANCE DUE MESSAGING
+#		if ($options{'uuid'}) {
+#			## skip when we're just looking at one transaction.
+#			}
+#		elsif ($self->legacy_order_get('balance_due')>0) {
+#			## balance due
+#			$out .= sprintf("<!-- invoice_has_balancedue --><div class=\"ztxt invoice_has_balancedue\">%s</div><!-- /invoice_has_balancedue -->\n",$SITE->msgs()->get('invoice_has_balancedue',\%global_macros));
+#			}
+#		elsif ($self->is_paidinfull()) {
+#			## paid in full
+#			$out .= sprintf("<!-- invoice_is_paidinfull --><div class=\"ztxt invoice_is_paidinfull\">%s</div><!-- /invoice_is_paidinfull -->\n",$SITE->msgs()->get('invoice_is_paidinfull',\%global_macros));
+#			}
+#
+#		## REVIEW STATUS
+#		my $RS = $self->__GET__('flow/review_status');
+#		if (not defined $RS) { $RS = ''; } else { $RS = substr($RS,0,1); }	# just keep the A of AOK
+#		if ($options{'uuid'}) {
+#			## skip when we're just looking at one transaction.
+#			}
+#		elsif ($RS eq '') {
+#			## risk: not initialized!
+#			}
+#		elsif ($RS eq 'A') {
+#			## risk: approved
+#			$out .= sprintf("<!-- invoice_risk_approved --><div class=\"ztxt invoice_risk_approved\">%s</div><!-- /invoice_risk_approved -->\n",$SITE->msgs()->get('invoice_risk_approved',\%global_macros));
+#			}
+#		elsif (($RS eq 'R') || ($RS eq 'E')) {
+#			## risk: risking
+#			$out .= sprintf("<!-- invoice_risk_review --><div class=\"ztxt invoice_risk_review\">%s</div><!-- /invoice_risk_review -->\n",$SITE->msgs()->get('invoice_risk_review',\%global_macros));
+#			}
+#		elsif ($RS eq 'D') {
+#			## risk: declined
+#			$out .= sprintf("<!-- invoice_risk_declined --><div class=\"ztxt invoice_risk_declined\">%s</div><!-- /invoice_risk_declined -->\n",$SITE->msgs()->get('invoice_risk_declined',\%global_macros));
+#			}	
+#		}
+#
+#	if (not $options{'html'}) {
+#		$out = &ZTOOLKIT::htmlstrip($out);
+#		}
+#
+#
+#	return($out);
+#	}
 
 
 
