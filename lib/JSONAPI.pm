@@ -88,6 +88,7 @@ use URI::Escape qw();
 use URI::Escape::XS;
 use MIME::Base64 qw();
 use Data::Dumper qw(Dumper);
+use Digest::SHA1 qw();
 use strict;
 use MIME::Types qw();
 use XML::SAX::Simple qw();
@@ -100,6 +101,7 @@ use Data::Dumper;
 use YAML::Syck;
 use Storable;
 use IO::Scalar;		## we should stop using IO::Scalar
+use String::MkPasswd;
 use IO::String;
 use Archive::Zip qw( :ERROR_CODES :CONSTANTS );
 use IO::Socket::INET;
@@ -234,7 +236,7 @@ use strict;
 	'authAdminLogin'=>[ \&JSONAPI::authAdminLogin, { 'auth'=>1 }, 'auth' ],
 	'authAdminLogout'=>[ \&JSONAPI::authAdminLogout, { 'auth'=>1 }, 'auth' ],
 	'authPasswordRecover'=>[ \&JSONAPI::authPassword, {  'auth'=>1 }, 'auth' ],
-	'authPasswordUpdate'=>[ \&JSONAPI::authPassword, { 'auth'=>1 }, 'auth' ],
+	'adminPasswordUpdate'=>[ \&JSONAPI::authPassword, { 'auth'=>1 }, 'auth' ],
 	'authNewAccountCreate'=>[ \&JSONAPI::authNewAccountCreate, { 'auth'=>1 }, 'auth' ],
 
 	##
@@ -851,30 +853,30 @@ sub call_deserialize {
 ##
 ##
 ##
-sub lookup_client {
-	my ($clientid) = @_;
-
-	@OAUTH::CLIENTS = (
-		{ 'clientid'=>'1pc', 'secret'=>'cheese' },
-		{ 'clientid'=>'mvc', 'secret'=>'cheese' },		## JT's typo fixed in 201342
-		{ 'clientid'=>'zmvc', 'secret'=>'cheese' },
-		{ 'clientid'=>'droid-inv', 'secret'=>'cheese' },
-		{ 'clientid'=>'admin', 'secret'=>'cheese' } ,
-		{ 'clientid'=>'michael', 'secret'=>'cheese' },
-		{ 'clientid'=>'wms-client' },
-		);
-	
-	my $this = undef;
-	foreach my $client (@OAUTH::CLIENTS) {
-		if ($client->{'clientid'} eq $clientid) { $this = $client; }
-		}
-	if (not defined $this) {
-		$this = { 'clientid'=>$clientid };
-		}
-
-	return($this);
-	}
-
+#sub lookup_client {
+#	my ($clientid) = @_;
+#
+#	@OAUTH::CLIENTS = (
+#		{ 'clientid'=>'1pc', 'secret'=>'cheese' },
+#		{ 'clientid'=>'mvc', 'secret'=>'cheese' },		## JT's typo fixed in 201342
+#		{ 'clientid'=>'zmvc', 'secret'=>'cheese' },
+#		{ 'clientid'=>'droid-inv', 'secret'=>'cheese' },
+#		{ 'clientid'=>'admin', 'secret'=>'cheese' } ,
+#		{ 'clientid'=>'michael', 'secret'=>'cheese' },
+#		{ 'clientid'=>'wms-client' },
+#		);
+#	
+#	my $this = undef;
+#	foreach my $client (@OAUTH::CLIENTS) {
+#		if ($client->{'clientid'} eq $clientid) { $this = $client; }
+#		}
+#	if (not defined $this) {
+#		$this = { 'clientid'=>$clientid };
+#		}
+#
+#	return($this);
+#	}
+#
 
 
 
@@ -1156,17 +1158,14 @@ sub providerExec {
 		my $LUSER = uc("SUPPORT/$REMOTE_USER");
 		my $USERID = lc("SUPPORT/$REMOTE_USER\@$USERNAME");
 		$USERNAME = lc($USERNAME);
-		my ($CLIENTINFO) = &JSONAPI::lookup_client("admin");
 		my ($DEVICEID) = &OAUTH::device_initialize($USERNAME,$LUSER,$self->ipaddress(),sprintf("%s",$note));
-		my ($AUTHTOKEN) = OAUTH::create_authtoken($USERNAME,$LUSER,$CLIENTINFO,$DEVICEID,'trusted'=>1);
-		my $SECRET = $CLIENTINFO->{'secret'};
-		my $CLIENTID = $CLIENTINFO->{'clientid'};
-		print STDERR 'providerExecLogin: '.Dumper({
-			LUSER=>$LUSER,NOTE=>sprintf("%s",$note),CLIENTID=>$CLIENTID,
-			USERNAME=>$USERNAME,CLIENT=>&JSONAPI::lookup_client("admin"),AUTHTOKEN=>$AUTHTOKEN,DEVICEID=>$DEVICEID,
-			VALIDATE=>OAUTH::validate_authtoken($USERNAME,$LUSER,&JSONAPI::lookup_client("admin"),$DEVICEID,$AUTHTOKEN),
-			STR=>sprintf("%s-%s-%s-%s-%s-%s",lc($USERNAME),lc($LUSER),$CLIENTID,$DEVICEID,$SECRET,$AUTHTOKEN)
-			});
+		my ($AUTHTOKEN) = OAUTH::create_authtoken($USERNAME,$LUSER,"admin",$DEVICEID,'trusted'=>1);
+		#print STDERR 'providerExecLogin: '.Dumper({
+		#	LUSER=>$LUSER,NOTE=>sprintf("%s",$note),CLIENTID=>$CLIENTID,
+		#	USERNAME=>$USERNAME,CLIENT=>&JSONAPI::lookup_client("admin"),AUTHTOKEN=>$AUTHTOKEN,DEVICEID=>$DEVICEID,
+		#	VALIDATE=>OAUTH::validate_authtoken($USERNAME,$LUSER,&JSONAPI::lookup_client("admin"),$DEVICEID,$AUTHTOKEN),
+		#	STR=>sprintf("%s-%s-%s-%s-%s-%s",lc($USERNAME),lc($LUSER),$CLIENTID,$DEVICEID,$SECRET,$AUTHTOKEN)
+		#	});
 	
 
 		my ($LU) = LUSER->new_app($USERNAME,"admin");
@@ -1730,6 +1729,7 @@ sub psgiinit {
 	my $SITE = $options{'*SITE'};
 	if (defined $SITE) {
 		$self->{'USERNAME'} = $SITE->username();
+		$self->{'MID'} = &ZOOVY::resolve_mid($self->{'USERNAME'});
 		$self->{'PRT'} = $SITE->prt();
 		$self->{'*SITE'} = $SITE;
 		if (defined $options{'SDOMAIN'}) { $self->{'SDOMAIN'} = $options{'SDOMAIN'};  }
@@ -1743,7 +1743,7 @@ sub psgiinit {
 	##	next we check the environment to see what we can glean out. 
 	##	(note: NOTHING is required here)
 	##
-	my ($USERID,$DOMAIN,$CLIENTID,$DEVICEID,$AUTHTOKEN) = ();
+	my ($DOMAIN,$DEVICEID,$AUTHTOKEN) = ();
 
 	my $URI = $plackreq->uri();
 	my ($HOSTDOMAIN) =  $URI->host();
@@ -1759,40 +1759,38 @@ sub psgiinit {
 	elsif ($self->is_config_js()) {
 		## we're being init'd for config.js, nothing to see here.
 		}
-	elsif ($v->{'_userid'} || $HEADERS->header('x-userid')) {
-		$USERID = $v->{'_userid'} || $HEADERS->header('x-userid'); 		## obtained from user/prompt
-		if (defined $USERID) {
-			my ($USERNAME,$LUSER) = &OAUTH::resolve_userid($USERID);
-			my ($MID) = &ZOOVY::resolve_mid($USERNAME);
-			if ($MID<=0) {
-				&JSONAPI::set_error($R = {}, 'youerr', 7, sprintf("USERID '%s' is not valid.",$USERID));			
-				}
-			}
-		
-		}	
+	#elsif ($v->{'_userid'} || $HEADERS->header('x-userid')) {
+	#	#$USERID = $v->{'_userid'} || $HEADERS->header('x-userid'); 		## obtained from user/prompt
+	#	#if (defined $USERID) {
+	#	#	my ($USERNAME,$LUSER) = &OAUTH::resolve_userid($USERID);
+	#	#	my ($MID) = &ZOOVY::resolve_mid($USERNAME);
+	#	#	if ($MID<=0) {
+	#	#		&JSONAPI::set_error($R = {}, 'youerr', 7, sprintf("USERID '%s' is not valid.",$USERID));			
+	#	#		}
+	#	#	}
+	#	}	
 	elsif ((defined $DNSINFO) && ($DNSINFO->{'USERNAME'})) {
 		## yay, we got the dnsinfo from the username
-		$USERID = $DNSINFO->{'USERNAME'};
+		$self->{'USERNAME'} = $DNSINFO->{'USERNAME'};
+		$self->{'USERID'} = $v->{'_userid'} || $HEADERS->header('x-userid') || "";
 		}
 	else {
 		## wow. no userid, much bad.
+		&JSONAPI::set_error($R = {}, 'youerr', 7, sprintf("DNS Lookup error, cannot resolve database"));			
 		}
 
 	##
 	##	_clientid or the HTTP Header HTTP_X_CLIENTID is required.
 	##
 	$self->{'CLIENTID'} = $v->{'_clientid'} || $HEADERS->header('x-clientid');   ## set by application
-	if (not defined $CLIENTID) {
+	if (not defined $self->{'CLIENTID'}) {
 		}
 	elsif ($self->is_config_js()) {
 		## we're being init'd for config.js, nothing to see here.
 		}
-	elsif (($options{'ws'}) && (not defined $CLIENTID)) {
+	elsif (($options{'ws'}) && (not defined $self->{'CLIENTID'})) {
 		## websockets, no clientid check required (it is optional)
 		}
-	#elsif (my $CLIENTINFO = JSONAPI::lookup_client($CLIENTID)) {
-	#	$self->{'CLIENTID'} = $CLIENTID;
-	#	}
 	#else {
 	#	&JSONAPI::set_error($R = {}, 'apperr', 6, sprintf("CLIENTID not registered."));
 	#	}
@@ -1808,19 +1806,36 @@ sub psgiinit {
 	elsif ($options{'ws'}) {
 		## websockets, no version check
 		}
-	elsif ($USERID ne '') {
-		my ($USERNAME,$LUSER) = &OAUTH::resolve_userid($USERID);
+	elsif ($self->{'USERID'} ne '') {
+		## try and detect the LUSER
+		if (lc($self->{'USERID'}) eq lc($self->{'USERNAME'})) {
+			$self->{'LUSER'} = 'admin';
+			}
+		elsif (index($self->{'USERID'},'@')>0) {
+			($self->{'LUSER'},my $null) = split(/\@/,$self->{'USERID'});
+			}
+		elsif (index($self->{'USERID'},'*')>0) {
+			(my $null,$self->{'LUSER'}) = split(/\*/,$self->{'USERID'});
+			}
+		else {		
+			$self->{'LUSER'} = $self->{'USERID'};
+			}
+		#else {
+		#	$username = $userid;
+		#	$luser = 'admin';
+		#	}
+		#my ($USERNAME,$LUSER) = &OAUTH::resolve_userid($USERID);
 
-		if (not defined $self->username()) {
-			$self->{'USERNAME'} = $USERNAME;
-			$self->{'LUSER'} = $LUSER;
-			}
-		elsif (lc($self->username()) ne lc($USERNAME)) {
-			&JSONAPI::set_error($R = {}, 'apperr', 7, sprintf("SITE USERNAME '%s' did not correspond to userid '%s'",$self->username(),$USERNAME));
-			}
-		elsif ( ($self->{'MID'} = &ZOOVY::resolve_mid($USERNAME)) <= 0) {
-			&JSONAPI::set_error($R = {}, 'apperr', 6, sprintf("USERID did not correspond to a valid USERNAME"));
-			}
+		#if (not defined $self->username()) {
+		#	$self->{'USERNAME'} = $USERNAME;
+		#	$self->{'LUSER'} = $LUSER;
+		#	}
+		#elsif (lc($self->username()) ne lc($USERNAME)) {
+		#	&JSONAPI::set_error($R = {}, 'apperr', 7, sprintf("SITE USERNAME '%s' did not correspond to userid '%s'",$self->username(),$USERNAME));
+		#	}
+		#elsif ( ($self->{'MID'} = &ZOOVY::resolve_mid($USERNAME)) <= 0) {
+		#	&JSONAPI::set_error($R = {}, 'apperr', 6, sprintf("USERID did not correspond to a valid USERNAME"));
+		#	}
 
 		$DOMAIN = $v->{'_domain'} || $HEADERS->header('x-domain'); 		## not required (optional, sets focus)
 		$self->{'SDOMAIN'} = $DOMAIN;
@@ -1854,10 +1869,12 @@ sub psgiinit {
 		}
 			
 	my $HTTP_ORIGIN = $HEADERS->header('Origin');		## 
-	## print STDERR "ORIGIN: $HTTP_ORIGIN CLIENTID:$CLIENTID DEVICEID:$DEVICEID AUTHTOKEN:$AUTHTOKEN USERID:$USERID VERSION:$VERSION\n";
+	## print STDERR "ORIGIN: $HTTP_ORIGIN CLIENTID:$self->{'CLIENTID'} DEVICEID:$DEVICEID AUTHTOKEN:$AUTHTOKEN USERID:$USERID VERSION:$VERSION\n";
 	if (defined $SITE) {
 		print STDERR sprintf("SITE: DOMAIN:%s PRT:%d\n",$SITE->sdomain(),$SITE->prt());
 		}
+
+
 
 	$self->{'_IS_ADMIN'} = 0;
 	if (defined $R) {
@@ -1865,26 +1882,29 @@ sub psgiinit {
 	elsif ($self->is_config_js()) {
 		## we're being init'd for config.js, nothing to see here.
 		}
+	elsif (defined $R) {
+			}
+	elsif ($self->username() eq '') {
+		&JSONAPI::set_error($R = {}, 'apperr', 5, sprintf("Authentication issue - USERID not valid"));
+		}
 	elsif ($AUTHTOKEN ne '') {
 		## AUTHENTICATION: they are attempting to be a specific user
-		my $CLIENTINFO = &JSONAPI::lookup_client($CLIENTID);
 
-		if (defined $R) {
-			}
-		elsif ($self->username() eq '') {
-			&JSONAPI::set_error($R = {}, 'apperr', 5, sprintf("Authentication issue - USERID not valid"));
-			}
-		elsif ($self->luser() eq '') {
+		#open F, ">/tmp/security";
+		#use Data::Dumper; print F Dumper($self->username(),$self->luser(),$self->clientid(),$DEVICEID,$AUTHTOKEN);
+		#close F;
+
+		if ($self->luser() eq '') {
 			&JSONAPI::set_error($R = {}, 'apperr', 8, sprintf("Authentication issue - LUSER not valid"));
 			}
-		elsif (&OAUTH::validate_authtoken($self->username(),$self->luser(),$CLIENTINFO,$DEVICEID,$AUTHTOKEN)) {
+		elsif (&OAUTH::validate_authtoken($self->username(),$self->luser(),$self->clientid(),$DEVICEID,$AUTHTOKEN)) {
 			$self->{'_IS_ADMIN'}++;
 			$self->{'_AUTHTOKEN'} = $AUTHTOKEN;
 			$self->{'_DEVICEID'} = $DEVICEID;
 			}
 		else {
 			print STDERR "IS *NOT* AUTHENTICATED\n";
-			&JSONAPI::set_error($R = {}, 'apperr', 10, sprintf("Authentication issue ".$self->username()." ".$self->luser()." - token no longer valid $DEVICEID,$AUTHTOKEN $CLIENTINFO->{'clientid'}"));
+			&JSONAPI::set_error($R = {}, 'apperr', 10, sprintf("Authentication issue ".$self->username()." ".$self->luser()." - token no longer valid"));
 			}
 		}
 
@@ -2159,7 +2179,6 @@ sub cached_navcat {
 	}
 
 sub clientid { return($_[0]->{'CLIENTID'}); }
-sub clientinfo { return(JSONAPI::lookup_client($_[0]->{'CLIENTID'})); }
 sub deviceid { return($_[0]->{'DEVICEID'} || $_[0]->{'_DEVICEID'}); }
 
 ##
@@ -2975,9 +2994,7 @@ sub handle {
 					my %R = ();
 					my $LU = $self->LU();
 	
-					open F, ">/tmp/foo";
-					print F Dumper($LU)."\n";
-					close F;
+					## open F, ">/tmp/foo";	print F Dumper($LU)."\n";	close F;
 	
 					foreach my $perm_key (keys %{$permis}) {
 						next if (defined $cmdr);
@@ -3580,10 +3597,9 @@ sub authAdminLogout {
 	my ($self, $v) = @_;
 
 	my %R = ();
-	my $DEVICEID = $self->deviceid();
-	my ($USERNAME,$LUSERNAME,$DOMAIN) = &OAUTH::resolve_userid($self->userid());
-	my ($CLIENTINFO) = JSONAPI::lookup_client($self->clientid());
-	&OAUTH::destroy_authtoken($USERNAME,$LUSERNAME,$CLIENTINFO,$DEVICEID);
+	#my $DEVICEID = $self->deviceid();
+	# my ($USERNAME,$LUSERNAME,$DOMAIN) = &OAUTH::resolve_userid($self->userid());
+	&OAUTH::destroy_authtoken($self->username(),$self->luser(),$self->authtoken());
 	&JSONAPI::append_msg_to_response(\%R,'success',0);
 
 	return(\%R);
@@ -3627,12 +3643,13 @@ sub authAdminLogin {
 		&JSONAPI::set_error(\%R,'youerr',100,$errmsg);
 		}
 
-	my $USERID = $ENV{'HTTP_X_USERID'};			## obtained from user/prompt
-	if (not defined $USERID) { $USERID = $v->{'_userid'}; }
-	if (not defined $USERID) { $USERID = $v->{'userid'}; }
+	my $USERID = $v->{'userid'} || $v->{'_userid'} || $self->userid() || $ENV{'HTTP_X_USERID'};			## obtained from user/prompt
+	$USERID = lc($USERID);
+	if ($USERID eq $self->username()) { $USERID = 'admin'; }
 
 	my ($USERNAME,$LUSER,$DOMAIN) = ();	
 	$USERNAME = lc($self->username());
+	$LUSER = lc($self->luser());
 
 	if ($v->{'authtype'} eq 'google:id_token') {
 		}
@@ -3643,10 +3660,10 @@ sub authAdminLogin {
 		$LUSER = 'admin';
 		}
 	elsif ($USERID) {
-		(my $altUSERNAME,$LUSER,$DOMAIN) = &OAUTH::resolve_userid($USERID);
-		$USERNAME = lc($altUSERNAME);
+		$LUSER = $USERID;
+	#	(my $altUSERNAME,$LUSER,$DOMAIN) = &OAUTH::resolve_userid($USERID);
+	#	$USERNAME = lc($altUSERNAME);
 		}
-
 
    if (&JSONAPI::hadError(\%R)) {
       }
@@ -3660,25 +3677,17 @@ sub authAdminLogin {
 	elsif ($USERNAME eq '') {
 		&JSONAPI::set_error(\%R,'apperr',55,"USERNAME is required (and was blank)");
 		}
-	elsif (not &JSONAPI::validate_required_parameter(\%R,$v,'authtype',['sha1','md5','challenge','facebook','google:id_token','paypal'])) {
+	elsif (not &JSONAPI::validate_required_parameter(\%R,$v,'authtype',['sha1','md5','password','challenge','facebook','google:id_token','paypal'])) {
 		}
 	elsif ($v->{'authid'} eq '') {
 		&JSONAPI::set_error(\%R,'apperr',8801,"Missing required parameter authid=");	
 		}
 
-	my ($CLIENTINFO) = $self->clientinfo();
-	#if (not defined $CLIENTINFO) {
-	#	my $CLIENTID = $self->clientid();
-	#	if (not defined $CLIENTID) { $CLIENTID = $ENV{'HTTP_X_CLIENTID'}; }
-	#	if (not defined $CLIENTID) { $CLIENTID = $v->{'_clientid'}; }
-	#	if (not defined $CLIENTID) { $CLIENTID = $v->{'clientid'}; }	
-	#	$CLIENTINFO = JSONAPI::lookup_client($CLIENTID);
-	#	}
 
 	if (&JSONAPI::hadError(\%R)) {
 		}
-	elsif (not defined $CLIENTINFO) {
-		&JSONAPI::set_error(\%R,'apperr',8803,"Sorry, the clientid is not valid (this is highly unusual)");
+	elsif (not defined $self->clientid()) {
+		&JSONAPI::set_error(\%R,'apperr',8803,"Sorry, the clientid is not valid/not set (this is highly unusual)");
 		}
 
 	if (&JSONAPI::hadError(\%R)) {
@@ -3753,11 +3762,54 @@ sub authAdminLogin {
 			}
 		}
  	elsif (($v->{'authtype'} eq 'md5') || ($v->{'authtype'} eq 'sha1')) {
+		&JSONAPI::set_error(\%R,'apperr',8802,"Sorry, the authtype md5/sha1 is no longer supported (please shift+refresh to make sure you are on the latest version).");
+		}
+	elsif ($v->{'authtype'} eq 'password') {
 		print STDERR "$USERNAME $LUSER HASH:$v->{'authtype'} $v->{'authid'}\n";
-		my ($ERROR) = OAUTH::verify_credentials($USERNAME,$LUSER,"$v->{'ts'}",$v->{'authtype'},$v->{'authid'});
-		if ($ERROR) {
-			&JSONAPI::set_error(\%R,'apperr',155,$ERROR);
+
+		print STDERR Dumper($v);
+		#my ($ERROR) = OAUTH::verify_credentials($USERNAME,$LUSER,"$v->{'ts'}",$v->{'authtype'},$v->{'authid'});
+		#if ($ERROR) {
+		#	&JSONAPI::set_error(\%R,'apperr',155,$ERROR);
+		#	}
+		my $TRYPASS = $v->{'authid'};
+
+		my $ERROR = undef;
+		my ($udbh) = &DBINFO::db_user_connect($USERNAME);
+		my ($MID) = &ZOOVY::resolve_mid($USERNAME);
+	
+		my ($redis) = &ZOOVY::getRedis($USERNAME,2);
+		my $FAILURES = undef;
+
+
+		my $pstmt = "select PASSHASH, PASSSALT from LUSERS where MID=".$MID." and LUSER=".$udbh->quote($LUSER);
+		my ($ACTUALPASSHASH,$SALT) = $udbh->selectrow_array($pstmt);
+		my $TRYPASSHASH = Digest::SHA1::sha1_hex( $TRYPASS.$SALT );
+
+		print STDERR "ACTUAL: $ACTUALPASSHASH,$SALT TRY:$TRYPASSHASH\n";
+
+		if ($ACTUALPASSHASH ne $TRYPASSHASH) {
+			$FAILURES++
 			}
+
+		if (defined $ERROR) {
+			}
+		elsif ($FAILURES>0) {
+			## passwords don't match check redis for recovery passwords in REDIS db #2
+			if ($redis->llen(uc("PASSWORD.$USERNAME.$LUSER"))>0) {
+				foreach my $recovery ($redis->lrange(uc("PASSWORD.$USERNAME.$LUSER"),0,10)) {
+					if ($TRYPASSHASH eq $recovery) { 
+						$FAILURES = 0; 
+						$R{'recovery'}++;
+						}		## yay, we got a recovery
+					}
+				}
+			}
+
+		if ($FAILURES) {
+			&JSONAPI::set_error(\%R,'apperr',155,"Incorrect password.");
+			}
+		&DBINFO::db_user_close();
 		}
 	else {
 		&JSONAPI::set_error(\%R,'apperr',8802,"Sorry, the authtype '$v->{'authtype'}' is not yet implemented");
@@ -3769,10 +3821,10 @@ sub authAdminLogin {
 		$R{'ts'} = $ts;
 		my $DEVICE_NOTE = $v->{'device_note'};
 		if ($DEVICE_NOTE eq '') { $DEVICE_NOTE = 'Device Name Not Specified'; }
-		$R{'clientid'} = $CLIENTINFO->{'clientid'};
+		$R{'clientid'} = $self->clientid();
 		$R{'deviceid'} = &OAUTH::device_initialize( $USERNAME, $LUSER, $IP, $DEVICE_NOTE );
 		$R{'luser'} = $LUSER;
-		$R{'authtoken'} = &OAUTH::create_authtoken($USERNAME,$LUSER,$CLIENTINFO,$R{'deviceid'});
+		$R{'authtoken'} = &OAUTH::create_authtoken($USERNAME,$LUSER,$self->clientid(),$R{'deviceid'});
 		$R{'userid'} = sprintf("%s\@%s",$LUSER,$USERNAME);
 		$R{'username'} = lc($USERNAME);
 		$R{'authtype'} = $v->{'authtype'};
@@ -3787,12 +3839,20 @@ sub authAdminLogin {
 =pod 
 
 <API id="authPasswordRecover">
-<purpose>employs the password recovery mechanism for the account (currently only email)</purpose>
-<input id="session">random session id (32 character)</input>
-<input id="ts">timestamp</input>
-<response id="userkey">secret user key</response>
-<response id="ts">current time</response>
+<purpose>
+employs the password recovery mechanism for the account (currently only email).
+a temporary password is created and emailed, up to 10 times in a 3 hour period.
+</purpose>
+<input id="email">email</input>
 </API>
+
+<API id="adminPasswordUpdate">
+<purpose>changes a users password</purpose>
+<input id="old">old password</input>
+<input id="new">new passowrd</input>
+</API>
+
+
 
 =cut
 
@@ -3801,65 +3861,107 @@ sub authPassword {
 
 	my %R = ();
 
-	my ($username,$luser) = OAUTH::resolve_userid($v->{'login'});
+	my ($redis) = &ZOOVY::getRedis($self->username(),2);
+	my $udbh = &DBINFO::db_user_connect($self->username());
+	my ($USERNAME) = $self->username();
+	my ($MID) = &ZOOVY::resolve_mid($USERNAME);
 	if ($v->{'_cmd'} eq 'authPasswordRecover') {
-		}
-	elsif ($v->{'_cmd'} eq 'authPasswordUpdate') {
-		## 
-		}
-
-	if ($username eq '') {
-		&JSONAPI::set_error(\%R,'apperr',8802,"no username or email received.");
-		}
-
-	my ($USERNAME,$PASSWORD,$EMAIL) = ();
-
-	if (not &JSONAPI::hadError(\%R)) {
-		my $udbh = &DBINFO::db_user_connect($username);
-		my $qtLOOKFOR = $udbh->quote($username);
-		my $pstmt = "select USERNAME,PASSWORD,EMAIL from ZUSERS where USERNAME=$qtLOOKFOR or EMAIL=$qtLOOKFOR";
-		my ($USERNAME,$PASSWORD,$EMAIL) = $udbh->selectrow_array($pstmt);
-		&DBINFO::db_user_close();
-
-		if ($USERNAME ne '') {
-			&JSONAPI::set_error(\%R,'apperr',8802,"no matching users found.");
+	
+		my $EMAIL = $v->{'email'};	
+		if ($EMAIL eq '') {
+			&JSONAPI::set_error(\%R,'apperr',8802,"no email received.");
 			}
-		elsif (&ZTOOLKIT::validate_email_strict($EMAIL)) {
-			if (open MH, '|/usr/sbin/sendmail -t') {
-				print MH "From: billing\@zoovy.com\n";
-				print MH "To: $EMAIL\n";
-				print MH "Reply-To: billing\@zoovy.com\n";
-				print MH "Subject: Password Recovery\n";
-				print MH "\n";
-				print MH "Hi, you or somebody who thinks they're you requested your password for $USERNAME\n";
-				print MH "Don't worry, this is the only copy of the password we sent out and you've got it.\n";
-				print MH "\n";
-				print MH "\n";
-				print MH "Your login information is:\n";
-				print MH "Username: $USERNAME\n";
-				print MH "Password: $PASSWORD\n";
-				print MH "\n";
-				print MH "Helpful Hints:\n";
-				print MH "\n";
-				print MH " * Passwords are case sensitive - which means that you must type the password in either upper\n";
-				print MH "     or lower case as shown above.\n";
-				print MH " * You must have cookies enabled to login, you can test your cookies by simply trying to add a\n";
-				print MH "     product to the shopping cart in any Zoovy store http://shops.zoovy.com - if you receive a\n";
-				print MH "     cookie error, then the store will also include instructions to fix the cookie error.\n";
-				print MH " * Avoid simple mistakes, for example people often confuse \"trial\" and \"trail\" it helps to\n";
-				print MH "     try typing one letter at a time if you think this may be the problem.\n";
-				print MH "\n";
-				print MH "\n";
-				print MH "If you have any questions please contact your support provider.\n";
-				close MH;
+
+		my @USERS = ();
+		if (not &JSONAPI::hadError(\%R)) {
+
+			my $qtLOOKFOR = $udbh->quote($EMAIL);
+			my $pstmt = "select LUSER,EMAIL,PASSSALT from LUSERS where EMAIL=$qtLOOKFOR and MID=$MID";
+			print STDERR "$pstmt\n";
+			my $sth = $udbh->prepare($pstmt);
+			$sth->execute();
+			while (my ($LUSER,$EMAIL,$SALT) = $sth->fetchrow() ) {
+				if ($redis->llen(uc("PASSWORD.$USERNAME.$LUSER"))>10) {
+					&JSONAPI::set_error(\%R,'apperr',8804,"Too many recovery attempts, try again later");
+					}
+				else {
+					my $PASSWORD =  String::MkPasswd::mkpasswd(-length=>16,-minnum=>10,-minlower=>2,-minupper=>2,-minspecial=>0,-distribute=>1);
+					$redis->lpush(uc("PASSWORD.$USERNAME.$LUSER"),Digest::SHA1::sha1_hex($PASSWORD.$SALT));
+					$redis->expire(uc("PASSWORD.$USERNAME.$LUSER"),60*60);	# 1 hour
+					push @USERS, [ $LUSER, $EMAIL, $PASSWORD ];
+					}
 				}
+			$sth->finish();
+			}
+		
+		if (&JSONAPI::hadError(\%R)) {
+			}
+		elsif (scalar(@USERS)==0) {
+			&JSONAPI::set_error(\%R,'apperr',8801,"no matching users found.");
 			}
 		else {
-			&JSONAPI::set_error(\%R,'apperr',8802,"Unable to send password to invalid email address, please contact billing\@zoovy.com");
+			foreach my $ref (@USERS) {
+				my ($LUSER,$EMAIL,$PASSWORD) = @{$ref};
+				next if (not &ZTOOLKIT::validate_email_strict($EMAIL));
+				if (open MH, '|/usr/sbin/sendmail -t') {
+					print MH "From: $EMAIL\n";
+					print MH "To: $EMAIL\n";
+					print MH "Subject: Password Recovery\n";
+					print MH "\n";
+					print MH "Hi, you or somebody who thinks they're you requested a password recovery.\n";
+					print MH "Don't worry, this is the only copy of the password we sent out and you've got it.\n";
+					print MH "\n";
+					print MH "\n";
+					print MH "Your login information is:\n";
+					print MH "Login: $LUSER\n";
+					print MH "*TEMPORARY* Password: $PASSWORD\n";
+					print MH "\n";
+					print MH 
+					close MH;
+					}
+				}
 			}
 		}
+	elsif ($v->{'_cmd'} eq 'adminPasswordUpdate') {
+		## 
+		
+		my $LUSER = $udbh->quote($self->luser());
+		if (&JSONAPI::validate_required_parameter(\%R,$v,'old')) {
+			}
+		elsif (&JSONAPI::validate_required_parameter(\%R,$v,'new')) {
+			}
 
+		my $SUCCESS = 0;
+		if (not &JSONAPI::hadError(\%R)) {
+			my $pstmt = "select UID,PASSHASH,PASSSALT from LUSERS where MID=$MID /* $self->{'USERNAME'} */ and LUSER=".$udbh->quote($self->luser());
+			print STDERR "$pstmt\n";
+			my ($UID,$PASSHASH,$PASSSALT) = $udbh->selectrow_array($pstmt);
+			my $NEWSALTED = Digest::SHA1::sha1_hex($v->{'new'}.$PASSSALT);
+			my $OLDSALTED = Digest::SHA1::sha1_hex($v->{'old'}.$PASSSALT);
+			if ($PASSHASH eq $OLDSALTED) { $SUCCESS++; }
 
+			if ($SUCCESS) {
+				}
+			elsif ($redis->llen(uc("PASSWORD.$USERNAME.$LUSER"))>0) {
+				foreach my $RECOVERYSALTED ($redis->lrange(uc("PASSWORD.$USERNAME.$LUSER"),0,10)) {
+					if ($NEWSALTED eq $RECOVERYSALTED) { $SUCCESS++; }
+					}
+				}
+
+			if ($SUCCESS) {
+				my $qtNEWSALTED = $udbh->quote($NEWSALTED);
+				my $qtNEW = $udbh->quote($v->{'new'});
+				my $pstmt = "update LUSERS set PASSWORD_CHANGED=now(),PASSHASH=$qtNEWSALTED,PASSWORD=$qtNEW where MID=$MID and UID=$UID /* $self->{'LUSER'} */";		
+				print STDERR "$pstmt\n";
+				$udbh->do($pstmt);
+				}
+			else {
+				&JSONAPI::set_error(\%R,'apperr',8801,"previous/temporary password did not match.");
+				}
+			}
+		}
+	&DBINFO::db_user_close();
+	return(\%R);
 	}
 
 
@@ -15582,19 +15684,17 @@ sub bossUser {
 				}
 			}
 
+
 		my $PASSWORD = $v->{'password'};
 		if (defined $PASSWORD) {
 			$UREF{'PASSWORD'} = $PASSWORD;
 			$UREF{'*PASSWORD_CHANGED'} = 'now()';
-			#if ((not defined $ERROR) && ($ERROR = &BOSSUTIL::isPasswordValid($self->username(),$LOGIN))) {
-			#	&JSONAPI::set_error(\%R,'apierr',78002,"password not allowed");
-			#	}
+			$UREF{'PASSSALT'} = time();
+			$UREF{'PASSHASH'} = Digest::SHA1::sha1_hex($PASSWORD.$UREF{'PASSSALT'});
 			}
 		
 
-
-		if (not &JSONAPI::hadError(\%R)) {
-			
+		if (not &JSONAPI::hadError(\%R)) {			
 			if (defined $v->{'phone'}) { $UREF{'PHONE'} = sprintf("%s",$v->{'phone'}); }
 			if (defined $v->{'jobtitle'}) { $UREF{'JOBTITLE'} = sprintf("%s",$v->{'jobtitle'}); }
 			if (defined $v->{'fullname'}) { $UREF{'FULLNAME'} = sprintf("%s",$v->{'fullname'}); }
@@ -15955,7 +16055,7 @@ sub ping {
 <response id="email"> user@fromloggedindomain.com</response>
 
 <hint>
-If logged in as an admin sessino you'll get fun stuff like USERNAME,MID,CACHED_FLAGS,RESELLER and more.
+If logged in as an admin sessino you'll get fun stuff like USERNAME,MID,RESELLER and more.
 </hint>
 
 </API>

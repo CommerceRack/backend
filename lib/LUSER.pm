@@ -41,26 +41,6 @@ sub hasACL {
 
 
 ##
-## returns the Level the customer is at.
-##
-#sub level {
-#	return(($_[0]->{'CACHED_FLAGS'} =~ /,L([\d]+),/)?int($1):1);
-#	}
-
-##
-## checks for L0..L9 flag.. matches against the number and returns true if we're greater than or equal to.
-##
-#sub is_level {
-#	my ($self,$level) = @_;
-#	return(($self->{'CACHED_FLAGS'} =~ /,L([\d]+),/)?(int($1)>=$level):0);
-#	}
-
-sub is_bpp {
-	my ($self,$level) = @_; return(($self->flags() =~ /,BPP,/)?1:0);
-	}
-
-
-##
 ## 'OBJECT'=>'C|D|R'
 ##
 sub acl_require {
@@ -104,13 +84,6 @@ sub is_admin {
 sub account { my ($self) = @_; require ACCOUNT; return(ACCOUNT->new($self->username(),$self->luser())); }
 
 
-##
-## use anycommerce rules
-##
-sub is_anycom {
-	my ($self) = @_;
-	return( ($self->{'CACHED_FLAGS'} =~ /PKG=ANYONE/)?1:0 );
-	}
 
 ##
 ## is zoovy employee?
@@ -185,53 +158,6 @@ sub login {
 		return($self->{'USERNAME'}.'*'.$self->{'LUSER'});
 		}
 	
-	}
-
-##
-## this will check to see if a users password matches the password on file.
-##
-sub passmatches {
-	my ($self,$password) = @_;
-
-	$password = lc($password);		## passwords are case insensitive
-	if ($password eq '') { return(0); }		## never return true if password is not set.
-
-	my $MID = int($self->{'MID'});
-	my $UID = int($self->{'UID'});
-
-	my $udbh = &DBINFO::db_user_connect($self->username());
-	require Digest::MD5;
-	my $digest = Digest::MD5::md5_hex($password);
-	my $qtDIGEST = $udbh->quote($digest);
-
-	my $pstmt = '';
-	$pstmt = "select count(*) from LUSERS where MID=$MID /* $self->{'USERNAME'} */ and UID=$UID and md5(lower(PASSWORD))=$qtDIGEST";
-
-	print STDERR $pstmt."\n";
-	my $sth = $udbh->prepare($pstmt);
-	$sth->execute();
-	my ($count) = $sth->fetchrow();
-	$sth->finish();
-
-	&DBINFO::db_user_close();
-	return($count);
-	}
-
-##
-## changes the users password
-##
-sub set_password {
-	my ($self,$password) = @_;
-
-	my $udbh = &DBINFO::db_user_connect($self->username());
-	my $pstmt = '';
-	my $MID = int($self->{'MID'});
-	my $UID = int($self->{'UID'});
-	my $qtPASS = $udbh->quote($password);
-	
-	$pstmt = "update LUSERS set PASSWORD_CHANGED=now(),PASSWORD=$qtPASS where MID=$MID and UID=$UID /* $self->{'LUSER'} */";		
-	$udbh->do($pstmt);
-	&DBINFO::db_user_close();
 	}
 
 
@@ -381,18 +307,6 @@ sub new {
 	}
 
 
-##
-##
-sub flags { 
-	my ($self) = @_;
-	if (not defined $self->{'CACHED_FLAGS'}) {
-		my ($globalref) = &ZWEBSITE::fetch_globalref($self->username());
-		$self->{'CACHED_FLAGS'} = sprintf(",%s,",$globalref->{'cached_flags'});
-		}	
-	print STDERR "FLAGS: $self->{'CACHED_FLAGS'}\n";
-	return($self->{'CACHED_FLAGS'}); 
-	}
-
 sub mid { return($_[0]->{'MID'}); }
 sub prt {
 	if (defined $_[1]) { $_[0]->{'PRT'} = $_[1]; }
@@ -408,7 +322,7 @@ sub domain {
 
 sub authinfo {
 	my ($self) = @_;
-	return( $self->mid(), $self->username(), $self->luser(), $self->flags(), $self->prt(), '');
+	return( $self->mid(), $self->username(), $self->luser(), $self->prt(), '');
 	}
 
 

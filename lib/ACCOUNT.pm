@@ -212,20 +212,6 @@ sub mid { return(int($_[0]->{'_MID'})); }
 sub luser { return($_[0]->{'_LUSER'}); }
 ##
 ##
-sub flags { 
-	my ($self) = @_;
-	if (not defined $self->{'CACHED_FLAGS'}) {
-		my ($globalref) = &ZWEBSITE::fetch_globalref($self->username());
-		$self->{'CACHED_FLAGS'} = $globalref->{'cached_flags'};
-		}	
-	return($self->{'CACHED_FLAGS'}); 
-	}
-
-sub is_bpp { 
-	my ($self) = @_;
-	if ($self->flags() =~ /,BPP,/) { return(1); }
-	return(0); 
-	}
 
 sub get {
 	my ($self, $attr) = @_;

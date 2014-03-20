@@ -2,6 +2,7 @@ package CUSTOMER;
 
 use lib "/backend/lib";
 use DBI;
+use String::MkPasswd;
 
 
 require DBINFO;
@@ -49,7 +50,6 @@ $CUSTOMER::DEBUG = 0;
 ##		INFO.PRT -- 
 ##		INFO.USERNAME -- owner of this customer (don't use this, use _USERNAME instead)
 ##		INFO.EMAIL -- email address of this customer (don't use this, use _EMAIL instead)
-##		INFO.PASSWORD -- the password of this customer
 ##		INFO.MODIFIED_GMT -- the last time this customer was modified
 ##		INFO.CREATED_GMT -- when the custome was created
 ##		INFO.PHONE
@@ -98,6 +98,29 @@ sub sync_action {
 	push @{$self->{'@UPDATES'}}, $ACTION;
 	}
 
+## generates a one time use temporary passwords
+sub generate_temporary_password {
+	my ($self) = @_;
+	my ($CID) = $self->cid();
+	my ($redis) = &ZOOVY::getRedis($self->username(),0);
+	my $PASSWORD =  String::MkPasswd::mkpasswd(-length=>10,-minnum=>8,-minlower=>2,-minupper=>0,-minspecial=>0);
+	$redis->lpush(uc("PASSWORD+$CID"),$PASSWORD);
+	$redis->expire(uc("PASSWORD+$CID"),60*60*3);	# 3 hour
+	return($PASSWORD);
+	}
+
+## returns a list of temporary passwords(to compare against)
+sub temporary_passwords {
+	my ($self) = @_;
+	
+	my @PASSWORDS = ();
+   my ($CID) = $self->cid();
+   my ($redis) = &ZOOVY::getRedis($self->username(),0);
+	foreach my $password (@{$redis->lrange(uc("PASSWORD+$CID"),0,10)}) {
+		push @PASSWORDS, $password;
+		}
+	return(\@PASSWORDS);
+	}
 
 ##
 ##
@@ -142,37 +165,12 @@ sub run_macro_cmds {
 		elsif ($cmd eq 'LINKORG') {
 			$self->set_attrib('INFO.ORGID',int($pref->{'orgid'}));
 			}
-
-#		foreach my $ref (@{$vars}) {
-#			## this is where all the META.xyz and BILL.whatever get setup.
-#			if ($ref->{'customer'}) {
-#				# print STDERR "SET: $ref->{'customer'}, $ref->{'value'}\n";
-#				$C->set_attrib( $ref->{'customer'}, $ref->{'value'} );
-#				}
-#			}
-#
 		elsif ($cmd eq 'LOCK') {
 			$self->set_attrib('INFO.IS_LOCKED',1);
 			}
 		elsif ($cmd eq 'UNLOCK') {
 			$self->set_attrib('INFO.IS_LOCKED',0);
 			}
-#		if ($formcfg->{'initial_schedule'}) {
-#			$C->set_attrib('INFO.SCHEDULE', $formcfg->{'initial_schedule'});
-#			}
-#
-#		my $body = '';
-#		foreach my $ref (@{$vars}) {
-#			$body .= sprintf("%s: %s\n",$ref->{'label'},$ref->{'value'});
-#			}
-
-#		#my ($PROFILE) = &ZOOVY::profile_to_prt($USERNAME,$PRT);
-#		my ($PROFILE) = &ZOOVY::prt_to_profile($USERNAME,$PRT);
-#		#if ($formcfg->{'send_email'}) {
-#		#	require ZMAIL;
-#		#	&ZMAIL::notify_customer($USERNAME, "admin\@$USERNAME.zoovy.com", 
-#		#		"Wholesale Signup", $body, "SIGNUP", {}, 1, $PROFILE);						
-#		#	}
 		elsif ($cmd eq 'ADDTODO') {
 			require TODO;
 			&TODO::easylog($self->username(),class=>"INFO",title=>$pref->{'title'},detail=>$pref->{'note'},priority=>2,link=>"cid:$CID");
@@ -185,44 +183,6 @@ sub run_macro_cmds {
 					NOTE=>$pref->{'note'},
 				);
 			}
-
-#			}
-#		if ($formcfg->{'initial_schedule'}) {
-#			$C->set_attrib('INFO.SCHEDULE', $formcfg->{'initial_schedule'});
-#			}
-#
-#		$C->save();
-#		$CID = $C->cid();
-#		## use Data::Dumper; print STDERR 'CUSTOMER: '.Dumper($C);
-#		}
-#
-#	if (defined $ERR) {
-#		}
-#	else {
-#		my $body = '';
-#		foreach my $ref (@{$vars}) {
-#			$body .= sprintf("%s: %s\n",$ref->{'label'},$ref->{'value'});
-#			}
-#
-#		#my ($PROFILE) = &ZOOVY::profile_to_prt($USERNAME,$PRT);
-#		my ($PROFILE) = &ZOOVY::prt_to_profile($USERNAME,$PRT);
-#		#if ($formcfg->{'send_email'}) {
-#		#	require ZMAIL;
-#		#	&ZMAIL::notify_customer($USERNAME, "admin\@$USERNAME.zoovy.com", 
-#		#		"Wholesale Signup", $body, "SIGNUP", {}, 1, $PROFILE);						
-#		#	}
-#		if ($formcfg->{'make_todo'}) {
-#			require TODO;
-#			&TODO::easylog($USERNAME,class=>"INFO",title=>"New Customer Signup",detail=>$body,priority=>2,link=>"cid:$CID");
-#			}
-#		if ($formcfg->{'make_ticket'}) {
-#			require CUSTOMER::TICKET;
-#			my ($CT) = CUSTOMER::TICKET->new($USERNAME,0,
-#					new=>1,PRT=>$PRT,CID=>$CID,PROFILE=>$PROFILE,
-#					SUBJECT=>"New Account Signup",
-#					NOTE=>$body,
-#					);
-#			}
 		elsif ($cmd eq 'SET') {
 			my %update = ();
 
@@ -279,11 +239,6 @@ sub run_macro_cmds {
 				}
 			}
 		elsif (($cmd eq 'WSSET') || ($cmd eq 'ORGSET')) {
-	
-			#if (defined $pref->{'SCHEDULE'}) {
-			#	$self->set_attrib('INFO.SCHEDULE',$pref->{'SCHEDULE'}); 
-			#	}
-
 			my $changes = 0;
 			my $wsinfo = $self->fetch_attrib('WS');
 			## NOTE: popup saves this data directly
@@ -344,29 +299,11 @@ sub run_macro_cmds {
 			$self->nuke_addr($TYPE,$SHORTCUT);
 			}
 		elsif ($cmd eq 'SENDEMAIL') {
-			#my $PROFILE = &ZOOVY::prt_to_profile($self->username(),$self->prt());
-			#require SITE;
-			#my ($SITE) = SITE->new($self->username(),'PRT'=>$self->prt(),'PROFILE'=>$PROFILE);
-			#require SITE::EMAILS;
-			#my ($SE) = SITE::EMAILS->new($self->username(),'*SITE'=>$SITE);
-			#my ($ERR) = $SE->sendmail($MSGID,'PRT'=>$self->prt(),'RECIPIENT'=>$self->email(),'CUSTOMER'=>$self,
-			#	MSGSUBJECT=>$pref->{'MSGSUBJECT'},
-			#	MSGBODY=>$pref->{'MSGBODY'},
-			#	);
 			my ($MSGID) = $pref->{'MSGID'};
 			my ($BLAST) = BLAST->new($self->username(),int($self->prt()));
 			my ($rcpt) = $BLAST->recipient('CUSTOMER',$self, {'%CUSTOMER'=>$self});
 			my ($msg) = $BLAST->msg($MSGID,$pref);
 			$BLAST->send($rcpt,$msg);
-
-			#my $ERR = undef;
-			#if (not $ERR) {
-			#	$lm->pooshmsg("SUCCESS|+Your message was sent, you may now close this window.");
-			#	}
-			#else {
-			#	$lm->pooshmsg("ERROR|+>Email#($ERR) $SITE::EMAILS::ERRORS{$ERR}");
-			#	}
-
 			}
 		elsif ($cmd eq 'ORDERLINK') {
 			&CUSTOMER::save_order_for_customer($self->username(),$pref->{'OID'},$self->email());
@@ -1112,10 +1049,6 @@ sub new {
 			$self->{'INFO'}->{'HINT_ANS'} = ''; 
 			}
 
-		#if (not defined $self->{'INFO'}->{'PASSWORD'}) { 
-		#	$self->{'INFO'}->{'PASSWORD'} = &ZTOOLKIT::make_password();
-		#	}
-
 		$self->save();
 
 		if ((defined $options{'*CART2'}) && (ref($options{'*CART2'}) eq 'CART')) {
@@ -1170,7 +1103,7 @@ sub new_subscriber {
 	($PRT) = &CUSTOMER::remap_customer_prt($USERNAME,$PRT);
 
 	if ((not defined($PASSWORD)) || ($PASSWORD eq '')) {
-		$PASSWORD = &ZTOOLKIT::make_password();
+		$PASSWORD = String::MkPasswd::mkpasswd(-length=>10,-minnum=>8,-minlower=>2,-minupper=>0,-minspecial=>0);
 		}
 	if (($EMAIL eq '') || ($FULLNAME eq ''))  {
 		return (1,'Internal error: email and full name must be provided to CUSTOMER::new_subscriber');
@@ -1267,17 +1200,6 @@ sub save {
 			if (not defined $self->{'INFO'}->{'ORIGIN'}) { $self->{'INFO'}->{'ORIGIN'} = ''; }
 			if (not defined $self->{'INFO'}->{'PASSWORD'}) { $self->{'INFO'}->{'PASSWORD'} = ''; }
 
-#			my $parent = 0;
-#			my $pstmt = "insert into CUSTOMER_COUNTER (ID,USERNAME) values(0,".$odbh->quote($self->username()).")";
-#			$odbh->do($pstmt);
-
-#			$pstmt = "select last_insert_id()";
-#			my $sth = $odbh->prepare($pstmt);
-#			$sth->execute();
-#			($parent) =	$sth->fetchrow();
-#			$sth->finish();
-
-
 			my $pstmt = &DBINFO::insert($odbh,$CUSTOMERTB,{
 				CID=>0, MID=>$self->mid(), USERNAME=>$self->username(), EMAIL=>$self->{'_EMAIL'},
 				ORIGIN=>$self->{'INFO'}->{'ORIGIN'}, PASSWORD=>$self->{'INFO'}->{'PASSWORD'},
@@ -1287,16 +1209,8 @@ sub save {
 			print STDERR "$pstmt\n";
 			$odbh->do($pstmt);
 
-#			print STDERR "$pstmt\n";
-
-#			$pstmt = "select last_insert_id()";
-#			my $sth = $odbh->prepare($pstmt);
-
-			## unneeded now - patti - 2006/12/05
 			$pstmt = "select last_insert_id()";
 			$self->{'_CID'} = $odbh->selectrow_array($pstmt);
-
-			# $self->{'_CID'} = $parent;
 			}
 		
 		## setup _DEFAULT_SHIP and _DEFAULT_BILL
@@ -1739,8 +1653,6 @@ sub add_address {
 sub initpassword {
 	my ($self,%options) = @_;
 
-	# die();
-
 	my ($pass);
 	if (defined $options{'set'}) {
 		## this will force the password to be whatever the value of set is
@@ -1754,7 +1666,7 @@ sub initpassword {
 		require ZTOOLKIT;
 		($pass) = $self->get('INFO.PASSWORD');
 		if ($pass eq '') {
-			$pass = &ZTOOLKIT::make_password();
+			$pass = String::MkPasswd::mkpasswd(-length=>10,-minnum=>8,-minlower=>2,-minupper=>0,-minspecial=>0);
 			$self->set_attrib('INFO.PASSWORD',$pass);
 			}
 		warn "SAVING! [$pass]\n";

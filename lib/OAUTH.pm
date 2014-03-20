@@ -129,7 +129,7 @@ sub list_roles {
 		'%objects'=>{
 			'CUSTOMER'=>{'R'=>'+','C'=>'+','L'=>'+','S'=>'+'},
 			'DOMAIN'=>{'L'=>'+' },
-			'ORDER/PAYMENT'=>{'U'=>'+'}
+			'ORDER/PAYMENT'=>{'U'=>'+'},
 			'ORDER'=>{'R'=>'+','U'=>'+','C'=>'+','L'=>'+','S'=>'+'},
 			'INVENTORY'=>{'R'=>'+','C'=>'+','L'=>'+','S'=>'+'},
 			'PRODUCT'=>{'R'=>'+','L'=>'+','S'=>'+'},
@@ -192,7 +192,7 @@ sub list_roles {
 			'ORDER'=>{'R'=>'+','C'=>'+','L'=>'+'},
 			'INVENTORY'=>{'R'=>'+','C'=>'+','L'=>'+','S'=>'+'},
 			'PRODUCT'=>{'R'=>'+','L'=>'+'},
-			'IMAGE'=>{'R'=>'+','C'=>'+','U'=>','L'=>'+','S'=>'+'},
+			'IMAGE'=>{'R'=>'+','C'=>'+','U'=>'+','L'=>'+','S'=>'+'},
 			},		
 		};
 	push @ROLES, { 
@@ -231,7 +231,7 @@ sub build_myacl {
 	my $ALLROLES = &OAUTH::list_roles($USERNAME);	
 	foreach my $role ( @{$MYROLES} ) {
 		$MYACL{'_ROLES'}->{$role}++;
-		if ($role eq 'BOSS') {
+		if (($role eq 'BOSS') || ($role eq 'SUPER')) {
 			foreach my $object (@OAUTH::OBJECTS) {
 				$MYACL{ $object } = { 'R'=>'+', 'C'=>'+', 'U'=>'+', 'L'=>'+', 'S'=>'+',, 'D'=>'+' };
 				}
@@ -295,55 +295,72 @@ sub device_initialize {
 
 
 ##
-## 
-##
-sub build_authtoken {
-	my ($USERNAME,$LUSERNAME,$CLIENTINFO,$DEVICEID) = @_;
-
-	# print STDERR  'CLIENTINFO'.Dumper($CLIENTINFO)."\n";
-
-	my ($randomstr) = &OAUTH::randomstring(24);
-	my $str = sprintf("%s-%s-%s-%s-%s-%s",lc($USERNAME),lc($LUSERNAME),$CLIENTINFO->{'clientid'},$DEVICEID,$CLIENTINFO->{'secret'},$randomstr);
-	# print STDERR "BUILD str:$str\n";
-	my $digest = Digest::SHA1::sha1_hex($str);
-	return("1|$randomstr|$digest");
-	}
-
-
-##
 ##
 ##
 sub validate_authtoken {
-	my ($USERNAME,$LUSERNAME,$CLIENTINFO,$DEVICEID,$AUTHTOKEN) = @_;
+	my ($USERNAME,$LUSERNAME,$CLIENTID,$DEVICEID,$AUTHTOKEN) = @_;
+
+	## FOR JT TO DIAGNOSE ERROR 10 (invalid login)
+	return(undef);
 
 	my ($v,$randomstr,$trydigest) = split(/\|/,$AUTHTOKEN);
-	my $str = sprintf("%s-%s-%s-%s-%s-%s",lc($USERNAME),lc($LUSERNAME),$CLIENTINFO->{'clientid'},$DEVICEID,$CLIENTINFO->{'secret'},$randomstr);
+	my $str = sprintf("%s-%s-%s-%s-%s",lc($USERNAME),lc($LUSERNAME),$CLIENTID,$DEVICEID,$randomstr);
 	my $validdigest = Digest::SHA1::sha1_hex($str);
-	return( ($trydigest eq $validdigest)?1:0 );
+	if ($trydigest ne $validdigest) {
+		## okay so the digest checks out
+		return( undef );
+		}
+
+	my ($memd) = &ZOOVY::getMemd($USERNAME);
+	if (my $ACL = $memd->get("SESSION+$AUTHTOKEN")) {
+		#warn "got memache\n";
+		return($ACL);
+		}
+	else {
+		## doesn't exist in memcache, check the database (and add to MEMCACHE on success)
+		my ($udbh) = &DBINFO::db_user_connect($USERNAME);
+		my ($MID) = &ZOOVY::resolve_mid($USERNAME);
+		my $pstmt = "select LUSERNAME,ACL from OAUTH_SESSIONS where MID=$MID and AUTHTOKEN=".$udbh->quote($AUTHTOKEN);
+		## print STDERR "/* $LUSERNAME */ $pstmt\n";
+		my ($dbLUSER,$dbACL) = $udbh->selectrow_array($pstmt);
+		&DBINFO::db_user_close();
+
+		if (uc($dbLUSER) eq uc($LUSERNAME)) {
+			#warn "set memcache\n";
+			$memd->set("SESSION+$AUTHTOKEN",$dbACL);
+			return($ACL);
+			}
+		else {
+			#warn "failed db lookup\n";
+			return(undef);
+			}
+		}
+
+	## this line should NEVER be reached!
+	return( undef );
 	}
 
 
-
-
+######################################################
+##
+##
+##
 sub destroy_authtoken {
-	my ($USERNAME,$LUSERNAME,$CLIENTINFO,$DEVICEID) = @_;
-	
-	my ($AUTHTOKEN) = $ENV{'HTTP_X_AUTHTOKEN'};
+	my ($USERNAME,$LUSERNAME,$AUTHTOKEN) = @_;
 
 	my ($udbh) = &DBINFO::db_user_connect($USERNAME);
 	my ($MID) = &ZOOVY::resolve_mid($USERNAME);
-	# my $pstmt = "delete from OAUTH_SESSIONS where MID=$MID /* $USERNAME */ and AUTHTOKEN=".$udbh->quote($AUTHTOKEN);
-	# my $pstmt = "delete from OAUTH_SESSIONS where MID=$MID /* $USERNAME */ and AUTHTOKEN=".$udbh->quote($AUTHTOKEN);
-	my $pstmt = "delete from OAUTH_SESSIONS where MID=$MID /* $USERNAME */ and LUSERNAME=".$udbh->quote($LUSERNAME)." and DEVICEID=".$udbh->quote($DEVICEID);
+
+	my ($memd) = &ZOOVY::getMemd($USERNAME);
+	if (defined $memd) {
+		$memd->delete("USER:$USERNAME.$LUSERNAME");
+		$memd->delete("SESSION+$AUTHTOKEN");
+		}
+
+	my $pstmt = "delete from OAUTH_SESSIONS where MID=$MID /* $USERNAME */ and AUTHTOKEN=".$udbh->quote($AUTHTOKEN);
 	print STDERR "$pstmt\n";
 	$udbh->do($pstmt);
 	&DBINFO::db_user_close();
-
-	my $memd = undef;
-	($memd) = &ZOOVY::getMemd($USERNAME);
-	if (defined $memd) {
-		$memd->delete("USER:$USERNAME.$LUSERNAME");
-		}
 
 	return();
 	}
@@ -354,7 +371,7 @@ sub destroy_authtoken {
 ## upgrades a session with security keys
 ##
 sub create_authtoken {
-	my ($USERNAME,$LUSERNAME,$CLIENTINFO,$DEVICEID, %options) = @_;
+	my ($USERNAME,$LUSERNAME,$CLIENTID,$DEVICEID, %options) = @_;
 
 	my ($udbh) = &DBINFO::db_user_connect($USERNAME);
 	my ($MID) = &ZOOVY::resolve_mid($USERNAME);
@@ -377,15 +394,6 @@ sub create_authtoken {
 		push @MYROLES, 'BOSS';
 		# &DBINFO::db_user_close();
 		}
-	#elsif ($LUSERNAME eq 'ADMIN') {
-	#	my ($udbh) = &DBINFO::db_user_connect($USERNAME);
-	#	my $pstmt = "select USERNAME,DATA,MID,CACHED_FLAGS,RESELLER from ZUSERS where MID=".$MID." /* $USERNAME */";
-	#	($dbresult) = $udbh->selectrow_hashref($pstmt);
-	#	$dbresult->{'LUSER'} = 'ADMIN';
-	#	if ($dbresult->{'CACHED_FLAGS'} =~ /,ZM,/) { $dbresult->{'HAS_EMAIL'} = 'Y'; }
-	#	push @MYROLES, 'BOSS';
-	#	&DBINFO::db_user_close();
-	#	}
 	else {
 		my ($udbh) = &DBINFO::db_user_connect($USERNAME);
 		my $pstmt = "select UID, USERNAME, LUSER, MID, EXPIRES_GMT, ROLES from LUSERS where MID=".$MID." /* $USERNAME */ and LUSER=".$udbh->quote($LUSERNAME);
@@ -406,7 +414,16 @@ sub create_authtoken {
 		}
 
 	my ($ACL) = &OAUTH::build_myacl($USERNAME,\@MYROLES);
-	my $authtoken = &OAUTH::build_authtoken($USERNAME,$LUSERNAME,$CLIENTINFO,$DEVICEID);
+	## my $authtoken = &OAUTH::build_authtoken($USERNAME,$LUSERNAME,$CLIENTID,$DEVICEID);
+
+	## create an authtoken
+	my ($randomstr) = &OAUTH::randomstring(24);
+	my $str = sprintf("%s-%s-%s-%s-%s",lc($USERNAME),lc($LUSERNAME),$CLIENTID,$DEVICEID,$randomstr);
+	my $digest = Digest::SHA1::sha1_hex($str);
+	my $authtoken = "1|$randomstr|$digest";
+
+	my $memd = &ZOOVY::getMemd($USERNAME);
+	$memd->set("SESSION+$authtoken",serialize_acl($ACL));
 
 	if (defined $dbresult) {
 		my $pstmt = &DBINFO::insert($udbh,'OAUTH_SESSIONS',{
@@ -414,12 +431,12 @@ sub create_authtoken {
 			'LUSERNAME'=>$LUSERNAME,
 			'MID'=>$MID,
 			'DEVICEID'=>$DEVICEID,
-			'CLIENTID'=>sprintf("%s",$CLIENTINFO->{'clientid'}),
+			'CLIENTID'=>$CLIENTID,
 			'IP_ADDRESS'=>$ENV{'REMOTE_ADDR'},
 			'*CREATED_TS'=>'now()',
 			'*EXPIRES_TS'=>'date_add(now(),interval 1 year)',
 			'AUTHTOKEN'=>$authtoken,
-			'CACHED_FLAGS'=>sprintf("%s",$dbresult->{'CACHED_FLAGS'}),
+			# 'CACHED_FLAGS'=>sprintf("%s",$dbresult->{'CACHED_FLAGS'}),
 			'ACL'=>serialize_acl($ACL),
 			},key=>['MID','AUTHTOKEN'],verb=>'insert',sql=>1);
 		print STDERR "$pstmt\n";
@@ -440,52 +457,6 @@ sub create_authtoken {
 
 
 
-##
-## key structure - 
-## 	keys are generated at login and stored in database + memcache
-##		
-sub verify_credentials {
-	my ($USERNAME,$LUSER,$SECURITY,$HASHTYPE,$TRYHASHPASS) = @_;
-
-	my $ERROR = undef;
-	$HASHTYPE = uc($HASHTYPE);
-	if (($HASHTYPE ne 'MD5') && ($HASHTYPE ne 'SHA1')) {
-		$ERROR = "Unsupported hash type";
-		}
-
-	my ($udbh) = &DBINFO::db_user_connect($USERNAME);
-	my ($MID) = &ZOOVY::resolve_mid($USERNAME);
-
-	my $qtSECURITY = $udbh->quote("$SECURITY");
-
-	my $REALHASHPASS = undef;
-	if ($ERROR) {
-		}
-	#elsif ($LUSER eq 'admin') {
-	#	my $pstmt = "select $HASHTYPE(concat(password,$qtSECURITY)) from ZUSERS where MID=".$MID;
-	#	print STDERR $pstmt."\n";
-	#	($REALHASHPASS) = $udbh->selectrow_array($pstmt);
-	#	}
-	else {
-		my $pstmt = "select $HASHTYPE(concat(password,$qtSECURITY)) from LUSERS where MID=".$MID." and LUSER=".$udbh->quote($LUSER);
-		print STDERR $pstmt."\n";
-		($REALHASHPASS) = $udbh->selectrow_array($pstmt);
-		}
-
-	if (defined $ERROR) {
-		}
-	elsif (uc($REALHASHPASS) eq uc($TRYHASHPASS)) {
-		## compared hash passwords match! yay
-		}
-	else {
-		$ERROR = "Password did not match."; # $HASHTYPE(concat(password,$qtTOKEN))";		
-		}
-	&DBINFO::db_user_close();
-	return($ERROR);
-	}
-
-
-
 
 ##
 ## accepts:
@@ -494,23 +465,23 @@ sub verify_credentials {
 ##		luser@domain.com
 ##		domain.com
 ##		
-sub resolve_userid {
-	my ($userid) = @_;
-
-	my ($luser,$username,$domain) = ('admin','','');
-	if (index($userid,'@')>0) {
-		($luser,$username) = split(/\@/,$userid);
-		}
-	elsif (index($userid,'*')>0) {
-		($username,$luser) = split(/\*/,$userid);
-		}
-	else {
-		$username = $userid;
-		$luser = 'admin';
-		}
-
-	return($username,$luser);
-	}
+#sub resolve_userid {
+#	my ($userid) = @_;
+#
+#	my ($luser,$username,$domain) = ('admin','','');
+#	if (index($userid,'@')>0) {
+#		($luser,$username) = split(/\@/,$userid);
+#		}
+#	elsif (index($userid,'*')>0) {
+#		($username,$luser) = split(/\*/,$userid);
+#		}
+#	else {
+#		$username = $userid;
+#		$luser = 'admin';
+#		}
+#
+#	return($username,$luser);
+#	}
 
 
 

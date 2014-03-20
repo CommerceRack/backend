@@ -79,8 +79,6 @@ require PROJECT;
   	'/biz/vstore/builder/index.cgi'=>[ '/httpd/htdocs/biz/vstore/builder', \&GTOOLSUI::builder, ],
   	'/biz/vstore/builder/details.cgi'=>[ '/httpd/htdocs/biz/vstore/builder', \&GTOOLSUI::builder_details, ],
   	'/biz/vstore/builder/themes/index.cgi'=>[ '/httpd/htdocs/biz/vstore/builder/themes', \&GTOOLSUI::builder_themes, ],
-  	'/biz/vstore/password/index.cgi'=>[ '/httpd/htdocs/biz/vstore/password', \&GTOOLSUI::password, ],
-  	'/biz/setup/password/index.cgi'=>[ '/httpd/htdocs/biz/vstore/password', \&GTOOLSUI::password, ],
 #  '/biz/vstore/builder/htmlpop.cgi'=>\&GTOOLSUI::htmlpop,
  	'/biz/vstore/billing/index.cgi'=>[ '/httpd/htdocs/biz/vstore/billing', \&GTOOLSUI::billing, ],
   	'/biz/vstore/analytics/index.cgi'=>[ '/httpd/htdocs/biz/vstore/analytics', \&GTOOLSUI::analytics, ],
@@ -201,82 +199,6 @@ sub transmogrify {
 
 
 
-sub password {
-	my ($JSONAPI,$cgiv) = @_;
-
-   $cgiv = $cgiv;
-   my ($LU) = $JSONAPI->LU();
-
-	my ($MID,$USERNAME,$LUSERNAME,$FLAGS,$PRT) = $LU->authinfo();
-	my ($VERB) = $cgiv->{'VERB'};
-	if ($VERB eq '') { $VERB = 'EDIT'; }
-	print STDERR "VERB: $VERB\n";
-
-	my @MSGS = ();	
-	my $ACTION = $cgiv->{'ACTION'};
-
-	# set the username
-	$GTOOLSUI::TAG{"<!-- USERNAME -->"} = $USERNAME;
-	$GTOOLSUI::TAG{'<!-- LUSER -->'} = ($LUSERNAME ne '')?'*'.$LUSERNAME:'';
-
-	# loads the template
-	my $template_file = "index.shtml";
-
-	if ($ACTION eq 'SAVE_PASSWORD') {
-		# gets the username
-		my $OLDPASSWD = $cgiv->{'OLDPASSWORD'};
-		my $LOGIN = $USERNAME . (($LUSERNAME eq '')?'':'*'.$LUSERNAME);
-	
-		# gets the new password for the USER
-		my $NEWPASSWD = $cgiv->{'NEWPASSWORD'};
-		my $NEWPASSWD2 = $cgiv->{'NEWPASSWORD1'};
-	
-		# my ($LU) = LUSER->new($USERNAME,$LUSERNAME);
-		my $ERROR = undef;
-		if (not $LU->passmatches($OLDPASSWD)) {
-			#if there is any error displayed the error message
-			$ERROR = "Old password does not match the one in our database.<br>";
-			}
-		elsif (my $REASON = &ZTOOLKIT::is_bad_password($NEWPASSWD)) {
-			$ERROR = "Please choose another password: $REASON";
-			}
-		elsif ($NEWPASSWD ne $NEWPASSWD2) {
-			# checks to make sure that both new passwords match each other
-			# if new passwords does not match display an error
-			$ERROR = "The new password does not match the other new one<br>";
-			}
-		else {
-			# if it has passed both possible errors update their password
-			$LU->set_password($NEWPASSWD);
-			# load success page saying that password has been sucessful updated.
-			}
-	
-		if (defined $ERROR) {	
-			push @MSGS, "ERROR|+$ERROR";
-			}
-		else {
-			push @MSGS, "SUCCESS|+Password updated";
-			}
-	
-		$LU = undef;
-		}
-
-	print STDERR "FILE: $template_file\n";
-
-	return(
-		'title'=>'Setup : Change Password',
-		'file'=>$template_file,
-		'header'=>'1',
-		'help'=>'#50677',
-		'tabs'=>[],
-		'msgs'=>\@MSGS,
-		'bc'=>[
-			{ name=>'Setup',link=>'','target'=>'_top', },
-			{ name=>'Change Password',link=>'/biz/setup/password/index.cgi','target'=>'_top', },
-			],
-		);
-	}
-
 
 
 ##
@@ -288,7 +210,7 @@ sub search {
 	$cgiv = $cgiv;
 
 	my ($LU) = $JSONAPI->LU();	
-	my ($MID,$USERNAME,$LUSERNAME,$FLAGS,$PRT) = $LU->authinfo();
+	my ($MID,$USERNAME,$LUSERNAME,$PRT) = $LU->authinfo();
 	if ($MID<=0) { exit; }
 	
 	my ($udbh) = DBINFO::db_user_connect($USERNAME);
@@ -992,7 +914,7 @@ sub analytics {
 
 	my ($LU) = $JSONAPI->LU();
 	
-	my ($MID,$USERNAME,$LUSERNAME,$FLAGS,$PRT) = $LU->authinfo();
+	my ($MID,$USERNAME,$LUSERNAME,$PRT) = $LU->authinfo();
 	if ($MID<=0) { exit; }
 	
 	
@@ -2818,7 +2740,7 @@ sub toxml {
 	$cgiv = $cgiv;
 
 	my ($LU) = $JSONAPI->LU();
-	my ($MID,$USERNAME,$LUSERNAME,$FLAGS,$PRT) = $LU->authinfo();
+	my ($MID,$USERNAME,$LUSERNAME,$PRT) = $LU->authinfo();
 
 	my @MSGS = ();
 	push @MSGS, "WARN|REMINDER: VStore end-of-life is January 1st, 2015.";
@@ -3246,7 +3168,7 @@ sub advwebsite {
 	$cgiv = $cgiv;
 	my ($LU) = $JSONAPI->LU();
 
-	my ($MID,$USERNAME,$LUSERNAME,$FLAGS,$PRT) = $LU->authinfo();
+	my ($MID,$USERNAME,$LUSERNAME,$PRT) = $LU->authinfo();
 	if ($MID<=0) { exit; }
 	
 	if ($USERNAME eq '') { exit; }
@@ -3405,10 +3327,10 @@ sub advwebsite {
 				if ($LU->is_zoovy()) {
 					push @MSGS, "WARNING|ZOOVY EMPLOYEE: It is NOT recommended/support placing Javascript into the System Messages, please use Setup | Plugins instead.";
 					}
-				elsif ($LU->is_bpp()) {
-					push @MSGS, "ERROR|BPP settings prohibit Javascript from being placed into System Messages, please Setup | Plugins instead.";
-					$BLOCKED++;
-					}
+				#elsif ($LU->is_bpp()) {
+				#	push @MSGS, "ERROR|BPP settings prohibit Javascript from being placed into System Messages, please Setup | Plugins instead.";
+				#	$BLOCKED++;
+				#	}
 				#elsif ($LU->is_level('7')) {
 				#	push @MSGS, "WARNING|It is NOT recommended/support placing Javascript into the System Messages, please use Setup | Plugins instead.";
 				#	}
@@ -3422,10 +3344,10 @@ sub advwebsite {
 				if ($LU->is_zoovy()) {
 					push @MSGS, "WARNING|ZOOVY EMPLOYEE: It is NOT recommended/support placing Javascript into the System Messages, please use Setup | Plugins instead.";
 					}
-				elsif ($LU->is_bpp()) {
-					push @MSGS, "ERROR|BPP settings prohibit insecure (http) references from being placed into System Messages, please Setup | Plugins instead.";
-					$BLOCKED++;
-					}
+				#elsif ($LU->is_bpp()) {
+				#	push @MSGS, "ERROR|BPP settings prohibit insecure (http) references from being placed into System Messages, please Setup | Plugins instead.";
+				#	$BLOCKED++;
+				#	}
 				#elsif ($LU->is_level('7')) {
 				#	## no warning, 
 				#	push @MSGS, "WARNING|Please review your content, it appears you may have an insecure reference in your html that could cause issues.";
@@ -3724,14 +3646,9 @@ sub advwebsite {
 		$GTOOLSUI::TAG{'<!-- CHKOUT_ROI_DISPLAY -->'} = ($webdbref->{'chkout_roi_display'})?'checked':'';
 	
 		my $DOMAIN = $LU->domain();
-		if ($LU->is_anycom()) { # different checkout preferences 
-			$template_file = 'checkout-anycom.shtml';
-			}
-		else {
-			$template_file = 'checkout-zoovy.shtml';
-			$GTOOLSUI::TAG{'<!-- DOMAIN -->'} = $DOMAIN;
-			$GTOOLSUI::TAG{'<!-- CHECKOUTLINK -->'} = sprintf("http://www.$DOMAIN/checkout");
-			}
+		$template_file = 'checkout-zoovy.shtml';
+		$GTOOLSUI::TAG{'<!-- DOMAIN -->'} = $DOMAIN;
+		$GTOOLSUI::TAG{'<!-- CHECKOUTLINK -->'} = sprintf("http://www.$DOMAIN/checkout");
 		$HELP = '#50305';
 		}
 	
@@ -3777,7 +3694,7 @@ sub builder_themes {
 	
 	require LUSER;
 	my ($LU) = $JSONAPI->LU();
-	my ($MID,$USERNAME,$LUSERNAME,$FLAGS,$PRT) = $LU->authinfo();
+	my ($MID,$USERNAME,$LUSERNAME,$PRT) = $LU->authinfo();
 	
 	my $NS = $cgiv->{'NS'};
 	$GTOOLSUI::TAG{'<!-- NS -->'} = $NS;
@@ -4579,7 +4496,7 @@ sub builder {
 	$cgiv = $cgiv;
 	my ($LU) = $JSONAPI->LU();
 
-	my ($MID,$USERNAME,$LUSERNAME,$FLAGS,$PRT) = $LU->authinfo();
+	my ($MID,$USERNAME,$LUSERNAME,$PRT) = $LU->authinfo();
 
 	my @MSGS = ();
 	push @MSGS, "WARN|REMINDER: VStore end-of-life is January 1st, 2015.";
@@ -5766,7 +5683,7 @@ sub builder_details {
 	$cgiv = $cgiv;
 	my ($LU) = $JSONAPI->LU();
 	
-	my ($MID,$USERNAME,$LUSERNAME,$FLAGS,$PRT) = $LU->authinfo();
+	my ($MID,$USERNAME,$LUSERNAME,$PRT) = $LU->authinfo();
 	
 	my $DOCID = $cgiv->{'DOCID'};
 	my $FORMAT = $cgiv->{'FORMAT'};
@@ -5795,10 +5712,8 @@ sub panel_navcat {
 
 	# my $IMAGE_CHOOSER_OKAY = 1;
 
-	my $FLAGS = $LU->flags();
 	my $USERNAME = $LU->username();
 	my $LUSER = $LU->luser();
-	# if ($FLAGS !~ /,WEB,/) { $IMAGE_CHOOSER_OKAY = 0; }
 
 	my $c = '';
 	my $flow = '';
@@ -5934,7 +5849,6 @@ sub panel_builder {
 	my $USERNAME = $LU->username();
 	my $LUSERNAME = $LU->luser();
 	my $PRT = $LU->prt();
-	my $FLAGS = $LU->flags();
 
 	my $PANEL = 'BUILDER:'.$D->domainname();
 	my $out = '';
