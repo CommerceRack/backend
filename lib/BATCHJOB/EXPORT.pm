@@ -168,6 +168,13 @@ sub run {
 		$RESULT = sprintf("Finished pages generation.");
 		$FILETYPE = 'JSON';
 		}
+	elsif ($EXPORT eq 'RULES') {
+		require BATCHJOB::EXPORT::RULES;
+		$FILENAME = sprintf("job_%d_%s-rules.json",$bj->id(),&ZTOOLKIT::pretty_date(time(),3));
+		($TMPFILEPATH) = BATCHJOB::EXPORT::RULES::generate($bj);
+		$RESULT = sprintf("Finished pages generation.");
+		$FILETYPE = 'CSV';
+		}
 	else {
 		warn "UNKNOWN MODULE:$EXPORT\n";		
 		}
