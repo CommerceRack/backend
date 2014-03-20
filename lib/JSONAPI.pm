@@ -1822,22 +1822,6 @@ sub psgiinit {
 		else {		
 			$self->{'LUSER'} = $self->{'USERID'};
 			}
-		#else {
-		#	$username = $userid;
-		#	$luser = 'admin';
-		#	}
-		#my ($USERNAME,$LUSER) = &OAUTH::resolve_userid($USERID);
-
-		#if (not defined $self->username()) {
-		#	$self->{'USERNAME'} = $USERNAME;
-		#	$self->{'LUSER'} = $LUSER;
-		#	}
-		#elsif (lc($self->username()) ne lc($USERNAME)) {
-		#	&JSONAPI::set_error($R = {}, 'apperr', 7, sprintf("SITE USERNAME '%s' did not correspond to userid '%s'",$self->username(),$USERNAME));
-		#	}
-		#elsif ( ($self->{'MID'} = &ZOOVY::resolve_mid($USERNAME)) <= 0) {
-		#	&JSONAPI::set_error($R = {}, 'apperr', 6, sprintf("USERID did not correspond to a valid USERNAME"));
-		#	}
 
 		$DOMAIN = $v->{'_domain'} || $HEADERS->header('x-domain'); 		## not required (optional, sets focus)
 		$self->{'SDOMAIN'} = $DOMAIN;

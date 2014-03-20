@@ -171,7 +171,10 @@ sub show_webdoc_matches {
 	{ id=>'SET', txt=>"SET Discount to modify value (\$ or %)", cpn=>1, uber=>1, },
 	{ id=>'ADD*ONE', txt=>"ADD modify value to Discount Amount", cpn=>1, uber=>1, },
 	## NOTE: ADD*MATCHITEMS repalced ADD*MATCHITEM (which did not work as it was described)
-	{ id=>'ADD*MATCHITEMS', txt=>"ADD modify value to Discount Amount FOR EVERY MATCHING ITEM QTY, set quantity=1", cpn=>1, uber=>1, },
+	{ id=>'ADD*MATCHITEMS', txt=>"ADD modify value to Discount Amount FOR EVERY MATCHING ITEM QTY", cpn=>1, uber=>1, },
+	{ id=>'ADD*MATCHITEMS2', txt=>"ADD modify value to Discount Amount FOR EVERY MATCHING ITEM QTY/2", cpn=>1, uber=>1, },
+	{ id=>'ADD*MATCHITEMS3', txt=>"ADD modify value to Discount Amount FOR EVERY MATCHING ITEM QTY/3", cpn=>1, uber=>1, },
+	{ id=>'ADD*MATCHITEMS4', txt=>"ADD modify value to Discount Amount FOR EVERY MATCHING ITEM QTY/4", cpn=>1, uber=>1, },
 	## NOTE: ADD*MATCHLINES repalced ADD*MATCHSKU (which did not work as it was described)
 	{ id=>'ADD*MATCHLINES', txt=>"ADD modify value to Discount Amount FOR EACH MATCHING UNIQUE SKU/LINE, set quantity=1", cpn=>1, uber=>1, },
 	## NOTE: ADD*ALLSKU should be called ADD*ALLLINES
