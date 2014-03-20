@@ -1835,6 +1835,7 @@ sub update_item_quantity {
 		## enforce qty min
 		if ((defined $item->{'minqty'}) && ($item->{'minqty'} > $qty)) {
 			$qty = $item->{'minqty'};
+			$lm->pooshmsg("DEBUG|msgid:9049|+$stid enforced minqty[$item->{'minqty'}] qty:$qty");
 			}
 
 		## enforce qty inc
@@ -1842,12 +1843,14 @@ sub update_item_quantity {
 		elsif (int($item->{'incqty'})<=0) {}
 		elsif (($qty % $item->{'incqty'}) > 0) {
 			$qty += ($item->{'incqty'} - ($qty % $item->{'incqty'}));
+			$lm->pooshmsg("DEBUG|msgid:9049|+$stid enforced incqty[$item->{'incqty'}] qty:$qty");
 			}
 
 		## enforce qty max
 		if (not defined $item->{'maxqty'}) {}
 		elsif (int($item->{'maxqty'}) < $qty) {
 			$qty = int($item->{'maxqty'});
+			$lm->pooshmsg("DEBUG|msgid:9049|+$stid enforced maxqty[$item->{'maxqty'}] qty:$qty");
 			}
 
 		if (($qty > 0) && ($item->{'qty'} == $qty)) {
@@ -1860,6 +1863,7 @@ sub update_item_quantity {
 				}
 			}
 		elsif ($qty <= 0) {
+			$lm->pooshmsg("DEBUG|msgid:9049|+$stid was dropped from cart due to qty=$qty");
 			$self->drop('stid'=>$stid);
 			}
 		##

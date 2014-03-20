@@ -126,6 +126,8 @@ my $app = sub {
 			$ENV{$k} = $env->{$k}; 
 			}
 		}
+	$ENV{'SERVER_NAME'} = $ENV{'HTTP_HOST'};	## not sure why PSGI doesn't define SERVER_NAME
+
 	if (defined $ENV{'HTTP_X_REAL_IP'}) {
 		$ENV{'REMOTE_ADDR'} = $ENV{'HTTP_X_REAL_IP'}; 	## PROXY
 		}	
