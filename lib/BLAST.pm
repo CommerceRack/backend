@@ -173,7 +173,7 @@ sub msg {
 	my ($self, $MSGID, @params) = @_;
 	my ($msg) = BLAST::MSG->new($self,$MSGID,@params);
 
-	if ($msg->format() =~ /^(HTML|WIKI|TEXT|XML)$/) {
+	if ($msg->format() =~ /^(HTML|TEXT|XML)$/) {
 		$msg->{'BODY'} = &ZTOOLKIT::interpolate( $self->macros(), $msg->{'BODY'} );
 		# use Data::Dumper; print Dumper(\%BLAST::MSG::LEGACY::TLC); die();
 		$msg->{'SUBJECT'} = &ZTOOLKIT::interpolate( $self->macros(), $msg->{'SUBJECT'} );
