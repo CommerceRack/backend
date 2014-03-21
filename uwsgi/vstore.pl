@@ -128,13 +128,6 @@ my $app = sub {
 		}
 	$ENV{'SERVER_NAME'} = $ENV{'HTTP_HOST'};	## not sure why PSGI doesn't define SERVER_NAME
 
-	if (defined $ENV{'HTTP_X_REAL_IP'}) {
-		$ENV{'REMOTE_ADDR'} = $ENV{'HTTP_X_REAL_IP'}; 	## PROXY
-		}	
-	if (defined $ENV{'HTTP_X_SERVER_PORT'}) {
-		$ENV{'SERVER_PORT'} = $ENV{'HTTP_X_SERVER_PORT'};	## 
-		}
-
 	if (defined $HTTP_RESPONSE) {
 		}
 	else {
@@ -352,7 +345,6 @@ my $app = sub {
 		## server_name is our first hint at what we're doing.
 		##		www.domain.com -- etc.
 
-		# $SITE->{'+secure'} |= (&ZOOVY::is_true($ENV{'HTTPS'})) ? 1 : 0;
 		$SITE->{'+secure'} |= ($ENV{'SERVER_PORT'}==443) ? 1 : 0;	
 
 		## BUT THE LINES BELOW SHOULD WORK GREAT!

@@ -12,8 +12,6 @@ use utf8 qw();
 use Encode qw();
 no warnings 'once';    # Keeps perl -w from bitching about single-use variables
 
-use CGI;
-
 use lib '/backend/lib';
 require TOXML;
 require NAVCAT;
@@ -2820,7 +2818,8 @@ sub TURBOMENU {
 			my $pretty = '';
 			
 			if (defined $CATNAMES->{$thiscat}) {
-				$pretty = &CGI::escapeHTML($CATNAMES->{$thiscat});
+				# $pretty = &CGI::escapeHTML($CATNAMES->{$thiscat});
+				$pretty = &ZOOVY::incode($CATNAMES->{$thiscat});
 				}
 			next if ($pretty =~ m/^\!/); ## Skip displaying hidden categories
 			my %info = ();
@@ -6638,10 +6637,10 @@ sub RENDER_MAILFORM {
 	my $preview = (defined $iniref->{'PREVIEW'} && $iniref->{'PREVIEW'}) ? 1 : 0;
 
 	my $v = $SITE::v;
-	unless ((defined $v) && (ref($v) eq 'HASH')) {
-		my $cgi = new CGI;
-		$v = {map { lc($_) => ($cgi->param($_))[0] } $cgi->param}; # Cleaner than $v = $cgi->Vars() because it removes the null padding
-		}
+	#unless ((defined $v) && (ref($v) eq 'HASH')) {
+	#	my $cgi = new CGI;
+	#	$v = {map { lc($_) => ($cgi->param($_))[0] } $cgi->param}; # Cleaner than $v = $cgi->Vars() because it removes the null padding
+	#	}
 
 	my $contact_url = $SITE->URLENGINE()->get('contact_url');
 
