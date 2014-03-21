@@ -3,6 +3,7 @@ package ZWEBSITE;
 use strict;
 use YAML::Syck;
 use JSON::XS;
+use Storable;
 
 ##
 ## www-zephyrsports-com.zoovy.net to www.zephyrsports.com
@@ -61,6 +62,7 @@ use Storable;
 use Data::GUID;
 use strict;
 
+%ZWEBSITE::CACHE = ();
 
 #
 # WebDb Variables:
@@ -601,11 +603,25 @@ sub fetch_website_dbref {
 	my $WEBDBREF = undef;
 	my $USERPATH = &ZOOVY::resolve_userpath($USERNAME);
 	my $file = sprintf("%s/webdb-%d.json",$USERPATH,$PRT);
-	my $MEMCACHE_KEY = lc("webdb|$USERNAME.$PRT");
+	my $cachefile = &ZWEBSITE::webdb_cache_file($USERNAME,$PRT);
+
+	my $MEMCACHE_KEY = lc("webdb-ts|$USERNAME.$PRT");
 	my $memd = &ZOOVY::getMemd($USERNAME);
 
-	if (my $json = $memd->get($MEMCACHE_KEY)) {
-		$WEBDBREF = JSON::XS::decode_json($json);
+	if (my $jsonts = $memd->get($MEMCACHE_KEY)) {
+		if (defined $ZWEBSITE::CACHE{ "$USERNAME.$PRT.$jsonts" }) {
+			$WEBDBREF = $ZWEBSITE::CACHE{ "$USERNAME.$PRT.$jsonts" };
+			}
+
+		if (not defined $WEBDBREF) {
+			my ($dev,$ino,$mode,$nlink,$uid,$gid,$rdev,$size,$atime,$mtime,$ctime,$blksize,$blocks) = stat($cachefile);
+			if ($ctime >= $jsonts) {
+				$ZWEBSITE::CACHE{ "$USERNAME.$PRT.$jsonts" } = $WEBDBREF = Storable::retrieve($cachefile);
+				}
+			else {
+				unlink $cachefile;
+				}
+			}
 		}
 
 	if (defined $WEBDBREF) {
@@ -664,7 +680,11 @@ sub fetch_website_dbref {
 		open F, "<$file"; $/ = undef; while (<F>) { $json = $_; } $/ = "\n"; close F;
 		$WEBDBREF = JSON::XS::decode_json($json);
 
-		$memd->set($MEMCACHE_KEY,$json);
+		Storable::nstore $WEBDBREF, $cachefile;
+		if (-f $cachefile) {
+			my ($dev,$ino,$mode,$nlink,$uid,$gid,$rdev,$size,$atime,$mtime,$ctime,$blksize,$blocks) = stat($cachefile);
+			$memd->set($MEMCACHE_KEY,$ctime);
+			}
 		}
 
 
@@ -866,7 +886,7 @@ sub save_website_dbref {
 	my $MEMCACHE_KEY = lc("webdb|$USERNAME.$PRT");
 	my $memd = &ZOOVY::getMemd($USERNAME);
 	$memd->delete($MEMCACHE_KEY);
-		
+	%ZWEBSITE::CACHE = ();
 	return(0);
 }
 

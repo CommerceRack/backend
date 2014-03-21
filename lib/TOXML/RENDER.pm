@@ -2031,10 +2031,6 @@ sub render_page {
 				}
 			elsif (not $el->{'CACHEABLE'}) {
 				}
-			#elsif ($SITE::merchant_id eq 'redford') {
-			#	# (defined $SITE->{'%GREF'}->{'%tuning'}->{'disable_memcache'}) && (not $SITE->{'%GREF'}->{'%tuning'}->{'disable_memcache'})) {
-			#	# implicity disable memcache for a client who is abusing it.
-			#	}
 			else {
 				$cache_id = $SITE->cache_id($el);
 				
