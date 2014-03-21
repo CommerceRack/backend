@@ -284,9 +284,11 @@ sub quick_stats {
 
 	my ($KPI) = KPIBI->new($USERNAME,undef);
 
-	my $qtGRP = $KPI->udbh()->quote($GRP);
+	my ($udbh) = &DBINFO::db_user_connect($USERNAME);
+	my $qtGRP = $udbh->quote($GRP);
 	my $pstmt = sprintf("select STAT_GMS,STAT_INC,STAT_UNITS from %s where MID=%d /* %s */ and DT=%d and GRP=%s",$KPI->tb(),$KPI->mid(),$KPI->username(),KPIBI::ts_to_dt(time()),$qtGRP);
-	my ($GMS,$INC,$UNITS) = $KPI->udbh()->selectrow_array($pstmt);
+	my ($GMS,$INC,$UNITS) = $udbh->selectrow_array($pstmt);
+	&DBINFO::db_user_close();
 
 	return($GMS/100,$INC,$UNITS);
 	}
@@ -592,6 +594,7 @@ sub user_datasets {
 
 	my ($MID) = $self->mid();
 	my ($USERNAME) = $self->username();
+	my ($udbh) = &DBINFO::db_user_connect($USERNAME);
 	
 	my @RESULTS = ();
 	foreach my $r (@KPIBI::DATASETS) {
@@ -637,7 +640,7 @@ sub user_datasets {
 	## Coupons
 	if (1) {
 		my $pstmt = "select GRP,PRETTY from KPI_GRP_LOOKUP where MID=$MID /* $USERNAME */ and GRP like 'C%' order by ID desc";
-		my ($sth) = $self->udbh()->prepare($pstmt);
+		my ($sth) = $udbh->prepare($pstmt);
 		$sth->execute();
 		while ( my ($GRP,$pretty) = $sth->fetchrow() ) {
 			$pretty = &ZOOVY::incode($pretty);
@@ -651,7 +654,7 @@ sub user_datasets {
 	##	Product Supplier
 	if (1) {
 		my $pstmt = "select GRP,PRETTY from KPI_GRP_LOOKUP where MID=$MID /* $USERNAME */ and GRP like 'Q%' order by ID desc";
-		my ($sth) = $self->udbh()->prepare($pstmt);
+		my ($sth) = $udbh->prepare($pstmt);
 		$sth->execute();
 		while ( my ($GRP,$pretty) = $sth->fetchrow() ) {
 			$pretty = &ZOOVY::incode($pretty);
@@ -665,7 +668,7 @@ sub user_datasets {
 	##	Product Affiliate
 	if (1) {
 		my $pstmt = "select GRP,PRETTY from KPI_GRP_LOOKUP where MID=$MID /* $USERNAME */ and GRP like 'A%' order by ID desc";
-		my ($sth) = $self->udbh()->prepare($pstmt);
+		my ($sth) = $udbh->prepare($pstmt);
 		$sth->execute();
 		while ( my ($GRP,$pretty) = $sth->fetchrow() ) {
 			$pretty = &ZOOVY::incode($pretty);
@@ -679,7 +682,7 @@ sub user_datasets {
 	##	Product Manufacturer
 	if (1) {
 		my $pstmt = "select GRP,PRETTY from KPI_GRP_LOOKUP where MID=$MID /* $USERNAME */ and GRP like 'M%' order by ID desc";
-		my ($sth) = $self->udbh()->prepare($pstmt);
+		my ($sth) = $udbh->prepare($pstmt);
 		$sth->execute();
 		while ( my ($GRP,$pretty) = $sth->fetchrow() ) {
 			$pretty = &ZOOVY::incode($pretty);
@@ -730,6 +733,7 @@ sub user_datasets {
 		push @RESULTS, [ "FORMULA?c=3&ctype=\#&fm=OGMS-($set)", "Not $grpref->[1] (\# Units Sold)" ];		
 		}
 
+	&DBINFO::db_user_close();
 	return(@RESULTS);
 	}
 
@@ -742,7 +746,8 @@ sub mydatasets {
 	my ($self) = @_;
 
 	my ($MID) = $self->mid();
-	my ($USERNAME) = $self->username();
+	my ($USERNAME) = $self->username();	
+	my ($udbh) = &DBINFO::db_user_connect($USERNAME);
 	
 	my @RESULTS = ();
 #	push @RESULTS, [ "", 'NULL', 'None' ];
@@ -785,7 +790,7 @@ sub mydatasets {
 	## Coupons
 	if (1) {
 		my $pstmt = "select GRP,PRETTY from KPI_GRP_LOOKUP where MID=$MID /* $USERNAME */ and GRP like 'C%' order by ID desc";
-		my ($sth) = $self->udbh()->prepare($pstmt);
+		my ($sth) = $udbh->prepare($pstmt);
 		$sth->execute();
 		while ( my ($GRP,$pretty) = $sth->fetchrow() ) {
 			push @RESULTS, [ "COUPON", "$GRP", "$pretty" ];
@@ -796,7 +801,7 @@ sub mydatasets {
 	##	Product Supplier
 	if (1) {
 		my $pstmt = "select GRP,PRETTY from KPI_GRP_LOOKUP where MID=$MID /* $USERNAME */ and GRP like 'Q%' order by ID desc";
-		my ($sth) = $self->udbh()->prepare($pstmt);
+		my ($sth) = $udbh->prepare($pstmt);
 		$sth->execute();
 		while ( my ($GRP,$pretty) = $sth->fetchrow() ) {
 			$pretty = &ZOOVY::incode($pretty);
@@ -808,7 +813,7 @@ sub mydatasets {
 	##	Product Affiliate
 	if (1) {
 		my $pstmt = "select GRP,PRETTY from KPI_GRP_LOOKUP where MID=$MID /* $USERNAME */ and GRP like 'A%' order by ID desc";
-		my ($sth) = $self->udbh()->prepare($pstmt);
+		my ($sth) = $udbh->prepare($pstmt);
 		$sth->execute();
 		while ( my ($GRP,$pretty) = $sth->fetchrow() ) {
 			$pretty = &ZOOVY::incode($pretty);
@@ -820,7 +825,7 @@ sub mydatasets {
 	##	Product Manufacturer
 	if (1) {
 		my $pstmt = "select GRP,PRETTY from KPI_GRP_LOOKUP where MID=$MID /* $USERNAME */ and GRP like 'M%' order by ID desc";
-		my ($sth) = $self->udbh()->prepare($pstmt);
+		my ($sth) = $udbh->prepare($pstmt);
 		$sth->execute();
 		while ( my ($GRP,$pretty) = $sth->fetchrow() ) {
 			$pretty = &ZOOVY::incode($pretty);
@@ -855,6 +860,7 @@ sub mydatasets {
 		push @RESULTS, [ "OTHER", "FORMULA:OGMS-($set)", "Not $grpref->[1]" ];
 		}
 
+	&DBINFO::db_user_close();
 	return(\@RESULTS);
 	}
 
@@ -1265,7 +1271,7 @@ sub stats_store {
 	my ($self, $kpistats) = @_;
 	
 	my $MID = $self->mid();
-	my ($udbh) = $self->udbh();
+	my ($udbh) = &DBINFO::db_user_connect($self->username());
 	foreach my $set (@{$kpistats}) {
 		my ($prefix,$key,$ts,$gms,$inc,$units) = @{$set};
 		$gms *= 100;	# we don't store decimals!
@@ -1313,9 +1319,8 @@ sub stats_store {
 			print F time()."|".$self->username()."|$GRP|$DT|$gms|$inc|$units\n";
 			close F;
 			}
-			
-
 		}
+	&DBINFO::db_user_close();
 	}
 
 ##
@@ -1353,7 +1358,8 @@ sub resolve_soundex_grp {
 	my ($self,$TYPE,$KEY,%options) = @_;
 	$TYPE = substr($TYPE,0,1);
 
-	my ($udbh) = $self->udbh();
+	my ($USERNAME) = $self->username();
+	my ($udbh) = &DBINFO::db_user_connect($USERNAME);
 
 	my $cleankey = uc($KEY);
 	$cleankey =~ s/[\s]+//gs;	 #remove spaces
@@ -1403,6 +1409,7 @@ sub resolve_soundex_grp {
 		$ref->{"$KEYSOUNDEX"} = $GRP;
 		}	
 
+	&DBINFO::db_user_close();
 	return($GRP);
 	}
 
@@ -1414,7 +1421,7 @@ sub resolve_pretty_grp {
 	my ($self,$TYPE,$KEY,%options) = @_;
 	$TYPE = substr($TYPE,0,1);
 
-	my ($udbh) = $self->udbh();
+	my ($udbh) = &DBINFO::db_user_connect($self->username());
 
 	my ($MID) = $self->mid();
 	my $GRP = undef;
@@ -1463,6 +1470,7 @@ sub resolve_pretty_grp {
 		$ref->{"$KEY"} = $GRP;
 		}
 
+	&DBINFO::db_user_close();
 	return($GRP);
 	}
 
@@ -1483,6 +1491,9 @@ sub resolve_pretty_grp {
 
 sub get_data {
 	my ($self,$DSN,$START_YYYYMMDD,$STOP_YYYYMMDD) = @_;
+
+	my ($USERNAME) = $self->username();
+	my ($udbh) = &DBINFO::db_user_connect($USERNAME);
 
 	my ($ID,$DSNPARAMS) = ($DSN,{});
 	if (index($DSN,'?')>-1) {
@@ -1519,7 +1530,7 @@ sub get_data {
 		##
 		## WOW!! xa computed formula field! something like: fm=OGMS-OEXP
 		## 	
-		my @TBDBHS = ( [$self->tb(),$self->udbh()] );
+		my @TBDBHS = ( [$self->tb(),$udbh] );
 		my %IDS = ();
 		foreach my $id (split(/[\+\-\*\/]+/,$FORMULA)) {
 			$id =~ s/[^A-Z0-9]+//gs;
@@ -1527,7 +1538,7 @@ sub get_data {
 			}
 		my @IDS = sort keys %IDS;
 		# print STDERR Dumper(\@IDS);
-		my $qtSET = &DBINFO::makeset($self->udbh(),\@IDS);
+		my $qtSET = &DBINFO::makeset($udbh,\@IDS);
 
 		my %DTS = ();
 		foreach my $tbdbhset (@TBDBHS) {
@@ -1590,11 +1601,11 @@ sub get_data {
 	else {
 		## real data! directed lookup (fastest)
 		## NOTE: not compatible with aggregating
-		my $qtGRP = $self->udbh()->quote($ID);
+		my $qtGRP = $udbh->quote($ID);
 		my $pstmt = sprintf("select DT,STAT_GMS,STAT_INC,STAT_UNITS,GRP from %s where ",$self->tb());
 		$pstmt .= sprintf("DT>=%d and DT<%d and GRP=%s",$dtstart,$dtstop,$qtGRP);
 		print STDERR $pstmt."\n";
-		my ($sth) = $self->udbh()->prepare($pstmt);
+		my ($sth) = $udbh->prepare($pstmt);
 		$sth->execute();
 		while ( my @row = $sth->fetchrow() ) {
 			push @RESULTS, \@row;
@@ -1605,6 +1616,8 @@ sub get_data {
 	#open F, ">>/tmp/results";
 	#print F Dumper(\@RESULTS);
 	#close F;
+	&DBINFO::db_user_close();
+
 
 	return(\@RESULTS);
 	}
@@ -1681,18 +1694,21 @@ sub save_collection_order {
 	my ($self,$collection,$guidsarref) = @_;
 
 	my ($MID) = int($self->mid());
+	my ($udbh) = &DBINFO::db_user_connect($self->username());
 	## first, reset the sort order
 	my $pstmt = "update KPI_USER_GRAPHS set SORT_ORDER=0 where MID=$MID and COLLECTION=".int($collection);
 	print STDERR $pstmt."\n";
-	$self->udbh()->do($pstmt);
+	$udbh->do($pstmt);
 
 	my $i = 1;
 	foreach my $guid (@{$guidsarref}) {
-		my $pstmt = "update KPI_USER_GRAPHS set SORT_ORDER=$i where MID=$MID and UUID=".$self->udbh()->quote($guid);
+		my $pstmt = "update KPI_USER_GRAPHS set SORT_ORDER=$i where MID=$MID and UUID=".$udbh->quote($guid);
 		print STDERR $pstmt."\n";
-		$self->udbh()->do($pstmt);
+		$udbh->do($pstmt);
 		$i++;
 		}
+
+	&DBINFO::db_user_close();
 	return($i);
 	}
 
@@ -1759,12 +1775,12 @@ sub mid { return($_[0]->{'_MID'}); }
 sub prt { return($_[0]->{'_PRT'}); }
 sub set_prt { $_[0]->{'_PRT'} = $_[1]; }
 sub tb { return($_[0]->{'_KPITB'}); }
-sub udbh { 
-	if (not defined $_[0]->{'*DBI'}) {
-		$_[0]->{'*DBI'} = &DBINFO::db_user_connect($_[0]->username());
-		}
-	return($_[0]->{'*DBI'}); 
-	}
+#sub udbh { 
+#	if (not defined $_[0]->{'*DBI'}) {
+#		$_[0]->{'*DBI'} = &DBINFO::db_user_connect($_[0]->username());
+#		}
+#	return($_[0]->{'*DBI'}); 
+#	}
 
 
 ##
@@ -1794,14 +1810,14 @@ sub new {
 ##
 ## clean up the database handle
 ## 
-sub DESTROY {	
-	my $self = shift;
-	if (defined $self->{'*DBI'}) {
-		&DBINFO::db_user_close();
-		$self->{'*DBI'} = undef;
-		}
-	return();
-	}
+#sub DESTROY {	
+#	my $self = shift;
+#	if (defined $self->{'*DBI'}) {
+#		&DBINFO::db_user_close();
+#		$self->{'*DBI'} = undef;
+#		}
+#	return();
+#	}
 
 
 ##
