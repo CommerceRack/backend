@@ -11,43 +11,6 @@ require ZOOVY;
 require DBINFO;
 
 
-#
-#FORMAT:WRAPPER =
-#	pageid is not set
-#	fs is not set
-#
-#FORMAT:PRODUCT =
-#	setSTID is the product in focus
-#	pageid is the productid ?? (is this necessary)
-#	fs is not set
-#
-#FORMAT:PAGE =
-#	pageid is the page name or .safe.path
-#	fs is the style of page
-#
-#FORMAT:WIZARD
-#	pageid is the ebay profile
-#	fs is not set
-#	docid is ebay.profile
-#	layout is ebay:template
-#
-#FORMAT:EMAIL
-#	pageid is not set
-#	fs is not set
-#	&ZOOVY::fetchmerchantns_attrib($USERNAME,$SITE->profile(),'email:docid')
-#
-#FORMAT:NEWSLETTER
-#	pageid is the @campaign
-#	fs is not set
-#
-#layout + format  = file reference
-#
-
-
-##
-## for information on the structure of a TOXML object .. 
-##
-##
 ##
 
 ##
@@ -66,62 +29,6 @@ sub just_config_please {
 	}
 
 
-sub dataref {
-	my ($self) = @_;
-
-	}
-
-
-##
-## this will go through the document and generate a 'help' html page that can be embedded into webdoc.
-##
-sub as_webdochtml {
-	my ($self) = @_;
-
-	my $out = '';
-	my ($configel) = $self->findElements('CONFIG');	# fetch the first CONFIG element out of the document.	
-	$out .= "<h1>".sprintf("%s:%s",$self->format(),$self->docid())." $configel->{'TITLE'}</h1><br>";
-	if ($configel->{'OVERLOAD'}) {
-		$out .= "OVERLOADS: $configel->{'OVERLOAD'}<br>";
-		}
-	$out .= "<div>".(($configel->{'SUMMARY'})?$configel->{'SUMMARY'}:"No summary was provided by the designer.")."</div>";
-	$out .= "List of Elements:<br>";
-
-	foreach my $el (@{$self->elements()}) {
-		my $skipnotes = '';
-		if ($el->{'OUTPUTSKIP'} > 0) {
-			if ($el->{'OUTPUTSKIP'} & 1) { $skipnotes .= "<li> skipped on outputif condition: $el->{'OUTPUTIF'}"; }
-			if ($el->{'OUTPUTSKIP'} & 2) { $skipnotes .= "<li> skipped if secure"; }
-			if ($el->{'OUTPUTSKIP'} & 4) { $skipnotes .= "<li> skipped if non-secure"; }
-			if ($el->{'OUTPUTSKIP'} & 8) { $skipnotes .= "<li> skipped if user logged in"; }
-			if ($el->{'OUTPUTSKIP'} & 16) { $skipnotes .= "<li> skipped if user NOT logged in"; }
-			if ($el->{'OUTPUTSKIP'} & 32) { $skipnotes .= "<li> skipped if cart has NO items"; }
-			if ($el->{'OUTPUTSKIP'} & 64) { $skipnotes .= "<li> skipped if cart has items"; }
-			if ($el->{'OUTPUTSKIP'} & 256) { $skipnotes .= "<li> skipped if 'A' side of site"; }
-			if ($el->{'OUTPUTSKIP'} & 512) { $skipnotes .= "<li> skipped if 'B' side of site"; }
-			if ($el->{'OUTPUTSKIP'} & 2048) { $skipnotes .= "<li> skipped if in a wrapper"; }
-			if ($el->{'OUTPUTSKIP'} & 4096) { $skipnotes .= "<li> skipped if in a layout"; }
-			if ($el->{'OUTPUTSKIP'} & 8192) { $skipnotes .= "<li> skipped if in an html wizard"; }
-			if ($el->{'OUTPUTSKIP'} & 16384) { $skipnotes .= "<li> skipped if in a email"; }
-			if ($el->{'OUTPUTSKIP'} & 32768) { $skipnotes .= "<li> skipped if in user interface"; }
-			$skipnotes .= "<ul>This element may be skipped under the following conditions:\n$skipnotes</ul>";
-			}
-
-		if ($el->{'TYPE'} eq 'CONFIG') {
-			## we output *NOTHING for config elements since we already handled them above.
-			}
-		elsif ($el->{'TYPE'} eq 'OUTPUT') {
-			## we can ignore 'OUTPUT' elements 
-			$out .= "$skipnotes";
-			}
-		else {
-			## 
-			$out .= "<li> $el->{'ID'} $el->{'TYPE'} $el->{'HELPER'}<br>$skipnotes";
-			}
-		}
-		
-	return($out);
-	}
 
 
 ## utility methods (should have named these better)
@@ -299,9 +206,6 @@ sub new {
 		$self->{'_MID'} = 0;
 		}
 
-	## an override dataref that is used before all other data sources
-	if ($FORMAT eq 'HTMLWIZ') { $FORMAT = 'WIZARD'; }
-
 	# my $NEED_TO_SAVE = 0;
 
 	my $filepath = undef;
@@ -396,18 +300,6 @@ sub new {
 		} 		## already loaded.. skip.
 	elsif ($filepath eq '') {
 		}
-	#elsif (($cache>1) && ($cachefile ne '')) {
-	#	## note: cache=1 means load from nfs, but save a copy
-	#	# print STDERR "LOADED TRANSPARENT CACHE: $cachefile\n";
-	#	$self = eval { retrieve $cachefile; }
-	#	}
-	#elsif (($cache<0) && ($cachefile ne '')) {
-	#	## publisher file
-	#	# print STDERR "LOADED PUBLISHER CACHE: $cachefile\n";
-	#	if (-f $cachefile) {
-	#		$self = YAML::Syck::LoadFile($cachefile);
-	#		}
-	#	}
 	elsif (-f "$filepath.bin") {
 		# print STDERR "LOADED NFS TOXML: $filepath.bin\n";
 
@@ -415,17 +307,6 @@ sub new {
 
 		if ($@) {
 			print STDERR "CORRUPT FILE: $filepath.bin\n";
-			# &ZOOVY::confess($self->{'_USERNAME'},"corrupt bin $filepath.bin\n",justkidding=>1);
- 			#if (-f "$filepath.xml") {
-		   #   # print STDERR "LOADED NFS TOXML: $filepath.xml\n";
-		   #   require TOXML::COMPILE;
-		   #   open F, "<$filepath.xml"; $/ = undef; my $xml = <F>; close F; $/ = "\n";
-		   #   $self = TOXML::COMPILE::xmlToRef($xml);
-			#	close F;
-			#	if (scalar(keys %{$self})>0) {
-			#		Storable::nstore($self,"$filepath.bin");
-			#		}
-			#	}	
 			}
 
 		if (not defined $self) {}
@@ -436,32 +317,6 @@ sub new {
 		}
 	elsif ( -f "$filepath.xml") {
 		&ZOOVY::confess($options{'_USERNAME'},"INVALID TOXML: $filepath",justkidding=>1);
-		}
-	#elsif (-f "$filepath.xml") { 
-	#	# print STDERR "LOADED NFS TOXML: $filepath.xml\n";
-	#	require TOXML::COMPILE;
-	#	open F, "<$filepath.xml"; $/ = undef; my $xml = <F>; close F; $/ = "\n";
-	#	$self = TOXML::COMPILE::xmlToRef($xml);
-
-	#	print STDERR "PERSONAL: [$PERSONAL]\n";
-	#	if (not defined $self) { 
-	#		warn "Could not load $filepath.xml"; 
-	#		}
-	#	elsif ($PERSONAL>0) { 	
-	#		## we should only try and create .xml files for personal types.
-	#		$self->{'_LOADED'}=time(); $NEED_TO_SAVE++; 
-	#		}
-	#	elsif ($PERSONAL==-1) {		
-	#		$self->{'_SYSTEM'}++;
-	#		bless $self, 'TOXML';
-	#		## $self->MaSTerSaVE('preserve'=>1);
-	#		}
-	#	
-	#	}
-	else {
-		if (&ZOOVY::servername() eq 'dev') {
-			warn("Could not find file $filepath");
-			}
 		}
 
 	if (not defined $self) { 
@@ -620,33 +475,6 @@ sub MaSTerSaVE {
 		$binfile = "/httpd/static/wrappers/$DOCID/main.bin";
 		$xmlfile = "/httpd/static/wrappers/$DOCID/main.xml";
 		}
-	elsif ($self->{'_FORMAT'} eq 'WIZARD') {
-		# /httpd/static/layouts/$FILE.bin and $FILE.xml	
-		$self->compile();
-		$binfile = "/httpd/static/wizards/$DOCID/main.bin";
-		$xmlfile = "/httpd/static/wizards/$DOCID/main.xml";
-		}
-	elsif (($self->{'_FORMAT'} eq 'EMAIL') || ($self->{'_FORMAT'} eq 'ZEMAIL')) {
-		# /httpd/static/layouts/$FILE.bin and $FILE.xml	
-		$self->compile();
-		$binfile = "/httpd/static/emails/$DOCID/main.bin";
-		$xmlfile = "/httpd/static/emails/$DOCID/main.xml";
-		}
-#	elsif ($self->{'_FORMAT'} eq 'ZEMAIL') {
-#		# /httpd/static/layouts/$FILE.bin and $FILE.xml	
-#		$self->compile();
-#		mkdir("/httpd/static/zemails/$DOCID");
-#		chmod(0777,"/httpd/static/zemails/$DOCID");
-#		chown($ZOOVY::EUID,$ZOOVY::EGID,"/httpd/static/zemails/$DOCID");
-#		$binfile = "/httpd/static/zemails/$DOCID/main.bin";
-#		$xmlfile = "/httpd/static/zemails/$DOCID/main.xml";
-#		}
-#	elsif ($self->{'_FORMAT'} eq 'ORDER') {
-#		# /httpd/static/layouts/$FILE.bin and $FILE.xml	
-#		$self->compile();
-#		$binfile = "/httpd/static/orders/$DOCID/main.bin";
-#		$xmlfile = "/httpd/static/orders/$DOCID/main.xml";
-#		}
 
 	if ($xmlfile ne '') { 
 		print STDERR "TOXML->MaSTerSaVE Wrote: $xmlfile\n";
@@ -690,27 +518,14 @@ sub filehandler {
 		}
 
 
-	if ($self->{'_FORMAT'} eq 'EMAIL') {
-		$self->{'_FORMAT'} = 'ZEMAIL';
-		}
 	if (not $ok) {}
 	elsif ((
 			($self->{'_FORMAT'} eq 'LAYOUT') || 
 			($self->{'_FORMAT'} eq 'WRAPPER') || 
-			($self->{'_FORMAT'} eq 'DEFINITION') ||
-			($self->{'_FORMAT'} eq 'WIZARD') ||
-			($self->{'_FORMAT'} eq 'EMAIL') ||
-			($self->{'_FORMAT'} eq 'ZEMAIL') ||
-			($self->{'_FORMAT'} eq 'ORDER') ||
-			($self->{'_FORMAT'} eq 'INCLUDE')
 			) && (($ACTION eq 'NUKE') || ($ACTION eq 'SAVE'))) {
 		############################################
 		## WRAPPERS
 		$self->compile();
-
-		if ($self->{'_FORMAT'} eq 'EMAIL') { 
-			$self->{'_FORMAT'} = 'ZEMAIL';
-			}
 
 		$ID = lc($ID);	# all files are ALWAYS lowercase
 		my $FILENAME = uc($self->{'_FORMAT'}).'+'.$ID;		
@@ -1028,28 +843,11 @@ sub getList {
 
 	# print STDERR "LIST: $LISTID\n";
 	$LISTID = uc($LISTID);
-#	print STDERR "LISTID: $LISTID\n";
 	##
 	## OVERRIDES - eBAY
 	##
 	my ($MARKET,$DEFINITION) = split(/\./,lc($self->{'_ID'}),2);
 	$MARKET =~ s/[^\w\@]+//gs;	# sometimes there is a * or something.. e.g. *blah
-#	print STDERR "MARKET[$MARKET] LIST:[$LISTID]\n";
-#	if ((($MARKET eq 'ebay') || ($MARKET eq 'ebaymotors') || ($MARKET eq 'ebaystore') || ($MARKET eq 'ebaystores')) && ($LISTID eq 'STORECAT')) {
-#		require EBAY2;
-#		my $list = &EBAY2::fetch_storecats($self->{'_USERNAME'});
-#		my @RESULT = ();
-#		my $count = 0;
-#		push @RESULT, { 'T'=>'Not Selected', V=>'' };
-#		foreach my $kv (@{$list}) {
-#			my ($k,$v) = split(/,/,$kv,2);
-#			push @RESULT, { 'T'=>$v, 'V'=>$k };
-#			$count++;
-#			}
-#		if ($count>1) { 
-#			return(\@RESULT); 
-#			}
-#		}
 	if ($LISTID eq '@SYSTEM.DOMAINS') {
 		my @RESULT = ();
 		push @RESULT, { T=>$self->{'_USERNAME'}."\@zoovy.com", V=>$self->{'_USERNAME'}."\@zoovy.com" };
@@ -1155,19 +953,6 @@ sub getElementById {
 ## This function is used by the following areas:
 ##		/backend/lib/PAGE/AJAX.pm
 ##			renderProduct( SKU=> )
-##		/backend/lib/OVERSTOCK/LISTING.pm
-##			LISTING::create( USERNAME=>, SKU=>, PROFILE=>, MARKET=>, UUID=>, CHANNEL=>, nsref=>$nsref, sref=>$dataref )
-##		/backend/lib/OVERSTOCK/API.pm
-##			API::assemble( USERNAME, SKU, PROFILE, UUID, MARKET, CHANNEL, nsref=>, $sref=>$dataref)
-##		/backend/lib/EBAY/CREATE.pm
-##			CREATE::doit2( USERNAME, SKU, PROFILE, MARKET, UUID, CHANNEL, nsref, sref=>)
-##		/backend/lib/CUSTOMER/NEWSLETTER.pm
-##			PG=>,USERNAME=>
-##		/backend/lib/TOXML/EMAIL.pm
-##			USERNAME,PROFILE,DIV=>$MSG,PG=>$MSG,nsref=>$nsref
-##		/backend/lib/TOXML/EMAIL.pm
-##			USERNAME,PROFILE,nsref=>$nsref
-##
 ##
 ## returns HTML for a particular TOXML object based on optional parameters passed in.
 ##		OPTIONSTR=> - used in configurator, etc. a string of KEY=VALUE for each option (for text VALUE is the text, for other it's value id)
@@ -1222,29 +1007,7 @@ sub render {
 	$SITE->layout( $self->{'_ID'} );
 	if (defined $options{'PG'}) { die(); } # $SITE->pageid( $options{'PG'} ); }
 
-	## THIS FUCKING GHETTO HACK. TO FIX NEWSLETTERS. IF THIS IS SET, THEN WE'RE PROBABLY RUNNING
-	## IN A WEBSITE
-	if (ref($SITE) eq 'SITE') {
-		}
-
-#	use Data::Dumper;
-	if (($self->{'_FORMAT'} eq 'ZEMAIL') || ($self->{'_FORMAT'} eq 'EMAIL')) {
-		$self->initConfig($SITE);
-		$SITE->URLENGINE()->set(toxml=>$self);
-#		print STDERR Dumper($self,$SITE->URLENGINE(),$SITE::CONFIG); 
-		}
-	elsif ($self->{'_FORMAT'} eq 'WIZARD') {
-		$SITE->URLENGINE()->set(toxml=>$self);
-		}
-	elsif ($self->{'_FORMAT'} eq 'NEWSLETTER') {
-		$self->initConfig($SITE);
-		$SITE->URLENGINE()->set(toxml=>$self);
-#		print STDERR Dumper($self,$SITE->URLENGINE(),$SITE::CONFIG); 
-		}
-#	elsif ($self->{'_FORMAT'} eq 'ORDER') {
-#		$self->initConfig();
-#		}
-	elsif ($self->{'_FORMAT'} eq 'LAYOUT') {
+	if ($self->{'_FORMAT'} eq 'LAYOUT') {
 		## $SITE::SREF->{'_FS'} = $self->{'_SUBTYPE'}; -- this should not be used anywhere!
 		$SITE->URLENGINE()->set(wrapper=>$SITE->wrapper());
 		if ($SITE->URLENGINE()->wrapper() ne '') {
@@ -1256,9 +1019,6 @@ sub render {
 				}	
 			}
 		}
-
-	# $SITE->{'_PG'} = $SITE::PG;		# don't set this and newsletters won't work
-	# print STDERR "[TOXML] ".Dumper($SREF);
 
 	my $out = undef;
 	if ($SITE->div()) { $options{'DIV'} = $SITE->div(); }
