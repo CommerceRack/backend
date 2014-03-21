@@ -745,12 +745,31 @@ bind $var '.notes'; apply --append;
 	'%ORDERDATE%'=> q|<div data-tlc="bind $var '.%ORDER.%our.order_ts'; datetime --gmt=$var --out='pretty'; apply --append;"></div>|,
 	'%TODAY%'=> q|<div data-tlc="datetime --now --out='ymd'; apply --append;"></div>|,
 	'%FULLNAME%'=> q|
-<span data-tlc="bind $var '.%CUSTOMER.INFO.FIRSTNAME'; apply --replace;"></span>
-<span data-tlc="bind $var '.%CUSTOMER.INFO.LASTNAME'; apply --replace;"></span>|,
+<span id="fullname">
+<span data-tlc="
+	bind $var '.%CUSTOMER.INFO.FIRSTNAME'; 
+	if (is $var --blank) {{ bind $var '.%ORDER.%bill.firstname'; }};
+	apply --replace;
+"></span>
+<span data-tlc="
+	bind $var '.%CUSTOMER.INFO.LASTNAME';
+	if (is $var --blank) {{ bind $var '.%ORDER.%bill.lastname'; }};
+	apply --replace;
+"></span>
+</span>
+|,
 ##	[ 'ACCOUNT',
-	'%FIRSTNAME%'=> q|<span data-tlc="bind $var '.%CUSTOMER.INFO.FIRSTNAME'; apply --replace;"></span>|,
+	'%FIRSTNAME%'=> q|
+	<span id="firstname" data-tlc="
+ bind $var '.%CUSTOMER.INFO.FIRSTNAME'; 
+ if (is $var --blank) {{ bind $var '.%ORDER.%bill.firstname'; }};
+ apply --replace;"></span>|,
 ##	[ 'ACCOUNT',
-	'%LASTNAME%'=> q|<span data-tlc="bind $var '.%CUSTOMER.INFO.LASTNAME'; apply --replace;"></span>|,
+	'%LASTNAME%'=> q|<span id="lastname" data-tlc="
+  bind $var '.%CUSTOMER.INFO.LASTNAME'; 
+ if (is $var --blank) {{ bind $var '.%ORDER.%bill.lastname'; }};
+  apply --replace;
+  "></span>|,
 ##	[ 'ACCOUNT',
 ##	[ 'ACCOUNT',
 	'%REWARD_BALANCE%'=> q|<span data-tlc="bind $var '.%CUSTOMER.INFO.REWARD_BALANCE'; apply --replace;"></span>|,
