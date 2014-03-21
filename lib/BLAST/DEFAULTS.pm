@@ -39,11 +39,10 @@ package BLAST::DEFAULTS;
 	'%LINKPHONE%'=> q|<span data-tlc="bind '.%PRT.PHONE'; format --prepend='callto://'; apply --attrib='href'; apply --append;"></span>|,
 	'%LINKEMAIL%'=> q|<span data-tlc="bind '.%PRT.EMAIL'; format --prepend='mailto://'; apply --attrib='href'; apply --append;"></span>|,
 
-
 	'%HEADER%'=>q|
 <head>
 <style>
-<!-- http://www.campaignmonitor.com/css/ -->
+<!-- a good guide on css/styles can be found at http://www.campaignmonitor.com/css/ -->
 <!-- note: gmail will be modified to use embedded styles for max compat. -->
 body { font-family: helvetica; }
 </style>
@@ -51,15 +50,7 @@ body { font-family: helvetica; }
 <body>|,
 	'%FOOTER%'=>q|
 <hr>
-<table>
-<tr>
-<td>
-<b>Unsubscribe from receiving additional reminders for this transaction:</b><br>
-<a href="http://%SDOMAIN%/customer/newsletter/unsubscribe?aolemail=$RECIPIENT">
-<a href="http://%SDOMAIN%/customer/newsletter/unsubscribe?aolemail=$RECIPIENT&claim=$options{'CLAIM'}">
-</td>
-</tr>
-</table>
+%LINKDOMAIN%
 </body>
 |,
 
@@ -993,7 +984,7 @@ The resulting order number is %ORDERID%.
 
 There is no need to reply to this email if everything is correct with your order.
 
-Contact Email: %SUPPORTEMAIL%
+Contact Email: %LINKEMAIL%
 
 Combined Order Contents: 
 %ORDERITEMS%
@@ -1040,7 +1031,7 @@ two pieces, and a new order id #%SPLITID% has been created.
 
 There is no need to reply to this email if everything is correct.<br>
 
-If not please contact us immediately at <a href="mailto:%SUPPORTEMAIL%">%SUPPORTEMAIL%</a><br>
+If not please contact us immediately at %LINKEMAIL%</a><br>
 Thank You.
 
 %FOOTER%

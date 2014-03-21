@@ -81,7 +81,7 @@ sub send {
 			'from_email_campaign'=>''
 			);
 		my $msg = MIME::Lite->new(
-			'X-Mailer'=>"CommerceRack $JSONAPI::VERSION",
+			'X-Mailer'=>sprintf("CommerceRack %s [%s]",$JSONAPI::VERSION,$msg->msgid()),
 			'Reply-To'=>$FROM,
 			'Errors-To'=>$FROM,
 			'Return-Path'=>$FROM,
