@@ -65,7 +65,7 @@ my $app = sub {
 		## print STDERR "GOT OPTIONS REQUEST\n";
 		## SHORT CIRCUIT
 		my $h = $req->headers();
-		print STDERR 'H: '.Dumper($h);
+		# print STDERR 'H: '.Dumper($h);
 		foreach my $k (split(/,/,$h->header('access-control-allow-headers'))) {
 			next if ($k eq 'content-type');
 			next if ($k eq 'x-auth');
@@ -80,7 +80,7 @@ my $app = sub {
 			$HEADERS->push_header( 'Access-Control-Max-Age' => 1000 );
 			$HEADERS->push_header( 'Content-Length' => 0 );
 			$HEADERS->push_header( 'Content-type' => 'text/plain' );
-			print STDERR Dumper($HEADERS);
+			# print STDERR Dumper($HEADERS);
 			my $res = Plack::Response->new($HTTP_RESPONSE,$HEADERS,$BODY);
 			## short circuit!
 			return($res->finalize);

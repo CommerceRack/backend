@@ -1756,6 +1756,7 @@ sub psgiinit {
 		## print STDERR "$self->{'_PROJECTID'} = $DNSINFO->{'PROJECT'}\n"; die();
 		}
 	
+
 	if (defined $R) {
 		}
 	elsif ($self->is_config_js()) {
@@ -1810,6 +1811,7 @@ sub psgiinit {
 		}
 	elsif ($self->{'USERID'} ne '') {
 		## try and detect the LUSER
+
 		if (lc($self->{'USERID'}) eq lc($self->{'USERNAME'})) {
 			$self->{'LUSER'} = 'admin';
 			}
@@ -3642,14 +3644,19 @@ sub authAdminLogin {
 	elsif (uc($USERID) eq 'ADMIN') {
 		$LUSER = 'admin';
 		}
+	elsif (index($USERID,'@')>0) {
+		($LUSER,my $null) = split(/\@/,$USERID);
+		}
+	elsif (index($USERID,'*')>0) {
+		(my $null,$LUSER) = split(/\*/,$USERID);
+		}
 	elsif (uc($USERID) eq uc($USERNAME)) {
 		$LUSER = 'admin';
 		}
 	elsif ($USERID) {
 		$LUSER = $USERID;
-	#	(my $altUSERNAME,$LUSER,$DOMAIN) = &OAUTH::resolve_userid($USERID);
-	#	$USERNAME = lc($altUSERNAME);
 		}
+
 
    if (&JSONAPI::hadError(\%R)) {
       }
@@ -3769,6 +3776,7 @@ sub authAdminLogin {
 
 
 		my $pstmt = "select PASSHASH, PASSSALT from LUSERS where MID=".$MID." and LUSER=".$udbh->quote($LUSER);
+		print STDERR "$pstmt\n";
 		my ($ACTUALPASSHASH,$SALT) = $udbh->selectrow_array($pstmt);
 		my $TRYPASSHASH = Digest::SHA1::sha1_hex( $TRYPASS.$SALT );
 
@@ -26706,16 +26714,10 @@ sub adminBatchJob {
 			}
 		else {
 			## create the job
+			## type = EXEC => BATCH_EXEC which should be something like EXPORT/PAGES
+			## 	$menu.append("<li><a href='#' data-app-click='admin_batchjob|adminBatchJobExec' data-type='EXPORT/PAGES' >Export Pages.json</a></li>");
 
-			#if ($self->apiversion() < 201334) {
-			#	if ($v->{'type'} eq 'SYNDICATION') {
-			#		$v->{'type'} = sprintf("%s/%s",$v->{'type'},$v->{'%vars'}->{'DST'});
-			#		}
-			#	elsif ($v->{'type'} eq 'UTILITY') {
-			#		$v->{'type'} = sprintf("%s/%s",$v->{'type'},$v->{'%vars'}->{'APP'});
-			#		}
-			#	}
-		
+
 			## didn't feel like versioning 'type' in 201338 .. but we should be using BATCH_EXEC
 			($BJ) = BATCHJOB->create($USERNAME,
 				JOBID=>$JOBID,
