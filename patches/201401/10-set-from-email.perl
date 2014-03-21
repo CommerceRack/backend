@@ -5,7 +5,7 @@ use ZWEBSITE;
 use DOMAIN;
 use DOMAIN::TOOLS;
 
-$USERNAME |= $ARGV[0];
+#$USERNAME |= $ARGV[0];
 print "USERNAME:$USERNAME\n";
 if (not defined $USERNAME) { die(); }
 
@@ -17,11 +17,11 @@ foreach my $PRT ( @{&ZWEBSITE::list_partitions($USERNAME,'output'=>'prtonly')}) 
 
 	my ($udbh) = &DBINFO::db_user_connect($USERNAME);
 	my ($MID) = &ZOOVY::resolve_mid($USERNAME);
-	my $pstmt = "select MSGFROM from SITE_EMAILS where MID=$MID and MSGID='ORDER.CONFIRM'";
+	my $pstmt = "select MSGFROM from SITE_EMAILS where MID=$MID and MSGID='ORDER.CONFIRM' and PRT=$PRT";
 	my ($FROM) = $udbh->selectrow_array($pstmt);
 
 	if ($FROM eq '') {
-		my $pstmt = "select MSGFROM from SITE_EMAILS where MID=$MID and MSGID='OCREATE'";
+		my $pstmt = "select MSGFROM from SITE_EMAILS where MID=$MID and MSGID='OCREATE' and PRT=$PRT";
 		($FROM) = $udbh->selectrow_array($pstmt);
 		}
 
