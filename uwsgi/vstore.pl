@@ -58,20 +58,14 @@ my $app = sub {
 
 	my $HEADERS = HTTP::Headers->new;
 	my $req = Plack::Request->new($env);
-	my $path = $req->path_info;
-
-	## strip leading /s=www.domain.com/	
-	$path =~ s/\/s\=[a-z0-9\.\-]+\//\//;
-	## strip trailing /c=www.domain.com
-	$path =~ s/\/c\=[a-z0-9A-Z]+\//\//;
 
 	my $BODY = undef;
 	my $HTTP_RESPONSE = undef;
+
 	$SITE::v       = {}; ## Implicitly lowercase keyed hash of passed GET/POST vars with scalar value (UNTAINTED)
 	$SITE::v_mixed = {}; ## ACtual case keyed hash of passed GET/POST vars with scalar values			  (TAINTED)
 
 	$HEADERS->push_header( 'X-Powered-By' => 'ZOOVY/v.'.&ZOOVY::servername() );
-	## print STDERR "METHOD: ".$req->method()." -- $path\n";
 	
 	if (defined $HTTP_RESPONSE) {
 		## we're already done! (probably an error)
@@ -103,7 +97,7 @@ my $app = sub {
 			$HEADERS->push_header( 'Content-Length' => 0 );
 			$HEADERS->push_header( 'Content-type' => 'text/plain' );
 			print STDERR Dumper($HEADERS);
-			my $res = Plack::Response->new($HTTP_RESPONSE,$HEADERS,$BODY);
+			my $res = Plack::Response->new($HTTP_RESPONSE,$HEADERS,"");
 			## short circuit!
 			return($res->finalize);
 			}
@@ -120,6 +114,10 @@ my $app = sub {
 	my ($HOSTDOMAIN) =  $URI->host();
 
 	## COPY ENVIRONMENT VARIABLES (TO EMULATE OLD APACHE BEHAVIOR)
+   delete $ENV{'HTTP_REFERER'};     ## WE *MUST* NUKE THIS OR ELSE IT CAN BLEED OVER (BECAUSE ITS NOT ALWAYS SET)
+   delete $ENV{'REQUEST_URI'};
+	delete $ENV{'HTTP_COOKIE'};
+
 	my $psgienv = $req->env();
 	foreach my $k (keys %{$psgienv}) { 
 		if ($k eq uc($k)) { 
@@ -168,6 +166,7 @@ my $app = sub {
 		
 		if (scalar(keys %{$v})==0) {
 			if ($req->raw_body()) {
+				## might be a good type to check the content type, or at least structure!
 				$v = JSON::XS::decode_json($req->raw_body());
 				}
 			}
@@ -191,7 +190,7 @@ my $app = sub {
 		my $PATH_INFO = $req->path_info();
 	
 		## PHASE1: some initialization stuff
-		my $IP = $ENV{'REMOTE_ADDR'};
+		my $IP = $req->address();
 		if (defined $DESIGNATION) {
 			}
 		elsif ($PATH_INFO =~ /\.([Jj][Ss]|[Gg][Ii][Ff]|[Pp][Nn][Gg]|[Cc][Ss][Ss]|[Ii][Cc][Oo]|[Jj][Pp][Gg])$/) {
@@ -429,34 +428,6 @@ my $app = sub {
 	##		$SREF{'+sdomain'} is set to the working domain (we'll pretend we're on)
 	##
 
-
-	## VALID SERVERS: secure.domain.com, m.domain.com, i.domain.com, www.domain.com
-	#$SREF{'+sdomain'} =~ s/^(www)\.//o;		# the reporting "specialty" domain strip the leading www. from any domain name
-	#if ($SREF{'+sdomain'} =~ /^m\./o) {  $SREF{'+is_mobile_domain'} |= 1; }		# mobile site.
-	#if ($SREF{'+sdomain'} =~ /^i\./o) {	$SREF{'+is_pad_domain'} |= 1; }		# ipad site.
-
-	$HEADERS->push_header("X-XSS-Protection","0");
-	$HEADERS->push_header("Access-Control-Allow-Origin","*");
-	$HEADERS->push_header("Access-Control-Allow-Methods","POST, GET, HEAD, OPTIONS, PROPFIND, COPY, DELETE, GET, MKCOL, PUT");
-	$HEADERS->push_header("Access-Control-Max-Age","1000");
-	$HEADERS->push_header("Access-Control-Allow-Headers","Content-Type");
-	# $HEADERS->push_header("Access-Control-Allow-Headers","*"); ## NOTE: does not work.
-	$HEADERS->push_header("Vary","Accept-Encoding");
-
-	
-	if ($req->method() eq 'OPTIONS')  {
-		## always return OPTIONS response for nagios
-		# print STDERR "Sending JQUERY OPTIONS\n";
-		$HEADERS->push_header("Content-Length","0");
-		$HEADERS->push_header("Keep-Alive","timeout=2, max=100");
-	 	$HEADERS->push_header("Connection","Keep-Alive");
-      $HTTP_RESPONSE = 200;
-		my $res = Plack::Response->new($HTTP_RESPONSE,$HEADERS,$BODY);
-		## short circuit!
-		return($res->finalize);
- 		}
-
-
 	## okay, so now we look in the url for a real sdomain, if we find one, we'll serve that.
 	if (ref($SITE) ne 'SITE') {
 		$SITE::HANDLER = [ 'ISE', { 'ERROR'=>"NON-SITE OBJECT AT TRANSHANDLER" } ];
@@ -485,9 +456,6 @@ my $app = sub {
 	## AT THIS POINT $SITE IS guaranteed to be set, and iether _iz_broked or other properties (via DNSINFO) are set
 	## 
 
-
-
-	## print STDERR "REMOTE_ADDR2: $ENV{'REMOTE_ADDR'}\n";
 	if (defined $HTTP_RESPONSE) {
 		}
 	elsif (defined $SITE::HANDLER) {
@@ -855,27 +823,9 @@ sub legacyResponseHandler {
 	$SITE::HAVE_GLOBAL_DB_HANDLE = 0;
 	$SITE::memd = undef;
 	$SITE::REDIRECT_URL = undef;
-#	@SITE::SANDBOX_ELEMENTS = ();
-#	@SITE::SANDBOX_SEARCHDEBUG = ();
-
-	##############################################################################
-	# readonly globals
-	#	 FLOW::PRICE is used to override the price in a product listing (it is checked for in the readonly element type)
-	#
-	# shopping cart globals
-	#	 FLOW::CARTSHIPPER is the shipping method used in the cart
-	#	 FLOW::CARTSHIPPING is the cost for shipping
-
-
-
-
-	########################################
-	## OPEN UP PERSISTENTLY-OPEN DB CONNECTION IF REQUESTED
-
-	## if ((defined $r) && ($r->method() eq 'HEAD')) {};		## TODO: add support for HEAD
 	$SITE::SREF = $SITE;	## OLD GLOBAL VARIABLE
-	my $BODY = '';
 
+	my $BODY = '';
 	if (ref($SITE::SREF) ne 'SITE') {
 		die("r->pnotes *SITE must be a reference to a SITE object");
 		}

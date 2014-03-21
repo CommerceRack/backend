@@ -521,7 +521,7 @@ sub filehandler {
 	if (not $ok) {}
 	elsif ((
 			($self->{'_FORMAT'} eq 'LAYOUT') || 
-			($self->{'_FORMAT'} eq 'WRAPPER') || 
+			($self->{'_FORMAT'} eq 'WRAPPER') 
 			) && (($ACTION eq 'NUKE') || ($ACTION eq 'SAVE'))) {
 		############################################
 		## WRAPPERS
