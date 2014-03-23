@@ -318,8 +318,7 @@ sub handle_bind {
 	
 	## print 'BIND: '.Dumper($command)."\n";
 	## step1: resolve the 'Src'
-
-	print Dumper($command);
+	## print Dumper($command);
 
 	my $src = undef;
 	my $result = undef;
@@ -789,10 +788,10 @@ sub core_format {
 			}
 		elsif ($arg->{'type'} eq 'longopt') {
 			if ($arg->{'key'} eq 'prepend') {
-				$result = $self->lookup_value($arg->{value}) . $result;
+				$result = sprintf("%s%s",$self->lookup_value($arg->{value}),$result);
 				}
 			elsif ($arg->{'key'} eq 'append') {
-				$result = $result . $self->lookup_value($arg->{value});
+				$result = sprintf("%s%s",$result,$self->lookup_value($arg->{value}));
 				}
 			elsif ($arg->{'key'} eq 'text') {
 				$result = $self->lookup_value($arg->{value}) ;
