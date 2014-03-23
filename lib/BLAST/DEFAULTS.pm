@@ -36,8 +36,23 @@ package BLAST::DEFAULTS;
 	'%LINKSTYLE%'=> q|<span data-tlc="bind $var '.%PRT.LINKSTYLE'; apply --append;"></span>|,
 
 	'%LINKDOMAIN%'=> q|<span data-tlc="bind $var '.%PRT.DOMAIN'; format --prepend='http://'; apply --attrib='href'; apply --append;"></span>|,
-	'%LINKPHONE%'=> q|<span data-tlc="bind $var '.%PRT.PHONE'; format --prepend='callto://'; apply --attrib='href'; apply --append;"></span>|,
-	'%LINKEMAIL%'=> q|<span data-tlc="bind $var '.%PRT.EMAIL'; format --prepend='mailto://'; apply --attrib='href'; apply --append;"></span>|,
+	'%LINKPHONE%'=> q|<span data-tlc="
+bind $var '.%PRT.PHONE'; 
+if (is $var --notblank) {{
+	format --prepend='callto://'; 
+	apply --attrib='href'; 
+	apply --append;
+	}};
+	">
+</span>|,
+	'%LINKEMAIL%'=> q|<span data-tlc="
+bind $var '.%PRT.EMAIL'; 
+if (is $var --notblank) {{
+	format --prepend='mailto://'; 
+	apply --attrib='href'; 
+	apply --append;
+	}};
+"></span>|,
 
 	'%HEADER%'=>q|
 <head>

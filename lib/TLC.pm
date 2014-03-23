@@ -658,6 +658,7 @@ sub core_is {
 		elsif (($arg->{'key'} eq 'notblank') || ($arg->{'key'} eq 'blank')) {
 			$val2 = $val;
 			if (defined $arg->{'value'}) { $val2 = $self->lookup_value($arg->{'value'}); }
+			if (not defined $val2) { $val2 = ''; }
 			$result = ($val2 ne '');
 			if ($arg->{'key'} eq 'blank') { $result = (! $result); }
 			}
@@ -670,6 +671,7 @@ sub core_is {
 		elsif (($arg->{'key'} eq 'eq') || ($arg->{'key'} eq 'ne')) {
 			if (defined $arg->{'value'}) { $val2 = $self->lookup_value($arg->{'value'}); }
 			## print STDERR "BAD_MATH: /$arg->{'key'}/ $val < $val2\n";
+			if (not defined $val2) { $val2 = ''; }
 			$result = ($val eq $val2);
 			if ($arg->{'key'} eq 'ne') { $result = (! $result); }
 			}
