@@ -70,8 +70,14 @@ sub new {
 	$self->{'%META'} = \%meta;
 	bless $self, 'BLAST';
 
+
 	my ($webdb) = &ZWEBSITE::fetch_website_dbref($self->username(),$self->prt());
 	if ($webdb->{'%BLAST'}) { $self->{'%META'}->{'%PRT'} = $webdb->{'%BLAST'}; }
+	if (not defined $self->{'%META'}->{'%PRT'}) { $self->{'%META'}->{'%PRT'} = {}; }
+	if (not defined $self->{'%META'}->{'%PRT'}->{'EMAIL'}) { 
+		$self->{'%META'}->{'%PRT'}->{'EMAIL'} = $webdb->{'from_email'}; 
+		}
+
 	$self->{'%META'}->{'%ENV'} = \%ENV;	## ex: %ENV.REMOTE_ADDR 
 	
 	return($self);
@@ -95,6 +101,8 @@ sub send {
 		foreach my $k (keys %{$msg->meta()}) { $data{$k} = $msg->meta()->{$k}; }
 		foreach my $k (keys %{$recipient->meta()}) { $data{$k} = $recipient->meta()->{$k}; }
 		foreach my $k (keys %{$self->meta()}) { $data{$k} = $self->meta()->{$k}; }
+
+		
 
 		## now attempt to serialize any blessed objects
 		foreach my $k (keys %data) {

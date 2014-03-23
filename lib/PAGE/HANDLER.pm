@@ -301,7 +301,7 @@ sub subscribe_handler {
 		my ($msgid) = $SITE::v->{'msgid'};
 		if ((not defined $msgid) || ($msgid eq '')) {
 			## default to the SUBSCRIBE message
-			$msgid = 'ACCOUNT.SUBSCRIBE';
+			$msgid = 'CUSTOMER.SUBSCRIBE';
 			}
 
 		#require SITE::EMAILS;

@@ -615,7 +615,7 @@ sub fetch_website_dbref {
 
 		if (not defined $WEBDBREF) {
 			my ($dev,$ino,$mode,$nlink,$uid,$gid,$rdev,$size,$atime,$mtime,$ctime,$blksize,$blocks) = stat($cachefile);
-			if ($ctime >= $jsonts) {
+			if ($ctime > $jsonts) {
 				$ZWEBSITE::CACHE{ "$USERNAME.$PRT.$jsonts" } = $WEBDBREF = Storable::retrieve($cachefile);
 				}
 			else {
@@ -681,8 +681,8 @@ sub fetch_website_dbref {
 		$WEBDBREF = JSON::XS::decode_json($json);
 
 		Storable::nstore $WEBDBREF, $cachefile;
-		if (-f $cachefile) {
-			my ($dev,$ino,$mode,$nlink,$uid,$gid,$rdev,$size,$atime,$mtime,$ctime,$blksize,$blocks) = stat($cachefile);
+		if (-f $file) {
+			my ($dev,$ino,$mode,$nlink,$uid,$gid,$rdev,$size,$atime,$mtime,$ctime,$blksize,$blocks) = stat($file);
 			$memd->set($MEMCACHE_KEY,$ctime);
 			}
 		}

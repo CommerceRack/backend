@@ -214,8 +214,10 @@ sub pAGE {
 		}
 	elsif ($self->pid() ne '') {	
 		my ($PROD) = PRODUCT->new($self->username(),$self->pid());
-		my %PRODREF = %{$PROD->prodref()};
-		($P) = $self->{'%PAGES'}->{$PATH} = PAGE->new($self->username(),$PATH,'DATAREF'=>\%PRODREF);
+		if ((defined $PROD) && (ref($PROD) eq 'PRODUCT')) {
+			my %PRODREF = %{$PROD->prodref()};
+			($P) = $self->{'%PAGES'}->{$PATH} = PAGE->new($self->username(),$PATH,'DATAREF'=>\%PRODREF);
+			}
 		}
 	else {
 		$P = $self->{'%PAGES'}->{$PATH} = PAGE->new($self->username(),$PATH,'DOMAIN'=>$self->domain_only(),'PRT'=>$self->prt());
@@ -1362,9 +1364,6 @@ sub bad_bot {
 
 ########################################
 ## HTTP COOKIES
-
-
-sub generate_js_cookies_script { my ($self) = @_;  return($self->{'__JSCOOKIES__'});  }
 
 
 

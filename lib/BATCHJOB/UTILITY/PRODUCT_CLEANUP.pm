@@ -1,4 +1,4 @@
-package UTILITY::PRODUCT_CLEANUP;
+package BATCHJOB::UTILITY::PRODUCT_CLEANUP;
 
 use strict;
 use lib "/backend/lib";

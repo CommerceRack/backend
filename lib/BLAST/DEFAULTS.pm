@@ -18,26 +18,26 @@ package BLAST::DEFAULTS;
 #	[ 'PRODUCT', '%SENDER_BODY%', 'The body that was supplied by the user (cgi variable sender_body)' ],
 
 
-	'%PRODUCT_VIEWLINK%'=> q|<span data-tlc="bind '.%PRODUCT.ADDLINK'; apply --append;"></span>|,
-	'%PRODUCT_ADDLINK%'=> q|<span data-tlc="bind '.%PRODUCT.ADDLINK'; apply --append;"></span>|,
-	'%PRODUCT_PRICE%'=> q|<span data-tlc="bind '.%PRODUCT.PRICE'; apply --append;"></span>|,
-	'%PRODUCT_IMAGE%'=> q|<span data-tlc="bind '.%PRODUCT.IMAGE'; apply --append;"></span>|,
-	'%PRODUCT_ID%'=> q|<span data-tlc="bind '.%PRODUCT.PID'; apply --append;"></span>|,
-	'%PRODUCT_TITLE%'=> q|<span data-tlc="bind '.%PRODUCT.TITLE'; apply --append;"></span>|,
+	'%PRODUCT_VIEWLINK%'=> q|<span data-tlc="bind $var '.%PRODUCT.ADDLINK'; apply --append;"></span>|,
+	'%PRODUCT_ADDLINK%'=> q|<span data-tlc="bind $var '.%PRODUCT.ADDLINK'; apply --append;"></span>|,
+	'%PRODUCT_PRICE%'=> q|<span data-tlc="bind $var '.%PRODUCT.PRICE'; apply --append;"></span>|,
+	'%PRODUCT_IMAGE%'=> q|<span data-tlc="bind $var '.%PRODUCT.IMAGE'; apply --append;"></span>|,
+	'%PRODUCT_ID%'=> q|<span data-tlc="bind $var '.%PRODUCT.PID'; apply --append;"></span>|,
+	'%PRODUCT_TITLE%'=> q|<span data-tlc="bind $var '.%PRODUCT.TITLE'; apply --append;"></span>|,
 
-	'%TKTURL%'=> q|<span data-tlc="bind '.%TICKET.URL'; apply --append;"></span>|,
-	'%TKTSUBJECT%'=> q|<span data-tlc="bind '.%TICKET.SUBJECT'; apply --append;"></span>|,
-	'%TKTCODE%'=> q|<span data-tlc="bind '.%TICKET.CODE'; apply --append;"></span>|,
+	'%TKTURL%'=> q|<span data-tlc="bind $var '.%TICKET.URL'; apply --append;"></span>|,
+	'%TKTSUBJECT%'=> q|<span data-tlc="bind $var '.%TICKET.SUBJECT'; apply --append;"></span>|,
+	'%TKTCODE%'=> q|<span data-tlc="bind $var '.%TICKET.CODE'; apply --append;"></span>|,
 	
-	'%PHONE%'=> q|<span data-tlc="bind '.%PRT.PHONE'; apply --append;"></span>|,
-	'%DOMAIN%'=> q|<span data-tlc="bind '.%PRT.DOMAIN'; apply --append;"></span>|,
-	'%MAILADDR%'=> q|<span data-tlc="bind '.%PRT.MAILADDR'; apply --append;"></span>|,
-	'%EMAIL%'=> q|<span data-tlc="bind '.%PRT.EMAIL'; apply --append;"></span>|,
-	'%LINKSTYLE%'=> q|<span data-tlc="bind '.%PRT.LINKSTYLE'; apply --append;"></span>|,
+	'%PHONE%'=> q|<span data-tlc="bind $var '.%PRT.PHONE'; apply --append;"></span>|,
+	'%DOMAIN%'=> q|<span data-tlc="bind $var '.%PRT.DOMAIN'; apply --append;"></span>|,
+	'%MAILADDR%'=> q|<span data-tlc="bind $var '.%PRT.MAILADDR'; apply --append;"></span>|,
+	'%HELPEMAIL%'=> q|<span data-tlc="bind $var '.%PRT.EMAIL'; apply --append;"></span>|,
+	'%LINKSTYLE%'=> q|<span data-tlc="bind $var '.%PRT.LINKSTYLE'; apply --append;"></span>|,
 
-	'%LINKDOMAIN%'=> q|<span data-tlc="bind '.%PRT.DOMAIN'; format --prepend='http://'; apply --attrib='href'; apply --append;"></span>|,
-	'%LINKPHONE%'=> q|<span data-tlc="bind '.%PRT.PHONE'; format --prepend='callto://'; apply --attrib='href'; apply --append;"></span>|,
-	'%LINKEMAIL%'=> q|<span data-tlc="bind '.%PRT.EMAIL'; format --prepend='mailto://'; apply --attrib='href'; apply --append;"></span>|,
+	'%LINKDOMAIN%'=> q|<span data-tlc="bind $var '.%PRT.DOMAIN'; format --prepend='http://'; apply --attrib='href'; apply --append;"></span>|,
+	'%LINKPHONE%'=> q|<span data-tlc="bind $var '.%PRT.PHONE'; format --prepend='callto://'; apply --attrib='href'; apply --append;"></span>|,
+	'%LINKEMAIL%'=> q|<span data-tlc="bind $var '.%PRT.EMAIL'; format --prepend='mailto://'; apply --attrib='href'; apply --append;"></span>|,
 
 	'%HEADER%'=>q|
 <head>
@@ -742,7 +742,13 @@ bind $var '.notes'; apply --append;
 </template>
 |,	
 	#[ 'ORDER',
-	'%ORDERDATE%'=> q|<div data-tlc="bind $var '.%ORDER.%our.order_ts'; datetime --gmt=$var --out='pretty'; apply --append;"></div>|,
+	'%ORDERDATE%'=> q|<div data-tlc="
+bind $var '.%ORDER.%our.order_ts'; 
+if (is $var --gt=0) {{ 
+	datetime --gmt=$var --out='pretty'; 
+	apply --append;
+	}};
+"></div>|,
 	'%TODAY%'=> q|<div data-tlc="datetime --now --out='ymd'; apply --append;"></div>|,
 	'%FULLNAME%'=> q|
 <span id="fullname">
@@ -758,25 +764,25 @@ bind $var '.notes'; apply --append;
 "></span>
 </span>
 |,
-##	[ 'ACCOUNT',
+##	[ 'CUSTOMER',
 	'%FIRSTNAME%'=> q|
 	<span id="firstname" data-tlc="
  bind $var '.%CUSTOMER.INFO.FIRSTNAME'; 
  if (is $var --blank) {{ bind $var '.%ORDER.%bill.firstname'; }};
  apply --replace;"></span>|,
-##	[ 'ACCOUNT',
+##	[ 'CUSTOMER',
 	'%LASTNAME%'=> q|<span id="lastname" data-tlc="
   bind $var '.%CUSTOMER.INFO.LASTNAME'; 
  if (is $var --blank) {{ bind $var '.%ORDER.%bill.lastname'; }};
   apply --replace;
   "></span>|,
-##	[ 'ACCOUNT',
-##	[ 'ACCOUNT',
+##	[ 'CUSTOMER',
+##	[ 'CUSTOMER',
 	'%REWARD_BALANCE%'=> q|<span data-tlc="bind $var '.%CUSTOMER.INFO.REWARD_BALANCE'; apply --replace;"></span>|,
-##	[ 'ACCOUNT',
+##	[ 'CUSTOMER',
 	'%CUSTOMER_USERNAME%'=> q|<span data-tlc="bind $var '.%CUSTOMER.INFO.EMAIL'; apply --replace;"></span>|,
 	'%CUSTOMER_INITPASS%'=> q|<span data-tlc="bind $var '.%CUSTOMER.INFO.PASSWORD'; apply --replace;"></span>|,
-	'%CUSTOMER_UNSUBSCRIBE%' => q|<span data-tlc="bind '.%PRT.DOMAIN'; format --prepend='http://'; apply --attrib='href'; apply --append;"></span>|,
+	'%CUSTOMER_UNSUBSCRIBE%' => q|<span data-tlc="bind $var '.%PRT.DOMAIN'; format --prepend='http://'; apply --attrib='href'; apply --append;"></span>|,
 	'%REMOTEIPADDRESS%'=> q|<span data-tlc="bind $ip '.%ENV.REMOTE_ADDR'; format --default='unknown'; apply --replace;"></span>|,
 ##	[ 'CUSTOMER',
 	'%ADDITIONAL_TEXT%'=> q||,
@@ -1319,7 +1325,7 @@ Customer support is very important to us. If you have any questions or comments,
 ~,		
 		},
 	'CUSTOMER.GIFTCARD.REMINDER'=>{	# AGIFT_RTRY
-		MSGOBJECT=>'ACCOUNT',
+		MSGOBJECT=>'CUSTOMER',
 		MSGFORMAT=>'HTML',
 		MSGTITLE=>q~Customer GiftCard Reminder~,
 		MSGSUBJECT=>q~gift card reminder~,
@@ -1339,7 +1345,7 @@ to you:
 ~,
 		},
 	'CUSTOMER.GIFTCARD.RECEIVED'=>{	# AGIFT_NEW
-		MSGOBJECT=>'ACCOUNT',
+		MSGOBJECT=>'CUSTOMER',
 		MSGFORMAT=>'HTML',
 		MSGTITLE=>q~Customer New GiftCard Notification~,
 		MSGSUBJECT=>q~gift card notification~,
@@ -1368,7 +1374,7 @@ password.
 ~,
 		},
 	'CUSTOMER.SIGNUP'=>{		# ASIGNUP
-		MSGOBJECT=>'ACCOUNT',
+		MSGOBJECT=>'CUSTOMER',
 		MSGFORMAT=>'HTML',
 		MSGTITLE=>q~Customer Account Signup~,
 		MSGSUBJECT=>q~Account Information~,
@@ -1384,7 +1390,7 @@ If you wish to unsubscribe from our newsletter please visit
 ~,
 		},
 	'CUSTOMER.CREATED'=>{ 	# ACREATE
-		MSGOBJECT=>'ACCOUNT',
+		MSGOBJECT=>'CUSTOMER',
 		MSGFORMAT=>'HTML',
 		MSGTITLE=>q~Customer Account Created~,
 		MSGSUBJECT=>q~Account information~,
@@ -1407,7 +1413,7 @@ We can also be reached through our website.
 ~,		
 		},
 	'CUSTOMER.PASSWORD.REQUEST'=>{  # PREQUEST
-		MSGOBJECT=>'ACCOUNT',
+		MSGOBJECT=>'CUSTOMER',
 		MSGFORMAT=>'HTML',
 		MSGTITLE=>q~Password Request~,
 		MSGSUBJECT=>q~Account information~,
@@ -1488,8 +1494,8 @@ To manage or update this ticket please use the URL below:
 %FOOTER%
 		~,
 		},
-	'ACCOUNT.SUBSCRIBE'=>{
-		MSGOBJECT=>'ACCOUNT',
+	'CUSTOMER.SUBSCRIBE'=>{
+		MSGOBJECT=>'CUSTOMER',
 		MSGFORMAT=>'HTML',
 		MSGTITLE=>q~Newsletter Subscribe~,
 		HINT=>q~<b>This email is sent to a customer to thank them for joining your mailing list:</b><br>~,

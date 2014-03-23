@@ -3957,7 +3957,7 @@ sub render_head {
 			$out .= sprintf("<link rel=\"canonical\" href=\"%s\" />\n",$SITE->canonical_url());
 			}
 
-		$out .= $SITE->generate_js_cookies_script();
+		$out .= $SITE->{'__JSCOOKIES__'};
 		
 		## handles both speciality sites, and anytime we are on a homepage.
 		my $CWPATH = $SITE->servicepath()->[1];
