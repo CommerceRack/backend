@@ -1399,7 +1399,7 @@ sub verb_order_status {
 		my ($BLAST) = BLAST->new($O2->username(),$O2->prt());
 		my ($TLC) = TLC->new('username'=>$O2->username());
 		my $payment_status = $BLAST->macros()->{'%PAYINFO%'} || "%PAYINFO% macro";
-		$payment_status = $TLC->render_html($payment_status, { '%ORDER'=>$O2->TO_JSON() });
+		$payment_status = $TLC->render_html($payment_status, { '%ORDER'=>$O2->jsonify() });
 		push @details, [ "Payment", $payment_status ];
 
 		# push @details, [ "Payment Detail", $O2->explain_payment_status('*SITE'=>$SITE,'format'=>'summary','html'=>1) ];
@@ -1583,7 +1583,7 @@ sub verb_order_status {
 				my ($BLAST) = BLAST->new($O2->username(),$O2->prt());
 				my ($TLC) = TLC->new('username'=>$O2->username());
 				my $payment_status_detail = $BLAST->macros()->{'%PAYINSTRUCTIONS%'} || "%PAYINSTRUCTIONS% macro";
-				$payment_status_detail = $TLC->render_html($payment_status_detail, { '%ORDER'=>$O2->TO_JSON() });
+				$payment_status_detail = $TLC->render_html($payment_status_detail, { '%ORDER'=>$O2->jsonify() });
 				$LINE .= $payment_status_detail;
 				}
 			#elsif (scalar(@{$chainedpayments})>0) {

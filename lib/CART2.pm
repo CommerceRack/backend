@@ -13566,6 +13566,10 @@ sub synced {
 sub TO_JSON {
 	my ($self) = @_;
 
+	## hmm.. this TO_JSON was an old function that is no longer used, well.. at least the format is no longer used
+	return($self->jsonify());
+
+
 	my %O = %{Clone::clone($self)};
 #	Clone::clone($self->item($stid));
 #

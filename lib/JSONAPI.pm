@@ -20980,9 +20980,9 @@ sub cartOrderCreate {
 		my ($BLAST) = BLAST->new($self->username(),$self->prt());
 		my ($TLC) = TLC->new('username'=>$self->username());
 		$R{'payment_status_msg'} = $BLAST->macros()->{'%PAYINFO%'} || "%PAYINFO% macro";
-		$R{'payment_status_msg'} = $TLC->render_html($R{'payment_status_msg'}, { '%ORDER'=>$CART2->TO_JSON() });
+		$R{'payment_status_msg'} = $TLC->render_html($R{'payment_status_msg'}, { '%ORDER'=>$CART2->jsonify() });
 		$R{'payment_status_detail'} = $BLAST->macros()->{'%PAYINSTRUCTIONS%'} || "%PAYINSTRUCTIONS% macro";
-		$R{'payment_status_detail'} = $TLC->render_html($R{'payment_status_detail'}, { '%ORDER'=>$CART2->TO_JSON() });
+		$R{'payment_status_detail'} = $TLC->render_html($R{'payment_status_detail'}, { '%ORDER'=>$CART2->jsonify() });
 		#$R{'payment_status_detail'} = $CART2->explain_payment_status('html'=>1,'format'=>'detail','*SITE'=>$self->_SITE());
 		#$R{'payment_status_msg'} = $CART2->explain_payment_status('html'=>1,'format'=>'summary','*SITE'=>$self->_SITE());
 		}
@@ -21448,9 +21448,9 @@ sub adminOrderCreate {
 	my ($BLAST) = BLAST->new($self->username(),$self->prt());
 	my ($TLC) = TLC->new('username'=>$self->username());
 	$R{'payment_status_msg'} = $BLAST->macros()->{'%PAYINFO%'} || "%PAYINFO% macro";
-	$R{'payment_status_msg'} = $TLC->render_html($R{'payment_status_msg'}, { '%ORDER'=>$CART2->TO_JSON() });
+	$R{'payment_status_msg'} = $TLC->render_html($R{'payment_status_msg'}, { '%ORDER'=>$CART2->jsonify() });
 	$R{'payment_status_detail'} = $BLAST->macros()->{'%PAYINSTRUCTIONS%'} || "%PAYINSTRUCTIONS% macro";
-	$R{'payment_status_detail'} = $TLC->render_html($R{'payment_status_detail'}, { '%ORDER'=>$CART2->TO_JSON() });
+	$R{'payment_status_detail'} = $TLC->render_html($R{'payment_status_detail'}, { '%ORDER'=>$CART2->jsonify() });
 	#$R{'payment_status_detail'} = $CART2->explain_payment_status('html'=>1,'format'=>'detail','*SITE'=>$self->_SITE());
 	#$R{'payment_status_msg'} = $CART2->explain_payment_status('html'=>1,'format'=>'summary','*SITE'=>$self->_SITE());
 
