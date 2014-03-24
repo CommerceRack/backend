@@ -75,13 +75,13 @@ body { font-family: helvetica; }
 </body>
 |,
 
-	'%AMAZON_ORDERID%' => q|<span data-tlc="bind $var '.%ORDER.%mkt.amazon_orderid'; apply --append;"></span>|,
-	'%ORDERID%'=> q|<span data-tlc="bind $var '.%ORDER.%our.orderid'; apply --append;"></span>|,
-	'%CARTID%'=> 	q|<span data-tlc="bind $var '.%ORDER.%cart.cartid'; apply --append;"></span>|,
-	'%EREFID%'=> 	q|<span data-tlc="bind $var '.%ORDER.%want.erefid'; apply --append;"></span>|,
-	'%BILLEMAIL%'=> 	q|<span data-tlc="bind $var '.%ORDER.%bill.email'; apply --append;"></span>|,
+	'%AMAZON_ORDERID%' => q|<span data-tlc="bind $var '.%ORDER.mkt.amazon_orderid'; apply --append;"></span>|,
+	'%ORDERID%'=> q|<span data-tlc="bind $var '.%ORDER.our.orderid'; apply --append;"></span>|,
+	'%CARTID%'=> 	q|<span data-tlc="bind $var '.%ORDER.cart.cartid'; apply --append;"></span>|,
+	'%EREFID%'=> 	q|<span data-tlc="bind $var '.%ORDER.want.erefid'; apply --append;"></span>|,
+	'%BILLEMAIL%'=> 	q|<span data-tlc="bind $var '.%ORDER.bill.email'; apply --append;"></span>|,
 	'%LINKORDER%'=> q|<a href="#" data-tlc="
-bind $orderid '.%ORDER.%our.orderid'; bind $softauth '.%ORDER.%cart.cartid'; bind $domain '.%PRT.DOMAIN'; set $link '';
+bind $orderid '.%ORDER.our.orderid'; bind $softauth '.%ORDER.cart.cartid'; bind $domain '.%PRT.DOMAIN'; set $link '';
 format $link --append='http://' --append=$domain --append='?#verb=orderview&order=' --append=$orderid --append='&softauth=' --append=$softauth;
 apply --attrib='href'; apply --append;"></a>
 |,
@@ -151,38 +151,38 @@ apply --img --media=$var --width=75 --height=75 --bgcolor='#ffffff' --replace;" 
 
 	'%SHIPADDR%'=> q|
  <div class="addressFullname">
-  <span data-tlc="bind $var '.%ORDER.%ship.firstname'; if (is $var --notblank) {{apply --append;}};" title="first name"></span>
-  <span data-tlc="bind $var '.%ORDER.%ship.lastname'; if (is $var --notblank) {{apply --append;}};" title="last name"></span>
+  <span data-tlc="bind $var '.%ORDER.ship.firstname'; if (is $var --notblank) {{apply --append;}};" title="first name"></span>
+  <span data-tlc="bind $var '.%ORDER.ship.lastname'; if (is $var --notblank) {{apply --append;}};" title="last name"></span>
  </div>
  <div class="address">
-  <div data-tlc="bind $var '.%ORDER.%ship.address1'; if (is $var --notblank) {{apply --append;}};" title="address"></div>
-  <div data-tlc="bind $var '.%ORDER.%ship.address2'; if (is $var --notblank) {{apply --append;}};" title="address 2"></div>
-  <span data-tlc="bind $var '.%ORDER.%ship.city'; if (is $var --notblank) {{apply --append;}};" title="city"></span>,
-  <span data-tlc="bind $var '.%ORDER.%ship.region'; if (is $var --notblank) {{apply --append;}};" title="state"></span>.
-  <span data-tlc="bind $var '.%ORDER.%ship.postal'; if (is $var --notblank) {{apply --append;}};" title="zip"></span>
-  <div data-tlc="bind $var '.%ORDER.%ship.countrycode'; if (is $var --notblank) {{apply --append;}};" title="country"></div>
+  <div data-tlc="bind $var '.%ORDER.ship.address1'; if (is $var --notblank) {{apply --append;}};" title="address"></div>
+  <div data-tlc="bind $var '.%ORDER.ship.address2'; if (is $var --notblank) {{apply --append;}};" title="address 2"></div>
+  <span data-tlc="bind $var '.%ORDER.ship.city'; if (is $var --notblank) {{apply --append;}};" title="city"></span>,
+  <span data-tlc="bind $var '.%ORDER.ship.region'; if (is $var --notblank) {{apply --append;}};" title="state"></span>.
+  <span data-tlc="bind $var '.%ORDER.ship.postal'; if (is $var --notblank) {{apply --append;}};" title="zip"></span>
+  <div data-tlc="bind $var '.%ORDER.ship.countrycode'; if (is $var --notblank) {{apply --append;}};" title="country"></div>
  </div>
 |,
 
 	'%BILLADDR%'=> q|
  <div class="addressFullname">
-  <span data-tlc="bind $var '.%ORDER.%bill.firstname'; if (is $var --notblank) {{apply --append;}};" title="first name"></span>
-  <span data-tlc="bind $var '.%ORDER.%bill.lastname'; if (is $var --notblank) {{apply --append;}};" title="last name"></span>
+  <span data-tlc="bind $var '.%ORDER.bill.firstname'; if (is $var --notblank) {{apply --append;}};" title="first name"></span>
+  <span data-tlc="bind $var '.%ORDER.bill.lastname'; if (is $var --notblank) {{apply --append;}};" title="last name"></span>
  </div>
  <div class="address">
-  <div data-tlc="bind $var '.%ORDER.%bill.address1'; if (is $var --notblank) {{apply --append;}};" title="address"></div>
-  <div data-tlc="bind $var '.%ORDER.%bill.address2'; if (is $var --notblank) {{apply --append;}};" title="address 2"></div>
-  <span data-tlc="bind $var '.%ORDER.%bill.city'; if (is $var --notblank) {{apply --append;}};" title="city"></span>,
-  <span data-tlc="bind $var '.%ORDER.%bill.region'; if (is $var --notblank) {{apply --append;}};" title="state"></span>.
-  <span data-tlc="bind $var '.%ORDER.%bill.postal'; if (is $var --notblank) {{apply --append;}};" title="zip"></span>
-  <div data-tlc="bind $var '.%ORDER.%bill.countrycode'; if (is $var --notblank) {{apply --append;}};" title="country">
+  <div data-tlc="bind $var '.%ORDER.bill.address1'; if (is $var --notblank) {{apply --append;}};" title="address"></div>
+  <div data-tlc="bind $var '.%ORDER.bill.address2'; if (is $var --notblank) {{apply --append;}};" title="address 2"></div>
+  <span data-tlc="bind $var '.%ORDER.bill.city'; if (is $var --notblank) {{apply --append;}};" title="city"></span>,
+  <span data-tlc="bind $var '.%ORDER.bill.region'; if (is $var --notblank) {{apply --append;}};" title="state"></span>.
+  <span data-tlc="bind $var '.%ORDER.bill.postal'; if (is $var --notblank) {{apply --append;}};" title="zip"></span>
+  <div data-tlc="bind $var '.%ORDER.bill.countrycode'; if (is $var --notblank) {{apply --append;}};" title="country">
   </div>
-  <div data-tlc="bind $var '.%ORDER.%bill.phone'; if (is $var --notblank) {{apply --append;}};" title="phone">
+  <div data-tlc="bind $var '.%ORDER.bill.phone'; if (is $var --notblank) {{apply --append;}};" title="phone">
   </div>
  </div>
 |,
 
-	'%SHIPMETHOD%'=> q|<div data-tlc="bind $var '.%ORDER.%sum.shp_method'; apply --append;"></div>|,
+	'%SHIPMETHOD%'=> q|<div data-tlc="bind $var '.%ORDER.sum.shp_method'; apply --append;"></div>|,
 
 	'%PAYINFO%'=> q|
 
@@ -223,7 +223,7 @@ foreach $payment in $payments {{
 
 /* no payments .. default to payment_method in order */
 if (is $info --blank) {{ 
-	bind $info '.%ORDER.%flow.payment_method';
+	bind $info '.%ORDER.flow.payment_method';
 	apply --append;
 	}};
 
@@ -231,15 +231,15 @@ set $info '';
 format $info --crlf;
 apply --append=$info;
 
-bind $ps '.%ORDER.%flow.payment_status';
+bind $ps '.%ORDER.flow.payment_status';
 format $ps --truncate=1;
 if (is $ps --eq='0') {{ set $info 'Paid in Full'; }};
 if (is $ps --eq='1') {{ set $info '(Pending)'; }};
 if (is $ps --eq='2') {{ set $info '(Denied)'; }};
 if (is $ps --eq='3') {{ set $info '(Cancelled)'; }};
 if (is $ps --eq='4') {{ set $info '(Paid/Review)'; }};
-if (is $ps --eq='9') {{ bind $ps '.%ORDER.%flow.payment_status'; format $info --append='(Error:' --append=$ps --append=')'; }};
-if (is $info --blank) {{ bind $ps '.%ORDER.%flow.payment_status'; format $info --append='(Unknown:' --append=$ps --append=')'; }};
+if (is $ps --eq='9') {{ bind $ps '.%ORDER.flow.payment_status'; format $info --append='(Error:' --append=$ps --append=')'; }};
+if (is $info --blank) {{ bind $ps '.%ORDER.flow.payment_status'; format $info --append='(Unknown:' --append=$ps --append=')'; }};
 
 /* apply --append='payment status: ' --append=$ps; */
 apply --append=$info;
@@ -291,11 +291,11 @@ if ( is $paymentscount --gt=1 ) {{
 	format $summary --crlf --append='[' --append=$paymentscount --append=' Payments Total]';
 	}};
 
-bind $orderid '.%ORDER.%our.orderid';
-bind $grandtotal '.%ORDER.%sum.order_total';
-bind $balancedue '.%ORDER.%sum.balance_due_total';
-bind $customerref '.%ORDER.%want.po_number';
-bind $ps '.%ORDER.%flow.payment_status';
+bind $orderid '.%ORDER.our.orderid';
+bind $grandtotal '.%ORDER.sum.order_total';
+bind $balancedue '.%ORDER.sum.balance_due_total';
+bind $customerref '.%ORDER.want.po_number';
+bind $ps '.%ORDER.flow.payment_status';
 format $ps --truncate=1;
 
 if (is $ps --eq='0') {{ set $info 'Paid in Full'; }};
@@ -303,8 +303,8 @@ if (is $ps --eq='1') {{ set $info '(Pending)'; }};
 if (is $ps --eq='2') {{ set $info '(Denied)'; }};
 if (is $ps --eq='3') {{ set $info '(Cancelled)'; }};
 if (is $ps --eq='4') {{ set $info '(Paid/Review)'; }};
-if (is $ps --eq='9') {{ bind $ps '.%ORDER.%flow.payment_status'; format $info --append='(Error:' --append=$ps --append=')'; }};
-if (is $info --blank) {{ bind $ps '.%ORDER.%flow.payment_status'; format $info --append='(Unknown:' --append=$ps --append=')'; }};
+if (is $ps --eq='9') {{ bind $ps '.%ORDER.flow.payment_status'; format $info --append='(Error:' --append=$ps --append=')'; }};
+if (is $info --blank) {{ bind $ps '.%ORDER.flow.payment_status'; format $info --append='(Unknown:' --append=$ps --append=')'; }};
 
 if ( is $paymentscount --gt=1 ) {{
 	set $success false;
@@ -398,7 +398,7 @@ foreach $payment in $payments {{
 
 
 /* REVIEW STATUS */
-bind $rs '.%ORDER.%flow.review_status';
+bind $rs '.%ORDER.flow.review_status';
 format --truncate=1;		/* keep 'A' instead of 'AOK' */
 set $rstemplateid '';
 if (is $rs --notblank) {{ 
@@ -417,12 +417,12 @@ if (is $rstemplateid --notblank) {{
 
 /* /REVIEW STATUS */
 
-bind $balancedue '.%ORDER.%sum.balance_due_total';
+bind $balancedue '.%ORDER.sum.balance_due_total';
 if (is $balancedue --gt=0) {{
 	transmogrify --templateid='invoice_has_balancedue' --dataset=$dataset;
 	apply --append;
 	}};
-bind $paidate '.%ORDER.%flow.paid_ts';
+bind $paidate '.%ORDER.flow.paid_ts';
 if (is $paiddate --gt=0) {{
 	transmogrify --templateid='invoice_is_paidinfull' --dataset=$dataset;
 	}};
@@ -764,7 +764,7 @@ bind $var '.notes'; apply --append;
 |,	
 	#[ 'ORDER',
 	'%ORDERDATE%'=> q|<div data-tlc="
-bind $var '.%ORDER.%our.order_ts'; 
+bind $var '.%ORDER.our.order_ts'; 
 if (is $var --gt=0) {{ 
 	datetime --gmt=$var --out='pretty'; 
 	apply --append;
@@ -775,12 +775,12 @@ if (is $var --gt=0) {{
 <span id="fullname">
 <span data-tlc="
 	bind $var '.%CUSTOMER.INFO.FIRSTNAME'; 
-	if (is $var --blank) {{ bind $var '.%ORDER.%bill.firstname'; }};
+	if (is $var --blank) {{ bind $var '.%ORDER.bill.firstname'; }};
 	apply --replace;
 "></span>
 <span data-tlc="
 	bind $var '.%CUSTOMER.INFO.LASTNAME';
-	if (is $var --blank) {{ bind $var '.%ORDER.%bill.lastname'; }};
+	if (is $var --blank) {{ bind $var '.%ORDER.bill.lastname'; }};
 	apply --replace;
 "></span>
 </span>
@@ -789,13 +789,13 @@ if (is $var --gt=0) {{
 	'%FIRSTNAME%'=> q|
 	<span id="firstname" data-tlc="
  bind $var '.%CUSTOMER.INFO.FIRSTNAME'; 
- if (is $var --blank) {{ bind $var '.%ORDER.%bill.firstname'; }};
+ if (is $var --blank) {{ bind $var '.%ORDER.bill.firstname'; }};
  apply --replace;"></span>|,
 ##	[ 'CUSTOMER',
 	'%LASTNAME%'=> q|<span id="lastname" data-tlc="
 bind $var '.%CUSTOMER.INFO.LASTNAME'; 
 if (is $var --blank) {{ 
-	bind $var '.%ORDER.%bill.lastname'; 
+	bind $var '.%ORDER.bill.lastname'; 
 	apply --replace;
 	}};
   "></span>|,

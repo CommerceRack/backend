@@ -3998,6 +3998,7 @@ sub generate_cart_id {
 	## the next 4 digits this guarantees a cart id is unique within a 10 minute window.
 	$new_cart_id .= &ZTOOLKIT::zeropad(4,substr(	&ZTOOLKIT::base62(time()/600) ,-4));
 	## the next 6 digits contains the remote IP
+	## use ZTOOLKIT; print &ZTOOLKIT::pretty_date(&ZTOOLKIT::unbase62(substr('LpgeLd9c1v3Wk8HLYn55wWOd5',6,4))*600,1);
 
 	if (defined $ENV{'REMOTE_ADDR'}) { 
 		$new_cart_id .= &ZTOOLKIT::zeropad(6,&ZTOOLKIT::base62(&ZTOOLKIT::ip_to_int($ENV{'REMOTE_ADDR'})));
