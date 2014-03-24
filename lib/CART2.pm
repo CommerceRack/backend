@@ -11879,7 +11879,7 @@ sub add_payment {
 		txn=>$options{'txn'},	# external settlement transaction (usually this is what merchants search by)
 		amt=>$amt,					# amount of the transaction
 		note=>$options{'note'},	# a pretty description of the transaction e.g. "Giftcard 1234-xxxx-xxxx-5678"
-		acct=>&ZTOOLKIT::packit($acctref),	# buyer account # e.g. ####-xxxx-xxxx-#### for a credit card 
+		acct=>&ZPAY::packit($acctref),	# buyer account # e.g. ####-xxxx-xxxx-#### for a credit card 
 		voided=>$options{'voided'},	# when the transaction was voided (if it was or 0 if it hasn't been)
 		voidtxn=>sprintf("%d",$options{'voidtxn'}),	# void transaction #
 		puuid=>$options{'puuid'},		# parent txn for chainging (credits should be chained to the parent txn)

@@ -639,6 +639,7 @@ sub fetch_website_dbref {
 		open F, ">$file";		
 		print F JSON::XS->new->allow_nonref->encode($WEBDBREF);
 		close F;
+		chmod 0666, $file;
 		}
 
 
@@ -681,6 +682,7 @@ sub fetch_website_dbref {
 		$WEBDBREF = JSON::XS::decode_json($json);
 
 		Storable::nstore $WEBDBREF, $cachefile;
+		chmod 0666, $cachefile;
 		if (-f $file) {
 			my ($dev,$ino,$mode,$nlink,$uid,$gid,$rdev,$size,$atime,$mtime,$ctime,$blksize,$blocks) = stat($file);
 			$memd->set($MEMCACHE_KEY,$ctime);

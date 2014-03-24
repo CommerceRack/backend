@@ -25873,8 +25873,8 @@ sub adminConfigMacro {
 			} 
 
 
+
 		if (defined $webdb) {
-			print STDERR "WROTE WEBDB\n";
 			&ZWEBSITE::save_website_dbref($USERNAME,$webdb,$self->prt());
 			}
 

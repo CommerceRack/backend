@@ -981,7 +981,6 @@ sub payment_methods {
 			}
 
 		$has_giftcards = $CART2->has_giftcards();
-		#$ordertotal = $CART{'data.order_total'});
 		}
 
 	## we received *C
@@ -992,6 +991,9 @@ sub payment_methods {
 
 	my $webdbref = $options{'webdb'};
 	if (not defined $webdbref) { $webdbref = &ZWEBSITE::fetch_website_dbref($USERNAME, $options{'prt'}); }
+#	open F, ">/tmp/asdf";
+#	use Data::Dumper; print F Dumper(\%options)."\n";
+#	close F;
 
 	#if ($webdbref->{'amzpay_simplepay'}>0) {
 	#	## enable pay_amzpay field if simplepay is turned on.
@@ -1099,11 +1101,7 @@ sub payment_methods {
 			## SSLv2 Countermeasure			
 			if ((not $is_secure) && ($method eq 'CREDIT')) { $IS_ALLOWED = -3; }
 
-			## Don't show regular PAYPAL method when paypalec is enabled.
-			## if (($method eq 'PAYPAL') && ($webdbref->{'pay_paypalec'}>0) && (not defined $options{'admin'})) { $IS_ALLOWED = -4; }
-
 			## Giftcards aren't compatible with ANY form of paypal payment.
-			## if (($method eq 'PAYPAL') && ($has_giftcards)) { $IS_ALLOWED = -5; }
 			if (($method eq 'PAYPALEC') && ($has_giftcards)) { $IS_ALLOWED = -5; }
 
 			## admin (merchants) can't use paypal ec since it's a customer initiated action.
@@ -1112,14 +1110,11 @@ sub payment_methods {
 			## don't show PAYPAL when PAYPALEC was already displayed.
 			if (($method eq 'PAYPAL') && ($ALLOWED_METHODS{'PAYPALEC'})) { 
 				$IS_ALLOWED = -10; 
-			#	print STDERR Dumper(\%ALLOWED_METHODS);
-			#	die();
 				}
 			
 			if ((not defined $IS_ALLOWED) && ($ALLOWED_METHODS{$method})) { $IS_ALLOWED = 128; }
 			## Don't show regular PAYPAL when we've got a giftcard in the cart.
 		
-
 			# This code is based on the assumption that the pay indicator field (such as pay_paypal) uses the same
 			# exact text [in lowercase] as the payment code for that field (i.e.PAYPAL)
 			# look for pay_xxxx where xxx is a payment type.
@@ -1154,8 +1149,6 @@ sub payment_methods {
 				elsif (($webdbref->{$fieldname} & 4)  && $IS_LOW_RISK )                                  
 					{ $IS_ALLOWED = 4; }
 				else { $IS_ALLOWED = 0; }
-
-				# print STDERR "METHOD:$method IS_ALLOWED:$IS_ALLOWED ISO:$ISO FIELD:$fieldname wbdb:$webdbref->{$fieldname}\n";
 				}
 
 			my $fee = 0;
@@ -1170,18 +1163,12 @@ sub payment_methods {
 				my $field = 'pay_'.lc($method).'_fee';
 				$fee = defined($webdbref->{$field}) ? $webdbref->{$field} : 0 ;
 				} 
-			#elsif ($method eq 'PAYPAL') {
-			#	$pretty = 'PayPal - Secure Payments by Credit Card or Checking Account';
-			#	}
 			elsif ($method eq 'PAYPALEC') {
 				$pretty = 'PayPal - Express Checkout',
 				}
 			elsif ($method eq 'AMZSPAY') {
 				$pretty = 'Amazon Payments';
 				}
-	#		elsif ($method eq 'PAYPALEC') {
-	#			$pretty = 'PayPal Express Checkout - Secure Payments by Credit Card or Checking Account';
-	#			}
 			elsif ($method eq 'GIFTCARD') {
 				## eventually we should check for cached flags here!
 				$pretty = 'Giftcard';
@@ -1230,13 +1217,8 @@ sub payment_methods {
 				push @RESULTS, { id=>$method, pretty=>"$pretty", fee=>$fee, is_allowed=>$IS_ALLOWED, allowed_reason=>$ALLOWED_METHODS{$method} };
 				}
 			
-			# print STDERR "METHOD: $method [$IS_ALLOWED]\n";
 			}
     	}
-
-#	open Fq, ">/tmp/payment";
-#	use Data::Dumper; print Fq Dumper(\@RESULTS,\%options);
-#	close Fq;
 
 
 	if ((defined $C) && (ref($C) eq 'CUSTOMER')) {
@@ -1285,8 +1267,6 @@ sub payment_methods {
 			}
 		}
 
-	#use Data::Dumper;
-	#print STDERR Dumper(\@RESULTS);
 
 	$DEBUG && &msg('payment methods fetched');
 	return \@RESULTS;	
