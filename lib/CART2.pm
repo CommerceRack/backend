@@ -6852,6 +6852,7 @@ sub finalize_order {
 				}
 			elsif ($payq->{'TN'} eq 'PO') {
 				($payrec) = $self->add_payment('PO',$payq->{'$$'},%{$payq});
+				$self->in_set('want/po_number',$payq->{'PO'});
 				}
 			elsif ($payq->{'TN'} eq 'ECHECK') {
 				($payrec) = $self->add_payment('ECHECK',$payq->{'$$'});
@@ -11820,6 +11821,7 @@ sub add_payment {
 
 	$amt = &ZOOVY::f2money($amt);
 
+
 	##
 	## valid tenders:
 	##		CASH
@@ -11844,7 +11846,6 @@ sub add_payment {
 	if (not defined $options{'uuid'}) { $options{'uuid'} = $self->next_payment_uuid(); }
 
 	if (not defined $options{'note'}) { $options{'note'} = "$tender Payment"; }
-	if (not defined $options{'acct'}) { $options{'acct'} = ''; }
 	if (not defined $options{'voided'}) { $options{'voided'} = sprintf("%d",0); }
 
 	if (not defined $options{'luser'}) { $options{'luser'} = $options{'LU'}; }
@@ -11858,6 +11859,14 @@ sub add_payment {
 	## puuid is "ptxn" on sync prior xcompat 200
 	if (not defined $options{'puuid'}) { $options{'puuid'} = ''; }	
 
+	my $acctref = &ZPAY::unpackit($options{'acct'} || "");
+	foreach my $key (keys %options) {
+		next unless (length($key) == 2);	# must be two digits
+		next unless (uc($key) eq $key);	# must be upper case
+		next if ($key eq 'CC');	# must NOT be a credit card.
+		$acctref->{$key} = $options{$key};
+		}
+
 	## hmm.. we should probably try and validate amt
 
 	##
@@ -11870,7 +11879,7 @@ sub add_payment {
 		txn=>$options{'txn'},	# external settlement transaction (usually this is what merchants search by)
 		amt=>$amt,					# amount of the transaction
 		note=>$options{'note'},	# a pretty description of the transaction e.g. "Giftcard 1234-xxxx-xxxx-5678"
-		acct=>$options{'acct'},	# buyer account # e.g. ####-xxxx-xxxx-#### for a credit card 
+		acct=>&ZTOOLKIT::packit($acctref),	# buyer account # e.g. ####-xxxx-xxxx-#### for a credit card 
 		voided=>$options{'voided'},	# when the transaction was voided (if it was or 0 if it hasn't been)
 		voidtxn=>sprintf("%d",$options{'voidtxn'}),	# void transaction #
 		puuid=>$options{'puuid'},		# parent txn for chainging (credits should be chained to the parent txn)

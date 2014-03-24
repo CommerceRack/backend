@@ -35,7 +35,13 @@ package BLAST::DEFAULTS;
 	'%HELPEMAIL%'=> q|<span data-tlc="bind $var '.%PRT.EMAIL'; apply --append;"></span>|,
 	'%LINKSTYLE%'=> q|<span data-tlc="bind $var '.%PRT.LINKSTYLE'; apply --append;"></span>|,
 
-	'%LINKDOMAIN%'=> q|<span data-tlc="bind $var '.%PRT.DOMAIN'; format --prepend='http://'; apply --attrib='href'; apply --append;"></span>|,
+	'%LINKDOMAIN%'=> q|<span data-tlc="bind $var '.%PRT.DOMAIN'; 
+if (is $var --notblank) {{
+	format --prepend='http://'; 
+	apply --attrib='href'; 
+	apply --append;
+	}};
+"></span>|,
 	'%LINKPHONE%'=> q|<span data-tlc="
 bind $var '.%PRT.PHONE'; 
 if (is $var --notblank) {{
@@ -392,14 +398,14 @@ foreach $payment in $payments {{
 
 
 /* REVIEW STATUS */
-set $rs '.%ORDER.%flow.review_status';
+bind $rs '.%ORDER.%flow.review_status';
 format --truncate=1;		/* keep 'A' instead of 'AOK' */
 set $rstemplateid '';
 if (is $rs --notblank) {{ 
 	if (is $rs --eq='A') {{ set $rstemplateid 'invoice_risk_approved'; }};
-	if (is $rs --eq 'R') {{ set $rs 'E'; }};
-	if (is $rs --eq 'E') {{ set $rstemplateid 'invoice_risk_review'; }};
-	if (is $rs --eq 'D') {{ set $rstemplateid 'invoice_risk_decline'; }};
+	if (is $rs --eq='R') {{ set $rs 'E'; }};
+	if (is $rs --eq='E') {{ set $rstemplateid 'invoice_risk_review'; }};
+	if (is $rs --eq='D') {{ set $rstemplateid 'invoice_risk_decline'; }};
 	}};
 
 if (is $rstemplateid --notblank) {{
@@ -411,12 +417,12 @@ if (is $rstemplateid --notblank) {{
 
 /* /REVIEW STATUS */
 
-set $balancedue '.%ORDER.%sum.balance_due_total';
+bind $balancedue '.%ORDER.%sum.balance_due_total';
 if (is $balancedue --gt=0) {{
 	transmogrify --templateid='invoice_has_balancedue' --dataset=$dataset;
 	apply --append;
 	}};
-set $paidate '.%ORDER.%flow.paid_ts';
+bind $paidate '.%ORDER.%flow.paid_ts';
 if (is $paiddate --gt=0) {{
 	transmogrify --templateid='invoice_is_paidinfull' --dataset=$dataset;
 	}};
@@ -787,9 +793,11 @@ if (is $var --gt=0) {{
  apply --replace;"></span>|,
 ##	[ 'CUSTOMER',
 	'%LASTNAME%'=> q|<span id="lastname" data-tlc="
-  bind $var '.%CUSTOMER.INFO.LASTNAME'; 
- if (is $var --blank) {{ bind $var '.%ORDER.%bill.lastname'; }};
-  apply --replace;
+bind $var '.%CUSTOMER.INFO.LASTNAME'; 
+if (is $var --blank) {{ 
+	bind $var '.%ORDER.%bill.lastname'; 
+	apply --replace;
+	}};
   "></span>|,
 ##	[ 'CUSTOMER',
 ##	[ 'CUSTOMER',

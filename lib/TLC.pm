@@ -681,7 +681,7 @@ sub core_is {
 			}
 		else {
 			## print Dumper($command);
-			warn "'is' against unmatched: ".Dumper($arg)."\n";
+			warn "'is' against unmatched: ".Dumper($command)."\n";
 			}
 		}
 
@@ -790,13 +790,16 @@ sub core_format {
 			}
 		elsif ($arg->{'type'} eq 'longopt') {
 			if ($arg->{'key'} eq 'prepend') {
+				if (not defined $result) { $result = ''; }
 				$result = sprintf("%s%s",$self->lookup_value($arg->{value}),$result);
 				}
 			elsif ($arg->{'key'} eq 'append') {
+				if (not defined $result) { $result = ''; }
 				$result = sprintf("%s%s",$result,$self->lookup_value($arg->{value}));
 				}
 			elsif ($arg->{'key'} eq 'text') {
 				$result = $self->lookup_value($arg->{value}) ;
+				if (not defined $result) { $result = ''; }
 				}
 			elsif ($arg->{'key'} eq 'truncate') {
 				$result = substr($result,0,int($self->lookup_value($arg->{value})));

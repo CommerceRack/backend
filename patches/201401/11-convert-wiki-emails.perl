@@ -24,6 +24,7 @@ while ( my ($MSGID,$PRT,$BODY,$FORMAT) = $sth->fetchrow() ) {
   if ($BODY =~ /%SUPPORTEMAIL%/) { $BODY =~ s/%SUPPORTEMAIL%/%HELPEMAIL%/gs; $changed++; }
   if ($BODY =~ /%SUPPORTPHONE%/) { $BODY =~ s/%SUPPORTPHONE%/%LINKPHONE%/gs; $changed++; }
   if ($BODY =~ /%LINKWEBSITE%/) { $BODY =~ s/%LINKWEBSITE%/%LINKDOMAIN%/gs; $changed++; }
+  if ($BODY =~ /\<a href=\"%LINKDOMAIN%.*?\"\>.*?\<\/a\>/) { $BODY =~ s/\<a href=\"%LINKDOMAIN%(.*?)\"\>(.*?)\<\/a\>/$2/gs; $changed++; }
 
   if (($FORMAT eq 'WIKI') || ($FORMAT eq 'NULL') || ($FORMAT eq '')) {
     $BODY = &Text::WikiCreole::creole_parse($BODY);
