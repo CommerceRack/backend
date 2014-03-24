@@ -418,7 +418,12 @@ sub layout {
 	$SITE::DEBUG && print STDERR  "layout->".join("|",caller(0))."\n";
 	if (defined $layout) { $self->{'_DOCID'} = $layout; }
 	
-	if (not defined $self->{'_DOCID'}) {
+	if (defined $self->{'_DOCID'}) {
+		}
+	elsif (ref($self->pAGE()) ne 'PAGE') {
+		## yipes!
+		}
+	else {
 		## not sure why this line needs to be here
 		$self->{'_DOCID'} = $self->pAGE()->get('fl');
 		}
