@@ -190,6 +190,7 @@ apply --img --media=$var --width=75 --height=75 --bgcolor='#ffffff' --replace;" 
 	'%PAYINFO%'=> q|
 
 <div data-tlc="
+/* PAYINFO */
 bind $payments '.%ORDER.@PAYMENTS';
 set $info '';
 foreach $payment in $payments {{
@@ -252,7 +253,7 @@ apply --append=$info;
 
 	'%PAYINSTRUCTIONS%'=> q|
 <div data-tlc="
-
+/* PAYINSTRUCTIONS */
 set $skip_chained 1;
 bind $dataset '.';
 bind $payments '.%ORDER.@PAYMENTS';
@@ -859,6 +860,14 @@ $BLAST::DEFAULTS::MACROS{'%IPADDRESS%'} = $BLAST::DEFAULTS::MACROS{'%REMOTEIPADD
 ##
 ##
 %BLAST::DEFAULTS::MSGS = (
+   'PRINTABLE.TEST'=>{
+      MSGFORMAT=>'HTML',
+      MSGOBJECT=>'ORDER',
+      MSGSUBJECT=>'ORDER',
+      MSGBODY=>q|
+%PAYINFO%
+|,
+      },
 	'PRINTABLE.INVOICE'=>{
 		MSGFORMAT=>'HTML',
 		MSGOBJECT=>'ORDER',
