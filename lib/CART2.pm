@@ -11864,6 +11864,8 @@ sub add_payment {
 		next unless (length($key) == 2);	# must be two digits
 		next unless (uc($key) eq $key);	# must be upper case
 		next if ($key eq 'CC');	# must NOT be a credit card.
+		next if ($key eq 'TN');	# don't need to save this
+		next if (substr($key,0,1) eq '$');	# skip $# $$, etc.
 		$acctref->{$key} = $options{$key};
 		}
 
