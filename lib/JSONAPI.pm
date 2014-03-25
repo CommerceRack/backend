@@ -352,7 +352,7 @@ use strict;
 	'adminNavcatModify'=>[ \&JSONAPI::adminNavcat,  { 'admin'=>1,, 'navcat'=>1, }, 'admin', { 'NAVCAT'=>'U' } ],
 	'adminNavcatCreate'=>[ \&JSONAPI::adminNavcat,  { 'admin'=>1,, 'navcat'=>1, }, 'admin', { 'NAVCAT'=>'C' } ],
 	'adminNavcatMacro'=>[ \&JSONAPI::adminNavcat,  { 'admin'=>1,, 'navcat'=>1, }, 'admin', { 'NAVCAT'=>'C' } ],
-	'adminNavcatProductInsert'=>[ \&JSONAPI::adminNavcat,  { 'admin'=>1,, 'navcat'=>1, }, 'admin', { 'NAVCAT'=>'I' } ],
+	'adminNavcatProductInsert'=>[ \&JSONAPI::adminNavcat,  { 'admin'=>1,, 'navcat'=>1, }, 'admin', { 'NAVCAT'=>'C' } ],
 	'adminNavcatProductDelete'=>[ \&JSONAPI::adminNavcat,  { 'admin'=>1,, 'navcat'=>1, }, 'admin', { 'NAVCAT'=>'D' } ],
 	'adminPrivateSearch'=>[ \&JSONAPI::adminPrivateSearch, { 'admin'=>1,, 'navcat'=>1, }, 'admin', { 'ORDER'=>'S' } ],
 	'adminProductList'=>[ \&JSONAPI::adminProductList,  { 'admin'=>1, }, 'admin', { 'PRODUCT'=>'L' } ],
@@ -14640,7 +14640,8 @@ sub adminCustomerCreateUpdate {
 		}
 	elsif (ref($v->{'@updates'}) eq 'ARRAY') {
 		my $LM = LISTING::MSGS->new();
-		$C->run_macro_cmds(\@CMDS,'*LM'=>$LM,'*SITE'=>$self->_SITE(),'*LU'=>$self->LU());
+		$C->run_macro_cmds(\@CMDS,'*LM'=>$LM,'*SITE'=>$self->_SITE(),'*LU'=>$self->LU(),'%R'=>\%R);
+
 		if (my $iseref = $LM->had(['WARNING'])) {
 			&JSONAPI::append_msg_to_response(\%R,"warning",7200,$iseref->{'+'});
 			}
@@ -16974,7 +16975,7 @@ sub appBuyerAuthenticate {
 	if (&JSONAPI::hadError(\%R)) {
 		}
 	elsif (($R{'CID'}==0) && ($R{'verified'}) && ($v->{'create'})) {
-		my ($error,$errmsg) = &CUSTOMER::new_subscriber($self->username(),$self->prt(),$R{'email'},$R{'fullname'},undef,$ENV{'REMOTE_ADDR'});		
+		my ($error,$errmsg) = &CUSTOMER::new_subscriber($self->username(),$self->prt(),$R{'email'},$R{'fullname'},$ENV{'REMOTE_ADDR'});		
 		if (not $error) {
 			($R{'CID'}) = &CUSTOMER::resolve_customer_id($self->username(),$self->prt(),$R{'email'});
 			$self->customer( CUSTOMER->new( $self->username(), PRT=>$self->prt(), CID=>$R{'CID'} ) );
@@ -19525,7 +19526,7 @@ sub appBuyerCreate {
 				&JSONAPI::append_msg_to_response(\%R,'youerr',74221,'Could not create customer, possibly a duplicate.');
 				}
 			else {
-				$C->run_macro_cmds(\@CMDS,'*LU'=>$self->LU());
+				my $R = $C->run_macro_cmds(\@CMDS,'*LU'=>$self->LU(),'%R'=>\%R);
 				}
 			}
 		}
@@ -21841,7 +21842,7 @@ sub buyerNewsletters {
 		for my $i (0..15) {
 			if ($v->{sprintf("newsletter-%d",$i+1)}) { $SUBSCRIPTIONS += (1<<$i); }
 			}
-		my ($err,$message) = &CUSTOMER::new_subscriber($self->username(), $self->prt(), $login, $fullname, undef, $IP, 3, $SUBSCRIPTIONS);
+		my ($err,$message) = &CUSTOMER::new_subscriber($self->username(), $self->prt(), $login, $fullname, $IP, 3, $SUBSCRIPTIONS);
 		if ($err) {
 			&JSONAPI::append_msg_to_response(\%R,"youerr",2600,"$message");
 			}

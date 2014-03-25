@@ -2358,12 +2358,11 @@ sub customerProcess {
 				}
 			else {
 				# $C->add_history("called WEBAPI::orderProcess::MACRO",undef,128);
-				my ($echo) = $C->run_macro_cmds($CMDS);
-				if ($FUNCTION eq 'XMLBATCH') { $echo++; }	# XMLBATCH always ECHO's
-	
+				$C->run_macro_cmds($CMDS);
+				## if ($FUNCTION eq 'XMLBATCH') { $echo++; }	# XMLBATCH always ECHO's
 				$C->save();
 				#if ($is_new) { $o->dispatch('create'); }
-				if ($echo) { $XML .= $C->as_xml($::XCOMPAT); }
+				$XML .= $C->as_xml($::XCOMPAT);
 				}
 
 			}

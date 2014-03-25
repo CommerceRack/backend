@@ -3387,7 +3387,7 @@ sub handler {
 			my $hintans = $tryC->fetch_attrib('INFO.HINT_ANSWER');
 
 			if ($hintans eq $SITE::v->{'answer'}) {
-				($password) = $tryC->initpassword(reset=>1);
+				($password) = $tryC->generate_recovery();
 				$VERB = 'answer';		# provide answer
 				}
 			else {
@@ -3462,7 +3462,7 @@ sub handler {
 			~;
 			}
 		elsif (($VERB eq 'answer') && ($password eq '')) {
-			($password) = $tryC->initpassword(reset=>1);
+			($password) = $tryC->generate_recovery();
 			$OUTPUT .= qq~
 			Your password was blank, and was changed to "$password".
 			~;

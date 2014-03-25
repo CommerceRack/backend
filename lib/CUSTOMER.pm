@@ -2,6 +2,7 @@ package CUSTOMER;
 
 use lib "/backend/lib";
 use DBI;
+use Digest::SHA1;
 use String::MkPasswd;
 
 
@@ -98,30 +99,6 @@ sub sync_action {
 	push @{$self->{'@UPDATES'}}, $ACTION;
 	}
 
-## generates a one time use temporary passwords
-sub generate_temporary_password {
-	my ($self) = @_;
-	my ($CID) = $self->cid();
-	my ($redis) = &ZOOVY::getRedis($self->username(),0);
-	my $PASSWORD =  String::MkPasswd::mkpasswd(-length=>10,-minnum=>8,-minlower=>2,-minupper=>0,-minspecial=>0);
-	$redis->lpush(uc("PASSWORD+$CID"),$PASSWORD);
-	$redis->expire(uc("PASSWORD+$CID"),60*60*3);	# 3 hour
-	return($PASSWORD);
-	}
-
-## returns a list of temporary passwords(to compare against)
-sub temporary_passwords {
-	my ($self) = @_;
-	
-	my @PASSWORDS = ();
-   my ($CID) = $self->cid();
-   my ($redis) = &ZOOVY::getRedis($self->username(),0);
-	foreach my $password (@{$redis->lrange(uc("PASSWORD+$CID"),0,10)}) {
-		push @PASSWORDS, $password;
-		}
-	return(\@PASSWORDS);
-	}
-
 ##
 ##
 ##
@@ -138,18 +115,20 @@ sub run_macro_cmds {
 	my @RESULTS = ();
 	my $CID = $self->cid();
 
+	my $R = $params{'%R'} || {};
+	$R->{'errors'} = 0;
+
 	foreach my $CMDSET (@{$CMDS}) {
 		my ($cmd,$pref) = @{$CMDSET};
 		my $result = undef;
 		$self->sync_action("MACRO/$cmd");
 
-		if ($cmd eq 'PASSWORDRESET') {
+		if (($cmd eq 'PASSWORDRESET') || ($cmd eq 'PASSWORD-RESET')) {
 			if (defined $LU) { $LU->log("MANAGE.CUSTOMER.PASSRESET",sprintf("Password was reset for customer %d",$self->cid()),"INFO"); }
-
-			if (not defined($pref->{'password'})) { 
-				$pref->{'password'} = reverse(sprintf("%x",(time()*rand())%1000000)); 
-				}
-			$self->initpassword(set=>$pref->{'password'});
+			$R->{$cmd}->{'password'} = $self->initpassword(set=>$pref->{'password'});
+			}
+		elsif ($cmd eq 'PASSWORD-RECOVER') {
+			$R->{$cmd}->{'password'} = $self->generate_recovery();
 			}
 		elsif ($cmd eq 'GIFTCARD-CREATE') {
 			$pref->{'CID'} = $self->cid();
@@ -349,7 +328,7 @@ sub run_macro_cmds {
 		close F;
 		}
 
-	return($echo);	
+	return($R);	
 	}
 
 
@@ -899,16 +878,10 @@ sub new {
 	my $self = {};
 	bless $self, 'CUSTOMER';
 
-	#my ($package,$file,$line,$sub,$args) = caller(0);
-	#open F, ">>/tmp/customer";
-	#use Data::Dumper; print F Dumper([$package,$file,$line,$sub,$args],\%options);
-	#close F;
-
 	if (not defined $options{'PRT'}) { $options{'PRT'} = 0; }
 
 	my ($PRT) = int($options{'PRT'});
 	$PRT = &CUSTOMER::remap_customer_prt($USERNAME,$PRT);
-	print STDERR "PRT: $PRT\n";
 
 	if ((defined $options{'CREATE'}) && (int($options{'CREATE'})>0)) {
 		## check to see if the customer already exists, then choose a behavior	
@@ -1098,10 +1071,11 @@ sub giftcards {
 
 # Does the same as above but doesn't create the customer billing/shipping information and assumes they want spam
 sub new_subscriber {
-	my ($USERNAME, $PRT, $EMAIL, $FULLNAME, $PASSWORD, $IP, $ORIGIN, $NEWSLETTERS) = @_;
+	my ($USERNAME, $PRT, $EMAIL, $FULLNAME, $IP, $ORIGIN, $NEWSLETTERS) = @_;
 
 	($PRT) = &CUSTOMER::remap_customer_prt($USERNAME,$PRT);
 
+	my $PASSWORD = undef;
 	if ((not defined($PASSWORD)) || ($PASSWORD eq '')) {
 		$PASSWORD = String::MkPasswd::mkpasswd(-length=>10,-minnum=>8,-minlower=>2,-minupper=>0,-minspecial=>0);
 		}
@@ -1118,7 +1092,6 @@ sub new_subscriber {
 	my ($C) = CUSTOMER->new($USERNAME,EMAIL=>$EMAIL,CREATE=>1,
 		'PRT'=>$PRT,
 		'DATA'=>{
-			'INFO.PASSWORD'=>$PASSWORD,
 			'INFO.IP'=>$IP,
 			'INFO.ORIGIN'=>$ORIGIN,
 			'INFO.FIRSTNAME'=>$firstname,
@@ -1198,11 +1171,10 @@ sub save {
 		if ($self->{'_CID'} == -1) {
 			## new customer -- add record, this update it.
 			if (not defined $self->{'INFO'}->{'ORIGIN'}) { $self->{'INFO'}->{'ORIGIN'} = ''; }
-			if (not defined $self->{'INFO'}->{'PASSWORD'}) { $self->{'INFO'}->{'PASSWORD'} = ''; }
 
 			my $pstmt = &DBINFO::insert($odbh,$CUSTOMERTB,{
 				CID=>0, MID=>$self->mid(), USERNAME=>$self->username(), EMAIL=>$self->{'_EMAIL'},
-				ORIGIN=>$self->{'INFO'}->{'ORIGIN'}, PASSWORD=>$self->{'INFO'}->{'PASSWORD'},
+				ORIGIN=>$self->{'INFO'}->{'ORIGIN'}, 
 				IP=>ip_to_int($self->{'INFO'}->{'IP'}), CREATED_GMT=>time(), MODIFIED_GMT=>time(),
 				PRT=>int($self->{'_PRT'}),				
 				},debug=>2,key=>['MID','PRT','EMAIL']);
@@ -1254,13 +1226,6 @@ sub save {
 		$ref{'IS_LOCKED'} = $self->{'INFO'}->{'IS_LOCKED'};
 		$ref{'ORGID'} = $self->{'INFO'}->{'ORGID'};
 
-		if ($self->{'INFO'}->{'PASSWORD'} ne '') {
-			warn "setting password";
-			$ref{'PASSWORD'} = $self->{'INFO'}->{'PASSWORD'};
-			}
-		## $ref{'SCHEDULE'} = $self->{'INFO'}->{'SCHEDULE'};
-		# $ref{'REWARD_BALANCE'} = $self->{'INFO'}->{'REWARD_BALANCE'};
-
 		if ($self->{'INFO'}->{'HAS_NOTES'}>0) { 
 			$ref{'HAS_NOTES'} = int($self->{'INFO'}->{'HAS_NOTES'});
 			} 		
@@ -1304,20 +1269,15 @@ sub save {
 			}
 		}
 
-#	print STDERR "STATE: $self->{'_STATE'} ".join("|",caller(0))."\n";
 	if (($self->{'_STATE'} & 14)>0) {
 		print STDERR "SAVING ADDRESSES\n";
 
 		foreach my $addr (@{$self->fetch_addresses('BILL')}) {
-#			print STDERR "TRY STORE: ".$addr->shortcut()."\n";
 			next unless ($addr->has_changed());
-#			print STDERR "BILL STORE: ".$addr->shortcut()."\n";
 			$addr->store();
 			}
 		foreach my $addr (@{$self->fetch_addresses('SHIP')}) {
-#			print STDERR "TRY STORE: ".$addr->shortcut()."\n";
 			next unless ($addr->has_changed());
-#			print STDERR "SHIP STORE: ".$addr->shortcut()."\n";
 			$addr->store();
 			}
 		&CUSTOMER::store_addr($self->username(),$self->cid(),'META',$self->{'META'});
@@ -1653,26 +1613,19 @@ sub add_address {
 sub initpassword {
 	my ($self,%options) = @_;
 
-	my ($pass);
+	my ($PASSWORD) = String::MkPasswd::mkpasswd(-length=>8,-minnum=>2,-minlower=>2,-minupper=>0,-minspecial=>0);
 	if (defined $options{'set'}) {
 		## this will force the password to be whatever the value of set is
-		$pass = $options{'set'};
-		warn "Setting password to $pass\n";
-		$self->set_attrib('INFO.PASSWORD',$pass);
-		$self->save();
+		$PASSWORD = $options{'set'};
+		warn "Setting password to $PASSWORD\n";
 		}
-	else {
-		## this is the functional equivalent of reset=>1
-		require ZTOOLKIT;
-		($pass) = $self->get('INFO.PASSWORD');
-		if ($pass eq '') {
-			$pass = String::MkPasswd::mkpasswd(-length=>10,-minnum=>8,-minlower=>2,-minupper=>0,-minspecial=>0);
-			$self->set_attrib('INFO.PASSWORD',$pass);
-			}
-		warn "SAVING! [$pass]\n";
-		$self->save();
-		}
-	return($pass);
+	$self->set_attrib('INFO.PASSWORD',$PASSWORD);
+	my $SALT = String::MkPasswd::mkpasswd(-length=>6,-minnum=>2,-minlower=>1,-minupper=>1,-minspecial=>1,-distribute=>1);		
+	$self->set_attrib('INFO.PASSSALT', $SALT);
+	$self->set_attrib('INFO.PASSHASH', Digest::SHA1::sha1_base64( sprintf("%s%s",$PASSWORD,$SALT) ).'=');
+	$self->save();
+
+	return($PASSWORD);
 	}
 
 
@@ -2139,29 +2092,68 @@ sub customer_exists {
 sub authenticate {
 	my ($USERNAME, $PRT, $EMAIL, $PASSWORD) = @_;
 
-	print STDERR "AUTH FOR USERNAME: M=$USERNAME P=$PRT E=$EMAIL PW=$PASSWORD\n";
-
 	$PRT = int($PRT);
 	($PRT) = &CUSTOMER::remap_customer_prt($USERNAME,$PRT);
 
 	if ($EMAIL eq "") { return(0); }
 	my $odbh = &DBINFO::db_user_connect($USERNAME);
-	my $result = 0;
-
 	my ($qtEMAIL) = $odbh->quote($EMAIL);
-	my ($qtPASSWORD) = $odbh->quote($PASSWORD);
 
+	my ($redis) = &ZOOVY::getRedis($USERNAME);
 	my $MID = &ZOOVY::resolve_mid($USERNAME);
 	my ($CUSTOMERTB) = &CUSTOMER::resolve_customer_tb($USERNAME,$MID);
 
-	my $pstmt = "select CID,IS_LOCKED from $CUSTOMERTB where MID=$MID /* $USERNAME */ and PRT=$PRT and EMAIL=$qtEMAIL and PASSWORD=$qtPASSWORD";
-	my ($CID,$IS_LOCKED) = $odbh->selectrow_array($pstmt);
+	my $pstmt = "select CID,IS_LOCKED,PASSHASH,PASSSALT from $CUSTOMERTB where MID=$MID /* $USERNAME */ and PRT=$PRT and EMAIL=$qtEMAIL";
+	my ($CID,$IS_LOCKED,$dbPASSHASH,$dbPASSSALT) = $odbh->selectrow_array($pstmt);
+	print STDERR "AUTH FOR USERNAME: CID=$CID M=$USERNAME P=$PRT E=$EMAIL PW=$PASSWORD\n";
 
-	if (not defined $CID) { $CID = 0; }
+	my $tryHASH = Digest::SHA1::sha1_base64( sprintf("%s%s",$PASSWORD,$dbPASSSALT)).'=';	# Base64
+	if ($CID == 0) {
+		}
+	elsif ($PASSWORD eq '') {
+		$CID = 0;
+		}
+	elsif ($tryHASH eq $dbPASSHASH) {
+		## SUCCESS! (db password matches)
+		}
+	elsif ($redis->llen("PasswordRecover:$CID")>0) {
+		## check for a recovery
+		my $SUCCESS = 0;
+		## never try the 10 most recent passwords (this avoids somebody spamming recoveries to improve their odds)
+		foreach my $recovery ($redis->lrange("PasswordRecover:$CID",0,10)) {
+			my ($correctSALT,$correctHASH) = split(/\|\|/,$recovery);
+			if ($correctHASH eq Digest::SHA1::sha1_hex( $PASSWORD.$correctSALT )) {
+				$SUCCESS++;
+				}
+			}
+		if (not $SUCCESS) { $CID = 0; }
+		}
+
 	if ($IS_LOCKED) { $CID = 0; }	# yeah i know we should have better error handling, no time to rewrite.
 	&DBINFO::db_user_close();
 	return($CID);
 	}
+
+##
+## generates a one time recovery password that is good for three hours
+##  
+##  perl -e 'use lib "/httpd/modules"; use CUSTOMER; my ($C) = CUSTOMER->new("sporks","PRT"=>0,EMAIL=>"jt\@zoovy.com"); print $C->generate_recovery();'
+##
+sub generate_recovery {
+	my ($self) = @_;
+
+	my $CID = $self->cid();
+	my ($redis) = &ZOOVY::getRedis($self->username());
+
+	my $PASSWORD =  String::MkPasswd::mkpasswd(-length=>8,-minnum=>2,-minlower=>1,-minupper=>1,-minspecial=>0,-distribute=>1);
+	my $SALT = String::MkPasswd::mkpasswd(-length=>4,-minnum=>2,-minlower=>1,-minupper=>1,-minspecial=>0,-distribute=>1);
+
+	$redis->lpush("PasswordRecover:$CID","$SALT||".Digest::SHA1::sha1_hex($PASSWORD.$SALT));
+	$redis->expire("PasswordRecover:$CID",60*60*3);	# 1 hour
+
+	return($PASSWORD);	
+	}
+
 
 
 ##

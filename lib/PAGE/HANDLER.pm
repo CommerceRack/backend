@@ -290,7 +290,7 @@ sub subscribe_handler {
 				}
 			}
 			
-		(undef, $errmessage) = &CUSTOMER::new_subscriber($SITE->username(), $SITE->prt(), $email, $fullname, undef, $ENV{'REMOTE_ADDR'}, 2, $SUBSCRIPTIONS);
+		(undef, $errmessage) = &CUSTOMER::new_subscriber($SITE->username(), $SITE->prt(), $email, $fullname, $ENV{'REMOTE_ADDR'}, 2, $SUBSCRIPTIONS);
 		}
 
 	if (not $errmessage) {
