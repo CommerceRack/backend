@@ -33,6 +33,8 @@ use strict;
 sub buildChooser {
 	my ($USERNAME,$FORMAT,%options) = @_;
 
+	my %TAG = ();
+
 	my $HEADER = '';
 	my $SUBTYPE = undef;
 	if ($options{'SUBTYPE'}) { $SUBTYPE=$options{'SUBTYPE'}; }
@@ -48,8 +50,8 @@ sub buildChooser {
 
 	my $SREFstr = $options{'SREF'};
 
-	$GTOOLS::TAG{'<!-- USERNAME -->'} = $USERNAME;
-	$GTOOLS::TAG{'<!-- FORMAT -->'} = $FORMAT;
+	$TAG{'<!-- USERNAME -->'} = $USERNAME;
+	$TAG{'<!-- FORMAT -->'} = $FORMAT;
 	my $c = '';
 	my $arref = &TOXML::UTIL::listDocs($USERNAME,$FORMAT,DETAIL=>1,SUBTYPE=>$SUBTYPE,SORT=>1,LU=>$LU,SELECTED=>$selected);
 	my $bgcolor = '';
@@ -230,7 +232,7 @@ navigateTo('/biz/vstore/builder/index.cgi?ACTION=CHOOSERSAVE&FL=$DOCID&_SREF=$SR
 			$html = "<i>Could not load $FORMAT:$DOCID user=$USERNAME</i><br>"; 
 			}
 
-		$GTOOLS::TAG{'<!-- DETAILS -->'} .= "\n<div id=\"$DIVID\">\n$html\n</div>\n";
+		$TAG{'<!-- DETAILS -->'} .= "\n<div id=\"$DIVID\">\n$html\n</div>\n";
 		
 		my $image = '/images/blank.gif';
 		if ($FORMAT eq 'LAYOUT') {
@@ -339,9 +341,9 @@ detailDialog =  jQuery('#$DIVID').dialog({ autoOpen: true, closeOnEscape: true, 
 	push @icons, { txt=>'Wiki', link=>'', img=>'wiki.gif' };
 	push @icons, { txt=>'Web 2.0/AJAX', link=>'', img=>'web20.gif' };
 
-	$GTOOLS::TAG{'<!-- OURTABLE -->'} = &TOXML::CHOOSER::buildTable(\@header,\@rows,rowid=>5,rowclass=>6,height=>400);
+	$TAG{'<!-- OURTABLE -->'} = &TOXML::CHOOSER::buildTable(\@header,\@rows,rowid=>5,rowclass=>6,height=>400);
 
-	$GTOOLS::TAG{'<!-- WARNING -->'} = join("<br>WARNING: ",@WARNINGS);
+	$TAG{'<!-- WARNING -->'} = join("<br>WARNING: ",@WARNINGS);
 
 	my $data = q~
 <!-- begin toxml chooser -->
@@ -355,7 +357,7 @@ detailDialog =  jQuery('#$DIVID').dialog({ autoOpen: true, closeOnEscape: true, 
 <!-- end TOXML chooser -->
 	~;
 
-	$data = &ZTOOLKIT::interpolate(\%GTOOLS::TAG,$data);
+	$data = &ZTOOLKIT::interpolate(\%TAG,$data);
 
 	return($data);
 	}
