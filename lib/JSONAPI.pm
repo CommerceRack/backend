@@ -1915,8 +1915,10 @@ sub psgiinit {
 			$session = $v->{'_session'};
 			}
 
+		if ((not $session) && ($v->{'_version'}<=201310)) { $session = time(); }
+
 		if (not $session) {
-			&JSONAPI::set_error($R = {}, 'apperr', 15, "X-SESSION header, _session is required for apiversion>201310");
+			&JSONAPI::set_error($R = {}, 'apperr', 15, sprintf("X-SESSION header, _session is required for apiversion>201310"));
 			}
 		else {
 			$self->sessionInit($session);

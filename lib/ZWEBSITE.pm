@@ -616,6 +616,7 @@ sub fetch_website_dbref {
 		if (not defined $WEBDBREF) {
 			my ($dev,$ino,$mode,$nlink,$uid,$gid,$rdev,$size,$atime,$mtime,$ctime,$blksize,$blocks) = stat($cachefile);
 			if ($ctime > $jsonts) {
+				# print STDERR "USE CACHE ($ctime > $jsonts) ".($ctime-$jsonts)."\n";
 				$ZWEBSITE::CACHE{ "$USERNAME.$PRT.$jsonts" } = $WEBDBREF = Storable::retrieve($cachefile);
 				}
 			else {
@@ -885,7 +886,7 @@ sub save_website_dbref {
 	&ZOOVY::touched($USERNAME,1);
 
 	## VERY IMPORTANT!
-	my $MEMCACHE_KEY = lc("webdb|$USERNAME.$PRT");
+	my $MEMCACHE_KEY = lc("webdb-ts|$USERNAME.$PRT");
 	my $memd = &ZOOVY::getMemd($USERNAME);
 	$memd->delete($MEMCACHE_KEY);
 	%ZWEBSITE::CACHE = ();
