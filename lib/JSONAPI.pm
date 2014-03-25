@@ -1915,8 +1915,10 @@ sub psgiinit {
 			$session = $v->{'_session'};
 			}
 
+		if ((not $session) && ($v->{'_version'}<=201310)) { $session = time(); }
+
 		if (not $session) {
-			&JSONAPI::set_error($R = {}, 'apperr', 15, "X-SESSION header, _session is required for apiversion>201310");
+			&JSONAPI::set_error($R = {}, 'apperr', 15, sprintf("X-SESSION header, _session is required for apiversion>201310"));
 			}
 		else {
 			$self->sessionInit($session);
@@ -15271,6 +15273,205 @@ sub adminUIExecuteCGI {
 	return($R);
 	}
 
+
+=pod
+
+<API id="adminUIBuilderPanelExecute">
+<purpose></purpose>
+<input id="sub">EDIT|SAVE|SAVE-EDIT</input>
+<input id="id">element id</input>
+
+<input id="panel">Panel Identifier (the 'id' field returned by adminUIProductList</input>
+<response id="html">the html content of the product editor panel</response>
+<response id="js">the js which is required by the panel.</response>
+</API>
+
+=cut
+
+sub adminUIBuilderPanelExecute {
+	my ($self,$v) = @_;
+
+	my %R = ();
+	require TOXML::EDIT;
+	require TOXML::SAVE;
+	require TOXML::PREVIEW;
+	require SITE;
+
+
+	my $USERNAME = $self->username();
+	my $SUB = uc($v->{'sub'});
+	my $ID = $v->{'id'};
+
+	require LUSER;
+
+	my $SITE = 	undef; ## SITE->new($USERNAME,'PRT'=>$self->prt(),'DOMAIN'=>$self->sdomain());
+	if ($v->{'_SREF'}) {
+		$SITE = SITE::sitedeserialize($USERNAME,$v->{'_SREF'});
+		}
+	else {
+		&JSONAPI::set_error(\%R,'apperr',9134,"_SREF (SITE) was not passed to method BUILDER!\n");		
+		}
+
+	my $html = '';
+	my ($t,$el,$TYPE);
+	my $LOGTYPE = '';
+	my $out = '';
+
+	my $FORMAT = $SITE->format();
+	my $LAYOUT = $SITE->layout();
+
+	if (&JSONAPI::hadError(\%R)) {
+		## skip if we encountered an error
+		}				
+	elsif ($SITE->format() eq 'WRAPPER') {
+		# $LAYOUT = $SITE->layout();
+		$LOGTYPE = "WRAPPER=$LAYOUT";
+		}
+	elsif ($SITE->format() eq 'PRODUCT') {	## if sku is set, then set $SREF->{'
+		# $LAYOUT = PRODUCT->new($USERNAME,$SITE->sku())->fetch('zoovy:fl');
+		# $LAYOUT = &ZOOVY::fetchproduct_attrib($USERNAME,$SITE->sku(),'zoovy:fl');
+		# set flow style to 'P' for proper defaulting?!?! (probably not necessary)
+		$LOGTYPE = sprintf("PRODUCT=%s LAYOUT=$LAYOUT",$SITE->sku());
+		}
+	elsif ($SITE->format() eq 'PAGE') { 		## default 
+		$LOGTYPE = sprintf("PAGE=%s LAYOUT=$LAYOUT",$SITE->pageid());
+		}
+	else {	
+		## yeah it's all good.
+		}
+
+	print STDERR "LOG TPE $LOGTYPE\n";
+	
+	if (&JSONAPI::hadError(\%R)) {
+		}
+	else {
+		($t) = TOXML->new($SITE->format(),$SITE->layout(),USERNAME=>$USERNAME,SUBTYPE=>$SITE->fs());
+		if (not defined $t) { 
+			&JSONAPI::set_error(\%R,'apperr',9135,"Could not load TOXML layout FORMAT=[$FORMAT] LAYOUT=[$LAYOUT]");
+			}
+		}
+
+	if (not &JSONAPI::hadError(\%R)) {
+		($el) = $t->fetchElement($ID,$SITE->div());
+		$LOGTYPE .= " ELEMENT=".$el->{'ID'};
+		if (not defined $el) { 
+			&JSONAPI::set_error(\%R,'apperr',9136,"Could not find element ID[$ID] from Toxml file FORMAT[$FORMAT] LAYOUT[$LAYOUT]");
+			}
+		}
+
+	##
+	## SANITY: at this point the following variables are either setup or $ERROR is set.
+	##		p=Current Page, t=Current TOXML document, el=current element in focus, type=>
+	##
+
+	if (&JSONAPI::hadError(\%R)) {
+		}
+	elsif (($SUB eq 'SAVE') || ($SUB eq 'SAVE-EDIT')) {	
+		## note if we recive a variable of ACTION=reload then we'll go back and try editing again.
+		## used to reload options based on a choice (e.g. prodlist)
+		$TYPE = $el->{'TYPE'};
+		if (($TYPE eq 'PRODLIST') && ($v->{'func'} eq 'LISTEDITOR')) {	$TYPE = 'LISTEDITOR'; }
+		if ($TYPE eq '') { 
+			&JSONAPI::set_error(\%R,'apperr',9140,"Element type was not set (how odd??)[1]");
+			}
+		elsif (not defined $TOXML::EDIT::edit_element{ $TYPE }) { 
+			&JSONAPI::set_error(\%R,'apperr',9141,"Undefined editor for TYPE=[$TYPE]"); 
+			}
+		else {
+			# use Data::Dumper; print STDERR Dumper($el,$v,$SREF); 
+			# print STDERR "SAVING: $TYPE\n";
+			($TYPE,my $prompt,$html) = $TOXML::SAVE::save_element{$TYPE}->($el,$v,$SITE); 
+			$self->accesslog("AJAX.BUILDER.SAVE",$LOGTYPE,"INFO");
+			}
+
+		# push @CMDS, { m=>'hideeditor' };
+		# $out .= "?m=hideeditor";
+		# if (uc($v->{'ACTION'}) eq 'RELOAD') { $SUB = 'EDIT'; $out =''; }	
+
+		## we always return the full page because an element earlier on a page might affect an element later
+		my ($html) = $t->render('*SITE'=>$SITE);
+
+		#$html = qq~
+		#	<div id="editorDiv" style="width: 780px; display: none"></div>
+		#	<div style="border: 1px solid #999999">
+		#		<table  bgcolor="<!-- BGCOLOR -->" width="100%">
+		#		<tr><td align="left" valign='top'><div style="text-align: left" id="contentDiv">$html</div></td></tr>
+		#		</table>
+		#	</div>
+		#	~;
+
+		$html .= qq~<button class="button2" onClick="navigateTo('/biz/vstore/builder/index.cgi');">Exit</button>~;
+		$R{'html'} = $html;
+
+		# $html = "FL: $SREF->{'_FL'} | PG: $SREF->{'_PG'} | SKU: $SREF->{'_SKU'} | FS: $SREF->{'_FS'}<br><hr>".$html;
+		# $out .= "?m=loadcontent&html=".&js_encode($html);
+		
+		# push @CMDS, { m=>'loadcontent', html=>$html };
+
+		if ($SUB eq 'SAVE-EDIT') { $SUB = 'EDIT'; }
+		# if (uc($CMD) eq 'RELOAD') { $SUB = 'EDIT'; }
+		}
+
+
+	if (&JSONAPI::hadError(\%R)) {
+		}
+	elsif ($SUB eq 'EDIT') {
+		$TYPE = $el->{'TYPE'};
+		if (($TYPE eq 'PRODLIST') && ($v->{'func'} eq 'LISTEDITOR')) {	$TYPE = 'LISTEDITOR'; }
+
+		# print STDERR "TYPE IS: $TYPE\n";
+		if ($TYPE eq '') { 
+			&JSONAPI::set_error(\%R,'apperr',9144,"Element type was not set (how odd??)[2]");
+			}
+		elsif (not defined $TOXML::EDIT::edit_element{ $TYPE }) { 
+			&JSONAPI::set_error(\%R,'apperr',9142,"Undefined editor for TYPE=[$TYPE]");
+			}
+		else { 
+			# $el->{'_FORM'} = "thisFrm-$ID";
+			(my $STYLE,my $prompt,$html,my $extra) = $TOXML::EDIT::edit_element{$TYPE}->($el,$t,$SITE,$v); 
+			
+			## normally we'd just call saveElement, but for LISTEDITOR we need to do some other stuff.
+			# my $jsaction = qq~saveElement('$TYPE','$ID');~;
+			#if ($TYPE eq 'LISTEDITOR') {
+			#	$jsaction = qq~setorder(document.thisFrm.list1,document.thisFrm.listorder); $jsaction~;
+			#	}
+				## NOTE: textarea's return the input in the PROMPT (how dumb!)
+			if ($STYLE eq 'TEXTAREA') {
+				$html = $prompt; $prompt = $el->{'PROMPT'};
+				}
+			elsif ($STYLE eq 'IMAGE') {
+				$html = "<table border=0><tr><td valign='top'>$html</td><td valign='top'>$extra</td></tr></table>";
+				}
+
+			$R{'id'} = $ID;
+			$R{'type'} = $TYPE;
+			$R{'prompt'} = $prompt;
+			$R{'html'} = $html;
+			$R{'_SREF'} = $SITE->siteserialize();
+			}
+		}
+	
+	if ($SUB eq 'RELOAD') {
+		# use Data::Dumper; print STDERR Dumper($SREF);
+		my ($html) = $t->render('*SITE'=>$SITE);
+		# $html = "FL: $SREF->{'_FL'} | PG: $SREF->{'_PG'} | SKU: $SREF->{'_SKU'} | FS: $SREF->{'_FS'}<br><hr>".$html;
+		# $out = "?m=loadcontent&id=$ID&html=".&js_encode($html);
+		# push @CMDS, { m=>'loadcontent', id=>$ID, html=>$html };
+		$R{'html'} = $html;
+		}
+
+	if ($R{'html'}) {
+		## strip head and body tags
+		$R{'html'} =~ s/\<[\/]?[Hh][Tt][Mm][Ll]>//gs;
+		$R{'html'} =~ s/\<[Hh][Ee][Aa][Dd]\>.*?\<\/[Hh][Ee][Aa][Dd]\>//gs;
+		$R{'html'} =~ s/\<[\/]?[Bb][Oo][Dd][Yy].*?\>//gs;
+		}
+	
+	undef $t; undef $el;
+	# $R{'@CMDS'} = \@CMDS;
+
+	return(\%R);
+	}
 
 
 

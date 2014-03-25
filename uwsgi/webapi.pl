@@ -16,6 +16,7 @@ my $app = sub {
 
 	my %HEADERS = ();
 
+	require CFG;
 	require WEBAPI;
 	my ($HTTP_RESPONSE,$BODY) = ();
 
@@ -39,7 +40,15 @@ my $app = sub {
 		$BODY .= ("<Response>\n");
 		$BODY .= ("<Server>".&ZOOVY::servername()."</Server>\n");
 		$BODY .= ("<Time>".(time())."</Time>\n");
-		$BODY .= ("<SyncURL>https://$HOSTDOMAIN/webapi/sync</SyncURL>");
+		
+		my ($CFG) = CFG->new();
+		if ($CFG->get('zid','insecure')) {
+			## some versions of IE don't like connecting via SSL/TLS
+			$BODY .= ("<SyncURL>http://$HOSTDOMAIN/webapi/sync</SyncURL>");
+			}
+		else {
+			$BODY .= ("<SyncURL>https://$HOSTDOMAIN/webapi/sync</SyncURL>");
+			}
 		$BODY .= ("</Response>\n");
 		$HTTP_RESPONSE = 200;
 		}

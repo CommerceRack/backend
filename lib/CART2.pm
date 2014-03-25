@@ -233,11 +233,6 @@ sub jsonify {
 
 	$R{'@SHIPMETHODS'} = $self->{'@shipmethods'};
 
-
-	open F, ">/tmp/jsonify";
-	print F Dumper(\%R);
-	close F;
-
 	return(\%R);
 	}
 

@@ -57,6 +57,207 @@ require TOXML::SPECL3;
 
 
 ##
+## NOTE: these are also used by SITE::EMAILS for ORDERS tracker roi on checkout release 201401 and earlier.
+##
+%SITE::EMAIL::CART_MACROS = (
+
+		'%PRODUCT%'=>q~<% /* PRODUCT macro */ loadurp("FLOW::SKU"); default(""); print(); %>~,		
+		'%SDOMAIN%'=>q~<% /* SDOMAIN macro */ loadurp("FLOW::SDOMAIN"); default(""); print(); %>~,
+
+		#%BILLPHONE%	Customers Billing Phone
+		'%BILLPHONE%'=>q~<% /* BILLPHONE macro */ loadurp("CART2::bill/phone"); default(""); print(); %>~,
+
+		#%SHIPPHONE%	Customers Shipping Phone
+		'%SHIPPHONE%'=>q~<% /* SHIPPHONE macro */ loadurp("CART2::ship/phone"); default(""); print(); %>~,
+
+		#%BILLEMAIL%	Customers Billing Email
+		'%BILLEMAIL%'=>q~<% /* BILLEMAIL macro */ loadurp("CART2::bill/email"); default(""); print(); %>~,
+		'%BILLCOUNTRY%'=>q~<% /* BILLCOUNTRY macro */ loadurp("CART::run.deduce_bill_countrycode"); default("XY"); print(); %>~,
+
+		#%MYNAME%	Company Name - from Zoovy account config.
+		'%MYNAME%'=>q~<% /* MYNAME macro */ loadurp("PROFILE::zoovy:company_name"); default(""); print(); %>~,
+
+		#%MYEMAIL%	Company Support Email - from Zoovy account config.
+		'%MYEMAIL%'=>q~<% /* MYEMAIL macro */ loadurp("PROFILE::zoovy:support_email"); default(""); print(); %>~,
+
+		#%MYPHONE%	Company Support Phone - from Zoovy account config.
+		'%MYPHONE%'=>q~<% /* MYPHONE macro */ loadurp("PROFILE::zoovy:support_phone"); default(""); print(); %>~,
+
+		#%REASON%
+		'%REASON%'=>q~<% /* REASON macro */ loadurp("CART::chkout.resultmessage"); default(""); print(); %>~,
+
+		#%GRANDTOTAL%	The total amount of the order without a dollar sign ($)
+		'%GRANDTOTAL%'=>q~<% /* GRANDTOTAL macro */ loadurp("CART2::sum/order_total"); format(precision=>2); default(""); print(); %>~,
+		#%DISCOUNTS%
+		'%TOTAL_DISCOUNTS%'=>q~<% /* DISCOUNTS macro */ loadurp("CART::run.total_discounts"); default(""); print(); %>~,
+		'%EST_SHIP_YYYY_MM_DD%'=>q~<% /* EST_SHIP_YYYY_MM_DD macro */ loadurp("CART::run.est_ship_yyyy_mm_dd"); default(""); print(); %>~,
+		'%HAS_PREBACKDELAY_YN%'=>q~<% /* HAS_PREBACKDELAY_YN macro */ loadurp("CART::run.has_prebackdelay_yn"); default(""); print(); %>~,
+		'%HAS_DOWNLOAD_YN%'=>q~<% /* HAS_DOWNLOAD_YN macro */ loadurp("CART::run.has_download_yn"); default(""); print(); %>~,
+
+		'%GOOGLE_TRUSTED_STORES_ITEM_SPANS%'=>q~<%  /* generates pipe separated list of products in cart */
+pull(stack=>>$items,src=>"CART::STUFF");
+:ITEMS();
+pop(stack=>>$items,namespace=>"item");
+
+print("&lt;span class=&quot;gts-item&quot;&gt;");
+	print("&lt;span class=&quot;gts-i-name&quot;&gt;");
+		print($item.prod_name);
+	print("&lt;/span&gt;");
+	print("&lt;span class=&quot;gts-i-price&quot;&gt;");
+		print($item.price);
+	print("&lt;/span&gt;");
+	print("&lt;span class=&quot;gts-i-quantity&quot;&gt;");
+		print($item.qty);
+	print("&lt;/span&gt;");
+	print("&lt;span class=&quot;gts-i-prodsearch-id&quot;&gt;");
+		print($item.sku);
+	print("&lt;/span&gt;");
+	print("&lt;span class=&quot;gts-i-prodsearch-store-id&quot;&gt;");
+		loadurp("PROFILE::googlets:search_account_id"); default(""); print();
+	print("&lt;/span&gt;");
+	print("&lt;span class=&quot;gts-i-prodsearch-country&quot;&gt;");
+		print("US");
+	print("&lt;/span&gt;");
+	print("&lt;span class=&quot;gts-i-prodsearch-language&quot;&gt;");
+		print("US");
+	print("&lt;/span&gt;");
+print("&lt;/span&gt;\n");
+goto(ifempty=>$items,label=>"END");
+goto(label=>"ITEMS");
+:END();
+%>~,
+
+		#%SUBTOTAL%	The subtotal (amount not including shipping+handling) of the order without a dollar sign		
+		'%SUBTOTAL%'=>q~<% /* SUBTOTAL macro */ loadurp("CART2::sum/items_total"); format(precision=>2); default(""); print(); %>~,
+
+		# '%SHIPPING%'     => sprintf("%.2f",$cartref->{'ship.selected_price'}),
+		'%SHIPPING%'=>q~<% /* SHIPPING macro */ loadurp("CART2::sum/shp_total"); format(precision=>2); default(""); print(); %>~,
+
+		# '%TOTALTAX%'     => sprintf("%.2f",$cartref->{'data.tax_total'}),
+		'%TOTALTAX%'=>q~<% /* TOTALTAX macro */ loadurp("CART2::sum/tax_total"); format(precision=>2); default(""); print(); %>~,
+
+		#%CCTYPE%	Type of credit card the customer has entered
+		'%CCTYPE%'=>q~<% /* CCTYPE macro */ loadurp("CART::chkout.cc_number"); format(payment=>"cc_type"); default(""); print(); %>~,
+
+		#%CCNUMBER%	Credit card number the customer has entered, with only the last few numbers showing
+		'%CCNUMBER%'=>q~<% /* CCNUMBER macro */ loadurp("CART::chkout.cc_number"); format(payment=>"cc_masked"); default(""); print(); %>~,
+
+		#%CCEXPMONTH%	Customer-entered credit card expiration month
+		'%CCEXPMONTH%'=>q~<% /* CCEXPMONTH macro */ loadurp("CART::chkout.cc_exp_month"); default(""); print(); %>~,
+
+		#%CCEXPYEAR%	Customer-entered credit card expiration year				
+		'%CCEXPYEAR%'=>q~<% /* CCEXPYEAR macro */ loadurp("CART::chkout.cc_exp_year"); default(""); print(); %>~,
+
+		#%BILLADDR%	Customers Billing Address
+		'%BILLADDR%'=>q~<% /* BILLADDR macro */ 
+/* Full name */
+loadurp("CART2::bill/firstname"); default(""); print(); 
+loadurp("CART2::bill/middlename"); default(""); format(pretext=>" "); print(); 	
+loadurp("CART2::bill/lastname"); default(""); format(pretext=>" "); print(); 
+print("<br>");
+/* Company */
+loadurp("CART2::bill/company"); default(""); format(posttext=>"<br>"); print();
+/* Address1 */
+loadurp("CART2::bill/address1"); default(""); format(posttext=>"<br>"); print();
+loadurp("CART2::bill/address2"); default(""); format(posttext=>"<br>"); print();
+/* City state zip */
+
+loadurp("CART2::bill/city"); default(""); format(posttext=>" , "); print(); 
+loadurp("CART2::bill/region"); default(""); format(pretext=>" ",posttext=>". "); print();
+loadurp("CART2::bill/postal"); default(""); print();
+print("<br>");
+loadurp("CART2::bill/countrycode"); default(""); format(posttext=>"<br>"); print(); 
+%>~,
+
+		#%SHIPADDR%	Customers Shipping Address
+		'%SHIPADDR%'=>q~<% /* SHIPADDR macro */ 
+/* Full name */
+loadurp("CART2::ship/firstname"); default(""); print(); 
+loadurp("CART2::ship/middlename"); default(""); format(pretext=>" "); print(); 	
+loadurp("CART2::ship/lastname"); default(""); format(pretext=>" "); print(); 
+print("<br>");
+/* Company */
+loadurp("CART2::ship/company"); default(""); format(posttext=>"<br>"); print();
+/* Address1 */
+loadurp("CART2::ship/address1"); default(""); format(posttext=>"<br>"); print();
+loadurp("CART2::ship/address2"); default(""); format(posttext=>"<br>"); print();
+/* City state zip */
+loadurp("CART2::ship/city"); default(""); format(posttext=>", "); print();
+loadurp("CART2::ship/region"); default(""); format(posttext=>". "); print();
+loadurp("CART2::ship/postal"); default(""); print();
+print("<br>");
+loadurp("CART2::ship/countrycode"); default(""); format(posttext=>"<br>"); print(); 
+%>~,
+
+		#%PAYABLETO%	Who to make checks/money orders/wire transfers/etc. payable to.
+		'%PAYABLETO%'=>q~<% /* PAYABLETO macro */
+loadurp("WEBDB::payable_to"); default(""); 
+goto(nb=>$_,label=>"END");
+loadurp("PROFILE::zoovy:company_name"); default("");
+goto(nb=>$_,label=>"END");
+default("[Unknown]"); 
+:END();
+print();
+%>~,	
+
+		#%ORDERID%	The Order ID (not available until the invoice stage)
+		'%ORDERID%'      => q~<% /* ORDERID macro */ loadurp("CART2::our/orderid"); default("(order not yet created)"); print(); %>~,
+
+		#%MYADDRESS%	Company Mailing Address - from Zoovy Account Config
+		'%MYADDRESS%'	  => q~<% /* MYADDRESS macro */
+/* Company */
+loadurp("PROFILE::zoovy:company_name"); default(""); format(posttext=>"<br>"); print();
+/* Address1 */
+loadurp("PROFILE::zoovy:address1"); default(""); format(posttext=>"<br>"); print();
+loadurp("PROFILE::zoovy:address2"); default(""); format(posttext=>"<br>"); print();
+/* City state zip */
+loadurp("PROFILE::zoovy:city"); default(""); format(pretext=>" ",posttext=>", "); print();
+loadurp("PROFILE::zoovy:state"); default(""); format(pretext=>" ",posttext=>". "); print();
+loadurp("PROFILE::zoovy:zip"); default(""); print();
+print("<br>");
+%>~,
+
+		'%PAYPALEMAIL%'=>q~<% /* PAYPALEMAIL macro */ loadurp("WEBDB::paypal_email"); default(""); print(); %>~,
+		'%PAYNOWURL%'=>q~<% /* PAYNOWURL macro */
+loadurp("CART2::our/orderid"); default(""); 
+format(payment=>"paypal_url",order=>$_); 
+print(); 
+%>~,
+		'%PAYWIREINSTRUCTIONS%'=>q~<% /* PAYWIREINSTRUCTIONS macro */ loadurp("WEBDB::pay_wire_instructions"); default(""); print(); %>~,
+
+		'%ORDERSTATUSURL%'=>q~<% 
+	loadurp("URL::order_status_url"); default(""); print(); 
+	print("?");
+	print("email=");
+	loadurp("CART2::bill/email"); default(""); print(); 
+	print("&order_id=");
+	loadurp("CART2::our/orderid"); default(""); print();
+	print("&cartid=");
+	loadurp("CART2::cart/cartid");	default(""); print();
+%>~,
+
+		#'%META%'         => $cartref->{'meta'},
+		'%META%'=>q~<% /* META macro */ loadurp("CART2::cart/refer"); default(""); print(); %>~,
+		'%grandtotal%'=>q~<% /* grandtotal macro */ loadurp("CART2::sum/order_total"); format(money=>1); default(""); print(); %>~,
+
+		'%CARTID%'=>q~<% /* CARTID macro */ loadurp("CART2::cart/cartid"); default(""); print(); %>~,
+		'%CART_ITEMS%'=>q~<%  /* generates pipe separated list of products in cart */
+pull(stack=>>$items,src=>"CART::STUFF");
+:ITEMS();
+pop(stack=>>$items,namespace=>"item");
+print($item.stid);
+goto(ifempty=>$items,label=>"END");
+print("|");
+goto(label=>"ITEMS");
+:END();
+%>
+~,
+		);
+
+
+
+
+##
 ## http://www.xe.com/symbols.php
 ##
 %SITE::MSGS::CURRENCIES = (
@@ -718,12 +919,12 @@ sub get {
 			$msgtxt = &interpolate_macroref($msgtxt,$macroref);
 			}
 
-		#if (index($msgtxt,'%')>=0) {
-		#	## we *STILL* have at least one macro (or we probably do)
-		#	## this will go through and convert any macros e.g. %BILLEMAIL% to their
-		#	## respective specl command <% loadurp("CART::chkout.bill_email"); default(""); print(); %>
-		#	$msgtxt = &interpolate_macroref($msgtxt,\%SITE::EMAIL::CART_MACROS);
-		#	}
+		if (index($msgtxt,'%')>=0) {
+			## we *STILL* have at least one macro (or we probably do)
+			## this will go through and convert any macros e.g. %BILLEMAIL% to their
+			## respective specl command <% loadurp("CART::chkout.bill_email"); default(""); print(); %>
+			$msgtxt = &interpolate_macroref($msgtxt,\%SITE::EMAIL::CART_MACROS);
+			}
 
 		my @vars = ();		
 
@@ -742,12 +943,12 @@ sub get {
 sub show {
 	my ($self,$msgtxt) = @_;
 
-	#if (index($msgtxt,'%')>=0) {
-	#	## we have at least one macro (or we probably do)
-	#	## this will go through and convert any macros e.g. %BILLEMAIL% to their
-	#	## respective specl command <% loadurp("CART::chkout.bill_email"); default(""); print(); %>
-	#	$msgtxt = &interpolate_macroref($msgtxt,\%SITE::EMAIL::CART_MACROS);
-	#	}
+	if (index($msgtxt,'%')>=0) {
+		## we have at least one macro (or we probably do)
+		## this will go through and convert any macros e.g. %BILLEMAIL% to their
+		## respective specl command <% loadurp("CART::chkout.bill_email"); default(""); print(); %>
+		$msgtxt = &interpolate_macroref($msgtxt,\%SITE::EMAIL::CART_MACROS);
+		}
 
 	require TOXML::SPECL3;
 	my @vars = ();		
@@ -798,11 +999,11 @@ sub fast_interpolate_macroref {
 sub interpolate_macros {
 	my ($txt) = @_;
 
-	#my %q = %SITE::EMAIL::CART_MACROS;
-	#foreach my $k (keys %q) {
-	#	next unless (index($txt,$k)>=0);	## regex's are more expensive than index!
-	#	$txt =~ s/$k/$q{$k}/gis;
-	#	}
+	my %q = %SITE::EMAIL::CART_MACROS;
+	foreach my $k (keys %q) {
+		next unless (index($txt,$k)>=0);	## regex's are more expensive than index!
+		$txt =~ s/$k/$q{$k}/gis;
+		}
 
 	return($txt);
 	}
@@ -934,6 +1135,8 @@ sub compile {
 	$webdbref->{'@SITEMSGS'} = \@SET;
 	&ZWEBSITE::save_website_dbref($self->username(),$webdbref,$self->prt());
 	}
+
+
 
 
 1;
