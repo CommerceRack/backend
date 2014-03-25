@@ -626,6 +626,16 @@ sub core_math {
 		elsif ($arg->{'key'} eq 'sub') {
 			$result = $result - $self->lookup_value($arg->{value});
 			}
+		elsif (($arg->{'key'} eq 'multiply') || ($arg->{'key'} eq 'mult')) {
+			$result = $result * $self->lookup_value($arg->{value});
+			}
+		elsif (($arg->{'key'} eq 'divide') || ($arg->{'key'} eq 'div')) {
+			$result = $result / $self->lookup_value($arg->{value});
+			}
+		elsif ($arg->{'key'} eq 'precision') {
+			my $sprintf = sprintf("%%0.%df",int($self->lookup_value($arg->{value})));
+			$result = sprintf($sprintf,$result);
+			}
 		else {
 			warn "bad math: ".Dumper($arg);
 			$result = undef;
