@@ -184,6 +184,9 @@ apply --img --media=$var --width=75 --height=75 --bgcolor='#ffffff' --replace;" 
 
 	'%SHIPMETHOD%'=> q|<div data-tlc="bind $var '.%ORDER.sum.shp_method'; apply --append;"></div>|,
 
+# perl -e ' use lib "/httpd/modules"; use CART2; use TLC; use BLAST::DEFAULTS; my ($tlc) = TLC->new("sporks",0); 
+# my %data = (); $data{"%ORDER"} = CART2->new_from_oid("sporks","2014-03-819")->jsonify(); print $tlc->render_html($BLAST::DEFAULTS::MACROS{"%PAYINFO%"},\%data); '
+
 	'%PAYINFO%'=> q|
 
 <div data-tlc="
