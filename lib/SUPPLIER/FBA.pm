@@ -487,7 +487,6 @@ sub shipquote {
 
 	my $i = 0;
 
-	## NOTE: FUCK YOU AMAZON, TESTING YOUR FUCKING SHIT.
 	## DO NOT UNCOMMENT
 	## will result in: Top level element may not be treated as a list
 	#foreach my $rate ('Expedited','Standard','Priority') {

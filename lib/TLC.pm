@@ -759,9 +759,6 @@ sub core_apply {
 				$new = $TLCPARAM{'src'};
 				}
 			}
-		elsif ($arg->{key} eq 'empty') {
-			$self->_cwt()->content("")																	
-			}
 		elsif ($arg->{key} eq 'remove') {
 			$self->_cwt()->remove($new || $self->lookup_value($arg->{value}))					 
 			}
@@ -783,8 +780,18 @@ sub core_apply {
 			$self->_cwt()->attr( $self->lookup_value($arg->{value})=>$new );
 			}
 		}
-
 	}
+
+
+## not implemented yet
+sub core_render {
+	my ($self, $command) = @_;
+
+#[3:10:42 PM] jt: var: {"string":"<h1>This is some text</h1><p>Text is grand</p>"}
+#TLC:   bind $var '.string'; render --text; append --apply;
+#output: &lt;h1&lt;This is some text&lt;/h1&lt;&lt;p&lt;Text is grand&lt;/p&lt;
+	}
+
 
 sub core_format {
 	my ($self, $command) = @_;

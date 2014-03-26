@@ -44,11 +44,10 @@ sub send {
 	my $SUBJECT = $msg->subject();
 	$SUBJECT =~ s/<.*?>//gs;	# html stripping!
 
-	print STDERR "BODY: $BODY\n";
-
+#	print STDERR "BODY: $BODY\n";
 
 	my %EMAIL = ();
-	$webdbref->{'%plugin.esp_awsses'} = {};
+#	$webdbref->{'%plugin.esp_awsses'} = {};
 
 	if ((defined $webdbref->{'%plugin.esp_awsses'}) && ($webdbref->{'%plugin.esp_awsses'}->{'enable'})) {
 		##
