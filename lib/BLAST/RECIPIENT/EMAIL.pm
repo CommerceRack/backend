@@ -44,8 +44,12 @@ sub send {
 	my $SUBJECT = $msg->subject();
 	$SUBJECT =~ s/<.*?>//gs;	# html stripping!
 
+	print STDERR "BODY: $BODY\n";
+
 
 	my %EMAIL = ();
+	$webdbref->{'%plugin.esp_awsses'} = {};
+
 	if ((defined $webdbref->{'%plugin.esp_awsses'}) && ($webdbref->{'%plugin.esp_awsses'}->{'enable'})) {
 		##
       ##                              'iam-username' => '20131126-200727',
@@ -73,9 +77,14 @@ sub send {
 
 		my $r = undef;
 		eval { $r = $ses->send($msg); };
+
+		use Data::Dumper; 
+		print STDERR 'AWS ERROR'.Dumper($r,$webdbref->{'%plugin.esp_awsses'})."\n";
+
 		}
 	else {
 		##
+		print STDERR "EMAIL TO $RECIPIENT\n";
 		%EMAIL = (
 			'esp'=>'postfix',
 			'from_email_campaign'=>''

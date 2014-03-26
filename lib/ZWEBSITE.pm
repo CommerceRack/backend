@@ -885,6 +885,9 @@ sub save_website_dbref {
 	chmod(0666, $file);
 	&ZOOVY::touched($USERNAME,1);
 
+	my $cachefile = &ZWEBSITE::webdb_cache_file($USERNAME,$PRT);
+	unlink $cachefile;
+
 	## VERY IMPORTANT!
 	my $MEMCACHE_KEY = lc("webdb-ts|$USERNAME.$PRT");
 	my $memd = &ZOOVY::getMemd($USERNAME);

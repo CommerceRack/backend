@@ -8884,8 +8884,13 @@ sub adminBlastMsg {
 		$params{'USERNAME'} = $self->username();
 		$params{'MID'} = $self->mid();
 		$params{'PRT'} = $self->prt();
-		$params{'MSGID'} = uc($v->{'MSGID'});
-		$params{'OBJECT'} = $v->{'OBJECT'};
+		my $MSGID = uc($v->{'MSGID'});
+		$params{'MSGID'} = $MSGID;
+		$params{'OBJECT'} = $v->{'OBJECT'} || $BLAST::DEFAULTS::MSGS{$MSGID}->{'MSGOBJECT'};
+		if (($params{'OBJECT'} eq '') && ($MSGID =~ /^(.*?)\./)) {
+			## so customer ORDER.XYZ will become OBJECT 'ORDER'
+			$params{'OBJECT'} = $1;
+			}
 		$params{'SUBJECT'} = $v->{'SUBJECT'};
 		$params{'BODY'} =  $v->{'BODY'};
 		my %META = ();

@@ -35,7 +35,8 @@ package BLAST::DEFAULTS;
 	'%HELPEMAIL%'=> q|<span data-tlc="bind $var '.%PRT.EMAIL'; apply --append;"></span>|,
 	'%LINKSTYLE%'=> q|<span data-tlc="bind $var '.%PRT.LINKSTYLE'; apply --append;"></span>|,
 
-	'%LINKDOMAIN%'=> q|<span data-tlc="bind $var '.%PRT.DOMAIN'; 
+	'%LINKDOMAIN%'=> q|<span data-tlc="
+bind $var '.%PRT.DOMAIN'; 
 if (is $var --notblank) {{
 	format --prepend='http://'; 
 	apply --attrib='href'; 
@@ -71,11 +72,11 @@ body { font-family: helvetica; }
 <body>|,
 	'%FOOTER%'=>q|
 <hr>
-%LINKDOMAIN%
+<!-- DOMAIN LINK -->
+<span data-tlc="bind $var '.%PRT.DOMAIN'; if (is $var --notblank) {{	format --prepend='http://'; 	apply --attrib='href'; 	apply --append;	}};"></span>
 </body>
 |,
 
-	'%AMAZON_ORDERID%' => q|<span data-tlc="bind $var '.%ORDER.mkt.amazon_orderid'; apply --append;"></span>|,
 	'%ORDERID%'=> q|<span data-tlc="bind $var '.%ORDER.our.orderid'; apply --append;"></span>|,
 	'%CARTID%'=> 	q|<span data-tlc="bind $var '.%ORDER.cart.cartid'; apply --append;"></span>|,
 	'%EREFID%'=> 	q|<span data-tlc="bind $var '.%ORDER.want.erefid'; apply --append;"></span>|,
@@ -808,7 +809,14 @@ if (is $var --blank) {{
 	'%REWARD_BALANCE%'=> q|<span data-tlc="bind $var '.%CUSTOMER.INFO.REWARD_BALANCE'; apply --replace;"></span>|,
 ##	[ 'CUSTOMER',
 	'%CUSTOMER_USERNAME%'=> q|<span data-tlc="bind $var '.%CUSTOMER.INFO.EMAIL'; apply --replace;"></span>|,
-	'%CUSTOMER_INITPASS%'=> q|<span data-tlc="bind $var '.%CUSTOMER.INFO.PASSWORD'; apply --replace;"></span>|,
+	'%CUSTOMER_PASSWORD%'=> q|
+<span data-tlc="
+bind $var '.%RUPDATES.PASSWORD-RECOVER.password';
+if (is $var --blank) {{ bind $var '.%RUPDATES.PASSWORD-SET.password'; }};
+if (is $var --blank) {{ set $var '**Hidden**'; }};
+apply --replace;
+"></span>
+|,
 	'%CUSTOMER_UNSUBSCRIBE%' => q|<span data-tlc="bind $var '.%PRT.DOMAIN'; format --prepend='http://'; apply --attrib='href'; apply --append;"></span>|,
 	'%REMOTEIPADDRESS%'=> q|<span data-tlc="bind $ip '.%ENV.REMOTE_ADDR'; format --default='unknown'; apply --replace;"></span>|,
 ##	[ 'CUSTOMER',
@@ -891,17 +899,26 @@ Created: %ORDERDATE%
 </tbody>
 </table>
 
+<p>
 <h2>Order Contents</h2>
 %ORDERITEMS%
+</p>
 
+<p>
 <h3>Shipping Method</h3>
 %SHIPMETHOD%
+</p>
 
+<p>
 <h3>Payment Information</h3>
 %PAYINFO%
+</p>
 
+<p>
 <h3>Payment Instructions</h3>
 %PAYINSTRUCTIONS%
+</p>
+
 |,
 		},
 	'PRINTABLE.PACKSLIP'=>{
@@ -958,15 +975,19 @@ Coming soon!
 		MSGSUBJECT=>'Your eBay order has arrived - please leave us feedback',
 		MSGBODY=>q~
 %HEADER%
+<p>
 Based on the shipment date, and the method we shipped your package - 
 your order should have arrived, if you have not received it please contact us.
-
+</p>
+<p>
 We appreciate your business and ask that you take a moment of your busy schedule to rate us.  
 Please give us 5 out of 5 in all categories, unless you feel we do not
 deserve that score - in which case we'd greatly appreciate your feedback as to how we could have improved.  
-
+</p>
+<p>
 By giving us 5 out of 5 you are ensuring that we'll continue to bring 
 you the best possible service at the most competitive prices!
+</p>
 %FOOTER%
 ~,
 		},
@@ -976,7 +997,7 @@ you the best possible service at the most competitive prices!
 		MSGTITLE=>'Order Arrived: Buy.com Follow Up',
 		MSGSUBJECT=>'Your Buy.com order has arrived!',
 		MSGBODY=>q~
-
+<pre>
 Based on the shipment date, and the method we shipped your package - 
 your order should have arrived, if you have not received it please contact us.
 
@@ -987,7 +1008,9 @@ Please take a moment to review your order on our website:
 
 %LINKORDER%
 
-By giving us a good rating you are ensuring that we'll continue to bring you the best possible service at the most competitive prices!
+By giving us a good rating you are ensuring that we'll continue to bring you the best possible service at 
+the most competitive prices!
+</pre>
 ~,
 		},
 	'ORDER.ARRIVED.AMZ'=>{
@@ -996,10 +1019,19 @@ By giving us a good rating you are ensuring that we'll continue to bring you the
 		MSGTITLE=>'Order Arrived: Amazon Follow Up',
 		MSGSUBJECT=>'Your Amazon order has arrived - please leave us feedback',
 		MSGBODY=>q~
+<pre>
 Based on the shipment date, and the method we shipped your package - 
 your order should have arrived, if you have not received it please contact us.
 Contact Amazon Customer Service:
-http://www.amazon.com/gp/help/contact-us/general-questions.html?orderId=%AMAZON_ORDERID%
+<span data-tlc="
+bind $amzoid '.%ORDER.mkt.amazon_orderid'; 
+if (is $amzoid --notblank) {{
+	set $url 'http://www.amazon.com/gp/help/contact-us/general-questions.html?orderId=';
+	format $url --append=$amzoid;
+	apply --href=$url;
+	apply --append;
+	}};
+"></span>
 
 We appreciate your business and ask that you take a moment of your busy schedule to rate us.  Please give us 5 out of 5 in all categories, unless you feel we do not
 deserve that score - in which case we'd greatly appreciate your feedback as to how we could have improved.  
@@ -1007,7 +1039,16 @@ deserve that score - in which case we'd greatly appreciate your feedback as to h
 By giving us 5 out of 5 you are ensuring that we'll continue to bring you the best possible service at the most competitive prices!
 
 Leave Seller Feedback!!!
-http://www.amazon.com/gp/feedback/leave-customer-feedback.html?order=%AMAZON_ORDERID%
+<span data-tlc="
+bind $amzoid '.%ORDER.mkt.amazon_orderid'; 
+if (is $amzoid --notblank) {{
+	set $url 'http://www.amazon.com/gp/feedback/leave-customer-feedback.html?order=';
+	format $url --append=$amzoid;
+	apply --href=$url;
+	apply --append;
+	}};
+"></span>
+</pre>
 ~,
 		},
 	'ORDER.ARRIVED.WEB'=>{
@@ -1017,15 +1058,18 @@ http://www.amazon.com/gp/feedback/leave-customer-feedback.html?order=%AMAZON_ORD
 		MSGSUBJECT=>'Your order has arrived - please leave us feedback',
 		MSGBODY=>q~
 %HEADER%
+<p>
 Based on the shipment date, and the method we shipped your package - 
 your order should have arrived, if you have not received it please contact us.
-
+</p>
+<p>
 Hopefully by now you've opened the package and had a bit of time with the product. 
 Please take a moment to review your order on our website:
-
+</p>
 %LINKORDER%
-
+<p>
 Reviews help us continue to deliver a great online shopping experience for customers just like you.
+</p>
 %FOOTER%
 ~,
 		},
@@ -1037,19 +1081,22 @@ Reviews help us continue to deliver a great online shopping experience for custo
 			MSGBODY=>q~
 %HEADER%
 
-Hi %FULLNAME%,
+Hi %FULLNAME%,<br>
+<br>
 
-This is a notification of a recent order consolidation.
-The resulting order number is %ORDERID%.
+This is a notification of a recent order consolidation.<br>
+The resulting order number is %ORDERID%.<br>
 
-There is no need to reply to this email if everything is correct with your order.
+There is no need to reply to this email if everything is correct with your order.<br>
 
-Contact Email: %LINKEMAIL%
-
+<p>
 Combined Order Contents: 
 %ORDERITEMS%
+</p>
 
+<p>
 If you have any questions or concerns please contact us immediately. Thank You!
+</p>
 
 %FOOTER%
 ~,
@@ -1061,14 +1108,18 @@ If you have any questions or concerns please contact us immediately. Thank You!
 			MSGBODY=>q~
 %HEADER%
 
-Hi %FULLNAME%,
-
+Hi %FULLNAME%,<br>
+<p>
 This is a notification that your #%ORDERID% has been split into
 two pieces, and a new order id #%SPLITID% has been created.
+</p>
 
+<p>
 <h2>Contents of #%ORDERID%</h2>
 %PACKSLIP%
+</p>
 
+<p>
 <h2>Contents of #<span data-tlc="bind $var '.%SPLIT.%our.orderid'; apply --append;"></span></h2>
 <table id="contents" data-tlc="bind $items '.%SPLIT.@ITEMS'; foreach $item in $items {{ transmogrify --templateid='skuTemplate' --dataset=$item; apply --append; }}; ">
 <thead>
@@ -1088,10 +1139,10 @@ two pieces, and a new order id #%SPLITID% has been created.
 </template>
 </tbody>
 </table>
+</p>
 
 There is no need to reply to this email if everything is correct.<br>
 
-If not please contact us immediately at %LINKEMAIL%</a><br>
 Thank You.
 
 %FOOTER%
@@ -1103,8 +1154,11 @@ Thank You.
 			MSGSUBJECT=>'Order %ORDERID% shipped',
 			MSGBODY=>q~
 %HEADER%
+
+<p>
 An item from your %ORDERID% has been shipped. 
 The tracking numbers (if available) appear below:
+</p>
 
 %TRACKINGINFO%
 
@@ -1116,8 +1170,10 @@ The tracking numbers (if available) appear below:
 			MSGFORMAT=>'TEXT',
 			MSGSUBJECT=>'Your order has been shipped.',
 			MSGBODY=>q~
+<pre>
 Your order has been shipped.  
 If available the tracking numbers will appear below:
+
 %TRACKINGINFO%
 
 To see the tracking status for this order, or to contact us with any
@@ -1132,6 +1188,7 @@ This will help us to move higher in the eBay rankings and continue to provide th
 best customer service possible.
 
 Thank you!
+</pre>
 ~,
 			MAXLENGTH=>3500,
 			},
@@ -1142,10 +1199,13 @@ Thank you!
 			HINT=>q~This message is usually generated from an event.~,
 			MSGSUBJECT=>q~Amazon Feedback Request~,
 			MSGBODY=>q~
-Hi %FIRSTNAME%,
-Thank you for your order, we hope it has arrived intact. 
+Hi %FIRSTNAME%,<br>
+<p>
+Thank you for your order, we hope it has arrived as expected. 
 We would appreciate if you would take a few moments from your busy day
-to go and leave us feedback on Amazon.~,		
+to leave us feedback on Amazon.
+</p>
+~,		
 			},
 		'ORDER.MOVE.RECENT' => {
 			MSGOBJECT=>'ORDER',
@@ -1197,8 +1257,9 @@ You will be notified when information becomes available.~,
 			MSGSUBJECT=>'Order %ORDERID% shipped',
 			MSGBODY=>q~Your order %ORDERID% has been shipped. 
 The tracking numbers (if available) appear below:
-
+<p>
 %TRACKINGINFO%
+</p>
 ~,
 			},
 	'ORDER.FEEDBACK.EBAY'=>{
@@ -1207,6 +1268,7 @@ The tracking numbers (if available) appear below:
 		MSGTITLE=>'eBay Positive Feedback Request',
 		MSGSUBJECT=>q~eBay Feedback~,
 		MSGBODY=>q~
+<pre>
 Hello,
 
 Thank you for your purchase!
@@ -1218,6 +1280,7 @@ We hope to serve you in the future.
 Customer support is very important to us. If you have any questions or comments.
 
 Thank You!
+</pre>
 ~,
 		},
 
@@ -1228,17 +1291,17 @@ Thank You!
 		MSGSUBJECT=>q~Order %ORDERID% Created~,
 		MSGBODY=>q~
 %HEADER%
-		
-Hello %NAME%,
-
-
+	
+Hello %NAME%,<br>
+<p>
 Thank you for placing order %ORDERID%.
-
 We appreciate your business. 
-If you need to contact us please make sure to include the following order number:
+</p>
 
+<p>
 <h1>Order Number: %ORDERID%</h1>
 Created: %ORDERDATE%
+</p>
 
 <table>
 <thead>
@@ -1255,21 +1318,30 @@ Created: %ORDERDATE%
 </tbody>
 </table>
 
+<p>
 <h2>Order Contents</h2>
 %ORDERITEMS%
+</p>
 
+<p>
 <h3>Shipping Method</h3>
 %SHIPMETHOD%
+</p>
 
+<p>
 <h3>Payment Information</h3>
 %PAYINFO%
+</p>
 
+<p>
 <h3>Payment Instructions</h3>
 %PAYINSTRUCTIONS%
+</p>
 
 Please visit %LINKORDER% to check status on this order.
 
-Customer support is very important to us. If you have any questions or comments please contact us.
+Customer support is very important to us. 
+If you have any questions or comments please contact us.
 %LINKEMAIL%
 %LINKPHONE%. 
 
@@ -1286,19 +1358,27 @@ Customer support is very important to us. If you have any questions or comments 
 		MSGBODY=>q~
 %HEADER%
 
-Hello %FULLNAME%,
+Hello %FULLNAME%,<br>
 
+<p>
 Unfortunately there was a problem processing your order %ORDERID%.
+</p>
 
+<p>
 <h2>Payment Instructions</h2>
 %PAYINSTRUCTIONS%
+</p>
 
+<p>
 Customer support is very important to us. If you have any questions or comments,  please contact us.
 %LINKEMAIL%
 %LINKPHONE%
+</p>
 
+<p>
 <h2>Order Details: %ORDERID%</h2>
 Created: %ORDERDATE%
+</p>
 
 <table>
 <thead>
@@ -1314,15 +1394,22 @@ Created: %ORDERDATE%
 </tr>
 </tbody>
 </table>
+</p>
 
+<p>
 <h2>Order Contents</h2>
 %ORDERITEMS%
+</p>
 
+<p>
 <h2>Shipping Method</h2>
 %SHIPMETHOD%
+</p>
 
+<p>
 <h2>Payment Information</h2>
 %PAYINFO%
+</p>
 
 %FOOTER%
 ~,
@@ -1336,25 +1423,33 @@ Created: %ORDERDATE%
 		MSGBODY=>q~
 %HEADER%
 
+<p>
 Hello %FIRSTNAME%, thank you for placing order %ORDERID%.
 We appreciate your business, however we have not received payment 
 for your order which was created on %ORDERDATE%. If you believe this is an error please contact us at:
 %LINKDOMAIN%
+</p>
 
+<p>
 Please follow the payment instructions below to remit payment as soon as possible.
+</p>
 
+<p>
 <h2>Order Contents</h2>
 %ORDERITEMS%
+</p>
 
+<p>
 <h2>Shipping Method</h2>
 %SHIPMETHOD%
+</p>
 
-<hr>
+<p>
 Please visit %LINKDOMAIN% to check status on this order.
-
 Customer support is very important to us. If you have any questions or comments, please contact us.
 %LINKPHONE%
 %LINKEMAIL%
+</p>
 
 %FOOTER%
 ~,		
@@ -1367,14 +1462,17 @@ Customer support is very important to us. If you have any questions or comments,
 		MSGBODY=>q~
 %HEADER%
 
-Hi %FIRSTNAME%,
+Hi %FIRSTNAME%,<br>
 
-%ADDITIONAL_TEXT%
+%ADDITIONAL_TEXT%<br>
 
-This is a friendly reminder that you have the following giftcards available
-to you:
+<p>
+This is a friendly reminder that you have the following giftcards available to you:
+</p>
 
+<p>
 %GIFTCARDS%
+</p>
 
 %FOOTER%
 ~,
@@ -1387,23 +1485,28 @@ to you:
 		MSGBODY=>q~
 %HEADER%
 
-Hi %FIRSTNAME%,
+Hi %FIRSTNAME%,<br>
 
-%ADDITIONAL_TEXT%
+<p>%ADDITIONAL_TEXT%</p>
 
-You have the following giftcards available to you:
-
+You have the following giftcard(s) available to you:<br>
+<p>
 %GIFTCARDS%
+</p>
 
+<p>
 TO USE THIS CARD:
 Please visit our website, place an item in the shopping cart, 
 then provide the code in the Giftcard box during checkout.
+</p>
 
+<p>
 IF YOU LOSE THIS EMAIL:
 Login to your customer account at our website and click on 
 the gift card code.  If you have not setup an account then
 we have already created one and you will need to recover the
 password.
+</p>
 
 %FOOTER%
 ~,
@@ -1416,10 +1519,12 @@ password.
 		MSGBODY=>q~
 %HEADER%
 
-Welcome!
+Welcome!<br>
 
+<p>
 If you wish to unsubscribe from our newsletter please visit
 %LINKDOMAIN%
+</p>
 
 %FOOTER%
 ~,
@@ -1432,10 +1537,12 @@ If you wish to unsubscribe from our newsletter please visit
 		MSGBODY=>q~
 %HEADER%
 
-Welcome %FIRSTNAME%!
+Welcome %FIRSTNAME%!<br>
 
+<p>
 A password for your account has been automatically generated.
-Your password is: %CUSTOMER_INITPASS%
+Your password is: %CUSTOMER_PASSWORD%
+</p>
 
 To login to your account and check the status of orders, or to make sure
 our records have your most current contact information please our website.
@@ -1447,30 +1554,35 @@ We can also be reached through our website.
 %FOOTER%
 ~,		
 		},
-	'CUSTOMER.PASSWORD.REQUEST'=>{  # PREQUEST
+	'CUSTOMER.PASSWORD.RECOVER'=>{  # PREQUEST
 		MSGOBJECT=>'CUSTOMER',
 		MSGFORMAT=>'HTML',
-		MSGTITLE=>q~Password Request~,
+		MSGTITLE=>q~Password Recovery~,
 		MSGSUBJECT=>q~Account information~,
 		MSGBODY=>q~
 %HEADER%
-
-Hello!
-
-You (or someone who thinks they're you) has requested that your password be sent to this email address.
-
-Your username is %CUSTOMER_USERNAME%
-Your password is %CUSTOMER_INITPASS%
-
-
-=Security info=
+<br>
+Hello!<br>
+<br>
+You (or someone who thinks they're you) has requested that a recovery password be sent to this email address.<br>
+<p>
+Your username is %CUSTOMER_USERNAME%<br>
+Your password is %CUSTOMER_PASSWORD%<br>
+</p>
+<p>
+This password will allow you to login for 3 hours. <br>
+Please use the online interface to save a new password for future use.<br>
+</p>
+<p>
 Password request originated from IP address %REMOTEIPADDRESS%
-
+</p>
+<p>
 Customer support is very important to us. 
-If you have any questions or comments, please contact us.
+If you have any questions or comments, please contact us.<br>
 %LINKDOMAIN%
 %LINKEMAIL%
 %LINKPHONE%
+</p>
 
 %FOOTER%
 ~,		
@@ -1484,11 +1596,15 @@ If you have any questions or comments, please contact us.
 		MSGBODY=>q~
 %HEADER%
 
+<p>
 This is to inform you that ticket %TKTCODE% has been created regarding:
 %TKTSUBJECT%
+</p>
 
+<p>
 To manage or update this ticket please use the URL below:
 %TKTURL%
+</p>
 
 %FOOTER%
 		~,
@@ -1502,11 +1618,12 @@ To manage or update this ticket please use the URL below:
 		MSGBODY=>q~
 %HEADER%
 
-Subject: %TKTSUBJECT%
-This is to inform you that ticket %TKTCODE% is awaiting your response.
+<b>This is to inform you that ticket %TKTCODE% is awaiting your response.</b>
 
+<p>
 To manage or update this ticket please use the URL below:
 %TKTURL%
+</p>
 
 %FOOTER%
 		~,
@@ -1520,11 +1637,12 @@ To manage or update this ticket please use the URL below:
 		MSGBODY=>q~
 %HEADER%
 
-Subject: %TKTSUBJECT%
-This is to inform you that ticket %TKTCODE% has been closed.
+<b>This is to inform you that ticket %TKTCODE% has been closed.</b>
 
+<p>
 To manage or update this ticket please use the URL below:
 %TKTURL%
+</p>
 
 %FOOTER%
 		~,
@@ -1538,18 +1656,26 @@ To manage or update this ticket please use the URL below:
 		MSGBODY=>q~
 %HEADER%
 
-Welcome! Thank you for signing up for our mailing list.
+Welcome! Thank you for signing up for our mailing list.<br>
 
+<p>
 A password for your account has been automatically generated.
+</p>
 
+<p>
 Login/Username: %CUSTOMER_USERNAME%
-Password: %CUSTOMER_INITPASS%
+Password: %CUSTOMER_PASSWORD%
+</p>
 
+<p>
 To unsubscribe from our mailing list please
 %CUSTOMER_UNSUBSCRIBE%
+</p>
 
+<p>
 Customer support is very important to us. 
 If you have any questions or comments, please contact us.
+</p>
 %LINKDOMAIN%
 %LINKEMAIL%
 %LINKPHONE%

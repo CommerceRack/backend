@@ -123,11 +123,12 @@ sub run_macro_cmds {
 		my $result = undef;
 		$self->sync_action("MACRO/$cmd");
 
-		if (($cmd eq 'PASSWORDRESET') || ($cmd eq 'PASSWORD-RESET')) {
-			if (defined $LU) { $LU->log("MANAGE.CUSTOMER.PASSRESET",sprintf("Password was reset for customer %d",$self->cid()),"INFO"); }
+		if ($cmd eq 'PASSWORD-SET') {
+			if (defined $LU) { $LU->log("MANAGE.CUSTOMER.PASSWORD-SET",sprintf("Password was reset for customer %d",$self->cid()),"INFO"); }
 			$R->{$cmd}->{'password'} = $self->initpassword(set=>$pref->{'password'});
 			}
 		elsif ($cmd eq 'PASSWORD-RECOVER') {
+			if (defined $LU) { $LU->log("MANAGE.CUSTOMER.PASSWORD-RECOVER",sprintf("Password recover for customer %d",$self->cid()),"INFO"); }
 			$R->{$cmd}->{'password'} = $self->generate_recovery();
 			}
 		elsif ($cmd eq 'GIFTCARD-CREATE') {
@@ -277,11 +278,14 @@ sub run_macro_cmds {
 			my $SHORTCUT = uc($pref->{'SHORTCUT'});
 			$self->nuke_addr($TYPE,$SHORTCUT);
 			}
-		elsif ($cmd eq 'SENDEMAIL') {
+		elsif (($cmd eq 'SENDEMAIL') || ($cmd eq 'BLAST-SEND')) {
 			my ($MSGID) = $pref->{'MSGID'};
 			my ($BLAST) = BLAST->new($self->username(),int($self->prt()));
-			my ($rcpt) = $BLAST->recipient('CUSTOMER',$self, {'%CUSTOMER'=>$self});
+			my ($rcpt) = $BLAST->recipient('CUSTOMER', $self, {'%CUSTOMER'=>$self,'%RUPDATES'=>$R});
+
 			my ($msg) = $BLAST->msg($MSGID,$pref);
+
+
 			$BLAST->send($rcpt,$msg);
 			}
 		elsif ($cmd eq 'ORDERLINK') {
@@ -1939,6 +1943,7 @@ sub fetch_attrib {
 				$sth->finish();
 				&DBINFO::db_user_close();
 				if (defined $ref) {
+					delete $ref->{'PASSWORD'};
 					#$ref->{'MODIFIED_GMT'} = &ZTOOLKIT::mysql_to_unixtime($ref->{'MODIFIED'});
 					#$ref->{'CREATED_GMT'} = &ZTOOLKIT::mysql_to_unixtime($ref->{'CREATED'});
 					#$ref->{'NEWSLETTER'} = $ref->{'LIKES_SPAM'}; delete $ref->{'LIKES_SPAM'};
