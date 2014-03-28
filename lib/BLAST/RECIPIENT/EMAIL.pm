@@ -28,7 +28,7 @@ sub send {
 	my ($self, $msg) = @_;
 
 	my $RECIPIENT = $self->email();
-	my $BCC = $self->bcc();
+	my $BCC = $msg->bcc() || $self->bcc();
 	my $BODY = $msg->body();
 
 #	open F, ">/tmp/email";
@@ -40,6 +40,7 @@ sub send {
 	#my $FROM = $MSGREF->{'MSGFROM'};
 	my $webdbref = $self->blaster()->webdb();
 	my $FROM =  $webdbref->{'from_email'} || $webdbref->{'paypal_email'};
+	
 
 	my $SUBJECT = $msg->subject();
 	$SUBJECT =~ s/<.*?>//gs;	# html stripping!
@@ -83,11 +84,11 @@ sub send {
 		}
 	else {
 		##
-		print STDERR "EMAIL TO $RECIPIENT\n";
 		%EMAIL = (
 			'esp'=>'postfix',
 			'from_email_campaign'=>''
 			);
+
 		my $msg = MIME::Lite->new(
 			'X-Mailer'=>sprintf("CommerceRack %s [%s]",$JSONAPI::VERSION,$msg->msgid()),
 			'Reply-To'=>$FROM,
@@ -100,16 +101,13 @@ sub send {
 			Subject => $SUBJECT,
 			Type=>'text/html',
 			Data => $BODY,
-#			  Encoding => 'quoted-printable'
 			);
 
 		$msg->attr("content-type"			=> "text/html");
 		$msg->attr("content-type.charset" => "US-ASCII");
-#		  $msg->attr("content-type.name"	 => "homepage.html");
 	
 		my $qtFROM = quotemeta($FROM);
 		$msg->send("sendmail", "/usr/lib/sendmail -t -oi -B 8BITMIME -f $FROM");
-		# MIME::Lite->send("sendmail", "/bin/cat >/tmp/foo");
 		}
 
 #	my $BODY = $result->{'BODY'};

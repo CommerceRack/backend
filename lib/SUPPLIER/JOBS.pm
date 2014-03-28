@@ -263,7 +263,7 @@ sub PROCESS {
 					}
 				}
 			}	
-		elsif ($S->fetch_property('FORMAT') =~ /^(FULFILL|DROPSHIP)$/) {
+		elsif ($S->fetch_property('FORMAT') =~ /^(FULFILL|DROPSHIP|FBA)$/) {
 			## see if we have an order for this specific order created, if not - create it.
 			## for fulfillment orders the supplier orderid is always the internal order # plus an A or B.
 			## for now PO numbers will always be the same as the OUR_ORDERID which created the item.
@@ -697,6 +697,9 @@ sub PROCESS {
 				$SO2->in_set( "ship/$field", $merchantinfo{"our/$field"} );
 				$SO2->in_set( "bill/$field", $merchantinfo{"our/$field"} );
 				}
+			}
+		elsif ($FORMAT eq 'FBA') {
+			# nothing to do here - all processing for FBA order is done in SUPPLIER::FBA.pm
 			}
 		else {
 			$olm->pooshmsg("ISE|+UNKNOWN FORMAT '$FORMAT'");

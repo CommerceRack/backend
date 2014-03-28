@@ -33,6 +33,9 @@ sub slurp {
 	return($BUF);
 	}
 
+
+
+
 ##
 ##
 
@@ -144,6 +147,8 @@ my $app = sub {
 	my ($memd) = &ZOOVY::getMemd($USERNAME);
 
 	my %CONFIG = ();
+	## platform/www.domain.com.json
+
 	$CONFIG{'cache'} = $CONFIG{'cache'} || 1;
 	$CONFIG{'release'} = $CONFIG{'release'} || $ZOOVY::RELEASE;
 	$CONFIG{'copyright'} = $CONFIG{'copyright'} || "Do not copy without permission."; 
@@ -163,6 +168,7 @@ my $app = sub {
 	$CONFIG{'sitemap.syntax'} = $CONFIG{'sitemap.syntax'} || $ZOOVY::RELEASE;
 	$CONFIG{'seo.fragments'} = $CONFIG{'seo.fragments'} || 1;
 	$CONFIG{'seo.index'} = 'seo.html';
+
 
 	##
 	## SANITY: at this point %CONFIG is initialized.

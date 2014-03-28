@@ -47,8 +47,6 @@ sub send {
 		$METAREF->{'%CUSTOMER'} = $METAREF->{'%CUSTOMER'}->TO_JSON();
 		}
 
-	open F, ">/tmp/debug"; use Data::Dumper; print F Dumper($self,$msg); close F;
-
 	## currently, we only send to customer via email.
 	my ($method) = BLAST::RECIPIENT::EMAIL->new($self->blaster(),$C->email(), $self->meta());
 	$method->send( $msg );

@@ -6654,19 +6654,18 @@ sub finalize_order {
 		$self->add_history(sprintf("Customer #%d '%s' already exists",$CID,$self->__GET__('bill/email')));
 		}
 	elsif ($self->__GET__('bill/email') ne '') {
-		my $customer_password = $self->in_get('want/new_password');
-		if ($customer_password eq '') {
-			$customer_password = &ZTOOLKIT::make_password();
-			}
 
+		my %R = ();
 		# Create a new customer account	
+		my ($CID) = CUSTOMER::resolve_customer_id($USERNAME,$self->prt(),$self->__GET__('bill/email'));
 		my ($C) = CUSTOMER->new($USERNAME,
 			PRT=>$self->prt(),
 			EMAIL=>$self->__GET__('bill/email'),
+			CID=>$CID,
 			CREATE=>2,
 			'*CART2'=>$self,
 			'DATA'=>{
-				'INFO.PASSWORD'=>$customer_password,
+				#'INFO.PASSWORD'=>$customer_password,
 				'INFO.HINT_NUM'=>$self->in_get('want/recovery_hint'),
 				'INFO.HINT_ANSWER'=>$self->in_get('want/recovery_answer'),
 				'INFO.NEWSLETTER'=>$self->in_get('want/email_update'),
@@ -6674,21 +6673,24 @@ sub finalize_order {
 				}
 			);	
 
+		$self->customer($C);
 		if (not defined $C) {
 			$self->add_history(sprintf("Could not create customer %s for cart #%s",$self->__GET__('bill/email'),$self->oid()),etype=>1+8);
 			}
-		elsif (ref($C) eq 'CUSTOMER') {
-			# Set the login default value for future cart visits
-			$self->customer($C);
+		elsif (ref($C) ne 'CUSTOMER') {
+			$self->add_history(sprintf("Invalid customer %s for cart #%s",$self->__GET__('bill/email'),$self->oid()),etype=>1+8);
+			}
+		elsif ($CID>0) {
+			# don't Send them the password if we didn't just create the account.
 			($CID) = $C->cid();
+			}
+		else {
+			## generate a new password and email it.
+			($CID) = $C->cid();
+			my $customer_password = $self->in_get('want/new_password');
+			$R{'PASSWORD-SET'}->{'password'} = $C->initpassword("set"=>$customer_password);
 			$self->add_history(sprintf("Created customer %s prt:%d cid:%s",$self->__GET__('bill/email'),$self->prt(),$CID),etype=>1);
-			}
-
-		# Send them the password if they didn't create it already.
-		if ($CID>0) {
-			}
-		elsif ($webdbref->{'customer_management'} eq 'PASSIVE') {
-			my ($rcpt) = $BLAST->recipient('CUSTOMER',$self,{'%CUSTOMER'=>$C});
+			my ($rcpt) = $BLAST->recipient('CUSTOMER',$C,{'%CUSTOMER'=>$C,'%RUPDATE'=>\%R});
 			my ($msg) = $BLAST->msg('CUSTOMER.CREATED');
 			$BLAST->send($rcpt,$msg);
 			}
@@ -6931,7 +6933,7 @@ sub finalize_order {
 		#	}
 		#$SE->sendmail($MSGID,'*CART2'=>$self,'*SITE'=>$SREF,'CID'=>$CID,'CUSTOMER'=>$self->customer());
 		my ($MSGID) = sprintf('ORDER.CONFIRM.%s.%03d',$ORDER_PS,$ORDER_PS);
-		my ($rcpt) = $BLAST->recipient('CART',$self,{'%ORDER'=>$self});
+		my ($rcpt) = $BLAST->recipient('CART',$self,{'%ORDER'=>$self->TO_JSON()});
 		my ($msg) = $BLAST->msg($MSGID);
 		$BLAST->send($rcpt,$msg);
 		}
@@ -6942,6 +6944,11 @@ sub finalize_order {
 	## INITIALIZE SOME TRACKING VARIABLES
 	## 
 	if (not $lm->can_proceed()) {
+		}
+	elsif (not ref($self) ne 'CART2') {
+		open F, ">/dev/shm/unblessed.cart2.dump";
+		print F Dumper($self);
+		close F;
 		}
 	else {
 		## this should *ALWAYS* be true under normal circumstances
@@ -13569,30 +13576,7 @@ sub TO_JSON {
 	## hmm.. this TO_JSON was an old function that is no longer used, well.. at least the format is no longer used
 	return($self->jsonify());
 
-
 	my %O = %{Clone::clone($self)};
-#	Clone::clone($self->item($stid));
-#
-#	foreach my $stid ($self->stids()) {
-#		my $i = Clone::clone($self->item($stid));
-#		delete $i->{'full_product'}->{'zoovy:base_cost'};
-#		delete $i->{'full_product'}->{'zoovy:pogs'};
-#		#$i->{'pogs'} = $i->{'%attribs'}->{'zoovy:pogs'};
-#		#delete $i->{'%attribs'}->{'zoovy:pogs'};
-#		#if ($i->{'pogs'} ne '') {
-#		#	#my @pogs = &POGS::text_to_struct("", $i->{'full_product'}->{'zoovy:pogs'}, 1);
-#		#	#$i->{'@pogs'} = \@pogs;
-#		#	my @pogs = &POGS::text_to_struct("", $i->{'pogs'}, 0);
-#		#	$i->{'@pogs'} = \@pogs;
-#		#	delete $i->{'pogs'};
-#		#	}
-#
-#		delete $i->{'%attribs'}->{'zoovy:pogs'};
-#		$i->{'*pogs'} = $i->{'@pogs'};
-#		delete $i->{'@pogs'};
-#		
-#		push @r, $i;
-#		}
 	$O{'@ITEMS'} = $self->stuff2()->TO_JSON();
 	delete $O{'*stuff2'};
 

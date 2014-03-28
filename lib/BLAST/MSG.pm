@@ -11,6 +11,7 @@ sub username { return($_[0]->blaster()->username()); }
 sub prt { return($_[0]->blaster()->prt()); }
 sub msgid {  return($_[0]->{'MSGID'}); }
 
+sub bcc { return($_[0]->{'BCC'}); }
 sub body { return($_[0]->{'BODY'}); }
 sub subject { return($_[0]->{'SUBJECT'}); }
 sub meta { return($_[0]->{'%META'}); }
@@ -47,14 +48,15 @@ sub new {
 		do {
 			$MSGID = join('.',@PARTS);
 	
-			my $pstmt = "select BODY,SUBJECT,FORMAT from SITE_EMAILS where MID=$MID and PRT=$PRT and MSGID=".$udbh->quote($MSGID);
+			my $pstmt = "select BODY,SUBJECT,FORMAT,MSGBCC from SITE_EMAILS where MID=$MID and PRT=$PRT and MSGID=".$udbh->quote($MSGID);
 			print $pstmt."\n";
-			($self->{'BODY'},$self->{'SUBJECT'},$self->{'FORMAT'}) = $udbh->selectrow_array($pstmt);
+			($self->{'BODY'},$self->{'SUBJECT'},$self->{'FORMAT'},$self->{'BCC'}) = $udbh->selectrow_array($pstmt);
 
 			if (($self->{'SUBJECT'} eq '') && (defined $BLAST::DEFAULTS::MSGS{$MSGID})) {
 				$self->{'BODY'} = $BLAST::DEFAULTS::MSGS{$MSGID}->{'MSGBODY'};
 				$self->{'SUBJECT'} = $BLAST::DEFAULTS::MSGS{$MSGID}->{'MSGSUBJECT'};
 				$self->{'FORMAT'} = $BLAST::DEFAULTS::MSGS{$MSGID}->{'MSGFORMAT'};
+				$self->{'BCC'} = '';
 				}	
 			
 			if ($self->{'SUBJECT'} eq '') { pop @PARTS; } else { $self->{'MSGID'} = $MSGID; }

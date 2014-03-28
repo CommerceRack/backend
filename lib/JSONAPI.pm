@@ -2380,6 +2380,7 @@ sub sessionSave {
 	
 	## version 201311 started using %CARTS (with multi-cart support)
 	foreach my $cartid (keys %{$self->{'%CARTS'}}) {
+		next if ($cartid eq '');
 		print STDERR "SAVING CART: $cartid\n";
 		if ((not defined $self->{'%CARTS'}->{$cartid}) || (ref($self->{'%CARTS'}->{$cartid}) ne 'CART2')) {
 			warn "sessionSave attempt to save a cart object $cartid that is invalid\n";

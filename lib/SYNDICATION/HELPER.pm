@@ -8,7 +8,7 @@ package SYNDICATION::HELPER;
 use strict;
 use Data::Dumper;
 require PRODUCT::FLEXEDIT;
-
+require ZSHIP;
 
 sub get_headers {
 	my ($dst) = @_;

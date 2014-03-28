@@ -142,32 +142,35 @@ sub send {
 ## creates a recipient object
 ##
 sub recipient {
-	my ($self, $TYPE, @params) = @_;
+	my ($self, $TYPE, $REF, $METAREF) = @_;
 
 	if ($TYPE eq 'CART') {
 		## type "CART" isn't actually a valid destination (at this point) so we'll try and find the best route.
-		my ($CART2) = shift @params;
+		my ($CART2) = $REF;
 		
 		if ($CART2->customerid()>0) {			
 			($TYPE) = 'CUSTOMER';
-			unshift @params, $CART2->customer();
+			$REF = $CART2->customer();
 			}
 		elsif ($CART2->in_get('bill/email') ne '') {
 			($TYPE) = 'EMAIL';
-			unshift @params, $CART2->in_get('bill/email');
+			$REF = $CART2->in_get('bill/email');
 			}
 		else {
 			($TYPE) = 'CONSOLE';
-			unshift @params, '';
+			$REF = '';
 			}
 		}
 
-	my $class = "BLAST::RECIPIENT::$TYPE";
-	my ($recipient) = $class->new($self, @params);
+	open F, ">/tmp/msgclass";
+	print F Dumper($TYPE,$REF,$METAREF);
 
-	#open F, ">/tmp/msgclass";
-	#print F Dumper($class,\@params,$recipient);
-	#close F;
+	my $class = "BLAST::RECIPIENT::$TYPE";
+	my ($recipient) = $class->new($self, $REF, $METAREF);
+	
+	print F "----------------------\n";
+	print F Dumper($recipient);
+	close F;
 
 	return($recipient);
 	}

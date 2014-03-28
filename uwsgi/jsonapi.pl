@@ -396,25 +396,6 @@ my $app = sub {
 		$JSAPI = JSONAPI->new(); 
 		$R = $JSAPI->psgiinit($req,$v);		## R will be set to an error.
 
-		if (defined $R) {
-			## this is the *NORMAL* path -- the next set of lines should never really be run, ever. (i'm not sure why they exist)
-			}
-      #elsif ($JSAPI->is_admin()) {
-      #  ## don't load site parameters when it's an admin session.
-      #  ## because we have things like partition which are set as part of the admin session.        
-      #  }
-		#elsif (defined $DNSINFO) {
-      #   ## NOTE: THIS IS NOT RUN ON AN ADMIN SITE.
-		#	## we're dealing with a site.
-		#	my ($SITE) = SITE->new($DNSINFO->{'USERNAME'},'%DNSINFO'=>$DNSINFO);
-		#	$SITE->{'+uri'} = $URI->path();
-		#	$ENV = $req->env();
-		#	$HEADERS->push_header( 'X-App' => sprintf("host:%s.%s user:%s prt:%s project:%s",$DNSINFO->{'HOST'},$DNSINFO->{'DOMAIN'},$DNSINFO->{'_USERNAME'},$DNSINFO->{'+prt'},$DNSINFO->{'PROJECT'}) );
-		#	}
-		else {
-        warn "THIS LINE SHOULD NEVER BE REACHED.. BAD psgiinit!\n";
-		  }
-
 		if ($v->{'_callback'}) {
 			## jsonp request so parameters passed on get in funky format:
 			#			 {
@@ -444,33 +425,30 @@ my $app = sub {
 				}
 			}
     			
-		if (1) {
-			## API REQUEST
-			$HEADERS->push_header( 'Expires' => -1 );
-			print STDERR "Processing request!\n";
+		## API REQUEST
+		$HEADERS->push_header( 'Expires' => -1 );
 
-			if (not defined $R) {
-				($R,my $cmdlines) = $JSAPI->handle($path,$v);
-				}
-				
-			my $utf8_encoded_json_text = JSON::XS->new->utf8->allow_blessed(1)->convert_blessed(1)->encode($R);
-			## print STDERR "UF8 ENCODED TXT: $utf8_encoded_json_text\n";
-			if ($v->{'_callback'}) {
-				## jsonp response
-				$HEADERS->push_header( 'Content-Type' => 'application/javascript' );
-				$BODY = sprintf("%s(%s);\n\r",$v->{'_callback'},$utf8_encoded_json_text);
-				open F, ">/dev/shm/jsonp.js";	print F $BODY; 	close F;
-				}
-			else {
-				## json response
-				$HEADERS->push_header( 'Content-Type' => 'text/json' );
-				$BODY = $utf8_encoded_json_text;
-				}
-			$HTTP_RESPONSE = 200;
-			if (&ZOOVY::servername() eq 'dev') {
-				print STDERR 'V: '.Dumper({'RESPONSE'=>$HTTP_RESPONSE,'$R'=>$R});
-				}
+		if (not defined $R) {
+			($R,my $cmdlines) = $JSAPI->handle($path,$v);
 			}
+				
+		my $utf8_encoded_json_text = JSON::XS->new->utf8->allow_blessed(1)->convert_blessed(1)->encode($R);
+		## print STDERR "UF8 ENCODED TXT: $utf8_encoded_json_text\n";
+		if ($v->{'_callback'}) {
+			## jsonp response
+			$HEADERS->push_header( 'Content-Type' => 'application/javascript' );
+			$BODY = sprintf("%s(%s);\n\r",$v->{'_callback'},$utf8_encoded_json_text);
+			open F, ">/dev/shm/jsonp.js";	print F $BODY; 	close F;
+			}
+		else {
+			## json response
+			$HEADERS->push_header( 'Content-Type' => 'text/json' );
+			$BODY = $utf8_encoded_json_text;
+			}
+		$HTTP_RESPONSE = 200;
+		#if (&ZOOVY::servername() eq 'dev') {
+		#	print STDERR 'V: '.Dumper({'RESPONSE'=>$HTTP_RESPONSE,'$R'=>$R});
+		#	}
 		}
 
 	if (not defined $HTTP_RESPONSE) {

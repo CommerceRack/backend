@@ -552,51 +552,58 @@ sub handle_sync {
 			}
 
 		if ($EC==0) {
-			my $PASSWORD = ''; my $IS_ADMIN = 0; my $MODE = 'PASSWORD';
+			my $PASSWORD = ''; 
+			my $IS_ADMIN = 0; 
+			my $MODE = 'PASSWORD';
 
-		if ($XSECURITY =~ /^([A-Z]+)\:(.*?)$/) { $MODE = $1; $XSECURITY = $2; }
+			if ($XSECURITY =~ /^([A-Z]+)\:(.*?)$/) { $MODE = $1; $XSECURITY = $2; }
 
 			# print STDERR "XSECURITY: [$XSECURITY]\n";
 
-			if ($MODE eq 'TOKEN') {
+			if ($EC != 0) { 
+				}
+			elsif ($XSECURITY eq '') { 
+				$EC = 2008; 
+				}
+			elsif ($MODE eq 'TOKEN') {
 				## if we pass TOKEN:digest then we lookup token_zom or token_zwm
 				if ((int($SEAT)==0) || (int($SEAT)==1)) { $SEAT = ''; }
 				# print STDERR "Looking for Token: 'token_'.lc($CODE.$SEAT)\n";
 				my ($gref) = &ZWEBSITE::fetch_globalref($USERNAME);
-				if ($CODE eq 'ZID') {
-					$PASSWORD = $gref->{'webapi_zid'};
-					}
-				if (not defined $PASSWORD) {
-					($PASSWORD) = &ZWEBSITE::fetch_website_attrib($USERNAME,'token_'.lc($CODE.$SEAT));
-					}
+				my $TOKEN = $gref->{'webapi_zid'};
 				$IS_ADMIN = 1;
-			#	print STDERR "TOKEN: [$PASSWORD] ***\n";
+
+				my $IN = $USERNAME . (($LUSER ne '')?'*'.$LUSER:'') . $TOKEN . $XAPI . $XREQUEST . $XTIME . $DATA;
+				my $ACTUALMD5 = Digest::MD5::md5_hex( $IN );
+				if ($XSECURITY ne $ACTUALMD5) {
+					$EC = 2009;
+					}
 				}
 			elsif ($MODE eq 'PASSWORD') { 
 				## this is for PASS:digest
-				my $pstmt = '';
-				#if ($LUSER eq '') {
-				#	## Master Login (no Login User)
-				#	my $udbh = &DBINFO::db_user_connect($USERNAME);
-				#	$pstmt = "select PASSWORD,'Y' from ZUSERS where MID=$MID and USERNAME=".$udbh->quote($USERNAME);
-				#	($PASSWORD,$IS_ADMIN) = $udbh->selectrow_array($pstmt);
-				#	&DBINFO::db_user_close();
-				#	}
-				#if ($LUSER =~ /^support/) {
-				#	## backdoor for tech support
-				#	$IS_ADMIN = 1;
-				#	$PASSWORD = &WEBAPI::currentSupportPass($USERNAME,$LUSER);
-				#	$pstmt = '';
-				#	}
-				#else {
-					## Login User (should have administrative priviledges)
-					#$pstmt = "select PASSWORD from ZUSER_LOGIN where MID=$MID and USERNAME=".$zdbh->($USERNAME)." and LUSER=".$zdbh->quote($LUSER);
-					## fixed 2011-02-10
-					#$pstmt = "select PASSWORD,IS_ADMIN from ZUSER_LOGIN where MID=$MID and MERCHANT=".$zdbh->quote($USERNAME)." and LUSER=".$zdbh->quote($LUSER);
+				if ($LUSER eq '') { $LUSER = 'admin'; }
 				my $zdbh = &DBINFO::db_user_connect($USERNAME);
-				$pstmt = "select PASSWORD,IS_ADMIN from LUSERS where MID=$MID and USERNAME=".$zdbh->quote($USERNAME)." and LUSER=".$zdbh->quote($LUSER);
-				($PASSWORD,$IS_ADMIN) = $zdbh->selectrow_array($pstmt);
+				my $pstmt = "select PASSHASH,PASSSALT,IS_ADMIN from LUSERS where MID=$MID and USERNAME=".$zdbh->quote($USERNAME)." and LUSER=".$zdbh->quote($LUSER);
+				my ($PASSHASH,$PASSSALT,$IS_ADMIN) = $zdbh->selectrow_array($pstmt);
 				&DBINFO::db_user_close();
+
+				$IS_ADMIN++;
+				if (not $IS_ADMIN) {
+					$EC = 2010;	# user does not have administrative access
+					}
+				my ($gref) = &ZWEBSITE::fetch_globalref($USERNAME);
+				my $CFG = $gref->{'%plugins'}->{'desktop.zoovy.com'} || {};
+				# my $TOKEN = $SHIPCFG->{'~password'};
+				
+				#elsif ($XPASS eq '') { 
+				#	$EC = 2006; 
+				#	}
+				#open F, ">/tmp/x";
+				#print F "X:$PASSHASH $PASSSALT -$XPASS- $XSECURITY\n";
+				#close F;
+				## ORDER MANAGER SENDS ENCRYPTED PASSWORDS OVER SSL! WTF
+				#elsif (uc($PASSWORD) ne uc($XPASS)) { 
+				#	$EC = '2006'; 
 				#	}
 				}
 			else {
@@ -604,23 +611,14 @@ sub handle_sync {
 				}
 			print STDERR "SERVER: CLIENT=$::XCLIENTCODE USER=$USERNAME\n";
 
-			if ($EC != 0) { }
-			elsif (not $IS_ADMIN) {
-				$EC = 2010;	# user does not have administrative access
-				}
-			elsif (defined $XPASS) {
-				if (uc($PASSWORD) ne uc($XPASS)) { $EC = '2006'; }
-				}
-			else {
-			
-				my $IN = $USERNAME . (($LUSER ne '')?'*'.$LUSER:'') . $PASSWORD . $XAPI . $XREQUEST . $XTIME . $DATA;
-				# print STDERR "IN[$IN]\n";
-				$ACTUALMD5 = Digest::MD5::md5_hex( $IN );
-				# print STDERR "MD5S: $ACTUALMD5 ne $XSECURITY\n";
-				if ($ACTUALMD5 ne $XSECURITY) {
-					$EC = '2005';
-					}
-				}
+			#	my $IN = $USERNAME . (($LUSER ne '')?'*'.$LUSER:'') . $PASSWORD . $XAPI . $XREQUEST . $XTIME . $DATA;
+			#	# print STDERR "IN[$IN]\n";
+			#	$ACTUALMD5 = Digest::MD5::md5_hex( $IN );
+			#	# print STDERR "MD5S: $ACTUALMD5 ne $XSECURITY\n";
+			#	if ($ACTUALMD5 ne $XSECURITY) {
+			#		$EC = '2005';
+			#		}
+			#	
 			}
 		}
 
@@ -801,6 +799,8 @@ sub userlog {
 	'2005' => 'Security Digests do not match - probably invalid password.',
 	'2006' => 'Received legacy X-ZOOVY-PASSWORD variable, but it did not match password on file.',
 	'2007' => 'Received unknown MODE: in XSECURITY try either PASSWORD or TOKEN',
+	'2008' => 'X-SECURITY cannot be blank',
+	'2009' => 'X-SECURITY is invalid.',
 	'2010' => 'User attempting to authenticate does not have administrative access',
 	'2098' => 'X-CLIENT is required at this compatibility level',
 	'2099' => 'Unknown X-CLIENT value - please contact zoovy support',

@@ -99,7 +99,7 @@ foreach my $hashref ( @{$ROWS} ) {
 		push @SUPPLIERS_TODO, [ $ID, $USERNAME, $CODE, 'PROCESS' ] ;
 		}
 
-	$pstmt = "select unix_timestamp(INVENTORY_LAST_TS),unix_timestamp(TRACK_LAST_TS) from SUPPLIERS where MID=$MID and ID=$qtVENDOR";
+	$pstmt = "select unix_timestamp(INVENTORY_LAST_TS),unix_timestamp(TRACK_LAST_TS) from SUPPLIERS where MID=$MID and CODE=$qtVENDOR";
 	my ($last_inventory_gmt,$last_tracking_gmt) = $udbh->selectrow_array($pstmt);
 	
 	if ((($last_inventory_gmt + (86400/4)) < time() ) || ($params{'inventory'})) {
@@ -123,6 +123,7 @@ if ($params{'verb'} eq 'list') {
 if (scalar(@SUPPLIERS_TODO)==0) {
 	warn "SUPPLIERS_TODO is zero - no suppliers will be processed\n";
 	}
+
 
 ##
 ##
@@ -150,12 +151,13 @@ foreach my $set (@SUPPLIERS_TODO) {
 		}
 	elsif ($TASK eq 'INVENTORY') {
 		&SUPPLIER::JOBS::INVENTORY($S,$lm,%params);
-		my $pstmt = "update SUPPLIERS set INVENTORY_LAST_TS=now() where MID=$MID and ID=".$udbh->quote($S->code());
+		my $pstmt = "update SUPPLIERS set INVENTORY_LAST_TS=now() where MID=$MID and CODE=".$udbh->quote($S->code());
+		print $pstmt."\n";
 		$udbh->do($pstmt);	
 		}
 	elsif ($TASK eq 'TRACKING') {
 		&SUPPLIER::JOBS::TRACKING($S,$lm,%params);
-		my $pstmt = "update SUPPLIERS set TRACK_LAST_TS=now() where MID=$MID and ID=".$udbh->quote($S->code());
+		my $pstmt = "update SUPPLIERS set TRACK_LAST_TS=now() where MID=$MID and CODE=".$udbh->quote($S->code());
 		$udbh->do($pstmt);	
 		}
 
