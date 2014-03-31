@@ -2254,8 +2254,8 @@ sub notify_ebay {
 			my $CARTID = URI::Escape::XS::uri_escape($O2->in_get('cart/cartid'));
 	
 			my ($BLAST) = BLAST->new($USERNAME,$O2->prt());
-			my ($rcpt) = $BLAST->recipient('EBAY',$eb2, $SITE_ID,$EBAY_ID,'Shipping',$EBAY_USER);
-			my ($msg) = $BLAST->msg('ORDER.SHIPPED.EBAY',{'%ORDER'=>$O2});
+			my ($rcpt) = $BLAST->recipient('EBAY',$eb2, {'%call'=>{ '#Site'=>$SITE_ID,'ItemID'=>$EBAY_ID,'MemberMessage.QuestionType'=>'Shipping','MemberMessage.RecipientID'=>$EBAY_USER}});
+			my ($msg) = $BLAST->msg('ORDER.SHIPPED.EBAY',{'%ORDER'=>$O2->TO_JSON()});
 			$BLAST->send($rcpt,$msg);
 			$O2->add_history("Notified client of shipment via myEBay",etype=>32,luser=>"*$EVENT");
 
