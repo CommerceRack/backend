@@ -776,7 +776,7 @@ sub core_apply {
 			$self->_cwt()->attr( { $intag->attrs() } );
 			}
 		elsif ($arg->{key} eq 'attrib') {
-			$new = $self->{var}->{default};
+			$new = $self->{vars}->{default};
 			$self->_cwt()->attr( $self->lookup_value($arg->{value})=>$new );
 			}
 		}
@@ -857,9 +857,9 @@ sub core_format {
 			}
 		}	
 
-	## print "format result: $result\n";
+	# print "format result: $result\n";
 	if ($var) { $self->{vars}->{$var} = $result; }
-	return($self->{vars}{default} = $result);
+	return( $self->{vars}{default} = $result );
 	}
 
 ## datetime --now --out='pretty' OR --now --out='mdy' OR --now --out='ymd'
