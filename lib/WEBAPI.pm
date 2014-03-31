@@ -4097,8 +4097,8 @@ sub sendMail {
 		$XML .= qq~<MSG UUID="$ref->{'UUID'}" ERR="0" ERRMSG="ignored messages" />\n~;
 		}
 
-	open F, ">/tmp/emails";
-	use Data::Dumper; print F Dumper($tree);
+	open F, ">>/tmp/emails";
+	use Data::Dumper; print F Dumper($tree,$XML);
 	close F;
 
 	return(0,$XML);
