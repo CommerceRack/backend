@@ -596,9 +596,11 @@ sub createOrder {
 	
 		if ($so->dstcode() eq 'BUY') {
 		   $cart2{'our/domain'} = 'buy.com';
+			$cart2{'our/mkts'} = '002T4W'; # &ZOOVY::bitstr([18])
 			}
 		elsif ($so->dstcode() eq 'BST') {
 			$cart2{'our/domain'} = 'bestbuy.com';
+			$cart2{'our/mkts'} = '002T4W'; 	# &ZOOVY::bitstr([19])
 			}
 		else {
 			## this line should never be reached.
