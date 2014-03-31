@@ -1657,90 +1657,6 @@ sub walletSync {
 	}
 
 
-
-
-################################################################################################################################
-##
-## sub: toxmlSync
-##
-=pod
-
-[[SECTION]API: TOXMLSYNC]
-
-[[SUBSECTION]METHOD: TOXMLSYNC/LIST]
-[[SUBSECTION]Response]
-[[HTML]]
-<TOXML TS="">
-<DOC ID="" SUBTYPE="" FORMAT="" DIGEST="" UPDATED_GMT="" TITLE="" MID=""></DOC>
-</TOXML>
-[[/HTML]]
-[[/SUBSECTION]]
-[[/SUBSECTION]]
-
-[[SUBSECTION]METHOD: TOXMLSYNC/DOWNLOAD/format/filename]
-<li> FORMAT: is LAYOUT, WRAPPER, EMAIL, DEFINITION
-<li> FILENAME: your filename
-[[SUBSECTION]Request]
-A full discussion of the XML formatting behind a toxml document is outside the scope of this document.
-Please refer to [[LINKDOC]51192]
-[[/SUBSECTION]]
-[[/SUBSECTION]]
-
-[[SUBSECTION]METHOD: TOXMLSYNC/UPLOAD/format/filename]
-<li> FORMAT: is LAYOUT, WRAPPER, EMAIL, DEFINITION
-<li> FILENAME: your filename
-[[SUBSECTION]Request]
-A full discussion of the XML formatting behind a toxml document is outside the scope of this document.
-Please refer to [[LINKDOC]51192]
-[[/SUBSECTION]]
-[[/SUBSECTION]]
-
-[[/SECTION]]
-
-=cut
-
-sub toxmlSync {
-	my ($USERNAME,$XAPI,$ID,$DATA) = @_;
-
-	my $XML = '';
-	my $PickupTime = 0;
-	my ($API,$FUNCTION,$PARAM1,$PARAM2) = split(/\//,$XAPI,4);
-	print STDERR "XAPI: $XAPI\n";
-
-	if ($FUNCTION eq 'LIST') {
-		## TOXMLSYNC/LIST/timestamp
-		require TOXML::UTIL;
-		my ($docsref) = TOXML::UTIL::listDocs($USERNAME,'',TS=>0,DETAIL=>0);
-		$XML = &ZTOOLKIT::arrayref_to_xmlish_list($docsref,'tag'=>'DOC');
-		$XML = "<TOXML TS=\"".(time()-1)."\">$XML</TOXML>";
-		}
-	elsif ($FUNCTION eq 'DOWNLOAD') {
-		require TOXML;
-		# print STDERR "BLAH: $PARAM1,$PARAM2\n";
-		my ($toxml) = TOXML->new($PARAM1,$PARAM2,USERNAME=>$USERNAME);
-		if (defined $toxml) {
-			$XML = $toxml->as_xml();
-			} 
-		}
-#	elsif ($FUNCTION eq 'UPLOAD') {
-#		require TOXML::COMPILE;
-#		my ($toxml) = TOXML::COMPILE::fromXML($PARAM1,$PARAM2,$DATA,USERNAME=>$USERNAME);
-#		$toxml->save();
-#		}
-	elsif ($FUNCTION eq 'SINCE') {
-		}
-	elsif ($FUNCTION eq 'UPDATE') {
-		}
-	else {
-		}
-
-
-	# print STDERR Dumper($XML);
-
-	return($PickupTime,$XML);
-	}
-
-
 ################################################################################################################################
 ##
 ## sub: paymentMethodsSync
@@ -1977,131 +1893,6 @@ sub orderBlock {
 	&WEBAPI::userlog($USERNAME,"WEBAPI.ORDERBLOCK","RESERVED $YEARMON range: $FIRST_ID - $THIS_ID");
 
 	return($PickupTime,$XML);
-	}
-
-
-################################################################################################################################
-##
-## sub: incompleteSync
-## purpose: incomplete item data synchronization
-##	methods:
-## 	INCOMPLETESYNC/DOWNLOAD/[timestamp]
-##		INCOMPLETESYNC/UPLOAD
-##		INCOMPLETESYNC/CREATE
-##		INCOMPLETESYNC/CHANGED/[count]
-##
-
-=pod
-
-[[SECTION]API: INCOMPLETESYNC]
-
-[[SUBSECTION]METHOD: INCOMPLETESYNC/DOWNLOAD/timestamp]
-[[SUBSECTION]Response]
-[[/SUBSECTION]]
-[[HTML]]
-<INCOMPLETEITEMS>
-<INCOMPLETE ID="" TS="">
-<channel></channel>
-<price></price>
-<email></email>
-<mkt></mkt>
-<mktid></mktid>
-<mkturl></mkturl>
-<orderid></orderid>
-<qty></qty>
-<mktuser></mktuser>
-<taxable></taxable>
-<stage></stage>
-<prod_name></prod_name>
-<product></product>
-<created></created>
-<mustpurchaseby></mustpurchaseby>
-</INCOMPLETE>
-</INCOMPLETEITEMS>
-[[/HTML]]
-
-[[/SUBSECTION]]
-
-
-[[SUBSECTION]METHOD: INCOMPLETESYNC/UPLOAD]
-[[SUBSECTION]Request]
-See DOWNLOAD format.
-[[/SUBSECTION]]
-[[/SUBSECTION]]
-
-
-[[SUBSECTION]METHOD: INCOMPLETESYNC/CREATE]
-Pass sku or product, only one is required.
-For mkt pass the 3 digit destination code, for user applications use US1 .. US6
-
-[[SUBSECTION]Request]
-[[HTML]]
-<INCOMPLETEITEMS>
-   <INCOMPLETE ID="0">
-      <buyer_email></buyer_email>
-      <prt>0</prt>
-      <sku></sku><product></product>
-      <qty></qty><price></price>
-      <mkt></mkt>
-      <mkt_listingid></mkt_listingid>
-      <mkt_transactionid></mkt_transactionid>
-      <mkt_orderid></mkt_orderid>
-      <prod_name>only if different</prod_name>
-      <buyer_userid></buyer_userid>
-		<mustpurchaseby_gmt>timestamp|0</mustpurchaseby_gmt>
-   </INCOMPLETE>
-</INCOMPLETEITEMS>
-[[/HTML]]
-
-[[/SUBSECTION]]
-[[/SUBSECTION]]
-
-[[SUBSECTION]METHOD: INCOMPLETESYNC/CHANGED/count]
-[[SUBSECTION]Request]
-See INCOMPLETESYNC/DOWNLOAD for response format.
-[[/SUBSECTION]]
-[[/SUBSECTION]]
-
-[[SUBSECTION]METHOD: INCOMPLETESYNC/ACK]
-Turns off the "CHANGED" flags.
-[[SUBSECTION]Request]
-[[HTML]]
-<INCOMPLETEITEMS>
-<INCOMPLETE ID="1" ACK="Y"/>
-<INCOMPLETE ID="2" ACK="Y"/>
-<INCOMPLETE ID="3" ACK="Y"/>
-</INCOMPLETEITEMS>
-[[/HTML]]
-[[/SUBSECTION]]
-[[/SUBSECTION]]
-
-[[/SECTION]]
-
-=cut
-
-sub incompleteSync {
-	my ($USERNAME,$XAPI,$ID,$DATA) = @_;
-
-	my $XML = '';
-	my $PickupTime = 0;
-	my ($API,$FUNCTION,$TIMESTAMP) = split(/\//,$XAPI,3);
-	$TIMESTAMP = int($TIMESTAMP);
-
-	my @ACKS = ();
-	if (($FUNCTION eq 'DOWNLOAD') || ($FUNCTION eq 'CHANGED')) {
-		$XML = "<INCOMPLETEITEMS>\n";
-		$XML .= '</INCOMPLETEITEMS>';
-		}
-	elsif ($FUNCTION eq 'ACK') {
-		}
-	elsif ($FUNCTION eq 'UPLOAD') {
-		}	# end of for loop
-#	
-	if ($FUNCTION eq 'UPLOAD') {	
-		$XML = "<LENGTH>".length($DATA)."</LENGTH>";
-		}
-
-	return($PickupTime,$XML); 
 	}
 
 
@@ -3390,8 +3181,8 @@ sub webdbSync {
 				my $PROFILE_COMPATIBILITY = sprintf("#PRT-%d",$D->prt());
 				$XML .= "<profile ns=\"$PROFILE_COMPATIBILITY\"><![CDATA[".&ZTOOLKIT::buildparams($nsref)."]]></profile>\n";
 
-				require SITE;
-				my ($SREF) = SITE->new($USERNAME,'*D'=>$D,'DOMAIN'=>$D->domainname(),'PRT'=>$D->prt());
+				#require SITE;
+				#my ($SREF) = SITE->new($USERNAME,'*D'=>$D,'DOMAIN'=>$D->domainname(),'PRT'=>$D->prt());
 				#require SITE::EMAILS;
 				#my $se = SITE::EMAILS->new($USERNAME,"*SITE"=>$SREF);
 				#foreach my $msgref (@{$se->available()}) {
@@ -4272,84 +4063,44 @@ sub sendMail {
 	my $SENT = 0;
 	my $WARNINGS = 0;
 	my $ERRORS = 0;
-	# print STDERR Dumper($tree);
+
+	$tree = $tree->[0]->{'content'};
+	my $XML = '';
+	foreach my $msgNode (@{$tree}) {
+		next if ($msgNode->{'type'} ne 'e');
+		next if ($msgNode->{'name'} ne 'MSG');
+#
+#		## <MSG CC="" BCC="" NS="" MSGFORMAT="" SUBJECT="" FROM="" ID="" TO="" OID="" CID="" CLAIM=""><[CDATA[..]]></MSG>
+#		## <MSG CC="" BCC="" NS="" MSGFORMAT="" SUBJECT="" FROM="" ID="" TO="" OID="" CID="" CLAIM=""><[CDATA[..]]></MSG>
+#
+		# print STDERR Dumper($msgNode);
+		my $body = $msgNode->{'content'}->[0]->{'content'};
+		my $ref = $msgNode->{'attrib'};
+		if ($body ne '') {
+			## override the body!
+			$ref->{'MSGBODY'} = $body;
+			}
+
+		if (not defined $ref->{'PRT'}) {
+			$ref->{'PRT'} = 0;
+			}
+
+		if ($ref->{'MSGID'} eq 'ORDER.SHIPPED') {
+			my ($O2) = CART2->new_from_oid($USERNAME,$ref->{'OID'});
+			require BLAST;
+			my ($BLAST) = BLAST->new($USERNAME,$ref->{'PRT'});
+			my ($rcpt) = $BLAST->recipient('EMAIL',$ref->{'TO'});
+			my ($msg) = $BLAST->msg($ref->{'MSGID'},{'%ORDER'=>$O2});
+			$BLAST->send($rcpt,$msg);
+			}
+
+		}
 
 	open F, ">/tmp/emails";
 	use Data::Dumper; print F Dumper($tree);
 	close F;
 
 	return(0,qq~<MSG UUID="0" ERR="0" ERRMSG="ignored messages" />~);
-	
-#	my %SITE_CACHE = ();
-#
-#	$tree = $tree->[0]->{'content'};
-#	my $XML = '';
-#	foreach my $msgNode (@{$tree}) {
-#		next if ($msgNode->{'type'} ne 'e');
-#		next if ($msgNode->{'name'} ne 'MSG');
-#
-#		## <MSG CC="" BCC="" NS="" MSGFORMAT="" SUBJECT="" FROM="" ID="" TO="" OID="" CID="" CLAIM=""><[CDATA[..]]></MSG>
-#		## <MSG CC="" BCC="" NS="" MSGFORMAT="" SUBJECT="" FROM="" ID="" TO="" OID="" CID="" CLAIM=""><[CDATA[..]]></MSG>
-#
-#		# print STDERR Dumper($msgNode);
-#		my $body = $msgNode->{'content'}->[0]->{'content'};
-#		my $ref = $msgNode->{'attrib'};
-#		if ($body ne '') {
-#			## override the body!
-#			$ref->{'MSGBODY'} = $body;
-#			}
-#
-#		#if ((not defined $ref->{'PRT'}) && (defined $ref->{'NS'})) {
-#		#	$ref->{'PRT'} = DOMAIN::resolve_prt_from_profile($USERNAME,$ref->{'NS'});
-#		#	}
-#
-#		if (not defined $ref->{'PRT'}) {
-#			$ref->{'PRT'} = 0;
-#			}
-#
-#		require SITE::EMAILS;
-#		if (not defined $SITE_CACHE{$ref->{'PRT'}}) {
-#			my ($SITE) = SITE->new($USERNAME,'PRT'=>$ref->{'PRT'});
-#			#$SITE->{'%NSREF'} = &ZOOVY::fetchmerchantns_ref($USERNAME,$PROFILE);
-#			#$SITE->{'%webdb'} = &ZWEBSITE::fetch_website_dbref($USERNAME,$options{'PRT'});
-#			#$SITE->{'+prt'} = &ZOOVY::profile_to_prt($USERNAME,$options{'NS'});		
-#			#$SITE->{'*URLS'} = SITE::URLS->new($SITE::merchant_id);
-#			$SITE_CACHE{$ref->{'PRT'}} = $SITE;
-#			}
-#
-#		if ((defined $ref->{'PREVIEW'}) && ($ref->{'PREVIEW'}==1)) { 
-#			## PREVIEW MODE (just echo's back the response)
-#			my $SITE = $SITE_CACHE{$ref->{'PRT'}};
-#			my ($se) = SITE::EMAILS->new($USERNAME,'*SITE'=>$SITE);
-#			my ($err,$result) = $se->preview('',%{$ref});
-#			my $errmsg = $SITE::EMAILS::ERRORS{ $err };
-#			$XML .= "<MSG UUID=\"$ref->{'UUID'}\" ERR=\"$err\" ERRMSG=\"$errmsg\" "; 
-#			foreach my $k (keys %{$result}) {
-#				next if ($k eq 'BODY');
-#				$XML .= "$k=\"".&ZOOVY::incode($result->{$k})."\" ";
-#				}
-#			$XML .= "><![CDATA[";
-#			$XML .= $result->{'BODY'};
-#			$XML .= "></MSG>";
-#			}
-#		elsif ($ref->{'MSGBODY'} eq '') {
-#			$XML .= "<MSG UUID=\"$ref->{'UUID'}\" ERR=\"0\" ERRMSG=\"ignored request to send blank message.\"/>"; 			
-#			}
-#		else {
-#			## SEND MODE (just echo's back a result)
-#			my $SITE = $SITE_CACHE{$ref->{'PRT'}};
-#			my ($se) = SITE::EMAILS->new($USERNAME,'*SITE'=>$SITE);
-#			my ($err) = $se->sendmail('','*SITE'=>$SITE,%{$ref});
-#			$err = 0;
-#			my $errmsg = $SITE::EMAILS::ERRORS{ $err };
-#			$XML .= "<MSG UUID=\"$ref->{'UUID'}\" ERR=\"$err\" ERRMSG=\"$errmsg\"/>"; 
-#			}
-#		}
-#
-#	if ($XML eq '') {
-#		$XML .= '<MSG RESULT="-1" ID="-1"><warning>No messages were found</warning></MSG>';
-#		}
-#	return($PickupTime,$XML);
 	}
 
 
