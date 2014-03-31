@@ -4094,13 +4094,14 @@ sub sendMail {
 			$BLAST->send($rcpt,$msg);
 			}
 
+		$XML .= qq~<MSG UUID="$ref->{'UUID'}" ERR="0" ERRMSG="ignored messages" />\n~;
 		}
 
 	open F, ">/tmp/emails";
 	use Data::Dumper; print F Dumper($tree);
 	close F;
 
-	return(0,qq~<MSG UUID="0" ERR="0" ERRMSG="ignored messages" />~);
+	return(0,$XML);
 	}
 
 
