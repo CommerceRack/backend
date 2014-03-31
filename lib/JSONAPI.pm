@@ -511,20 +511,6 @@ use strict;
 	'adminCampaignFileUpload'=>[ \&JSONAPI::adminFile, { 'admin'=>1, }, 'admin', { 'SYNDICATION'=>'L' } ],
 	'adminCampaignZipDownload'=>[ \&JSONAPI::adminFile, { 'admin'=>1, }, 'admin', { 'SYNDICATION'=>'L' } ],
 
-#	'adminCampaignListRecipients'=>[\&JSONAPI::adminCampaign, { 'admin'=>1, }, 'admin', { 'CAMPAIGN'=>'S' } ],
-#	'adminCampaignSubscriberLists'=>[\&JSONAPI::adminCampaign, { 'admin'=>1, }, 'admin', { 'CAMPAIGN'=>'S' } ],
-#	'adminCampaignDetail'=>[\&JSONAPI::adminCampaign, { 'admin'=>1, }, 'admin', { 'CAMPAIGN'=>'D' } ],
-#	'adminMarketingTagSearch'=>[\&JSONAPI::adminMarketingTag, { 'admin'=>1, }, 'admin', { 'CUSTOMER'=>'S' } ],
-#	'adminMarketingTagCreate'=>[\&JSONAPI::adminMarketingTag, { 'admin'=>1, }, 'admin', { 'CUSTOMER'=>'C' } ],
-#	'adminMarketingTagUpdate'=>[\&JSONAPI::adminMarketingTag, { 'admin'=>1, }, 'admin', { 'CUSTOMER'=>'U' } ],
-#	'adminMarketingTagDetail'=>[\&JSONAPI::adminMarketingTag, { 'admin'=>1, }, 'admin', { 'CUSTOMER'=>'D' } ],
-#	'adminMarketingTagRemove'=>[\&JSONAPI::adminMarketingTag, { 'admin'=>1, }, 'admin', { 'CUSTOMER'=>'R' } ],
-#	'adminMarketingSubscriptionSearch'=>[\&JSONAPI::adminMarketingSubscription, { 'admin'=>1, }, 'admin', { 'CUSTOMER'=>'S' } ],
-#	'adminMarketingSubscriptionCreate'=>[\&JSONAPI::adminMarketingSubscription, { 'admin'=>1, }, 'admin', { 'CUSTOMER'=>'C' } ],
-#	'adminMarketingSubscriptionUpdate'=>[\&JSONAPI::adminMarketingSubscription, { 'admin'=>1, }, 'admin', { 'CUSTOMER'=>'U' } ],
-#	'adminMarketingSubscriptionDetail'=>[\&JSONAPI::adminMarketingSubscription, { 'admin'=>1, }, 'admin', { 'CUSTOMER'=>'D' } ],
-#	'adminMarketingSubscriptionRemove'=>[\&JSONAPI::adminMarketingSubscription, { 'admin'=>1, }, 'admin', { 'CUSTOMER'=>'R' } ],
-
 	##
 	## HTML WIZARD / LISTING TEMPLATE
 	##
@@ -13492,20 +13478,6 @@ sub adminAppTicket {
 			$R{'_found'} = scalar(@{$ticketsref});
 			}
 		}
-
-#	$GTOOLS::TAG{'<!-- CRM_TICKET_NUMBER -->'} = $crm_ref->{'TICKET_COUNT'};
-#	$GTOOLS::TAG{'<!-- SELECT_TICKET_SEQ_ALPHA -->'} = ($crm_ref->{'TICKET_SEQ'} eq 'ALPHA')?'selected':'';
-#	$GTOOLS::TAG{'<!-- SELECT_TICKET_SEQ_SEQ5 -->'} = ($crm_ref->{'TICKET_SEQ'} eq 'SEQ5')?'selected':'';
-#	$GTOOLS::TAG{'<!-- SELECT_TICKET_SEQ_DATEYYMM4 -->'} = ($crm_ref->{'TICKET_SEQ'} eq 'DATEYYMM4')?'selected':'';
-#	$GTOOLS::TAG{'<!-- CHK_EMAIL_CLEANUP -->'} = ($crm_ref->{'EMAIL_CLEANUP'})?'checked':'';
-
-##	my $r = '';
-##	foreach my $stageref (@CUSTOMER::TICKET::STAGES) {
-##		$r = ($r eq 'r0')?'r1':'r0';
-##		$c .= "<tr class='$r'><td><input type='checkbox'></td><td>$stageref->{'id'}</td><td>$stageref->{'name'}</td></tr>";
-##		}
-##	$GTOOLS::TAG{'<!-- CRM_STAGES -->'} = $c;
-#	}
 
 	return(\%R);
 	}
