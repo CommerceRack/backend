@@ -12813,7 +12813,7 @@ sub adminProject {
 		}
 	elsif ($v->{'_cmd'} eq 'adminProjectList') {
 		my %PROJECTS = ();
-      my $pstmt = "select HOSTNAME,DOMAINNAME,CONFIG from DOMAIN_HOSTS where HOSTTYPE in ('APP','SITE','SITEPTR');";
+      my $pstmt = "select HOSTNAME,DOMAINNAME,CONFIG from DOMAIN_HOSTS where HOSTTYPE in ('APPTIMIZER');";
       my $sth = $udbh->prepare($pstmt);
       $sth->execute();
       while ( my ( $HOSTNAME,$DOMAIN,$CONFIG ) = $sth->fetchrow() ) {

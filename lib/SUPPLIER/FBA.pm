@@ -337,6 +337,7 @@ sub transmit {
 	my ($userref) = &SUPPLIER::FBA::emulated_userref($S);
 
 	tie my %o, 'CART2', 'CART2'=>$O2;
+
 	my %HEADERS = ();		
 	$HEADERS{'Action'} = 'CreateFulfillmentOrder';
 	$HEADERS{'Version'} = '2010-10-01';
@@ -371,9 +372,18 @@ sub transmit {
 	$HEADERS{'DestinationAddress.StateOrProvinceCode'} = $o{'ship/region'};
 	$HEADERS{'DestinationAddress.PostalCode'} = $o{'ship/postal'};
 
-	$HEADERS{'DisplayableOrderDateTime'} = &AMAZON3::amztime($o{'cart/created_ts'});
+	if ($o{'cart/created_ts'}) {
+		$HEADERS{'DisplayableOrderDateTime'} = &AMAZON3::amztime($o{'cart/created_ts'});
+		}
+	else {
+		$HEADERS{'DisplayableOrderDateTime'} = &AMAZON3::amztime($o{'our/order_ts'});
+		}
 	if ($o{'want/order_notes'}) {
 		$HEADERS{'DisplayableOrderComment'} = $o{'want/order_notes'};
+		}
+	else {
+		# order comments are required
+		$HEADERS{'DisplayableOrderComment'} = "No Comments";
 		}
 	untie %o;
 
@@ -428,7 +438,7 @@ sub transmit {
 			open F, sprintf(">%s/%s",&ZOOVY::tmpfs(),"/amzfba.order.out"); print F $raw_xml_response; close F;
 			my ($ref) = XML::Simple::XMLin($sh,ForceArray=>1);
 			my $requestid = $ref->{'ResponseMetadata'}->[0]->{'RequestId'}->[0];
-			$lm->pooshmsg("WIN|+AmazonFBA Response:$requestid");
+			$lm->pooshmsg("SUCCESS|+AmazonFBA Response:$requestid");
 			}
 		}
 
