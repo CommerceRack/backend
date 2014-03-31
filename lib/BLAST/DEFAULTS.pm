@@ -82,9 +82,24 @@ body { font-family: helvetica; }
 	'%EREFID%'=> 	q|<span data-tlc="bind $var '.%ORDER.want.erefid'; apply --append;"></span>|,
 	'%BILLEMAIL%'=> 	q|<span data-tlc="bind $var '.%ORDER.bill.email'; apply --append;"></span>|,
 	'%LINKORDER%'=> q|<a href="#" data-tlc="
-bind $orderid '.%ORDER.our.orderid'; bind $softauth '.%ORDER.cart.cartid'; bind $domain '.%PRT.DOMAIN'; set $link '';
-format $link --append='http://' --append=$domain --append='?#verb=orderview&order=' --append=$orderid --append='&softauth=' --append=$softauth;
-apply --attrib='href'; apply --append;"></a>
+bind $orderid '.%ORDER.our.orderid'; 
+bind $softauth '.%ORDER.cart.cartid'; 
+bind $domain '.%PRT.DOMAIN'; 
+bind $linkstyle '.%PRT.LINKSTYLE';
+if (is $domain --notblank) {{
+	set $link '';
+	format $link --append='http://' --append=$domain;
+	if (is $linkstyle --eq='APP') {{
+	 	format $link --append='?#verb=orderview&order=' --append=$orderid --append='&softauth=' --append=$softauth;
+		}};
+	if (is $linkstyle --eq='VSTORE') {{
+	 	format $link --append='/customer/order_status?order=' --append=$orderid --append='&softauth=' --append=$softauth;
+		}};
+	apply --attrib='href'; 
+	apply --append; 
+	}};
+
+"></a>
 |,
 
 	'%ORDERITEMS%'=> q|
@@ -678,19 +693,20 @@ Please contact us for wire transfer instructions.
 </thead>
 <tbody data-tlc="
 /* iterate through each shipment and apply it to the template 'shipmentTemplate', then append it to the document. */
-bind $shipments '.@SHIPMENTS'; 
-foreach $shipment in $shipments {{ transmogrify --templateid='shipmentTemplate' --dataset=$shipment; apply --append; }};
+apply --append;
+bind $shipments '.%ORDER.@SHIPMENTS'; 
+foreach $shipment in $shipments {{ 
+	transmogrify --templateid='shipmentTemplate' --dataset=$shipment; apply --append; 
+	}};
 ">
 </tbody>
 </table>
 
 <template id="shipmentTemplate">
 <tr>
-	<td data-tlc="bind $carrier '.carrier'; apply --append;"></td>
 	<td data-tlc="
-bind $carrier '.carrier'; 
-set $link '';
 
+bind $carrier '.carrier'; 
 if (is $carrier --eq='U1DP') {{ set $carrier 'UPS'; }};
 if (is $carrier --eq='U1DA') {{ set $carrier 'UPS'; }};
 if (is $carrier --eq='U1DAS') {{ set $carrier 'UPS'; }};
@@ -707,9 +723,6 @@ if (is $carrier --eq='UXDM') {{ set $carrier 'UPS'; }};
 if (is $carrier --eq='UXPD') {{ set $carrier 'UPS'; }};
 if (is $carrier --eq='UXSV') {{ set $carrier 'UPS'; }};
 if (is $carrier --eq='UPMI') {{ set $carrier 'UPS'; }};
-if (is $carrier --eq='UPS') {{ 
-	set $link 'http://wwwapps.ups.com/etracking/tracking.cgi?TypeOfInquiryNumber=T&InquiryNumber1=';
-	}};
 
 if (is $carrier --eq='FEDEX') {{ set $carrier 'FEDX'; }};
 if (is $carrier --eq='FDX') {{ set $carrier 'FEDX'; }};
@@ -728,9 +741,6 @@ if (is $carrier --eq='FXIE') {{ set $carrier 'FEDX'; }};
 if (is $carrier --eq='FX2D') {{ set $carrier 'FEDX'; }};
 if (is $carrier --eq='FX2A') {{ set $carrier 'FEDX'; }};
 if (is $carrier --eq='FXSP') {{ set $carrier 'FEDX'; }};
-if (is $carrier --eq='FEDX') {{ 
-	set $link 'https://www.fedex.com/Tracking?action=track&language=english&template_type=plugin&ascend_header=1&cntry_code=us&initial=x&mps=y&tracknumbers=';
-	}};
 
 if (is $carrier --eq='EFCM') {{ set $carrier 'USPS'; }};
 if (is $carrier --eq='EPRI') {{ set $carrier 'USPS'; }};
@@ -746,9 +756,27 @@ if (is $carrier --eq='EIEM') {{ set $carrier 'USPS'; }};
 if (is $carrier --eq='EIPM') {{ set $carrier 'USPS'; }};
 if (is $carrier --eq='EGEG') {{ set $carrier 'USPS'; }};
 if (is $carrier --eq='EGGN') {{ set $carrier 'USPS'; }};
+
+export 'carrier' $carrier;
+apply --append;
+
+"></td>
+	<td data-tlc="
+bind $carrier '.carrier'; 
+set $link '';
+
+if (is $carrier --eq='UPS') {{ 
+	set $link 'http://wwwapps.ups.com/etracking/tracking.cgi?TypeOfInquiryNumber=T&InquiryNumber1=';
+	}};
+
+if (is $carrier --eq='FEDX') {{ 
+	set $link 'https://www.fedex.com/Tracking?action=track&language=english&template_type=plugin&ascend_header=1&cntry_code=us&initial=x&mps=y&tracknumbers=';
+	}};
+
 if (is $carrier --eq='USPS') {{
 	set $link 'http://trkcnfrm1.smi.usps.com/PTSInternetWeb/InterLabelInquiry.do?CAMEFROM=OK&origTrackNum=';
 	}};
+
 /* sanity: at this point if $link is set, we should append the tracking # */
 bind $track '.track'; 
 if (is $link --notblank) {{
@@ -1168,7 +1196,7 @@ The tracking numbers (if available) appear below:
 		'ORDER.SHIPPED.EBAY'=>{
 			MSGOBJECT=>'ORDER',
 			MSGFORMAT=>'TEXT',
-			MSGSUBJECT=>'Your order has been shipped.',
+			MSGSUBJECT=>'Your order %ORDERID% has been shipped.',
 			MSGBODY=>q~
 <pre>
 Your order has been shipped.  
@@ -1176,16 +1204,12 @@ If available the tracking numbers will appear below:
 
 %TRACKINGINFO%
 
-To see the tracking status for this order, or to contact us with any
-questions please visit or website, or download our app:
+To see the tracking status for this order, or to contact us with any questions please visit or website, or download our app:
 %LINKORDER%
 
-We strive to deliver a professional customer experience, if you have any concerns
-please do not hestitate to contact us.
+We strive to deliver a professional customer experience, if you have any concerns please do not hestitate to contact us.
 
-We request that you please provide us with 5 stars on the eBay feedback survey.  
-This will help us to move higher in the eBay rankings and continue to provide the 
-best customer service possible.
+We request that you please provide us with 5 stars on the eBay feedback survey. This will help us to move higher in the eBay rankings and continue to provide the best customer service possible.
 
 Thank you!
 </pre>
