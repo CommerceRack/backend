@@ -3155,6 +3155,7 @@ sub handle {
 
 	if (-f sprintf("/dev/shm/%s.trace",$self->sdomain())) { $TRACE++; }
 
+	# $TRACE++;
 	if ($TRACE) {
 		print STDERR "TRACE:$TRACE ".$self->sdomain()."\n";
 		push @JSONAPI::TRACE, [ 'cmdlines', \@CMDLINES ];

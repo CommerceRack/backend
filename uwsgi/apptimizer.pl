@@ -169,6 +169,9 @@ my $app = sub {
 	$CONFIG{'seo.fragments'} = $CONFIG{'seo.fragments'} || 1;
 	$CONFIG{'seo.index'} = 'seo.html';
 
+#	$CONFIG{'html.compress'} = 0;
+#	$CONFIG{'js.compress'} = 0;
+#	$CONFIG{'css.compress'} = 0;
 
 	##
 	## SANITY: at this point %CONFIG is initialized.
