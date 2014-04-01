@@ -922,8 +922,13 @@ sub e_ORDER {
 				}
 			}
 		}
+
+	foreach my $item (@{$O2->stuff2()->items()}) {
+		## check items for matching marketplaces
+		## note: this is necessary because some marketplaces don't set our/mkts
+		if ($item->{'mkt'}) { $ORDER_DST{$item->{'mkt'}}++; }
+		}
 	$ORDER_DST{'mkts'} = $mkts;
-	print 'DST: '.Dumper(\%ORDER_DST);
 
 	##
 	## TODO: add some locking code here!
@@ -944,7 +949,7 @@ sub e_ORDER {
 			$success = 0;
 			}
 		}
-
+	
 	## ORDER.VERIFY
 
 
@@ -1054,6 +1059,7 @@ sub e_ORDER {
 		}	
 	elsif ($EVENT eq 'ORDER.SHIP') {
 		## check for ebay stuff and notify of shipment
+		## print STDERR 'ORDER_DST: '.Dumper(\%ORDER_DST);
 
 		if ($ORDER_DST{'EBA'} || $ORDER_DST{'EBF'}) {
 			## EBAY
