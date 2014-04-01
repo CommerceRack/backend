@@ -389,14 +389,14 @@ use strict;
 	'adminCustomerSearch'=>[\&JSONAPI::adminCustomer, { 'admin'=>1, }, 'admin', { 'CUSTOMER'=>'S' } ],
 	'adminCustomerCreate'=>[\&JSONAPI::adminCustomerCreateUpdate, { 'admin'=>1, }, 'admin', { 'CUSTOMER'=>'C' } ],
 	'adminCustomerUpdate'=>[\&JSONAPI::adminCustomerCreateUpdate, { 'admin'=>1, }, 'admin', { 'CUSTOMER'=>'U' } ],
-	'adminCustomerDetail'=>[\&JSONAPI::adminCustomerDetail, { 'admin'=>1, }, 'admin', { 'CUSTOMER'=>'D' } ],
-	'adminCustomerRemove'=>[\&JSONAPI::adminCustomerRemove, { 'admin'=>1, }, 'admin', { 'CUSTOMER'=>'R' } ],
+	'adminCustomerDetail'=>[\&JSONAPI::adminCustomerDetail, { 'admin'=>1, }, 'admin', { 'CUSTOMER'=>'R' } ],
+	'adminCustomerRemove'=>[\&JSONAPI::adminCustomerRemove, { 'admin'=>1, }, 'admin', { 'CUSTOMER'=>'D' } ],
 	'adminCustomerWalletPeek'=>[ \&JSONAPI::adminCustomerWalletPeek, { 'admin'=>1, }, 'admin', { 'CUSTOMER'=>'**' } ],
 	'adminCustomerOrganizationSearch'=>[\&JSONAPI::adminCustomerOrganization, { 'admin'=>1, }, 'admin', { 'CUSTOMER'=>'S' } ],
 	'adminCustomerOrganizationCreate'=>[\&JSONAPI::adminCustomerOrganization, { 'admin'=>1, }, 'admin', { 'CUSTOMER'=>'C' } ],
 	'adminCustomerOrganizationUpdate'=>[\&JSONAPI::adminCustomerOrganization, { 'admin'=>1, }, 'admin', { 'CUSTOMER'=>'U' } ],
-	'adminCustomerOrganizationDetail'=>[\&JSONAPI::adminCustomerOrganization, { 'admin'=>1, }, 'admin', { 'CUSTOMER'=>'D' } ],
-	'adminCustomerOrganizationRemove'=>[\&JSONAPI::adminCustomerOrganization, { 'admin'=>1, }, 'admin', { 'CUSTOMER'=>'R' } ],
+	'adminCustomerOrganizationDetail'=>[\&JSONAPI::adminCustomerOrganization, { 'admin'=>1, }, 'admin', { 'CUSTOMER'=>'R' } ],
+	'adminCustomerOrganizationRemove'=>[\&JSONAPI::adminCustomerOrganization, { 'admin'=>1, }, 'admin', { 'CUSTOMER'=>'D' } ],
 	'adminNewsletterList' =>[  \&JSONAPI::appNewsletterList,  { 'admin'=>1, }, 'admin', ],
 
 	## Email/Blast
