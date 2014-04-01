@@ -22267,7 +22267,8 @@ sub appPageGet {
 		my $PROJECTDIR = $self->projectdir($self->projectid());
 
 		if (not $self->projectid()) {
-			&JSONAPI::append_msg_to_response(\%R,'iseerr',71220,"projectid is not set (check DNS config)");
+			## usually this means somebody is referencing the wrong domain (ex: vstore)
+			&JSONAPI::append_msg_to_response(\%R,'iseerr',71220,"projectid is not set for host.domain (check DNS config)");
 			}
 		elsif (! -d $PROJECTDIR) {
 			&JSONAPI::append_msg_to_response(\%R,'apierr',71222,"project directory $PROJECTDIR does not seem to exist");

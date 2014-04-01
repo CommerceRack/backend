@@ -227,32 +227,6 @@ sub summary {
 			}
 		}
 
-#	if ($options{'INCREMENTAL'}) {
-#		my @SKUS = keys %SUMMARY;
-#		my $pstmt = "select TYPE,SKU,QUANTITY from INVENTORY_UPDATES where USERNAME=".$udbh->quote($USERNAME);
-#		$pstmt .= " and SKU in ".&DBINFO::makeset($udbh,\@SKUS);
-#		$pstmt .= " order by ID";
-#		$pstmt .= " limit 0,100";	
-#
-#		my $sth = $udbh->prepare($pstmt);
-#		$sth->execute();
-#		while ( my ($type,$sku,$qty,$rdirty) = $sth->fetchrow() ) {
-#			$sku = uc($sku);
-#			if ($type eq 'I') {
-#				$SUMMARY{$sku}->{'AVAILABLE'} += $qty;
-#				}
-#			elsif ($type eq 'R') {
-#				## this is a reserve record update, it signifies that an inventory reserve changed.				
-#				## THIS IS PROBABLY BAD, SINCE WE WON'T ALWAYS ADD ONE.
-#				# $RESERVEREF->{$sku} = $qty;
-#				}
-#			elsif ($type eq 'U') {
-#				$SUMMARY{$sku}->{'AVAILABLE'} = $qty;
-#				}
-#			}
-#		$sth->finish();
-#		}
-
 	&DBINFO::db_user_close();
 
 	if ($options{'PIDS_ONLY'}) {
@@ -640,12 +614,6 @@ sub process_order {
 				my ($rcpt) = $BLAST->recipient('CUSTOMER',$CID,{'%GIFTCARD'=>$GCOBJ});
 				my ($msg) = $BLAST->msg('AUTO','CUSTOMER.GIFTCARD.RECEIVED');
 				$BLAST->send( $rcpt, $msg );
-				
-#				require SITE::EMAILS;
-#				require SITE;
-#				my ($SREF) = SITE->new($O2->username(), 'PRT'=>$O2->prt());
-#				my ($se) = SITE::EMAILS->new($O2->username(),'*SITE'=>$SREF);
-#				$se->sendmail('CUSTOMER.GIFTCARD.RECEIVED',CID=>$CID,'*SITE'=>$SREF);
 				}
 			$INV2->orderinvcmd($O2,$UUID,'PICK/ITEM-DONE','PICK_ROUTE'=>'PARTNER','VENDOR'=>'GIFTCARD');
 			}
@@ -702,53 +670,7 @@ sub process_order {
 		else {
 			$O2->add_history("SC - UNHANDLED RESPONSE stid:$item->{'stid'}");
 			}
-
-
 		}
-	# $udbh->do("commit");
-	# my $error = 0;
-
-		## no incremental inventory changes for virtual items!
-		#my $TYPE = 'I';
-		## if ($item->{'virtual'} =~ /^JEDI:/) { $TYPE = 'J'; }
-
-		#my ($PRODUCT,$CLAIM,$INVOPTS) = &PRODUCT::stid_to_pid($sku);
-		#if (not defined $INVOPTS) { $INVOPTS = ''; }
-		#$sku = $PRODUCT . (($INVOPTS ne '')?':'.$INVOPTS:'');
-		#$PRODUCT = uc($PRODUCT);
-		#$sku = uc($sku);
-
-		# my $qtAPPID = &appid();
-		# $qty = int(0 - $qty);
-		## we need a uuid, so we'll set it here just to be safe!
-		#if (not defined $item->{'uuid'}) { $item->{'uuid'} = Data::GUID->new()->as_string(); }
-		#$INV2->uuidinvcmd($item->{'uuid'},
-		#	"UNPAID/INIT",'ORDERID'=>$ORDERID,"SKU"=>$sku,"QTY"=>$qty
-		#	);
-		
-
-		#my $pstmt = &DBINFO::insert($pdbh,'INVENTORY_UPDATES',{
-		#	MID=>$MID,
-		#	USERNAME=>$USERNAME,
-		#	'*TIMESTAMP'=>'now()',
-		#	TYPE=>$TYPE,
-		#	PRODUCT=>$PRODUCT,
-		#	SKU=>$sku,
-		#	QUANTITY=>$qty,
-		#	APPID=>$APPID,
-		#	ORDERID=>$ORDERID,
-		#	},debug=>2);
-		#print STDERR $pstmt."\n";
-		#my $rv = $pdbh->do($pstmt);
-		#if (!defined($rv)) {
-		#	$error++;
-		#	# Safety!! just in case the database didn't work!
-		#	open F, ">>/tmp/INVENTORY_FIX.sql";
-		#	print F $pstmt . "\n";
-		#	close F;
-		#	}
-
-	#	 } ## end foreach my $sku (keys %{$CARTREF...
 	&DBINFO::db_user_close();
 
 	## NORMALLY we'd fire summarization events here.. but since events don't actually run. we'll just do them ourselves
@@ -763,7 +685,6 @@ sub process_order {
 			}
 		}
 
-#	close SR;
 	print STDERR "END PROCESS_ORDER\n";
 	return(\%UUIDS);
 	}
@@ -1153,7 +1074,6 @@ sub invcmd {
 		}
 
 	## print STDERR Carp::cluck("$CMD");
-
 	push @{$MSGS}, "DEBUG|+CMD:$CMD";
 
 	##
