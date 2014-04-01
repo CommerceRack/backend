@@ -13529,12 +13529,7 @@ sub elastic_index {
 			$bulk->index($payload);	
 			# push @ES_BULK_ACTIONS, { 'index'=>$payload };
 			}
-		#my $result = $es->bulk({
-		#	index	=> lc("$USERNAME.private"),		## we specify this at the top, so we don't need to in each payload
-		#	actions=>\@ES_BULK_ACTIONS,
-		#	replication=>'async',
-		#	});
-		# print STDERR Dumper(\@ES_BULK_ACTIONS,$result);
+		$bulk->flush();	## I ReALLY CANT STRESS HOW IMPORTANT THIS IS!!!
 		}
 
 	print STDERR "ELASTIC -STOP $USERNAME $OID\n";

@@ -389,14 +389,14 @@ use strict;
 	'adminCustomerSearch'=>[\&JSONAPI::adminCustomer, { 'admin'=>1, }, 'admin', { 'CUSTOMER'=>'S' } ],
 	'adminCustomerCreate'=>[\&JSONAPI::adminCustomerCreateUpdate, { 'admin'=>1, }, 'admin', { 'CUSTOMER'=>'C' } ],
 	'adminCustomerUpdate'=>[\&JSONAPI::adminCustomerCreateUpdate, { 'admin'=>1, }, 'admin', { 'CUSTOMER'=>'U' } ],
-	'adminCustomerDetail'=>[\&JSONAPI::adminCustomerDetail, { 'admin'=>1, }, 'admin', { 'CUSTOMER'=>'D' } ],
-	'adminCustomerRemove'=>[\&JSONAPI::adminCustomerRemove, { 'admin'=>1, }, 'admin', { 'CUSTOMER'=>'R' } ],
+	'adminCustomerDetail'=>[\&JSONAPI::adminCustomerDetail, { 'admin'=>1, }, 'admin', { 'CUSTOMER'=>'R' } ],
+	'adminCustomerRemove'=>[\&JSONAPI::adminCustomerRemove, { 'admin'=>1, }, 'admin', { 'CUSTOMER'=>'D' } ],
 	'adminCustomerWalletPeek'=>[ \&JSONAPI::adminCustomerWalletPeek, { 'admin'=>1, }, 'admin', { 'CUSTOMER'=>'**' } ],
 	'adminCustomerOrganizationSearch'=>[\&JSONAPI::adminCustomerOrganization, { 'admin'=>1, }, 'admin', { 'CUSTOMER'=>'S' } ],
 	'adminCustomerOrganizationCreate'=>[\&JSONAPI::adminCustomerOrganization, { 'admin'=>1, }, 'admin', { 'CUSTOMER'=>'C' } ],
 	'adminCustomerOrganizationUpdate'=>[\&JSONAPI::adminCustomerOrganization, { 'admin'=>1, }, 'admin', { 'CUSTOMER'=>'U' } ],
-	'adminCustomerOrganizationDetail'=>[\&JSONAPI::adminCustomerOrganization, { 'admin'=>1, }, 'admin', { 'CUSTOMER'=>'D' } ],
-	'adminCustomerOrganizationRemove'=>[\&JSONAPI::adminCustomerOrganization, { 'admin'=>1, }, 'admin', { 'CUSTOMER'=>'R' } ],
+	'adminCustomerOrganizationDetail'=>[\&JSONAPI::adminCustomerOrganization, { 'admin'=>1, }, 'admin', { 'CUSTOMER'=>'R' } ],
+	'adminCustomerOrganizationRemove'=>[\&JSONAPI::adminCustomerOrganization, { 'admin'=>1, }, 'admin', { 'CUSTOMER'=>'D' } ],
 	'adminNewsletterList' =>[  \&JSONAPI::appNewsletterList,  { 'admin'=>1, }, 'admin', ],
 
 	## Email/Blast
@@ -510,20 +510,6 @@ use strict;
 	'adminCampaignFileSave'=>[ \&JSONAPI::adminFile, { 'admin'=>1, }, 'admin', { 'SYNDICATION'=>'L' } ],
 	'adminCampaignFileUpload'=>[ \&JSONAPI::adminFile, { 'admin'=>1, }, 'admin', { 'SYNDICATION'=>'L' } ],
 	'adminCampaignZipDownload'=>[ \&JSONAPI::adminFile, { 'admin'=>1, }, 'admin', { 'SYNDICATION'=>'L' } ],
-
-#	'adminCampaignListRecipients'=>[\&JSONAPI::adminCampaign, { 'admin'=>1, }, 'admin', { 'CAMPAIGN'=>'S' } ],
-#	'adminCampaignSubscriberLists'=>[\&JSONAPI::adminCampaign, { 'admin'=>1, }, 'admin', { 'CAMPAIGN'=>'S' } ],
-#	'adminCampaignDetail'=>[\&JSONAPI::adminCampaign, { 'admin'=>1, }, 'admin', { 'CAMPAIGN'=>'D' } ],
-#	'adminMarketingTagSearch'=>[\&JSONAPI::adminMarketingTag, { 'admin'=>1, }, 'admin', { 'CUSTOMER'=>'S' } ],
-#	'adminMarketingTagCreate'=>[\&JSONAPI::adminMarketingTag, { 'admin'=>1, }, 'admin', { 'CUSTOMER'=>'C' } ],
-#	'adminMarketingTagUpdate'=>[\&JSONAPI::adminMarketingTag, { 'admin'=>1, }, 'admin', { 'CUSTOMER'=>'U' } ],
-#	'adminMarketingTagDetail'=>[\&JSONAPI::adminMarketingTag, { 'admin'=>1, }, 'admin', { 'CUSTOMER'=>'D' } ],
-#	'adminMarketingTagRemove'=>[\&JSONAPI::adminMarketingTag, { 'admin'=>1, }, 'admin', { 'CUSTOMER'=>'R' } ],
-#	'adminMarketingSubscriptionSearch'=>[\&JSONAPI::adminMarketingSubscription, { 'admin'=>1, }, 'admin', { 'CUSTOMER'=>'S' } ],
-#	'adminMarketingSubscriptionCreate'=>[\&JSONAPI::adminMarketingSubscription, { 'admin'=>1, }, 'admin', { 'CUSTOMER'=>'C' } ],
-#	'adminMarketingSubscriptionUpdate'=>[\&JSONAPI::adminMarketingSubscription, { 'admin'=>1, }, 'admin', { 'CUSTOMER'=>'U' } ],
-#	'adminMarketingSubscriptionDetail'=>[\&JSONAPI::adminMarketingSubscription, { 'admin'=>1, }, 'admin', { 'CUSTOMER'=>'D' } ],
-#	'adminMarketingSubscriptionRemove'=>[\&JSONAPI::adminMarketingSubscription, { 'admin'=>1, }, 'admin', { 'CUSTOMER'=>'R' } ],
 
 	##
 	## HTML WIZARD / LISTING TEMPLATE
@@ -8903,7 +8889,8 @@ sub adminBlastMsg {
 		$params{'*CREATED_TS'} = 'now()';
 		$params{'*MODIFIED_TS'} = 'now()';
 		$params{'LUSER'} = $self->luser();
-		$params{'LANG'} = 'EN';
+		$params{'FORMAT'} = 'HTML';
+		$params{'LANG'} = 'ENG';
 
 		## messages can be sent as 'update' even if they don't really exist in the db (so we need this hack!)
 		my $pstmt = "select count(*) from SITE_EMAILS where MID=".$self->mid()." and PRT=".$self->prt()." and MSGID=".$udbh->quote($params{'MSGID'})." and LANG=".$udbh->quote($params{'LANG'});
@@ -13494,20 +13481,6 @@ sub adminAppTicket {
 			}
 		}
 
-#	$GTOOLS::TAG{'<!-- CRM_TICKET_NUMBER -->'} = $crm_ref->{'TICKET_COUNT'};
-#	$GTOOLS::TAG{'<!-- SELECT_TICKET_SEQ_ALPHA -->'} = ($crm_ref->{'TICKET_SEQ'} eq 'ALPHA')?'selected':'';
-#	$GTOOLS::TAG{'<!-- SELECT_TICKET_SEQ_SEQ5 -->'} = ($crm_ref->{'TICKET_SEQ'} eq 'SEQ5')?'selected':'';
-#	$GTOOLS::TAG{'<!-- SELECT_TICKET_SEQ_DATEYYMM4 -->'} = ($crm_ref->{'TICKET_SEQ'} eq 'DATEYYMM4')?'selected':'';
-#	$GTOOLS::TAG{'<!-- CHK_EMAIL_CLEANUP -->'} = ($crm_ref->{'EMAIL_CLEANUP'})?'checked':'';
-
-##	my $r = '';
-##	foreach my $stageref (@CUSTOMER::TICKET::STAGES) {
-##		$r = ($r eq 'r0')?'r1':'r0';
-##		$c .= "<tr class='$r'><td><input type='checkbox'></td><td>$stageref->{'id'}</td><td>$stageref->{'name'}</td></tr>";
-##		}
-##	$GTOOLS::TAG{'<!-- CRM_STAGES -->'} = $c;
-#	}
-
 	return(\%R);
 	}
 
@@ -15162,23 +15135,57 @@ sub adminDomain {
 				my $HOSTDOMAIN = lc(sprintf("%s.%s",$params->{'HOSTNAME'},$DOMAINNAME));
 				my $DATE = &ZTOOLKIT::pretty_date(time(),3);
 				my $userpath = &ZOOVY::resolve_userpath($D->username());
-				if (-f "$userpath/$HOSTDOMAIN.crt") {
-					rename "$userpath/$HOSTDOMAIN.crt", "$userpath/$HOSTDOMAIN.crt-$DATE";
+				my $ERROR = undef;
+
+				if ($params->{'CRT'} eq '') {
+					$ERROR = "Certificate is blank";
 					}
-				open F, ">$userpath/$HOSTDOMAIN.crt";
-				print F $params->{'CRT'};
-				close F;	
+				elsif ($params->{'CRT'} !~ /-----BEGIN CERTIFICATE-----/) {
+					$ERROR = "$HOSTDOMAIN CERTIFICATE MISSING ----BEGIN";
+					}
+				elsif ($params->{'CRT'} !~ /-----END CERTIFICATE-----/) {
+					$ERROR = "$HOSTDOMAIN CERTIFICATE MISSING ----END";
+					}
+	
+				if ($ERROR) {
+					push @MSGS, "ERROR|+$ERROR";
+					}
+				else {
+					if (-f "$userpath/$HOSTDOMAIN.crt") {
+						rename "$userpath/$HOSTDOMAIN.crt", "$userpath/$HOSTDOMAIN.crt-$DATE";
+						}
+					open F, ">$userpath/$HOSTDOMAIN.crt";
+					print F $params->{'CRT'}."\n";
+					close F;	
+					}
 				}
 			elsif ($VERB eq 'HOST-SSL-UPDATE-KEY') {
 				my $HOSTDOMAIN = lc(sprintf("%s.%s",$params->{'HOSTNAME'},$DOMAINNAME));
 				my $DATE = &ZTOOLKIT::pretty_date(time(),3);
 				my $userpath = &ZOOVY::resolve_userpath($D->username());
-				if (-f "$userpath/$HOSTDOMAIN.key") {
-					rename "$userpath/$HOSTDOMAIN.key", "$userpath/$HOSTDOMAIN.key-$DATE";
+				my $ERROR = undef;
+
+				if ($params->{'KEY'} eq '') {
+					$ERROR = "Key is blank";
 					}
-				open F, ">$userpath/$HOSTDOMAIN.key";
-				print F $params->{'KEY'};
-				close F;
+				elsif ($params->{'KEY'} !~ /-----END (RSA )?PRIVATE KEY-----/) {
+					$ERROR = "$HOSTDOMAIN KEY MISSING ----END";
+					}
+				elsif ($params->{'KEY'} !~ /-----BEGIN (RSA )?PRIVATE KEY-----/) {
+					$ERROR = "$HOSTDOMAIN KEY MISSING ----BEGIN";
+					}
+
+				if ($ERROR) {
+					push @MSGS, "ERROR|+$ERROR";
+					}
+				else {
+					if (-f "$userpath/$HOSTDOMAIN.key") {
+						rename "$userpath/$HOSTDOMAIN.key", "$userpath/$HOSTDOMAIN.key-$DATE";
+						}
+					open F, ">$userpath/$HOSTDOMAIN.key";
+					print F $params->{'KEY'}."\n";
+					close F;		
+					}
 				}
 			elsif ($VERB eq 'EMAIL-DKIM-INIT') {
 				$D->gen_dkim_keys('save'=>0);

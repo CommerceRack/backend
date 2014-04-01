@@ -556,7 +556,11 @@ sub e_NOTIFY {
 				elsif ($VERB eq 'task') {			
 					require TODO;
 					TODO::easylog($USERNAME,%{$row},%{$YREF});
-					}			
+					}
+				elsif ($VERB eq 'blast') {
+					require BLAST;
+					## TBD
+					}
 				elsif ($VERB eq 'awssqs') {
 #					## url
 #					require Amazon::SQS::Simple;
@@ -918,15 +922,17 @@ sub e_ORDER {
 				}
 			}
 		}
+
+	foreach my $item (@{$O2->stuff2()->items()}) {
+		## check items for matching marketplaces
+		## note: this is necessary because some marketplaces don't set our/mkts
+		if ($item->{'mkt'}) { $ORDER_DST{$item->{'mkt'}}++; }
+		}
 	$ORDER_DST{'mkts'} = $mkts;
-	print 'DST: '.Dumper(\%ORDER_DST);
 
 	##
 	## TODO: add some locking code here!
 	##
-	#	if ($EVENT eq 'inc-fix') {
-	#		($success) = &flag_incomplete($o,$EVENT);
-	#		}
 
 	if ($O2->stuff2()->count('show'=>'real') == 0) {
 		$O2->add_history("skipped event:$EVENT reason: No items in order (probably corrupt order)",etype=>2+8);
@@ -943,7 +949,7 @@ sub e_ORDER {
 			$success = 0;
 			}
 		}
-
+	
 	## ORDER.VERIFY
 
 
@@ -974,9 +980,6 @@ sub e_ORDER {
 				}
 			}
 
-		# if ($O2->in_get('our/order_ts')<1293480000) {
-		#if ($O2->in_get('our/order_ts')< 1351624351) {
-		#	}
 		$redis->select(1);
 		my $REDIS_KPI_KEY = sprintf("CHECKPOINT.EVENT.KPI.%s.%s.%s",$O2->username(),$O2->oid(),$EVENT);
 		print "REACHED CHECKPOINT $REDIS_KPI_KEY\n";
@@ -1056,6 +1059,7 @@ sub e_ORDER {
 		}	
 	elsif ($EVENT eq 'ORDER.SHIP') {
 		## check for ebay stuff and notify of shipment
+		## print STDERR 'ORDER_DST: '.Dumper(\%ORDER_DST);
 
 		if ($ORDER_DST{'EBA'} || $ORDER_DST{'EBF'}) {
 			## EBAY
@@ -2099,13 +2103,6 @@ sub notify_amazon {
 		}
 
 	if ($EVENT eq 'ORDER.SHIP') {
-#alter table AMAZON_ORDERS add NEWORDER_ACK_PROCESSED_GMT integer unsigned default 0 not null,
-#  add NEWORDER_ACK_DOCID bigint unsigned default 0 not null,
-#  add FULFILLMENT_ACK_REQUESTED_GMT integer unsigned default 0 not null,
-#  add FULFILLMENT_ACK_PROCESSED_GMT integer unsigned  default 0 not null,
-#  add FULFILLMENT_ACK_DOCID bigint unsigned  default 0 not null,
-#  add index(NEWORDER_ACK_PROCESSED_GMT),
-#  add index(FULFILLMENT_ACK_PROCESSED_GMT,FULFILLMENT_ACK_REQUESTED_GMT);
 		$success = 0;
 		my $udbh = &DBINFO::db_user_connect($O2->username());
 		my ($MID) = &ZOOVY::resolve_mid($O2->username());
@@ -2254,8 +2251,8 @@ sub notify_ebay {
 			my $CARTID = URI::Escape::XS::uri_escape($O2->in_get('cart/cartid'));
 	
 			my ($BLAST) = BLAST->new($USERNAME,$O2->prt());
-			my ($rcpt) = $BLAST->recipient('EBAY',$eb2, $SITE_ID,$EBAY_ID,'Shipping',$EBAY_USER);
-			my ($msg) = $BLAST->msg('ORDER.SHIPPED.EBAY',{'%ORDER'=>$O2});
+			my ($rcpt) = $BLAST->recipient('EBAY',$eb2, {'%call'=>{ '#Site'=>$SITE_ID,'ItemID'=>$EBAY_ID,'MemberMessage.QuestionType'=>'Shipping','MemberMessage.RecipientID'=>$EBAY_USER}});
+			my ($msg) = $BLAST->msg('ORDER.SHIPPED.EBAY',{'%ORDER'=>$O2->TO_JSON()});
 			$BLAST->send($rcpt,$msg);
 			$O2->add_history("Notified client of shipment via myEBay",etype=>32,luser=>"*$EVENT");
 
@@ -2275,24 +2272,3 @@ sub notify_ebay {
 	}
 
 
-#	elsif ($SITE::merchant_id eq 'ibc') {
-#		## I don't even have a name for this feature yet.
-#		require LWP::UserAgent;
-#		my ($xml) = $o->as_xml(118);
-#		my %vars = ( 'Method'=>'Order', 'Contents'=>$xml );
-#		my $agent = new LWP::UserAgent;
-#		$agent->timeout(15);
-#		my ($r) = $agent->post('http://www.razormouth.com/receive.cgi',\%vars);
-#		if ($r->is_success()) {
-#			$o->run_macro( $r->content() );
-#			}
-#		else {
-#			$o->add_history("could not access api: ".$r->status_line());
-#			}
-##		## reimport the order into SITE::CART
-#		$CART->in_set('data.remote_id',$o->get_attrib('remote_id'));
-#		$CART->in_set('data.remote_user',$o->get_attrib('remote_user'));
-#		$CART->in_set('data.remote_pass',$o->get_attrib('remote_pass'));
-#		$CART->in_set('data.remote_url',$o->get_attrib('remote_url'));
-#		$CART->in_set('chkout.payment_status',$o->get_attrib('payment_status'));
-#		}

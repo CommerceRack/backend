@@ -1223,6 +1223,7 @@ sub processOrders {
 
 
 			# '.BuyerUserID' => 'chrisautousa',
+			$O2->in_set('our/mkts',000002);
 			$O2->in_set('mkt/docid',$EBAY_JOBID);
 			$O2->in_set('mkt/siteid',$ebordref->{'.ListingSiteID'});
 			$EBAY_USER = $ebordref->{'.BuyerUserID'};
