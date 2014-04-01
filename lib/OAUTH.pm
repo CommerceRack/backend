@@ -59,12 +59,12 @@ require TXLOG;
 	);
 
 %OAUTH::ACL_PRETTY = (
-	'R' => 'Review',
 	'C' => 'Create',
 	'U' => 'Update',
 	'L' => 'List',
 	'S' => 'Search',
-	'D' => 'Delete',
+	'R' => 'Review',		## in 201403 this will become "R" = "Remove"
+	'D' => 'Delete',		## in 201403 this will become "D" = "Detail"
 	);
 
 sub list_roles {

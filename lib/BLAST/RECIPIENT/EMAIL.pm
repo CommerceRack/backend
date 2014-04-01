@@ -40,10 +40,14 @@ sub send {
 	#my $FROM = $MSGREF->{'MSGFROM'};
 	my $webdbref = $self->blaster()->webdb();
 	my $FROM =  $webdbref->{'from_email'} || $webdbref->{'paypal_email'};
-	
 
 	my $SUBJECT = $msg->subject();
 	$SUBJECT =~ s/<.*?>//gs;	# html stripping!
+
+
+	open F, ">>/tmp/emails";
+	print F Dumper($BODY);
+	close F;
 
 #	print STDERR "BODY: $BODY\n";
 
