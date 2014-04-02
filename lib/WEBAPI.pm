@@ -570,7 +570,7 @@ sub handle_sync {
 				if ((int($SEAT)==0) || (int($SEAT)==1)) { $SEAT = ''; }
 				# print STDERR "Looking for Token: 'token_'.lc($CODE.$SEAT)\n";
 				my ($gref) = &ZWEBSITE::fetch_globalref($USERNAME);
-				my $TOKEN = $gref->{'webapi_zid'};
+				my $TOKEN = $gref->{'webapi_zid'} || $gref->{'%plugins'}->{'desktop.zoovy.com'}->{'~password'};
 				$IS_ADMIN = 1;
 
 				my $IN = $USERNAME . (($LUSER ne '')?'*'.$LUSER:'') . $TOKEN . $XAPI . $XREQUEST . $XTIME . $DATA;
@@ -581,19 +581,35 @@ sub handle_sync {
 				}
 			elsif ($MODE eq 'PASSWORD') { 
 				## this is for PASS:digest
-				if ($LUSER eq '') { $LUSER = 'admin'; }
-				my $zdbh = &DBINFO::db_user_connect($USERNAME);
-				my $pstmt = "select PASSHASH,PASSSALT,IS_ADMIN from LUSERS where MID=$MID and USERNAME=".$zdbh->quote($USERNAME)." and LUSER=".$zdbh->quote($LUSER);
-				my ($PASSHASH,$PASSSALT,$IS_ADMIN) = $zdbh->selectrow_array($pstmt);
-				&DBINFO::db_user_close();
-
-				$IS_ADMIN++;
-				if (not $IS_ADMIN) {
-					$EC = 2010;	# user does not have administrative access
-					}
+				##if ($LUSER eq '') { $LUSER = 'admin'; }
+				#my $zdbh = &DBINFO::db_user_connect($USERNAME);
+				#my $pstmt = "select PASSHASH,PASSSALT,IS_ADMIN from LUSERS where MID=$MID and USERNAME=".$zdbh->quote($USERNAME)." and LUSER=".$zdbh->quote($LUSER);
+				#my ($PASSHASH,$PASSSALT,$IS_ADMIN) = $zdbh->selectrow_array($pstmt);
+				#&DBINFO::db_user_close();
+				#if (not $IS_ADMIN) {
+				#	$EC = 2010;	# user does not have administrative access
+				#	}
+				$LUSER = '';
 				my ($gref) = &ZWEBSITE::fetch_globalref($USERNAME);
 				my $CFG = $gref->{'%plugins'}->{'desktop.zoovy.com'} || {};
-				# my $TOKEN = $SHIPCFG->{'~password'};
+
+				if (not $CFG->{'enable'}) {
+					$EC = 2011;
+					}
+				elsif ($CFG->{'~password'} eq '') {
+					$EC = 2006; 
+					}
+				else {
+					$PASSWORD = $CFG->{'~password'};
+					}
+
+				if ($EC == 0) {
+					my $IN = $USERNAME . (($LUSER ne '')?'*'.$LUSER:'') . $PASSWORD . $XAPI . $XREQUEST . $XTIME . $DATA;
+					$ACTUALMD5 = Digest::MD5::md5_hex( $IN );
+					if ($ACTUALMD5 ne $XSECURITY) {
+						$EC = '2005';
+						}
+					}
 				
 				#elsif ($XPASS eq '') { 
 				#	$EC = 2006; 
@@ -610,15 +626,6 @@ sub handle_sync {
 				$EC = 2007;
 				}
 			print STDERR "SERVER: CLIENT=$::XCLIENTCODE USER=$USERNAME\n";
-
-			#	my $IN = $USERNAME . (($LUSER ne '')?'*'.$LUSER:'') . $PASSWORD . $XAPI . $XREQUEST . $XTIME . $DATA;
-			#	# print STDERR "IN[$IN]\n";
-			#	$ACTUALMD5 = Digest::MD5::md5_hex( $IN );
-			#	# print STDERR "MD5S: $ACTUALMD5 ne $XSECURITY\n";
-			#	if ($ACTUALMD5 ne $XSECURITY) {
-			#		$EC = '2005';
-			#		}
-			#	
 			}
 		}
 
@@ -802,6 +809,8 @@ sub userlog {
 	'2008' => 'X-SECURITY cannot be blank',
 	'2009' => 'X-SECURITY is invalid.',
 	'2010' => 'User attempting to authenticate does not have administrative access',
+	'2011' => 'Admin sync is not enabled - please go to Setup | Integrations | Shipping | Zoovy Desktop and enable it.',
+	'2012' => 'Admin sync password cannot be blank',
 	'2098' => 'X-CLIENT is required at this compatibility level',
 	'2099' => 'Unknown X-CLIENT value - please contact zoovy support',
 );
@@ -1112,17 +1121,11 @@ sub adminSync {
 	my $TOKEN = '';
 
 	my $gref = &ZWEBSITE::fetch_globalref($USERNAME);
-	my $cached_flags = ','.$gref->{'cached_flags'}.',';
 
 	## needed for version 7 compatibility
-	$cached_flags .= ',SOHONET,ZWM,';
-
+	my $cached_flags .= ',SOHONET,ZWM,';
 	my @ERRORS = ();
 
-	my $SEATS = 0;
-#	if ($req->header(lc('SERVER_ADDR')) eq '192.168.99.14') {
-#		## Dev is always authorized for everything.
-#		}
 	if ($CODE =~ /^ZID[\.]?(.*?)/) {
 		## Currently ZID is authorized for everything.
 		$CODE = 'ZID';
@@ -1131,20 +1134,21 @@ sub adminSync {
 		push @ERRORS, "Unknown Client $CODE";
 		}
 
-	my @characters = ('A' .. 'Z', 'a' .. 'z', 0 .. 9);
-	my $cs = scalar(@characters);
-	my $s = (time() % $$) ^ $$ ^ time(); srand($s);
-	for (1 .. 1024) { $TOKEN .= $characters[rand $cs]; }
-
+	#my @characters = ('A' .. 'Z', 'a' .. 'z', 0 .. 9);
+	#my $cs = scalar(@characters);
+	#my $s = (time() % $$) ^ $$ ^ time(); srand($s);
+	#for (1 .. 1024) { $TOKEN .= $characters[rand $cs]; }
 	## for now we'll save to both webdb and gref
-	my $webdbref = &ZWEBSITE::fetch_website_dbref($USERNAME,0);
-	$webdbref->{'token_'.lc($CODE)} = $TOKEN;
-	&ZWEBSITE::save_website_dbref($USERNAME,$webdbref,0);
+	#my $webdbref = &ZWEBSITE::fetch_website_dbref($USERNAME,0);
+	#delete $webdbref->{'token_'.lc($CODE)};
+	#&ZWEBSITE::save_website_dbref($USERNAME,$webdbref,0);
 
-	$gref->{'webapi_'.lc($CODE)} = $TOKEN;
-	&ZWEBSITE::save_globalref($USERNAME,$gref);
+	if ($gref->{'webapi_zid'}) {
+		delete $gref->{'webapi_zid'};
+		&ZWEBSITE::save_globalref($USERNAME,$gref);
+		}
+	$TOKEN = $gref->{'%plugins'}->{'desktop.zoovy.com'}->{'~password'};
 
-	
 	if (@ERRORS>0) {
 		foreach my $err (@ERRORS) {
 			$XML .= "<Error>$err</Error>";
@@ -1162,8 +1166,12 @@ sub adminSync {
 		my @ar = ();
 		require Digest::MD5;
 		while ( my $u = $sth->fetchrow_hashref() ) {
-			$u->{'MD5PASS'} = Digest::MD5::md5_hex( $u->{'PASSWORD'} . $TOKEN );
-			# delete $u->{'PASSWORD'};
+			next if ($u->{'PASSPIN'} eq '');	## don't send people with blank pin/passwords
+			$u->{'MD5PASS'} = Digest::MD5::md5_hex( $u->{'PASSPIN'} . $TOKEN );
+			$u->{'PASSWORD'} = $u->{'PASSPIN'};
+			delete $u->{'PASSSALT'};		## these should never be shared!
+			delete $u->{'PASSHASH'};
+			delete $u->{'PASSWORD'};
 			delete $u->{'MERCHANT'};
 			delete $u->{'MID'};
 			$u->{'FLAG_ZOM'} = 0x1;	## 2= set package verification
@@ -1173,8 +1181,8 @@ sub adminSync {
 
 		$USERXML = &ZTOOLKIT::arrayref_to_xmlish_list(\@ar,tag=>'User');
 
-		require ZTOOLKIT::SECUREKEY;
-		my $securekey = &ZTOOLKIT::SECUREKEY::gen_key($USERNAME,'ZO');
+#		require ZTOOLKIT::SECUREKEY;
+#		my $securekey = &ZTOOLKIT::SECUREKEY::gen_key($USERNAME,'ZO');
 
 		my $PARTITIONS = '';
 		
@@ -1189,8 +1197,7 @@ sub adminSync {
 			}
 		$PARTITIONS = &ZTOOLKIT::arrayref_to_xmlish_list(\@PRTS,tag=>'prt');
 
-		$XML = qq~<SecureKey>$securekey</SecureKey>
-<Seats>$SEATS</Seats>
+		$XML = qq~
 <Token>$TOKEN</Token>
 <Partitions>$PARTITIONS</Partitions>
 <Users>
@@ -1199,10 +1206,6 @@ $USERXML
 		}
 
 	$XML = "<AdminSync><Username>$USERNAME</Username><Flags>$cached_flags</Flags>$XML</AdminSync>";
-
-#	open F, ">/tmp/adminsync";
-#	print F $XML;
-#	close F;
 
 	return($PickupTime,$XML);
 	}

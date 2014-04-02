@@ -28,13 +28,15 @@ package BLAST::DEFAULTS;
 	'%TKTURL%'=> q|<span data-tlc="bind $var '.%TICKET.URL'; apply --append;"></span>|,
 	'%TKTSUBJECT%'=> q|<span data-tlc="bind $var '.%TICKET.SUBJECT'; apply --append;"></span>|,
 	'%TKTCODE%'=> q|<span data-tlc="bind $var '.%TICKET.CODE'; apply --append;"></span>|,
-	
+
+	'%COMPANY%'=>q|<span data-tlc="bind $var '.%PRT.COMPANY'; apply --append;"></span>|,
 	'%PHONE%'=> q|<span data-tlc="bind $var '.%PRT.PHONE'; apply --append;"></span>|,
 	'%DOMAIN%'=> q|<span data-tlc="bind $var '.%PRT.DOMAIN'; apply --append;"></span>|,
 	'%MAILADDR%'=> q|<span data-tlc="bind $var '.%PRT.MAILADDR'; apply --append;"></span>|,
-	'%HELPEMAIL%'=> q|<span data-tlc="bind $var '.%PRT.EMAIL'; apply --append;"></span>|,
-	'%LINKSTYLE%'=> q|<span data-tlc="bind $var '.%PRT.LINKSTYLE'; apply --append;"></span>|,
+	'%HELPEMAIL%'=> q|<span data-tlc="bind $var '.%PRT.HELPEMAIL'; apply --append;"></span>|,
+	## should be NONE, APP, VSTORE
 
+	'%LINKSYNTAX%'=> q|<span data-tlc="bind $var '.%PRT.LINKSYNTAX'; apply --append;"></span>|,
 	'%LINKDOMAIN%'=> q|<span data-tlc="
 bind $var '.%PRT.DOMAIN'; 
 if (is $var --notblank) {{
@@ -85,7 +87,7 @@ body { font-family: helvetica; }
 bind $orderid '.%ORDER.our.orderid'; 
 bind $softauth '.%ORDER.cart.cartid'; 
 bind $domain '.%PRT.DOMAIN'; 
-bind $linkstyle '.%PRT.LINKSTYLE';
+bind $linkstyle '.%PRT.LINKSYNTAX';
 if (is $domain --notblank) {{
 	set $link '';
 	format $link --append='http://' --append=$domain;
@@ -874,19 +876,25 @@ bind $giftcards '.%CUSTOMER.@GIFTCARDS'; foreach $giftcard in $giftcards {{	tran
 
 
 
-## OLD ALIASES (SHOULD BE REMOVED/NOT USED)
-$BLAST::DEFAULTS::MACROS{'%PASSWORD%'} = $BLAST::DEFAULTS::MACROS{'%CUSTOMER_INITPASS%'};
-$BLAST::DEFAULTS::MACROS{'%HTMLPACKSLIP%'} = $BLAST::DEFAULTS::MACROS{'%PACKSLIP%'};
-$BLAST::DEFAULTS::MACROS{'%HTMLBILLADDR%'} = $BLAST::DEFAULTS::MACROS{'%BILLADDR%'};
-$BLAST::DEFAULTS::MACROS{'%HTMLSHIPADDR%'} = $BLAST::DEFAULTS::MACROS{'%SHIPADDR%'};
-$BLAST::DEFAULTS::MACROS{'%HTMLPAYINSTRUCTIONS%'} = $BLAST::DEFAULTS::MACROS{'%PAYINSTRUCTIONS%'};
-$BLAST::DEFAULTS::MACROS{'%HTMLTRACKINGINFO%'} = $BLAST::DEFAULTS::MACROS{'%TRACKINGINFO%'};
-$BLAST::DEFAULTS::MACROS{'%ORDERFEEDBACK%'} = $BLAST::DEFAULTS::MACROS{'%LINKORDER%'};
-$BLAST::DEFAULTS::MACROS{'%CONTENTS%'} = $BLAST::DEFAULTS::MACROS{'%ORDERITEMS%'};
-$BLAST::DEFAULTS::MACROS{'%NAME%'} = $BLAST::DEFAULTS::MACROS{'%FULLNAME%'};
-$BLAST::DEFAULTS::MACROS{'%DATE%'} = $BLAST::DEFAULTS::MACROS{'%ORDERDATE%'};
-$BLAST::DEFAULTS::MACROS{'%IPADDRESS%'} = $BLAST::DEFAULTS::MACROS{'%REMOTEIPADDRESS%'};
-$BLAST::DEFAULTS::MACROS{'%ORDERURL%'} = $BLAST::DEFAULTS::MACROS{'%LINKORDER%'};
+## OLD MACRO ALIASES (SHOULD BE REMOVED/NOT USED)
+## these will *NOT* be included in the list of SYSTEM macros
+%BLAST::DEFAULTS::DEPRECATED = ();
+$BLAST::DEFAULTS::DEPRECATED{'%PASSWORD%'} = '%CUSTOMER_INITPASS%';
+$BLAST::DEFAULTS::DEPRECATED{'%HTMLPACKSLIP%'} = '%PACKSLIP%';
+$BLAST::DEFAULTS::DEPRECATED{'%HTMLBILLADDR%'} = '%BILLADDR%';
+$BLAST::DEFAULTS::DEPRECATED{'%HTMLSHIPADDR%'} = '%SHIPADDR%';
+$BLAST::DEFAULTS::DEPRECATED{'%HTMLPAYINSTRUCTIONS%'} = '%PAYINSTRUCTIONS%';
+$BLAST::DEFAULTS::DEPRECATED{'%HTMLTRACKINGINFO%'} = '%TRACKINGINFO%';
+$BLAST::DEFAULTS::DEPRECATED{'%ORDERFEEDBACK%'} = '%LINKORDER%';
+$BLAST::DEFAULTS::DEPRECATED{'%CONTENTS%'} = '%ORDERITEMS%';
+$BLAST::DEFAULTS::DEPRECATED{'%NAME%'} = '%FULLNAME%';
+$BLAST::DEFAULTS::DEPRECATED{'%DATE%'} = '%ORDERDATE%';
+$BLAST::DEFAULTS::DEPRECATED{'%IPADDRESS%'} = '%REMOTEIPADDRESS%';
+$BLAST::DEFAULTS::DEPRECATED{'%ORDERURL%'} = '%LINKORDER%';
+$BLAST::DEFAULTS::DEPRECATED{'%COMPANYNAME%'} = '%COMPANY%';
+foreach my $k (keys %BLAST::DEFAULTS::DEPRECATED) {
+	$BLAST::DEFAULTS::MACROS{$k} = $BLAST::DEFAULTS::MACROS{ $BLAST::DEFAULTS::DEPRECATED{$k}  };
+	}
 
 
 ##

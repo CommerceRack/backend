@@ -8701,6 +8701,7 @@ sub adminBlastMacro {
 		foreach my $macroid (keys %BLAST::DEFAULTS::MACROS) {
 			next if ($HAS_CUSTOM{$macroid});
 			next if (not $v->{'system'});
+			next if (not $BLAST::DEFAULTS::DEPRECATED{$macroid});		## never show deprecated macros
 			my %ROW = ();
 			$ROW{'MACROID'} = $macroid;
 			$ROW{'BODY'} = $BLAST::DEFAULTS::MACROS{$macroid};
@@ -8883,7 +8884,7 @@ sub adminBlastMsg {
 		$params{'BODY'} =  $v->{'BODY'};
 		my %META = ();
 		foreach my $k (keys %{$v}) {
-			if ($k =~ /^\%META\.(.*?)/) { $META{$1} = $v->{$k}; }
+			if ($k =~ /^\%META\.(.*?)$/) { $META{$1} = $v->{$k}; }
 			}
 		$params{'METAJSON'} = JSON::XS->new()->encode(\%META);
 		$params{'*CREATED_TS'} = 'now()';
@@ -8891,6 +8892,10 @@ sub adminBlastMsg {
 		$params{'LUSER'} = $self->luser();
 		$params{'FORMAT'} = 'HTML';
 		$params{'LANG'} = 'ENG';
+
+		## backward compat to old fields.
+      $params{'MSGFROM'} = $META{'email_from'};
+      $params{'MSGBCC'} = $META{'email_bcc'};
 
 		## messages can be sent as 'update' even if they don't really exist in the db (so we need this hack!)
 		my $pstmt = "select count(*) from SITE_EMAILS where MID=".$self->mid()." and PRT=".$self->prt()." and MSGID=".$udbh->quote($params{'MSGID'})." and LANG=".$udbh->quote($params{'LANG'});
@@ -15904,6 +15909,7 @@ sub bossUser {
 			if (defined $v->{'jobtitle'}) { $UREF{'JOBTITLE'} = sprintf("%s",$v->{'jobtitle'}); }
 			if (defined $v->{'fullname'}) { $UREF{'FULLNAME'} = sprintf("%s",$v->{'fullname'}); }
 			if (defined $v->{'email'}) { $UREF{'EMAIL'} = sprintf("%s",$v->{'email'}); }
+			if (defined $v->{'passpin'}) { $UREF{'PASSPIN'} = sprintf("%s",$v->{'passpin'}); }
 
 			if (defined $v->{'@roles'}) {	
 				$UREF{'ROLES'} = sprintf("%s",join(";",@{$v->{'@roles'}}));
@@ -15930,7 +15936,7 @@ sub bossUser {
 		my ($MID) = $self->mid();
 		my $pstmt = '';
 		if ($v->{'_cmd'} eq 'bossUserList') {
-			$pstmt = "select UID,LUSER,FULLNAME,EMAIL,JOBTITLE,PHONE,CREATED_GMT,PASSWORD_CHANGED,ROLES from LUSERS where MID=$MID order by LUSER";
+			$pstmt = "select UID,LUSER,FULLNAME,EMAIL,PASSPIN,JOBTITLE,PHONE,CREATED_GMT,PASSWORD_CHANGED,ROLES from LUSERS where MID=$MID order by LUSER";
 			}
 		if ($v->{'_cmd'} eq 'bossUserDetail') {
 			my $LOGIN = lc($v->{'login'});
@@ -15946,7 +15952,7 @@ sub bossUser {
 		# push @ROWS, { UID=>0, LUSER=>'BOSS', FULLNAME=>'Administrator', JOBTITLE=>'Master Account', HAS_EMAIL=>(($FLAGS =~ /,ZM,/)?'Y':'N') };
 		while ( my $rowref = $sth->fetchrow_hashref() ) {
 			my %user = ();
-			delete $rowref->{'PASSWORD'};
+			#delete $rowref->{'PASSWORD'};
 			$user{'@roles'} = [ split(/\;/,$rowref->{'ROLES'}) ];
 			delete $rowref->{'ROLES'};
 			$user{'password_changed_gmt'} = &ZTOOLKIT::mysql_to_unixtime($rowref->{'PASSWORD_CHANGED'});
