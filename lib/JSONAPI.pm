@@ -707,7 +707,8 @@ use strict;
 	'adminMySystemHealth'=>[ \&JSONAPI::adminMySystemHealth, { 'admin'=>1, }, 'admin', { 'HELP'=>'C' } ],
 
 	'adminMessagesList'=>[ \&JSONAPI::adminMessages, { 'admin'=>1, }, 'admin', ],
-	'adminMessagesCleanup'=>[ \&JSONAPI::adminMessages, { 'admin'=>1, }, 'admin', ],
+	'adminMessagesEmpty'=>[ \&JSONAPI::adminMessages, { 'admin'=>1, }, 'admin', ],
+	'adminMessageRemove'=>[ \&JSONAPI::adminMessages, { 'admin'=>1, }, 'admin', ],
 
 	'adminVersionCheck'=>[ \&JSONAPI::adminVersionCheck, {}, 'admin', ],
 	'adminAccountDetail'=>[ \&JSONAPI::adminAccountDetail, { 'admin'=>1, }, 'admin', ],
@@ -887,7 +888,11 @@ sub adminControlPanel {
 	my ($self,$v) = @_;
 
 	my %R = ();
-	if ($v->{'_cmd'} eq 'adminControlPanelAction') {
+	my ($CFG) = CFG->new();
+	if ($CFG->get('system','saas')) {
+		&JSONAPI::had_error(\%R,'apperr',18822,sprintf("%s cmd is not allowed on saas systems"));
+		}
+	elsif ($v->{'_cmd'} eq 'adminControlPanelAction') {
 		if ($v->{'verb'} eq 'config-rebuild') {
 			system("sudo /httpd/platform/dump-domains.pl");
 			}
@@ -27222,6 +27227,13 @@ sub adminTechnicalRequest {
 
 =pod
 
+## &ZOOVY::msgAppend($self->username(),"",{
+##         origin=>sprintf("job.%d",$self->id()),
+##         icon=>"done",
+##         msg=>"job.finished",
+##         note=>sprintf("Job #%d $exec $verb has completed",$self->id()),
+##         });
+
 <API id="adminMessagesList">
 <purpose></purpose>
 <input id="msgid"></input>
@@ -27232,7 +27244,7 @@ ResponseMsg
 ]]></example>
 </API>
 
-<API id="adminMessagesClear">
+<API id="adminMessagesRemove">
 <purpose></purpose>
 <input id="msgid"></input>
 <example><![CDATA[
@@ -27252,8 +27264,16 @@ sub adminMessages {
 	if ($v->{'_cmd'} eq 'adminMessagesList') {
 		$R{'@MSGS'} = &ZOOVY::msgsGet($self->username(),'',int($v->{'msgid'}));
 		}
+	elsif ($v->{'_cmd'} eq 'adminMessagesEmpty') {
+		&ZOOVY::msgClear($self->username(),'',-1);
+		}
+	elsif (not &JSONAPI::validate_required_parameter(\%R,$v,'msgid')) {
+		}
 	elsif ($v->{'_cmd'} eq 'adminMessageRemove') {
-		&ZOOVY::msgsClear($self->username(),'',int($v->{'msgid'}));
+		&ZOOVY::msgClear($self->username(),'',int($v->{'msgid'}));
+		}
+	else {
+		&JSONAPI::set_error(\%R,'iseerr',183832,sprintf("invalid command %s",$v->{'_cmd'}));		
 		}
 
 	return(\%R);

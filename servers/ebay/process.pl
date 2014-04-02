@@ -22,13 +22,18 @@ foreach my $arg (@ARGV) {
 
 
 my @USERS = ();
+my ($CFG) = CFG->new();
 if ($params{'user'}) {
 	push @USERS, $params{'user'};
+	$params{'saas'} = 0;	## disable saas mode (single user mode)
 	}
 else {
 	my $CFG = CFG->new();
 	@USERS = @{$CFG->users()};
+	$params{'saas'} = int($CFG->get('system','saas'));
 	}
+
+
 
 foreach my $user (@USERS) {
 	&process('user'=>$user,%params);

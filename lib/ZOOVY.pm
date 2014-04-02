@@ -656,17 +656,45 @@ sub msgsGet {
 	}
 
 
+##
+##
+##
 sub msgClear {
-	my ($USERNAME, $queuename, $msgparams) = @_;
+	my ($USERNAME, $queuename, $msgid, $origin) = @_;
 
 	if ($queuename eq '') { $queuename = '*'; }
 	my ($redis) = &ZOOVY::getRedis($USERNAME,2);
 	$USERNAME = lc($USERNAME);
-	my ($i) = $redis->incr("msg.id.$USERNAME.$queuename");
-	my $msg = "$i?".&ZTOOLKIT::buildparams($msgparams);
-	$redis->lpush("msg.queue.$USERNAME.$queuename",$msg);
-	$redis->ltrim("msg.queue.$USERNAME.$queuename",0,10);
-	$redis->expire("msg.queue.$USERNAME.$queuename",86400);
+
+	my ($i) = $redis->get("msg.id.$USERNAME.$queuename");
+	if ($msgid == -1) {
+		## -1 is clear all, empty queue
+		($i) = $redis->incr("msg.id.$USERNAME.$queuename");
+		$redis->del("msg.queue.$USERNAME.$queuename");
+		}
+	elsif ($msgid == 0) {
+		## clear a message based on the origin
+		&ZOOVY::msgAppend($USERNAME,$queuename,{"verb"=>"remove","origin"=>$origin,"from-msg"=>0});
+		}
+	elsif ($msgid > 0) {
+		## yes, i'm aware this is the wrong way to remove an item from a redis queue
+		## but it should be fine. 99.9999% of the time
+		my $llen = $redis->llen("msg.queue.$USERNAME.$queuename");
+		while ($llen-- > 0) {
+			my ($thismsgline) = $redis->lindex("msg.queue.$USERNAME.$queuename",$llen);
+			my ($thismsgid,$thismsgparams) = split(/\?/,$thismsgline);
+			if ($msgid == $thismsgid) {
+				$redis->lrem("msg.queue.$USERNAME.$queuename",0,$thismsgline);	# remove's all occurrences of thismsgline from list.
+				my ($params) = &ZTOOLKIT::parseparams($thismsgparams);
+				if ($params->{'verb'} eq 'remove') {
+					}
+				elsif ($params->{'origin'} || $origin) {
+					&ZOOVY::msgAppend($USERNAME,$queuename,{"verb"=>"remove","origin"=>($params->{'origin'} || $origin),"from-msg"=>$msgid});
+					}
+				}
+			}
+		}	
+
 	return($i);
 	}
 
@@ -684,7 +712,7 @@ sub msgAppend {
 	my ($i) = $redis->incr("msg.id.$USERNAME.$queuename");
 	my $msg = "$i?".&ZTOOLKIT::buildparams($msgparams);
 	$redis->lpush("msg.queue.$USERNAME.$queuename",$msg);
-	$redis->ltrim("msg.queue.$USERNAME.$queuename",0,10);
+	$redis->ltrim("msg.queue.$USERNAME.$queuename",0,100);
 	$redis->expire("msg.queue.$USERNAME.$queuename",86400);
 	return($i);
 	}

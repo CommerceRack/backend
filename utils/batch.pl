@@ -161,6 +161,7 @@ if ($params{'verb'} eq 'run') {
 	print "USERNAME:$USERNAME JOBID:$ID\n";
 
 	my ($BJ) = BATCHJOB->new($USERNAME,$ID);
+	if ($BJ->can('start')) { $BJ->start(); }
 	#if ($0 =~ /checkjob/) {
 	### if we run as checkjob.pl then check the STATUS
 	#if ($BJ->{'STATUS'} eq 'QUEUED') {

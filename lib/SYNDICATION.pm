@@ -1002,62 +1002,6 @@ sub validate {
 
 
 
-##
-## FEED_TYPE
-##
-#sub createBatchJob {
-#	my ($self,$FEEDTYPE,%options) = @_;
-#
-#	$FEEDTYPE = uc($FEEDTYPE);
-#	if ($FEEDTYPE eq 'PRODUCTS') { $FEEDTYPE = 'PRODUCT'; }
-#
-#	my $bj = undef	;
-#	if (not defined $bj) {
-#		}
-#	elsif ($FEEDTYPE eq 'PRODUCT' || $FEEDTYPE eq 'INVENTORY' || $FEEDTYPE eq 'PRICING') {
-#		## this is cool.
-#		}
-#	else {
-#		$bj = { err=>"Unknown feed type: $FEEDTYPE" };
-#		}
-#
-#	if ((not defined $bj) && (not defined $options{'*LU'})) {
-#		$bj = { err=>"so->createBatchJob requires *LU parameter to be passed as option" };
-#		}
-#	
-#	if (not defined $bj) {
-#		require BATCHJOB;
-#	
-#		my ($GUID) = &BATCHJOB::make_guid();
-#		$self->set('GUID',$GUID);
-#		my %VARS = ();
-#		$VARS{'DST'} = $self->dstcode();
-#		$VARS{'PROFILE'} = $self->profile();
-#		$VARS{'FEEDTYPE'} = $FEEDTYPE;
-#		($bj) = BATCHJOB->new($self->username(),0,
-#			'GUID'=>$GUID,
-#			'EXEC'=>'SYNDICATION',
-#			'%VARS'=>\%VARS,
-#			'PRT' => $self->prt(),
-#			'TITLE'=>sprintf("Syndication %s %s",$self->dstcode(),$FEEDTYPE),
-#			%options);
-#		if (not defined $bj) { 
-#			$bj->{'err'} = "Unknown result from so->createBatchJob"; 
-#			}
-#		else {
-#			#$self->save();
-#			$self->save(1);	## make it silent
-#			}
-#		print STDERR Dumper($GUID,$bj);
-#		# VERB=ADD&EXEC=SYNDICATION&DST=PGR&PROFILE=$ns&GUID=$ts	
-#		}
-#
-#	return($bj);
-#	}
-#
-
-
-
 sub isBatchJob {
 	my ($self) = @_;
 
@@ -1140,16 +1084,6 @@ sub resolve_erefid {
 	return($hashref);
 	}
 
-
-#sub xinfo {
-#	my ($self) = @_;
-#	
-#	my @result = ();
-#	push @result, $SYNDICATION::DSTCODES{$self->{'DSTCODE'}};
-#	push @result, $self->statustxt();
-#
-#	return(@result);
-#	}
 
 
 ##
@@ -1234,11 +1168,9 @@ sub pids_ts {
 sub dbid { return($_[0]->{'ID'}); }
 sub username { return($_[0]->{'USERNAME'}); }
 sub mid { return(&ZOOVY::resolve_mid($_[0]->username())); }
-# sub profile { return($_[0]->{'PROFILE'}); }
 sub bj { my ($self) = @_; return($self->{'*PARENT'}); }
 sub dstcode { return($_[0]->{'DSTCODE'}); }
 sub dst { return($_[0]->{'DSTCODE'}); }
-# sub prt { my ($self) = @_; return(&ZOOVY::profile_to_prt($self->username(),$self->profile())); }
 sub domain { my ($self) = @_; return($self->{'DOMAIN'}); }
 sub prt { 
 	my ($self) = @_;
@@ -1448,8 +1380,6 @@ sub transfer_ftp {
 ##
 sub new {
 	my ($class, $USERNAME, $DST, %options) = @_;
-
-	print STDERR '!!!!!!!!! SYNDICATION: '.Dumper($USERNAME,$DST,\%options)."\n";
 
 	## initialize some sane defaults..
 	if (not defined $options{'AUTOCREATE'}) { $options{'AUTOCREATE'}++; }

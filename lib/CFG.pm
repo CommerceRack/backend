@@ -11,6 +11,19 @@ use Storable;
 $::CFGFILE = "/etc/commercerack.ini";
 $::CACHEFILE = "/dev/shm/commercerack.json";
 $::CFG = undef; 
+
+
+#
+#[system]
+#saas: 0|1	# is this a shared platform
+#
+#
+#
+#
+#
+
+
+
 ##
 ##
 ##

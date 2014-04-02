@@ -453,6 +453,14 @@ sub start {
 	print F "$ID $USERNAME $EXEC\n";
 	close F;
 
+	&ZOOVY::msgAppend($self->username(),"",{ 
+		origin=>sprintf("batchjob.%d",$self->id()),
+		verb=>"add",
+		icon=>"run",
+		msg=>"job.start", 
+		note=>sprintf("Job #%d $EXEC $VERB is starting",$self->id()),
+		});
+
 	## NOTE: technically report doesn't need any of this stuff.. except $ID .. 
 	##	but we pass it for pretty URI and ps -aux output
 	return(0);
@@ -482,7 +490,8 @@ sub finish {
 		## cleanup (only send notification once)
 		$self->{'finished'}++;
 		&ZOOVY::msgAppend($self->username(),"",{ 
-			origin=>sprintf("job.%d",$self->id()),
+			origin=>sprintf("batchjob.%d",$self->id()),
+			verb=>"update",
 			icon=>"done",
 			msg=>"job.finished", 
 			note=>sprintf("Job #%d $exec $verb has completed",$self->id()),
