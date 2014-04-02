@@ -20264,10 +20264,15 @@ sub appBuyerPasswordRecover {
 		#$se->sendmail('CUSTOMER.PASSWORD.REQUEST',CID=>$CID);
 		#$se = undef;
 		#$R{'customer'} = $CID;
-		my ($BLAST) = BLAST->new($self->username(),$self->prt());
-		my ($rcpt) = $BLAST->recipient('CUSTOMER',$CID);
-		my ($msg) = $BLAST->msg('CUSTOMER.PASSWORD.REQUEST',{} );
-		$BLAST->send($rcpt,$msg);
+		#my ($BLAST) = BLAST->new($self->username(),$self->prt());
+		#my ($rcpt) = $BLAST->recipient('CUSTOMER',$CID);
+		#my ($msg) = $BLAST->msg('CUSTOMER.PASSWORD.REQUEST',{} );
+		#$BLAST->send($rcpt,$msg);
+		my ($C) = CUSTOMER->new($self->username(),'PRT'=>int($self->prt()),'CID'=>$CID,'INIT'=>0xFF);
+		my @CMDS = ();
+		push @CMDS, ['PASSWORD-RECOVER', {}];
+		push @CMDS, ['BLAST-SEND', { 'MSGID'=>'CUSTOMER.PASSWORD.RECOVER' }];
+		$C->run_macro_cmds(\@CMDS);
 		&JSONAPI::append_msg_to_response(\%R,'success',0);		
 		}
 	else {

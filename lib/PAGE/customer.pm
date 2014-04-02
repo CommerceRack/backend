@@ -3431,22 +3431,14 @@ sub handler {
 			if ($CID>0) {
 				## in case you were wondering, sending the CUSTOMER.PASSWORD.REQUEST email actually is what triggers the initpassword
 				## function in the customer (so we don't do it here!)
-				#require SITE::EMAILS;
-				#require SITE;
-				### my ($SITE) = SITE->new($SITE->username(),PRT=>int($SITE->prt()), NS=>$SITE->profile());
-				#my ($se) = SITE::EMAILS->new($SITE->username(), '*SITE'=>$SITE);
-				#$se->sendmail('CUSTOMER.PASSWORD.REQUEST',CID=>$CID);
-				#$se = undef;
-				my ($BLAST) = BLAST->new($SITE->username(),int($SITE->prt()));
-				my ($rcpt) = $BLAST->recipient('CUSTOMER',$CID);
-				my ($msg) = $BLAST->msg('CUSTOMER.PASSWORD.REQUEST');
-				$BLAST->send($rcpt,$msg);
-	
-				#require TOXML::EMAIL;
-				#&TOXML::EMAIL::sendmail($SITE->username(), 'CUSTOMER.PASSWORD.REQUEST', '', CID=>$CID);
+				my ($C) = CUSTOMER->new($SITE->username(),'PRT'=>int($SITE->prt()),'CID'=>$CID,'INIT'=>0xFF);
+ 				my @CMDS = ();
+				push @CMDS, ['PASSWORD-RECOVER', {}];
+				push @CMDS, ['BLAST-SEND', { 'MSGID'=>'CUSTOMER.PASSWORD.RECOVER' }];
+				$C->run_macro_cmds(\@CMDS);
 
 				$OUTPUT .= qq~
-				Your password has been emailed to $login.<br>
+				Your password has been emailed.<br>
 				<br>
 				<br>
 				<a href="$customer_url/login">Back to Login</a><br>
