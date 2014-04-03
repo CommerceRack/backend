@@ -8953,7 +8953,17 @@ sub adminBlastMsg {
 		elsif (not &JSONAPI::validate_required_parameter(\%R,$v,'FORMAT',['AUTO','HTML5'])) {
 			}
 		else {
-			($msg) = $blast->msg($v->{'MSGID'});
+			my %objects = ();
+			if ($v->{'CID'}>0) {
+				my ($C) = CUSTOMER->new($self->username(),'PRT'=>$self->prt(),'CID'=>$v->{'CID'},'INIT'=>0xFF);
+				$objects{'%CUSTOMER'} = $C->TO_JSON();
+				}
+			if ($v->{'ORDERID'} ne '') {
+				my ($O2) = CART2->new_from_oid($self->username(),$v->{'ORDERID'});
+				$objects{'%ORDER'} = $O2->TO_JSON();
+				}
+
+			($msg) = $blast->msg($v->{'MSGID'},\%objects);
 			}
 
 		if (defined $msg) {} 
