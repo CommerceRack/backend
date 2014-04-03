@@ -1123,7 +1123,7 @@ sub adminSync {
 	my $gref = &ZWEBSITE::fetch_globalref($USERNAME);
 
 	## needed for version 7 compatibility
-	my $cached_flags .= ',SOHONET,ZIDNET,ZWM,';
+	my $cached_flags .= ',SOHONET,NETWORK,ZIDNET,ZWM,';
 	my @ERRORS = ();
 
 	if ($CODE =~ /^ZID[\.]?(.*?)/) {
