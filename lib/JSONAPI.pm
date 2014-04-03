@@ -8706,7 +8706,7 @@ sub adminBlastMacro {
 		foreach my $macroid (keys %BLAST::DEFAULTS::MACROS) {
 			next if ($HAS_CUSTOM{$macroid});
 			next if (not $v->{'system'});
-			next if (not $BLAST::DEFAULTS::DEPRECATED{$macroid});		## never show deprecated macros
+			next if ($BLAST::DEFAULTS::DEPRECATED{$macroid});		## never show deprecated macros
 			my %ROW = ();
 			$ROW{'MACROID'} = $macroid;
 			$ROW{'BODY'} = $BLAST::DEFAULTS::MACROS{$macroid};
@@ -20259,15 +20259,6 @@ sub appBuyerPasswordRecover {
 		&JSONAPI::append_msg_to_response(\%R,"iseerr",6006,"internal logic error CID=0 but no error set.");
 		}
 	elsif ($v->{'method'} eq 'email') {
-		#require SITE::EMAILS;
-		#my ($se) = SITE::EMAILS->new($self->username(), '*SITE'=>$self->_SITE());
-		#$se->sendmail('CUSTOMER.PASSWORD.REQUEST',CID=>$CID);
-		#$se = undef;
-		#$R{'customer'} = $CID;
-		#my ($BLAST) = BLAST->new($self->username(),$self->prt());
-		#my ($rcpt) = $BLAST->recipient('CUSTOMER',$CID);
-		#my ($msg) = $BLAST->msg('CUSTOMER.PASSWORD.REQUEST',{} );
-		#$BLAST->send($rcpt,$msg);
 		my ($C) = CUSTOMER->new($self->username(),'PRT'=>int($self->prt()),'CID'=>$CID,'INIT'=>0xFF);
 		my @CMDS = ();
 		push @CMDS, ['PASSWORD-RECOVER', {}];
@@ -21483,6 +21474,10 @@ sub adminPartner {
 		my ($eb2) = EBAY2->new_for_auth($self->username(),$self->prt());
 		&EBAY2::load_production();
 		$R{'RuName'} = $EBAY2::runame;
+		if ($R{'RuName'} eq '') {
+			&JSONAPI::append_msg_to_response(\%R,"iseerr",18123,"Server has no eBay Developer License (RuName) installed");	
+			}
+			
 		my $ref = $eb2->api("GetSessionID",{ RuName=>$EBAY2::runame },NO_TOKEN=>1,NO_DB=>1,xml=>3);
 		$R{'SessionID'} = $ref->{'.'}->{'SessionID'}->[0];
 		}

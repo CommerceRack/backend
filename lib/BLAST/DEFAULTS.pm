@@ -791,7 +791,8 @@ else {{
 	}};
 "></td>
 	<td data-tlc="
-bind $var '.created'; datetime $var --epoch --out='mdy'; format --prepend='shipped: ' --crlf; apply --append; 
+bind $var '.created'; 
+if (is $var --gt=0) {{ datetime $var --epoch --out='mdy'; format --prepend='shipped: ' --crlf; apply --append; }};
 bind $var '.notes'; apply --append;
 "></td>
 </tr>
@@ -879,7 +880,8 @@ bind $giftcards '.%CUSTOMER.@GIFTCARDS'; foreach $giftcard in $giftcards {{	tran
 ## OLD MACRO ALIASES (SHOULD BE REMOVED/NOT USED)
 ## these will *NOT* be included in the list of SYSTEM macros
 %BLAST::DEFAULTS::DEPRECATED = ();
-$BLAST::DEFAULTS::DEPRECATED{'%PASSWORD%'} = '%CUSTOMER_INITPASS%';
+$BLAST::DEFAULTS::DEPRECATED{'%CUSTOMER_INITPASS%'} = '%CUSTOMER_PASSWORD%';
+$BLAST::DEFAULTS::DEPRECATED{'%PASSWORD%'} = '%CUSTOMER_PASSWORD%';
 $BLAST::DEFAULTS::DEPRECATED{'%HTMLPACKSLIP%'} = '%PACKSLIP%';
 $BLAST::DEFAULTS::DEPRECATED{'%HTMLBILLADDR%'} = '%BILLADDR%';
 $BLAST::DEFAULTS::DEPRECATED{'%HTMLSHIPADDR%'} = '%SHIPADDR%';
