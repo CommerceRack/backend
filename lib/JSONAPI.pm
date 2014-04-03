@@ -12895,8 +12895,13 @@ sub adminProject {
 		my $ERROR = undef;	
 		my $REPO = $v->{'repo'};
 		if ($REPO ne '') {
-			if ($REPO !~ /^http[s]?\:/) { $ERROR = "ERROR|+REPO must be http:"; }
-			if ($REPO !~ /^http[s]?\:\/\/[a-z0-9A-Z\-\_\:\/\.]+$/) { $ERROR = "ERROR|+REPO contains prohibited characters"; }
+			if ($REPO =~ /^http[s]?\:/) {
+				if ($REPO !~ /^http[s]?\:/) { $ERROR = "ERROR|+REPO must be http:"; }
+				if ($REPO !~ /^http[s]?\:\/\/[a-z0-9A-Z\-\_\:\/\.]+$/) { $ERROR = "ERROR|+REPO contains prohibited characters"; }
+				if ($REPO =~ /^https\:\/\/www\.github\.com/) { $ERROR = "ERROR|+GITHUB repos must be either ssh or http"; }
+				}
+			elsif ($REPO =~ /^ssh:/) {
+				}
 			}
 
 		my $domain = ($v->{'domain'})?1:0;
