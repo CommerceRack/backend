@@ -83,6 +83,7 @@ use JSON::XS qw();
 use Data::GUID qw();
 use strict;
 use File::Slurp;
+use File::Path;
 use Text::CSV_XS;
 use URI::Escape qw();
 use URI::Escape::XS;
@@ -110,6 +111,7 @@ use HTTP::Tiny;
 use IO::Compress::Gzip;
 use XML::Writer;
 use IO::File;
+use Git::Repository;
 #use JavaScript::V8;
 
 use lib '/backend/lib';
@@ -570,6 +572,7 @@ use strict;
 	'adminProjectRemove'=>[ \&JSONAPI::adminProject, { 'admin'=>1, }, 'admin', { 'PROJECT'=>'R' } ],
 	'adminProjectUpdate'=>[ \&JSONAPI::adminProject, { 'admin'=>1, }, 'admin', { 'PROJECT'=>'U' } ],
 	'adminProjectDetail'=>[ \&JSONAPI::adminProject, { 'admin'=>1, }, 'admin', { 'PROJECT'=>'D' } ],
+	'adminProjectGitCommand'=>[ \&JSONAPI::adminProject, { 'admin'=>1, }, 'admin', { 'PROJECT'=>'D' } ],
 
 	## adminRSS
 	'adminRSSList'=>[ \&JSONAPI::adminRSS, { 'admin'=>1, }, 'admin', { 'RSS'=>'L' } ],
@@ -12770,6 +12773,11 @@ Not finished
 Not finished
 </API>
 
+<API id="adminProjectGitMacro">
+<purpose></purpose>
+Not finished
+</API>
+
 
 =cut
 
@@ -12864,6 +12872,11 @@ sub adminProject {
 			$R{'uuid'} = $P->uuid();
 			}
 		}
+#	elsif ($v->{'_cmd'} eq 'adminProjectGitCommand') {
+#		my $path = sprintf("%s/PROJECTS/%s",&ZOOVY::resolve_userpath($USERNAME),$UUID);
+#		my ($r) = Git::Repository->run( 'pull', @params );
+#		
+#		}
 	elsif ($v->{'_cmd'} eq 'adminProjectDetail') {
 		%R = %{$P};
 		if ($v->{'files'}) {
@@ -12898,9 +12911,10 @@ sub adminProject {
 			if ($REPO =~ /^http[s]?\:/) {
 				if ($REPO !~ /^http[s]?\:/) { $ERROR = "ERROR|+REPO must be http:"; }
 				if ($REPO !~ /^http[s]?\:\/\/[a-z0-9A-Z\-\_\:\/\.]+$/) { $ERROR = "ERROR|+REPO contains prohibited characters"; }
-				if ($REPO =~ /^https\:\/\/www\.github\.com/) { $ERROR = "ERROR|+GITHUB repos must be either ssh or http"; }
+				if ($REPO =~ /^http\:\/\/www\.github\.com/) { $ERROR = "ERROR|+GITHUB repos must be either ssh or https"; }
+				if ($REPO =~ /^http\:\/\/github\.com/) { $ERROR = "ERROR|+GITHUB repos must be either ssh or https"; }
 				}
-			elsif ($REPO =~ /^ssh:/) {
+			elsif ($REPO =~ /^ssh\:/) {
 				}
 			}
 
@@ -12921,6 +12935,12 @@ sub adminProject {
 		my $UUID = Data::GUID->new()->as_string();
 		$UUID = substr($UUID,0,32); ## restrict to 32 characters for db length
 		if ($TYPE eq 'DSS') {	$UUID = "dss"; }
+		if ($v->{'UUID'}) {
+			$UUID = $v->{'UUID'};
+			if ($UUID =~ /[^A-Z0-9\-\_a-z\.]/) {
+				$ERROR = "ERROR|+PROJECT UUID contains invalid characters";
+				}
+			}
 
 		## NOTE: branch names are most likely case sensitive (so don't uc them)
 		my $BRANCH = sprintf("%s",$v->{'branch'});
@@ -12935,28 +12955,19 @@ sub adminProject {
 		elsif (scalar(@MSGS)==0) {	
 			if ($REPO ne '') {
 				my $path = sprintf("%s/PROJECTS/%s",&ZOOVY::resolve_userpath($USERNAME),$UUID);
-				## /usr/local/bin/git clone http://github.com/brianhorakh/linktest.git /remote/snap/users/b/brian/PROJECTS/e8b9f059-a695-11e1-9cc4-1560a415
-				my $BRANCH_PARAM = '';
-				if ($BRANCH) { $BRANCH_PARAM = " -b $BRANCH "; }
 				
-				my $GITCMD = '';
-				if (-f "/usr/local/bin/git") {
-					$GITCMD = "/usr/local/bin/git";
-					}
-				elsif (-f "/usr/bin/git") {
-					$GITCMD = "/usr/bin/git"; 
-					}
-				else {
-					warn "could not locate git cmd in available paths\n";
-					}
-						
-				my $CMD = "$GITCMD clone $BRANCH_PARAM $REPO $path";
-				print STDERR "$CMD\n";
-				open CMD, "$CMD|";
-				while (<CMD>) { push @MSGS, "INFO|GIT $_"; }
-				close CMD;
-				## system("$CMD");
-				## chmod 777 -R /remote/crackle/users/e/erich/PROJECTS/7C62B56A-101C-11E2-9284-F4273A9C/.git/FETCH_HEAD
+				## /usr/local/bin/git clone http://github.com/brianhorakh/linktest.git /remote/snap/users/b/brian/PROJECTS/e8b9f059-a695-11e1-9cc4-1560a415
+				my @params = ();
+				if ($BRANCH) { push @params, "-b"; push @params, $BRANCH; }
+				push @params, $REPO;
+				push @params, $path;
+
+				#open F, ">/tmp/cmd";
+				#print F sprintf("git clone %s\n",join(' ',@params));
+				#close F;
+				my ($r) = Git::Repository->run( 'clone', @params );
+				push @MSGS, "SUCCESS|+$r";
+				
 				if (-d $path) {
 					push @MSGS, "SUCCESS|REPO was cloned";
 					}
@@ -12967,6 +12978,9 @@ sub adminProject {
 			else {
 				push @MSGS, "SUCCESS|Added project $UUID";
 				}
+			}
+		else {
+			push @MSGS, "ERROR|+NO MESSAGES\n";
 			}
 
 		if ($TITLE eq '') { 
@@ -12986,18 +13000,6 @@ sub adminProject {
 				},sql=>1);
 			print STDERR $pstmt."\n";
 			&JSONAPI::dbh_do(\%R,$udbh,$pstmt);
-			#if ($domain) {
-			#	my %options = ();
-			#	$options{'WWW_HOST_TYPE'} = $TYPE;
-			#	$options{'%WWW_CONFIG'} = { 'PROJECT'=>$UUID };
-			#	$options{'M_HOST_TYPE'} = $TYPE;
-			#	$options{'%M_CONFIG'} = { 'PROJECT'=>$UUID };
-			#	$options{'APP_HOST_TYPE'} = $TYPE;
-			#	$options{'%APP_CONFIG'} = { 'PROJECT'=>$UUID };			
-			#	require DOMAIN::POOL;
-			#	my ($DOMAINNAME) = &DOMAIN::POOL::reserve($USERNAME,$PRT,%options);
-			#	push @MSGS, "SUCCESS|+DOMAIN '$DOMAINNAME' was reserved for project $UUID";
-			#	}
 			}
 		}
 	else {
