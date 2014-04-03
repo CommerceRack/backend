@@ -280,12 +280,9 @@ sub run_macro_cmds {
 			}
 		elsif (($cmd eq 'SENDEMAIL') || ($cmd eq 'BLAST-SEND')) {
 			my ($MSGID) = $pref->{'MSGID'};
-			my ($BLAST) = BLAST->new($self->username(),int($self->prt()));
-			my ($rcpt) = $BLAST->recipient('CUSTOMER', $self, {'%CUSTOMER'=>$self,'%RUPDATES'=>$R});
-
+			my ($BLAST) = BLAST->new($self->username(),int($self->prt()),\%params);
+			my ($rcpt) = $BLAST->recipient('CUSTOMER', $self, {'%CUSTOMER'=>$self->TO_JSON(),'%RUPDATES'=>$R});
 			my ($msg) = $BLAST->msg($MSGID,$pref);
-
-
 			$BLAST->send($rcpt,$msg);
 			}
 		elsif ($cmd eq 'ORDERLINK') {

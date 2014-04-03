@@ -26,10 +26,10 @@ my %options = ();
 print Dumper(\@USERS);
 
 foreach my $USERNAME (sort @USERS) {
-	next if (-f "did.$USERNAME");
+	# next if (-f "did.$USERNAME");
 	&ELASTIC::rebuild_private_index($USERNAME,'CREATED_GMT'=>&ZTOOLKIT::mysql_to_unixtime(20120101000000),'NUKE'=>1);
-	open F, ">>elastic.orders"; print F "$USERNAME\n"; close F;
-	open F, ">did.$USERNAME"; close F;
+	open F, ">>/tmp/elastic.orders"; print F "$USERNAME\n"; close F;
+	# open F, ">did.$USERNAME"; close F;
 	# &ELASTIC::rebuild_product_index($USERNAME);
 	}
 
