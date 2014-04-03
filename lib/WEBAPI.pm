@@ -1123,7 +1123,7 @@ sub adminSync {
 	my $gref = &ZWEBSITE::fetch_globalref($USERNAME);
 
 	## needed for version 7 compatibility
-	my $cached_flags .= ',SOHONET,ZWM,';
+	my $cached_flags .= ',SOHONET,ZIDNET,ZWM,';
 	my @ERRORS = ();
 
 	if ($CODE =~ /^ZID[\.]?(.*?)/) {
@@ -1143,11 +1143,18 @@ sub adminSync {
 	#delete $webdbref->{'token_'.lc($CODE)};
 	#&ZWEBSITE::save_website_dbref($USERNAME,$webdbref,0);
 
-	if ($gref->{'webapi_zid'}) {
+	if ($gref->{'webapi_zid'} || $gref->{'token_zid'}) {
 		delete $gref->{'webapi_zid'};
+		delete $gref->{'token_zid'};
 		&ZWEBSITE::save_globalref($USERNAME,$gref);
 		}
 	$TOKEN = $gref->{'%plugins'}->{'desktop.zoovy.com'}->{'~password'};
+	if ($TOKEN eq '') {
+		push @ERRORS, "Integration/plugin desktop.zoovy.com ~password is not set";
+		}
+	elsif (not $gref->{'%plugins'}->{'desktop.zoovy.com'}->{'enable'}) {
+		push @ERRORS, "Sorry, but integration/plugin desktop.zoovy.com is not currently enabled.";
+		}
 
 	if (@ERRORS>0) {
 		foreach my $err (@ERRORS) {
@@ -1168,10 +1175,10 @@ sub adminSync {
 		while ( my $u = $sth->fetchrow_hashref() ) {
 			next if ($u->{'PASSPIN'} eq '');	## don't send people with blank pin/passwords
 			$u->{'MD5PASS'} = Digest::MD5::md5_hex( $u->{'PASSPIN'} . $TOKEN );
-			$u->{'PASSWORD'} = $u->{'PASSPIN'};
 			delete $u->{'PASSSALT'};		## these should never be shared!
 			delete $u->{'PASSHASH'};
-			delete $u->{'PASSWORD'};
+			# delete $u->{'PASSWORD'};		## ORDER MANAGER REQUIRES THIS TO BE UNENCRYPTED (SO IT CAN INSERT INTO MYSQL)
+			$u->{'PASSWORD'} = $u->{'PASSPIN'};
 			delete $u->{'MERCHANT'};
 			delete $u->{'MID'};
 			$u->{'FLAG_ZOM'} = 0x1;	## 2= set package verification
