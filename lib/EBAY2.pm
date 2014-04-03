@@ -1418,7 +1418,7 @@ sub api {
 	# $EBAY2::compatibility = 700;
 
 	my ($USERNAME) = $self->username();
-	print STDERR "BLAH! USERNAME:[$USERNAME]\n";
+	## print STDERR "BLAH! USERNAME:[$USERNAME]\n";
 
 	my ($TOKEN,$SANDBOX,$EIAS) = ();
 	if ($options{'NO_TOKEN'}) {
@@ -1434,21 +1434,22 @@ sub api {
 		}
 	elsif ($SANDBOX) { 
 		print STDERR "LOAD SANDBOX\n";
-		$EBAY2::session_certificate = $CFG->get("ebay","session_certificate") || "";
-		$EBAY2::developer_name = $CFG->get("ebay","developer_name") || "";
-		$EBAY2::application_name = $CFG->get("ebay","application_name") || "";
-		$EBAY2::certificate_name = $CFG->get("ebay","certificate_name") || "";
-		$EBAY2::runame = $CFG->get("ebay","runame") || "";
-		}
-	else { 
-		if ($::DEBUG) {  print STDERR "LOAD PRODUCTION!\n"; }
 		$EBAY2::session_certificate = $CFG->get("ebay_sandbox","session_certificate") || "";
 		$EBAY2::developer_name = $CFG->get("ebay_sandbox","developer_name") || "";
 		$EBAY2::application_name = $CFG->get("ebay_sandbox","application_name") || "";
 		$EBAY2::certificate_name = $CFG->get("ebay_sandbox","certificate_name") || "";
 		$EBAY2::runame = $CFG->get("ebay_sandbox","runame") || "";
 		}
+	else { 
+		if ($::DEBUG) {  print STDERR "LOAD PRODUCTION!\n"; }
+		$EBAY2::session_certificate = $CFG->get("ebay","session_certificate") || "";
+		$EBAY2::developer_name = $CFG->get("ebay","developer_name") || "";
+		$EBAY2::application_name = $CFG->get("ebay","application_name") || "";
+		$EBAY2::certificate_name = $CFG->get("ebay","certificate_name") || "";
+		$EBAY2::runame = $CFG->get("ebay","runame") || "";
+		}
 	
+	## print STDERR "APPNAME: $EBAY2::application_name\n";
 	my $SITE = $vars->{'#Site'}; 
 	delete $vars->{'#Site'};
 	$vars->{'#Verb'} = $VERB.'Request';
@@ -1466,6 +1467,7 @@ sub api {
  		}
 	else {
 		if ($SITE eq '') { $SITE = 0; push @WARNINGS, 'SITE ID was not passed - default to 0'; }
+
 
 		my $header = HTTP::Headers->new;
 		$header->push_header('X-EBAY-API-COMPATIBILITY-LEVEL' => $EBAY2::compatibility);

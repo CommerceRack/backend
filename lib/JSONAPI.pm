@@ -8706,7 +8706,7 @@ sub adminBlastMacro {
 		foreach my $macroid (keys %BLAST::DEFAULTS::MACROS) {
 			next if ($HAS_CUSTOM{$macroid});
 			next if (not $v->{'system'});
-			next if (not $BLAST::DEFAULTS::DEPRECATED{$macroid});		## never show deprecated macros
+			next if ($BLAST::DEFAULTS::DEPRECATED{$macroid});		## never show deprecated macros
 			my %ROW = ();
 			$ROW{'MACROID'} = $macroid;
 			$ROW{'BODY'} = $BLAST::DEFAULTS::MACROS{$macroid};
@@ -8953,7 +8953,17 @@ sub adminBlastMsg {
 		elsif (not &JSONAPI::validate_required_parameter(\%R,$v,'FORMAT',['AUTO','HTML5'])) {
 			}
 		else {
-			($msg) = $blast->msg($v->{'MSGID'});
+			my %objects = ();
+			if ($v->{'CID'}>0) {
+				my ($C) = CUSTOMER->new($self->username(),'PRT'=>$self->prt(),'CID'=>$v->{'CID'},'INIT'=>0xFF);
+				$objects{'%CUSTOMER'} = $C->TO_JSON();
+				}
+			if ($v->{'ORDERID'} ne '') {
+				my ($O2) = CART2->new_from_oid($self->username(),$v->{'ORDERID'});
+				$objects{'%ORDER'} = $O2->TO_JSON();
+				}
+
+			($msg) = $blast->msg($v->{'MSGID'},\%objects);
 			}
 
 		if (defined $msg) {} 
@@ -20259,15 +20269,11 @@ sub appBuyerPasswordRecover {
 		&JSONAPI::append_msg_to_response(\%R,"iseerr",6006,"internal logic error CID=0 but no error set.");
 		}
 	elsif ($v->{'method'} eq 'email') {
-		#require SITE::EMAILS;
-		#my ($se) = SITE::EMAILS->new($self->username(), '*SITE'=>$self->_SITE());
-		#$se->sendmail('CUSTOMER.PASSWORD.REQUEST',CID=>$CID);
-		#$se = undef;
-		#$R{'customer'} = $CID;
-		my ($BLAST) = BLAST->new($self->username(),$self->prt());
-		my ($rcpt) = $BLAST->recipient('CUSTOMER',$CID);
-		my ($msg) = $BLAST->msg('CUSTOMER.PASSWORD.REQUEST',{} );
-		$BLAST->send($rcpt,$msg);
+		my ($C) = CUSTOMER->new($self->username(),'PRT'=>int($self->prt()),'CID'=>$CID,'INIT'=>0xFF);
+		my @CMDS = ();
+		push @CMDS, ['PASSWORD-RECOVER', {}];
+		push @CMDS, ['BLAST-SEND', { 'MSGID'=>'CUSTOMER.PASSWORD.RECOVER' }];
+		$C->run_macro_cmds(\@CMDS);
 		&JSONAPI::append_msg_to_response(\%R,'success',0);		
 		}
 	else {
@@ -21478,6 +21484,10 @@ sub adminPartner {
 		my ($eb2) = EBAY2->new_for_auth($self->username(),$self->prt());
 		&EBAY2::load_production();
 		$R{'RuName'} = $EBAY2::runame;
+		if ($R{'RuName'} eq '') {
+			&JSONAPI::append_msg_to_response(\%R,"iseerr",18123,"Server has no eBay Developer License (RuName) installed");	
+			}
+			
 		my $ref = $eb2->api("GetSessionID",{ RuName=>$EBAY2::runame },NO_TOKEN=>1,NO_DB=>1,xml=>3);
 		$R{'SessionID'} = $ref->{'.'}->{'SessionID'}->[0];
 		}
@@ -23044,10 +23054,6 @@ sub adminDebugProduct {
 		$R{'@ATTRIBS'} = \@ATTRIBS;
 		}
 
-
-	open F, ">/tmp/foo";
-	print F Dumper(\%R);
-	close F;
 
 	return(\%R);
 	}
