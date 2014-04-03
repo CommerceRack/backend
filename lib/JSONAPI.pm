@@ -8858,9 +8858,9 @@ sub adminBlastMsg {
 			&JSONAPI::set_error(\%R, 'youerr', 83481,sprintf("Sorry Mario, your message \"%s\" is in another castle.",$v->{'MSGID'}));			
 			}
 
-		open F, ">/tmp/foo";
-		print F Dumper($v,\%R)."\n";
-		close F;
+#		open F, ">/tmp/foo";
+#		print F Dumper($v,\%R)."\n";
+#		close F;
 
 		if (&ZOOVY::is_true($v->{'TLC'})) {
 			## interpolate %SUBS% into their tlc counterparts
