@@ -383,10 +383,10 @@ sub update {
 	elsif (defined $options{'DONE'}) {
 		$options{'RECORDS_DONE'} = $options{'DONE'}; delete $options{'DONE'};
 		}
-	elsif (defined $options{'NOTES'}) {
-		$options{'OUTPUT_NOTES'} = $options{'NOTES'}; 
-		delete $options{'NOTES'};
-		}
+	#elsif (defined $options{'NOTES'}) {
+	#	$options{'OUTPUT_NOTES'} = $options{'NOTES'}; 
+	#	delete $options{'NOTES'};
+	#	}
 
 	#if ($self->{'@slogs'}) {
 	#	## if we have any status logs (slogs) on update, then make sure we communicate that.

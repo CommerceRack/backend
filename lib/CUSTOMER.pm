@@ -1144,7 +1144,7 @@ sub update_reward_balance {
 ## saves changes to the database
 ##
 sub save {
-	my ($self) = @_;
+	my ($self, %params) = @_;
 
 	my $odbh = &DBINFO::db_user_connect($self->username());
 	if (($self->{'_STATE'} & 1)==1) {
@@ -1252,6 +1252,13 @@ sub save {
 			}		
 
 		$ref{'HINT_ATTEMPTS'} = $self->{'INFO'}->{'HINT_ATTEMPTS'};
+
+		if ($params{'%INFO'}) {
+			## usually used for updating password type fields (that aren't stored in customer record)
+			foreach my $k (keys %{$params{'%INFO'}}) {
+				$ref{$k} = $params{'%INFO'}->{$k};
+				}
+			}
 
 		## clear out null keys (in case we just created this customer)
 		foreach my $k (keys %ref) {
@@ -1620,11 +1627,17 @@ sub initpassword {
 		$PASSWORD = $options{'set'};
 		warn "Setting password to $PASSWORD\n";
 		}
-	$self->set_attrib('INFO.PASSWORD',$PASSWORD);
+
 	my $SALT = String::MkPasswd::mkpasswd(-length=>6,-minnum=>2,-minlower=>1,-minupper=>1,-minspecial=>1,-distribute=>1);		
-	$self->set_attrib('INFO.PASSSALT', $SALT);
-	$self->set_attrib('INFO.PASSHASH', Digest::SHA1::sha1_base64( sprintf("%s%s",$PASSWORD,$SALT) ).'=');
-	$self->save();
+	my %INFO = ();
+	$INFO{'PASSWORD'} = $PASSWORD;	# INFO.PASSWORD
+	$INFO{'PASSSALT'} = $SALT;			# INFO.PASSSALT
+	$INFO{'PASSHASH'} = Digest::SHA1::sha1_base64( sprintf("%s%s",$PASSWORD,$SALT) ).'=';	# INFO.PASSHASH
+
+	#$self->set_attrib('INFO.PASSWORD',$PASSWORD);
+	#$self->set_attrib('INFO.PASSSALT', $SALT);
+	#$self->set_attrib('INFO.PASSHASH', Digest::SHA1::sha1_base64( sprintf("%s%s",$PASSWORD,$SALT) ).'=');
+	$self->save('%INFO'=>\%INFO);
 
 	return($PASSWORD);
 	}

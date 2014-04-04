@@ -17828,7 +17828,7 @@ sub appPublicSearch {
 		## removed by elasticsearch
 		$self->deprecated(\%R,0);
 		}
-	elsif (not &JSONAPI::validate_required_parameters(\%R,$v,'mode',['elastic-search','elastic-count','elastic-explain','elastic-msearch','elastic-scroll','elastic-mlt','elastic-suggest','elastic-explain'])) {
+	elsif (not &JSONAPI::validate_required_parameter(\%R,$v,'mode',['elastic-search','elastic-count','elastic-explain','elastic-msearch','elastic-scroll','elastic-mlt','elastic-suggest','elastic-explain'])) {
 		## currently, only elastic-modes are supported
 		}
 	elsif ($v->{'mode'} =~ /^elastic-(search|count|msearch|mlt|suggest|explain|scroll|scroll-helper|scroll-clear)$/) {
