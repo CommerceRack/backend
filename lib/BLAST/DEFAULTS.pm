@@ -139,7 +139,7 @@ apply --img --media=$var --width=75 --height=75 --bgcolor='#ffffff' --replace;" 
 |,
 
 	'%PACKSLIP%'=> q|
-<table id="contents" data-tlc="bind $items '.@ITEMS'; foreach $item in $items {{ transmogrify --templateid='skuTemplate' --dataset=$item; apply --append; }}; ">
+<table id="contents" data-tlc="bind $items '.%ORDER.@ITEMS'; foreach $item in $items {{ transmogrify --templateid='skuTemplate' --dataset=$item; apply --append; }}; ">
 <thead>
 <tr>
 	<th>QTY</th>
