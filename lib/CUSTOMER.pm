@@ -17,8 +17,11 @@ use strict;
 
 $CUSTOMER::DEBUG = 0;
 
+
 ##
 ## Okay, so we're going to create a customer object.
+##
+##	hello weary traveller, if you're here you're probably looking for run_macro_cmds (just grep it)
 ##
 ## the structure of a customer:
 ##	 everything is controlled through fetch_attrib -- which in turn initializes 
@@ -123,7 +126,7 @@ sub run_macro_cmds {
 		my $result = undef;
 		$self->sync_action("MACRO/$cmd");
 
-		if ($cmd eq 'PASSWORD-SET') {
+		if (($cmd eq 'PASSWORD-SET') || ($cmd eq 'PASSWORDRESET')) {
 			if (defined $LU) { $LU->log("MANAGE.CUSTOMER.PASSWORD-SET",sprintf("Password was reset for customer %d",$self->cid()),"INFO"); }
 			$R->{$cmd}->{'password'} = $self->initpassword(set=>$pref->{'password'});
 			}
@@ -155,7 +158,35 @@ sub run_macro_cmds {
 			require TODO;
 			&TODO::easylog($self->username(),class=>"INFO",title=>$pref->{'title'},detail=>$pref->{'note'},priority=>2,link=>"cid:$CID");
 			}
-		elsif ($cmd eq 'ADDTICKET') {
+		elsif ($cmd eq 'NEWSLETTER-INIT') {
+			$self->set_attrib('INFO.NEWSLETTER',0);
+			}
+		elsif ($cmd eq 'NEWSLETTER-SET') {
+			my ($NEWSLETTER) = int($self->get_attrib('INFO.NEWSLETTER'));
+			my $BITVAL = 1<<(int($pref->{'list'})-1);
+			$NEWSLETTER &= ~$BITVAL;	## inverse, so we are guaranteed to remove the bitval in focus
+			$NEWSLETTER |= (&ZOOVY::is_true($pref->{'value'}))?$BITVAL:0;
+			$self->set_attrib('INFO.NEWSLETTER',$NEWSLETTER);
+			}
+		elsif ($cmd eq 'AUTHENTICATE') {
+			$R->{$cmd}->{'please'} = time();
+			}
+		elsif ($cmd eq 'UNAUTHENTICATE') {
+			$R->{$cmd}->{'please'} = time();
+			}
+#		elsif ($cmd eq 'GIFTCARD-LIST') {
+#			$R->{$cmd}->{'@GIFTCARDS'} = [];
+#			}
+#		elsif ($cmd eq 'TICKET-LIST') {
+#			$R->{$cmd}->{'@TICKETS'} = [];
+#			}
+#		elsif ($cmd eq 'ORDER-SUMMARY-LIST') {
+#			$R->{$cmd}->{'@ORDERS'} = [];
+#			}
+#		elsif ($cmd eq 'ORDER-DETAIL') {
+#			$R{$cmd}-> {};	# ORDER REFERENCE
+#			}
+		elsif (($cmd eq 'TICKET-ADD') || ($cmd eq 'ADDTICKET')) {
 			require CUSTOMER::TICKET;
 			my ($CT) = CUSTOMER::TICKET->new($self->username(),0,
 					new=>1,PRT=>$self->prt(),CID=>$self->cid(),

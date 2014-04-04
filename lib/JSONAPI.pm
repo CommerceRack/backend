@@ -765,13 +765,15 @@ use strict;
 	'buyerProductLists'=>[ \&JSONAPI::buyerProductLists,  { 'buyer'=>1 }, 'customer', ],
 	'buyerProductListAppendTo'=>[ \&JSONAPI::buyerProductListAppendTo,  { 'buyer'=>1 }, 'customer', ],
 	'buyerProductListRemoveFrom'=>[ \&JSONAPI::buyerProductListRemoveFrom,  { 'buyer'=>1 }, 'customer', ],
+
 	## BuyerWallet
 	'buyerWalletList'=>[ \&JSONAPI::buyerWalletList,  { 'buyer'=>1 }, 'customer', ],
 	'buyerWalletAdd'=>[ \&JSONAPI::buyerWalletAdd,  { 'buyer'=>1 }, 'customer', ],
 	'buyerWalletDelete'=>[ \&JSONAPI::buyerWalletDelete,  { 'buyer'=>1 }, 'customer', ],
 	'buyerWalletSetPreferred'=>[ \&JSONAPI::buyerWalletSetPreferred,  { 'buyer'=>1 }, 'customer', ],
+
 	## NewsLetters
-	'buyerNewsletters' =>[  \&JSONAPI::buyerNewsletters,  { 'buyer'=>1 }, 'customer', ],
+	#'buyerNewsletters' =>[  \&JSONAPI::buyerNewsletters,  { 'buyer'=>1 }, 'customer', ],
 
 	## BuyerTicket
 	'buyerTicketList' => [ \&JSONAPI::buyerTicketList, { 'buyer'=>1 }, 'customer', ],
@@ -1284,10 +1286,9 @@ sub appHostForUser {
 
 =cut
 
-sub loadPermissions {
-	my ($self,$API,$v,$R) = @_;
+sub loadPlatformJSON {
+	my ($self,$API,$SCRIPT,$v,$R) = @_;
 
-	my ($VENDOR) = $v->{'_vendor'};
 
 	## PHASE1: verify there is a file.
 	my $file = undef;
@@ -1302,10 +1303,10 @@ sub loadPermissions {
 	if (&JSONAPI::hadError($R)) {
 		## shit happened
 		}
-	elsif ($VENDOR =~ /^([a-z0-9]+)$/) {
-		my $VENDOR = $1;
-		if (! -f "$PROJECTDIR/platform/$API-$VENDOR.json") {
-			&JSONAPI::append_msg_to_response($R,'iseerr',74223,sprintf('platform/%s-%s.json file does not seem to exist in project',$API,$VENDOR));
+	elsif ($SCRIPT =~ /^([a-z0-9]+)$/) {
+		my $SCRIPT = $1;
+		if (! -f "$PROJECTDIR/platform/$API-$SCRIPT.json") {
+			&JSONAPI::append_msg_to_response($R,'iseerr',74223,sprintf('platform/%s-%s.json file does not seem to exist in project',$API,$SCRIPT));
 			}
 		}
 	else {
@@ -1316,8 +1317,8 @@ sub loadPermissions {
 	my $json = '';
 	my $cfg = undef;
 	if (not &JSONAPI::hadError($R)) {
-		print STDERR "FILE: $PROJECTDIR/platform/$API-$VENDOR.json\n";
-		open F, "<$PROJECTDIR/platform/$API-$VENDOR.json";
+		print STDERR "FILE: $PROJECTDIR/platform/$API-$SCRIPT.json\n";
+		open F, "<$PROJECTDIR/platform/$API-$SCRIPT.json";
 		while (<F>) {
 			next if (substr($_,0,2) eq '//');
 			$json .= $_;
@@ -1406,10 +1407,10 @@ sub loadPermissions {
 	if (&JSONAPI::hadError($R)) {
 		}
 	elsif ((not defined $cfg->{'_start'}) || ($cfg->{'_start'} eq '')) {
-		&JSONAPI::append_msg_to_response($R,'iseerr',74229,"$API-$VENDOR _start point is not specified or set properly.");		
+		&JSONAPI::append_msg_to_response($R,'iseerr',74229,"$API-$SCRIPT _start point is not specified or set properly.");		
 		}
 	elsif ( not defined $cfg->{ $cfg->{'_start'} }) {
-		&JSONAPI::append_msg_to_response($R,'iseerr',74230,sprintf("$API-$VENDOR _start point '%s' is not valid.",$cfg->{'_start'}));		
+		&JSONAPI::append_msg_to_response($R,'iseerr',74230,sprintf("$API-$SCRIPT _start point '%s' is not valid.",$cfg->{'_start'}));		
 		}
 	
 	return($cfg);
@@ -19497,24 +19498,30 @@ See adminCustomerUpdate for a full list of macros
 sub appBuyerCreate {
 	my ($self, $v) = @_;
 
-	my %R = ();
+	my $R = {};
 
-	if (($v->{'_vendor'}) && ($self->apiversion()>=201318)) {
+	if ($self->apiversion() < 201318) {
+		&JSONAPI::deprecated($self,$R,0);
+		}
+	else {
 		## PRE201318 -- can be removed at 201320
 		## 1. look /platform
-		## 2. load file my $cfg = undef; if (not &JSONAPI::hadError(\%R)) {
-		my ($cfg) = $self->loadPermissions('appBuyerCreate',$v,\%R);
+		## 2. load file my $cfg = undef; if (not &JSONAPI::hadError($R)) {
 
-		## $R{'**CFG**'} = $cfg;		
-		my $VARS = $R{'%VARS'};
-		if (not defined $VARS) { $R{'%VARS'} = $VARS = {}; }
+		my $script = $v->{'_script'} || 'default';
+		if (($v->{'_vendor'}) && ($self->apiversion()<201402)) { 
+			$script = $v->{'_vendor'}; 
+			}
 
-		my $START = $cfg->{'_start'};
+		my ($cfg) = $self->loadPlatformJSON('appBuyerCreate',$script,$v,$R);
+		$R->{'%VARS'} = {};
+
+		my $START = $cfg->{'_start'} || "appBuyerCreate";
 		my @CMDS = ();
-		if (&JSONAPI::hadError(\%R)) {
+		if (&JSONAPI::hadError($R)) {
 			}
 		elsif (ref( $cfg->{$START} ) ne 'ARRAY') {
-			&JSONAPI::append_msg_to_response(\%R,'apperr',74221,'_start point is not a well formed array.');
+			&JSONAPI::append_msg_to_response($R,'apperr',74221,'_start point is not a well formed array.');
 			}
 		else {
 			## HAPPY FUN MACRO PARSING TIME!!
@@ -19548,144 +19555,158 @@ sub appBuyerCreate {
 				foreach my $k (keys %{$cmd->[1]}) {
 					my $var = $cmd->[1]->{$k};
 					if (substr($var,0,1) eq '$') {
-						$cmd->[1]->{$k} = $VARS->{ substr($var,1) };
+						$cmd->[1]->{$k} = $v->{ substr($var,1) };
 						}
 					}				
 				}
 
-			$R{'@CMDS'} = \@CMDS;
+			$R->{'@CMDS'} = \@CMDS;
 			}
 
-		if (&JSONAPI::hadError(\%R)) {
+		if (&JSONAPI::hadError($R)) {
 			}
-		elsif (not &JSONAPI::validate_required_parameter(\%R,$VARS,'email')) {
+		elsif (not &JSONAPI::validate_required_parameter($R,$v,'email')) {
+			}
+		elsif (&JSONAPI::customer_exists($self->username(),$v->{'email'},$self->prt())) {
+			## 665 is ALWAYS 'customer always exists'
+			&JSONAPI::append_msg_to_response($R,'youerr',665,'Customer already exists.');
 			}
 		else {
-			my ($C) = CUSTOMER->new($self->username(),'EMAIL'=>$VARS->{'email'},'PRT'=>$self->prt(),'CREATE'=>2, 'INIT'=>0xFF);
+
+			# my $IP = $ENV{'REMOTE_ADDR'};
+			my ($C) = CUSTOMER->new($self->username(),'EMAIL'=>$v->{'email'},'PRT'=>$self->prt(),'CREATE'=>2, 'INIT'=>0xFF);
 			if (not defined $C) {
-				&JSONAPI::append_msg_to_response(\%R,'youerr',74221,'Could not create customer, possibly a duplicate.');
+				&JSONAPI::append_msg_to_response($R,'youerr',74221,'Could not create customer, possibly a duplicate.');
 				}
 			else {
-				my $R = $C->run_macro_cmds(\@CMDS,'*LU'=>$self->LU(),'%R'=>\%R);
-				}
-			}
-		}
-	elsif (($v->{'permissions'}) && ($self->apiversion()<=201318)) {
-		## GKWORLD -- PRE201318 -- can be removed at 201320
-		## 1. look /platform
-		my $file = undef;
-		my $PROJECTDIR = undef;
-		if (not $v->{'project'}) {
-			&JSONAPI::append_msg_to_response(\%R,'apperr',74221,'project not specified');
-			}
-		else {
-			$PROJECTDIR = $self->projectdir($v->{'project'});
-			if (! -d $PROJECTDIR) {
-				&JSONAPI::append_msg_to_response(\%R,'apierr',74222,'project directory does not seem to exist');
-				}
-			}
-
-		if (&JSONAPI::hadError(\%R)) {
-			## shit happened
-			}
-		elsif ($v->{'permissions'} =~ /^platform\/([A-Za-z0-9\-]+)\.json$/) {
-			$file = $1;
-			print STDERR "FILEX: $1\n";
-			if (! -f "$PROJECTDIR/platform/$file.json") {
-				&JSONAPI::append_msg_to_response(\%R,'apierr',74223,'permissions file does not seem to exist');
-				}
-			}
-		else {
-			&JSONAPI::append_msg_to_response(\%R,'apperr',74224,'permissions file must be alphanumeric and be in the platform directory and end with .json');
-			}
-
-		## 2. load file
-		my $cfg = undef;		
-		if (not &JSONAPI::hadError(\%R)) {
-			require WHOLESALE::SIGNUP;
-			## my ($cfg) = WHOLESALE::SIGNUP::load_config($self->username(),int($self->prt()));
-			my $json = '';
-			print STDERR "FILE: $PROJECTDIR/platform/$file.json\n";
-			open F, "<$PROJECTDIR/platform/$file.json";
-			while (<F>) {
-				next if (substr($_,0,2) eq '//');
-				$json .= $_;
-				} 
-			close F;
-			eval { $cfg = WHOLESALE::SIGNUP::json_to_ref($json); };
-			if ($@) {
-				&JSONAPI::append_msg_to_response(\%R,'apierr',74228,"permissions file specified is corrupt cause: $@");
-				}
-			elsif (ref($cfg) ne 'HASH') {
-				&JSONAPI::append_msg_to_response(\%R,'apierr',74225,'permissions json did not decode into array');
-				}
-			elsif (ref($cfg->{'fields'}) ne 'ARRAY') {
-				&JSONAPI::append_msg_to_response(\%R,'apierr',74226,'permissions json did not have required fields ARRAY attribute');
-				} 
-			}
-
-		## 3. execute file
-		my $fieldsandvalues = undef;
-		if (not &JSONAPI::hadError(\%R)) {
-			## all the save magic happens here!
-			$fieldsandvalues = WHOLESALE::SIGNUP::ref_to_vars($cfg->{'fields'},$v);
-			foreach my $f (@{$fieldsandvalues}) {
-				if ($f->{'err'}) { 
-					&JSONAPI::append_msg_to_response(\%R,'youerr',74227,"$f->{'label'} ($f->{'err'})");
+				## we really ought to change the LU here to be the script id.
+				$R = $C->run_macro_cmds(\@CMDS,'*LU'=>$self->LU(),'%R'=>$R);
+				$R->{'CID'} = $C->cid();	## this seems useful
+				if ($R->{'AUTHENTICATE'}->{'please'}) {
+					$self->customer( $C );
+					}
+				if ($R->{'UNAUTHENTICATE'}->{'please'}) {
+					$self->{'*CUSTOMER'} = undef;
 					}
 				}
 			}
-
-		if (not JSONAPI::hadError(\%R)) {
-			my ($err) = &WHOLESALE::SIGNUP::save_form($self->username(),int($self->prt()),$cfg,$fieldsandvalues);
-			if ($err) {
-				&JSONAPI::append_msg_to_response(\%R,'youerr',74229,"$err");
-				}
-			else {
-				&JSONAPI::append_msg_to_response(\%R,'success',0);
-				}
-			}		
 		}
-	elsif (($v->{'form'} eq 'wholesale') && ($self->apiversion()<=201314)) {
-		##
-		## LEGACY: REPLICATES OLD "WHOLESALE" FUNCTIONALITY -- NO LONGER SUPPORTED AFTER 201314
-		##
-		require WHOLESALE::SIGNUP;
-		my ($cfg) = WHOLESALE::SIGNUP::load_config($self->username(),int($self->prt()));
-		my $fields = WHOLESALE::SIGNUP::json_to_ref($cfg->{'json'});
-		
-		if (not $cfg->{'enabled'}) {
-			&JSONAPI::append_msg_to_response(\%R,'apperr',74211,'form not enabled');
-			}
-
-		if (not &JSONAPI::hadError(\%R)) {
-			## all the save magic happens here!
-			my $fieldsandvalues = WHOLESALE::SIGNUP::ref_to_vars($fields,$v);
-
-			# use Data::Dumper; print STDERR 'WHOLESALE: '.Dumper($fieldsandvalues);
-
-			my $err = undef;
-			foreach my $f (@{$fieldsandvalues}) {
-				next if $err;
-				if ($f->{'err'}) { $err = "$f->{'label'} ($f->{'err'})"; }
-				}
-
-			if (not defined $err) {
-				($err) = &WHOLESALE::SIGNUP::save_form($self->username(),int($self->prt()),$cfg,$fieldsandvalues);
-				}
-
-			if ($err) {
-				&JSONAPI::append_msg_to_response(\%R,'youerr',74219,"$err");
-				}
-			else {
-				&JSONAPI::append_msg_to_response(\%R,'success',0);
-				}
-			}
-		}
-	else {
-		&JSONAPI::append_msg_to_response(\%R,'apperr',74210,'permissions parameter is required');
-		}
-	return(\%R);
+#	elsif (($v->{'permissions'}) && ($self->apiversion()<=201318)) {
+#		## GKWORLD -- PRE201318 -- can be removed at 201320
+#		## 1. look /platform
+#		my $file = undef;
+#		my $PROJECTDIR = undef;
+#		if (not $v->{'project'}) {
+#			&JSONAPI::append_msg_to_response(\%R,'apperr',74221,'project not specified');
+#			}
+#		else {
+#			$PROJECTDIR = $self->projectdir($v->{'project'});
+#			if (! -d $PROJECTDIR) {
+#				&JSONAPI::append_msg_to_response(\%R,'apierr',74222,'project directory does not seem to exist');
+#				}
+#			}
+#
+#		if (&JSONAPI::hadError(\%R)) {
+#			## shit happened
+#			}
+#		elsif ($v->{'permissions'} =~ /^platform\/([A-Za-z0-9\-]+)\.json$/) {
+#			$file = $1;
+#			print STDERR "FILEX: $1\n";
+#			if (! -f "$PROJECTDIR/platform/$file.json") {
+#				&JSONAPI::append_msg_to_response(\%R,'apierr',74223,'permissions file does not seem to exist');
+#				}
+#			}
+#		else {
+#			&JSONAPI::append_msg_to_response(\%R,'apperr',74224,'permissions file must be alphanumeric and be in the platform directory and end with .json');
+#			}
+#
+#		## 2. load file
+#		my $cfg = undef;		
+#		if (not &JSONAPI::hadError(\%R)) {
+#			require WHOLESALE::SIGNUP;
+#			## my ($cfg) = WHOLESALE::SIGNUP::load_config($self->username(),int($self->prt()));
+#			my $json = '';
+#			print STDERR "FILE: $PROJECTDIR/platform/$file.json\n";
+#			open F, "<$PROJECTDIR/platform/$file.json";
+#			while (<F>) {
+#				next if (substr($_,0,2) eq '//');
+#				$json .= $_;
+#				} 
+#			close F;
+#			eval { $cfg = WHOLESALE::SIGNUP::json_to_ref($json); };
+#			if ($@) {
+#				&JSONAPI::append_msg_to_response(\%R,'apierr',74228,"permissions file specified is corrupt cause: $@");
+#				}
+#			elsif (ref($cfg) ne 'HASH') {
+#				&JSONAPI::append_msg_to_response(\%R,'apierr',74225,'permissions json did not decode into array');
+#				}
+#			elsif (ref($cfg->{'fields'}) ne 'ARRAY') {
+#				&JSONAPI::append_msg_to_response(\%R,'apierr',74226,'permissions json did not have required fields ARRAY attribute');
+#				} 
+#			}
+#
+#		## 3. execute file
+#		my $fieldsandvalues = undef;
+#		if (not &JSONAPI::hadError(\%R)) {
+#			## all the save magic happens here!
+#			$fieldsandvalues = WHOLESALE::SIGNUP::ref_to_vars($cfg->{'fields'},$v);
+#			foreach my $f (@{$fieldsandvalues}) {
+#				if ($f->{'err'}) { 
+#					&JSONAPI::append_msg_to_response(\%R,'youerr',74227,"$f->{'label'} ($f->{'err'})");
+#					}
+#				}
+#			}
+#
+#		if (not JSONAPI::hadError(\%R)) {
+#			my ($err) = &WHOLESALE::SIGNUP::save_form($self->username(),int($self->prt()),$cfg,$fieldsandvalues);
+#			if ($err) {
+#				&JSONAPI::append_msg_to_response(\%R,'youerr',74229,"$err");
+#				}
+#			else {
+#				&JSONAPI::append_msg_to_response(\%R,'success',0);
+#				}
+#			}		
+#		}
+#	elsif (($v->{'form'} eq 'wholesale') && ($self->apiversion()<=201314)) {
+#		##
+#		## LEGACY: REPLICATES OLD "WHOLESALE" FUNCTIONALITY -- NO LONGER SUPPORTED AFTER 201314
+#		##
+#		require WHOLESALE::SIGNUP;
+#		my ($cfg) = WHOLESALE::SIGNUP::load_config($self->username(),int($self->prt()));
+#		my $fields = WHOLESALE::SIGNUP::json_to_ref($cfg->{'json'});
+#		
+#		if (not $cfg->{'enabled'}) {
+#			&JSONAPI::append_msg_to_response(\%R,'apperr',74211,'form not enabled');
+#			}
+#
+#		if (not &JSONAPI::hadError(\%R)) {
+#			## all the save magic happens here!
+#			my $fieldsandvalues = WHOLESALE::SIGNUP::ref_to_vars($fields,$v);
+#
+#			# use Data::Dumper; print STDERR 'WHOLESALE: '.Dumper($fieldsandvalues);
+#
+#			my $err = undef;
+#			foreach my $f (@{$fieldsandvalues}) {
+#				next if $err;
+#				if ($f->{'err'}) { $err = "$f->{'label'} ($f->{'err'})"; }
+#				}
+#
+#			if (not defined $err) {
+#				($err) = &WHOLESALE::SIGNUP::save_form($self->username(),int($self->prt()),$cfg,$fieldsandvalues);
+#				}
+#
+#			if ($err) {
+#				&JSONAPI::append_msg_to_response(\%R,'youerr',74219,"$err");
+#				}
+#			else {
+#				&JSONAPI::append_msg_to_response(\%R,'success',0);
+#				}
+#			}
+#		}
+#	else {
+#		&JSONAPI::append_msg_to_response(\%R,'apperr',74210,'permissions parameter is required');
+##		}
+	return($R);
 	}
 
 
@@ -21846,58 +21867,58 @@ sub appNewsletterList {
 ##
 ##
 ##
-
-=pod
-
-<API id="buyerNewsletters">
-<purpose></purpose>
-<input id="_cartid"></input>
-<input id="login"> email address</input>
-<input id="fullname"> (optional)</input>
-<input id="newsletter-1"> 1/0</input>
-<input id="newsletter-2"> 1/0</input>
-<caution>
-This can ONLY be used to subscribe new users who don't have accounts.
-</caution>
-
-</API>
-
-=cut
-
-sub buyerNewsletters {
-	my ($self,$v) = @_;
-	my %R = ();
-
-
-	my $login = $v->{'login'};
-	if ($login eq '') {
-		&JSONAPI::append_msg_to_response(\%R,"apperr",2600,"No Login provided.");
-		}
-
-	my $fullname = $v->{'fullname'};
-	my $IP = $ENV{'REMOTE_ADDR'};
-
-	if (not &JSONAPI::hadError(\%R)) {
-		my $SUBSCRIPTIONS = 0;
-		for my $i (0..15) {
-			if ($v->{sprintf("newsletter-%d",$i+1)}) { $SUBSCRIPTIONS += (1<<$i); }
-			}
-		my ($err,$message) = &CUSTOMER::new_subscriber($self->username(), $self->prt(), $login, $fullname, $IP, 3, $SUBSCRIPTIONS);
-		if ($err) {
-			&JSONAPI::append_msg_to_response(\%R,"youerr",2600,"$message");
-			}
-		}
-
-
-	if (&JSONAPI::hadError(\%R)) {
-		## shit happened!
-		}
-	else {
-		&JSONAPI::append_msg_to_response(\%R,'success',0);		
-		}
-	
-	return(\%R);
-	}
+#
+#=pod
+#
+#<API id="buyerNewsletters">
+#<purpose></purpose>
+#<input id="_cartid"></input>
+#<input id="login"> email address</input>
+#<input id="fullname"> (optional)</input>
+#<input id="newsletter-1"> 1/0</input>
+#<input id="newsletter-2"> 1/0</input>
+#<caution>
+#Displays a list of newsletters the customer is/isn't subscribed to.
+#</caution>
+#
+#</API>
+#
+#=cut
+#
+#sub buyerNewsletters {
+#	my ($self,$v) = @_;
+#	my %R = ();
+#
+#
+#	my $login = $v->{'login'};
+#	if ($login eq '') {
+#		&JSONAPI::append_msg_to_response(\%R,"apperr",2600,"No Login provided.");
+#		}
+#
+#	my $fullname = $v->{'fullname'};
+#	my $IP = $ENV{'REMOTE_ADDR'};
+#
+#	if (not &JSONAPI::hadError(\%R)) {
+#		my $SUBSCRIPTIONS = 0;
+#		for my $i (0..15) {
+#			if ($v->{sprintf("newsletter-%d",$i+1)}) { $SUBSCRIPTIONS += (1<<$i); }
+#			}
+#		my ($err,$message) = &CUSTOMER::new_subscriber($self->username(), $self->prt(), $login, $fullname, $IP, 3, $SUBSCRIPTIONS);
+#		if ($err) {
+#			&JSONAPI::append_msg_to_response(\%R,"youerr",2600,"$message");
+#			}
+#		}
+#
+#
+#	if (&JSONAPI::hadError(\%R)) {
+#		## shit happened!
+#		}
+#	else {
+#		&JSONAPI::append_msg_to_response(\%R,'success',0);		
+#		}
+#	
+#	return(\%R);
+#	}
 
 
 
