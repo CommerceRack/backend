@@ -17744,13 +17744,29 @@ sub getSearchCatalogs {
 <note>if not specified then: type:_all is assumed.</note>
 <note>www.elasticsearch.org/guide/reference/query-dsl/</note>
 
-<input id="mode">elastic-native</input>
-<input hint="mode:elastic-native" id="filter"> { 'term':{ 'profile':'DEFAULT' } };</input>
-<input hint="mode:elastic-native" id="filter"> { 'term':{ 'profile':['DEFAULT','OTHER'] } };	## invalid: a profile can only be one value and this would fail</input>
-<input hint="mode:elastic-native" id="filter"> { 'or':{ 'filters':[ {'term':{'profile':'DEFAULT'}},{'term':{'profile':'OTHER'}}  ] } };</input>
-<input hint="mode:elastic-native" id="filter"> { 'constant_score'=>{ 'filter':{'numeric_range':{'base_price':{"gte":"100","lt":"200"}}}};</input>
-<input hint="mode:elastic-native" id="query"> {'text':{ 'profile':'DEFAULT' } };</input>
-<input hint="mode:elastic-native" id="query"> {'text':{ 'profile':['DEFAULT','OTHER'] } }; ## this would succeed, </input>
+<input id="mode">elastic-search,elastic-count,elastic-msearch,
+elastic-mlt,elastic-suggest,elastic-explain,elastic-scroll,elastic-scroll-helper,elastic-scroll-clear</input>
+<hint>
+elastic-search: a query or filter search, this is probably what you want.
+elastic-count: same parameters as query or search, but simply returns a count of matches
+elastic-msearch: a method for passing multiple pipelined search requests (ex: multiple counts) in one call
+elastic-mlt: "More Like This" uses field/terms to find other documents (ex: products) which are similar
+elastic-suggest: used to run did-you-mean or search-as-you-type suggestion requests, 
+	which can also be run as part of a "search()" request.
+	## http://www.elasticsearch.org/guide/en/elasticsearch/reference/current/search-suggesters-completion.html
+elastic-explain: explains why the specified document did or did not match a query, and how the relevance score was calculated. 
+elastic-scroll,elastic-scroll-helper,elastic-scroll-clear: used to interate through scroll results using a scroll_id
+
+
+http://search.cpan.org/~drtech/Search-Elasticsearch-1.10/lib/Search/Elasticsearch/Client/Direct.pm
+</a>
+<input hint="mode:elastic-*" id="filter"> { 'term':{ 'profile':'DEFAULT' } };</input>
+<input hint="mode:elastic-*" id="filter"> { 'term':{ 'profile':['DEFAULT','OTHER'] } };	## invalid: a profile can only be one value and this would fail</input>
+<input hint="mode:elastic-*" id="filter"> { 'or':{ 'filters':[ {'term':{'profile':'DEFAULT'}},{'term':{'profile':'OTHER'}}  ] } };</input>
+<input hint="mode:elastic-*" id="filter"> { 'constant_score'=>{ 'filter':{'numeric_range':{'base_price':{"gte":"100","lt":"200"}}}};</input>
+<input hint="mode:elastic-*" id="query"> {'text':{ 'profile':'DEFAULT' } };</input>
+<input hint="mode:elastic-*" id="query"> {'text':{ 'profile':['DEFAULT','OTHER'] } }; ## this would succeed, </input>
+
 
 <response id="size">100 # number of results</response>
 <response id="sort">['_score','base_price','prod_name']</response>
@@ -17802,9 +17818,20 @@ sub appPublicSearch {
 
 	my %R = ();
 
-	if (not &JSONAPI::validate_required_parameter(\%R,$v,'mode',['elastic-native','elastic-searchbuilder'])) {
+
+	if ($self->apiversion()<201403) {
+		if ($v->{'mode'} eq 'elastic-native') { $v->{'mode'} = 'elastic-search'; }
 		}
-	elsif ($v->{'mode'} =~ /^elastic-(native|searchbuilder)$/) {
+
+
+	if ($v->{'mode'} eq 'elastic-searchbuilder') {
+		## removed by elasticsearch
+		$self->deprecated(\%R,0);
+		}
+	elsif (not &JSONAPI::validate_required_parameters(\%R,$v,'mode',['elastic-search','elastic-count','elastic-explain','elastic-msearch','elastic-scroll','elastic-mlt','elastic-suggest','elastic-explain'])) {
+		## currently, only elastic-modes are supported
+		}
+	elsif ($v->{'mode'} =~ /^elastic-(search|count|msearch|mlt|suggest|explain|scroll|scroll-helper|scroll-clear)$/) {
 
 		my ($es) = &ZOOVY::getElasticSearch($self->username());
 		if (not defined $es) {
@@ -17833,40 +17860,6 @@ sub appPublicSearch {
 		if (defined $v->{'explain'}) { 	$params{'explain'} = $v->{'explain'}; }
 
 		$params{'timeout'} = '5s';
-		
-#
-#        # optional
-#        query           => { native query },
-#        queryb          => { searchbuilder query },
-#
-#        filter          => { native filter },
-#        filterb         => { searchbuilder filter },
-#
-#        explain         => 1 | 0,
-#        facets          => { facets },
-#        fields          => [$field_1,$field_n],
-#        partial_fields  => { my_field => { include => 'foo.bar.* }},
-#        from            => $start_from
-#        highlight       => { highlight }
-#        indices_boost   => { index_1 => 1.5,... },
-#        min_score       => $score,
-#        preference      => '_local' | '_primary' | $string,
-#        routing         => [$routing, ...]
-#        script_fields   => { script_fields }
-
-##			www.elasticsearch.org/guide/reference/api/search/search-type.html
-#        search_type     => 'dfs_query_then_fetch'
-#                           | 'dfs_query_and_fetch'
-#                           | 'query_then_fetch'
-#                           | 'query_and_fetch'
-#                           | 'count'
-#                           | 'scan'
-#        scroll          => '5m' | '30s',
-#        stats           => ['group_1','group_2'],
-#        track_scores    => 0 | 1,
-#        timeout         => '10s'
-#        version         => 0 | 1
-
 		if (defined $params{'body'}) {
 			## require body->query or body->filter
 			}
@@ -17876,14 +17869,53 @@ sub appPublicSearch {
 
 		if (not &hadError(\%R)) {
 			## try
-			eval { 
-				%R = %{
-					$es->search('index'=>sprintf("%s.public",lc($self->username())), %params)
-					} 
-				};
+			if ($v->{'mode'} eq 'elastic-count') {
+				# mode:elastic-count
+				eval { %R = %{$es->count('index'=>sprintf("%s.public",lc($self->username())), %params)} };
+				}
+			elsif ($v->{'mode'} eq 'elastic-explain') {
+				# mode:elastic-explain
+				eval { %R = %{$es->explain('index'=>sprintf("%s.public",lc($self->username())), %params)} };
+				}
+			elsif ($v->{'mode'} eq 'elastic-scroll') {
+				# mode:elastic-scroll
+				eval { %R = %{$es->scroll('index'=>sprintf("%s.public",lc($self->username())), %params)} };
+				}
+			elsif ($v->{'mode'} eq 'elastic-scroll-helper') {
+				# mode:elastic-scroll
+				eval { %R = %{$es->scroll_helper( %params )} };
+				}
+			elsif ($v->{'mode'} eq 'elastic-scroll-clear') {
+				# mode:elastic-scroll
+				eval { %R = %{$es->scroll_clear( %params )} };
+				}
+			elsif ($v->{'mode'} eq 'elastic-mlt') {
+				# mode:elastic-more-like-this
+				eval { %R = %{$es->mlt('index'=>sprintf("%s.public",lc($self->username())), %params)} };
+				}
+			elsif ($v->{'mode'} eq 'elastic-suggest') {
+				# mode:elastic-suggest
+				eval { %R = %{$es->suggest('index'=>sprintf("%s.public",lc($self->username())), %params)} };
+				}
+			elsif ($v->{'mode'} eq 'elastic-explain') {
+				# mode:elastic-suggest
+				eval { %R = %{$es->explain('index'=>sprintf("%s.public",lc($self->username())), %params)} };
+				}
+			elsif ($v->{'mode'} eq 'elastic-msearch') {
+				# mode:elastic-count
+				eval { %R = %{$es->count('index'=>sprintf("%s.public",lc($self->username())), %params)} };
+				}
+			elsif ($v->{'mode'} eq 'elastic-search') {
+				# mode:elastic-search
+				eval { %R = %{$es->search('index'=>sprintf("%s.public",lc($self->username())), %params)} };
+				}
+			else {
+				&JSONAPI::append_msg_to_response(\%R,"apperr",18234,"unknown mode");
+				}
+	
 
 		   if ($@) {
-				&JSONAPI::append_msg_to_response(\%R,"iseerr",18235,"elastic ise: $@");	
+				&JSONAPI::append_msg_to_response(\%R,"iseerr",18239,"elastic ise: $@");	
 				}
 			elsif (ref($@) eq 'ElasticSearch::Error::Request') {
 				my ($e) = $@;
