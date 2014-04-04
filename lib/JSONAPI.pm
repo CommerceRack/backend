@@ -8823,6 +8823,12 @@ sub adminBlastMsg {
 				'CREATED_TS'=>'0',
 				};
 			}
+	
+		if ($self->apiversion()<201403) {
+			foreach my $msg (@MSGS) {
+				if ($msg->{'OBJECT'} eq 'CUSTOMER') { $msg->{'OBJECT'} = 'ACCOUNT'; }
+				}
+			}
 
 		$R{'@MSGS'} = \@MSGS;
 		}
