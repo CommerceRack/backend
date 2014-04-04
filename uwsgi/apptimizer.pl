@@ -140,6 +140,7 @@ my $app = sub {
 		}
 
 	my $NFSROOT = &ZOOVY::resolve_userpath($USERNAME).'/PROJECTS/'.$PROJECTID;
+	my $CACHEROOT = "/local/cache/$USERNAME";
 	my $LOCALROOT = "/local/cache/$USERNAME/$HOSTDOMAIN";
 	my $LOCALFILE = sprintf("%s%s",$LOCALROOT,$FILENAME);
 
@@ -149,29 +150,60 @@ my $app = sub {
 	my %CONFIG = ();
 	## platform/www.domain.com.json
 
+	if (-f "$CACHEROOT/$HOSTDOMAIN.json") {
+		my ($json) = slurp("$LOCALROOT/platform/$HOSTDOMAIN.json");
+		if ($json eq '') {
+			$CONFIG{'error'} = 'cache file empty';
+			}
+		else {
+			my $ref = JSON::XS->new->ascii->pretty->allow_nonref->relaxed(1)->decode($json);
+			%CONFIG = %{$ref};
+			}
+		}
+	else {
+		## make a copy of the host.domain.com.json
+		if (! -d "$CACHEROOT") { mkdir $LOCALROOT; chown $ZOOVY::EUID,$ZOOVY::EGID; chmod 0777, $LOCALROOT; }
+		my ($json) = slurp("$NFSROOT/platform/$HOSTDOMAIN.json");
+		if ($json eq '') { $json = JSON::XS->new()->encode( { "_error"=>"platform/$HOSTDOMAIN.json missing" } ); }
+		my $ref = {};
+		eval { $ref = JSON::XS->new->ascii->pretty->allow_nonref->relaxed(1)->decode($json); };
+		if ($@) {
+			$CONFIG{'_error'} = sprintf("platform/$HOSTDOMAIN.json: $@"); 
+			}
+		else {
+			%CONFIG = %{$ref};
+			}
+		$CONFIG{'_projectid'} = $PROJECTID;
+		$CONFIG{'_username'} = $USERNAME;
+
+		open F, ">$CACHEROOT/$HOSTDOMAIN.json";
+		print F JSON::XS->new()->ascii->pretty->encode( \%CONFIG );
+		close F;
+		}
+
 	$CONFIG{'cache'} = $CONFIG{'cache'} || 1;
 	$CONFIG{'release'} = $CONFIG{'release'} || $ZOOVY::RELEASE;
 	$CONFIG{'copyright'} = $CONFIG{'copyright'} || "Do not copy without permission."; 
-	$CONFIG{'js.compress'} = $CONFIG{'js.compress'} || 1;
-	$CONFIG{'css.compress'} = $CONFIG{'css.compress'} || 1;
+	$CONFIG{'js#compress'} = $CONFIG{'js#compress'} || 1;
+	$CONFIG{'css#compress'} = $CONFIG{'css#compress'} || 1;
 
-	$CONFIG{'html.compress'} = $CONFIG{'html.compress'} || 1;
-	$CONFIG{'html.fonts.embed'} = $CONFIG{'html.fonts.embed'} || 1;
-	$CONFIG{'html.css.embed'} = $CONFIG{'html.css.embed'} || 1;
-	$CONFIG{'html.image.embed'} = $CONFIG{'html.image.embed'} || 1;
+	$CONFIG{'html#compress'} = $CONFIG{'html#compress'} || 1;
+	$CONFIG{'html#fonts#embed'} = $CONFIG{'html#fonts#embed'} || 1;
+	$CONFIG{'html#css#embed'} = $CONFIG{'html#css#embed'} || 1;
+	$CONFIG{'html#image#embed'} = $CONFIG{'html#image#embed'} || 1;
 
-	$CONFIG{'file.robots'} = $CONFIG{'file.robots'} || '/robots.txt';
-	$CONFIG{'file.rewrites'} = $CONFIG{'file.rewrites'} || '/rewrites.json';
-	$CONFIG{'redirect.https'} = $CONFIG{'redirect.https'} || 1;
-	$CONFIG{'redirect.root'} = $CONFIG{'redirect.root'} || '/index.html';
-	$CONFIG{'redirect.missing'} = $CONFIG{'redirect.missing'} || '/index.html#!missing';
-	$CONFIG{'sitemap.syntax'} = $CONFIG{'sitemap.syntax'} || $ZOOVY::RELEASE;
-	$CONFIG{'seo.fragments'} = $CONFIG{'seo.fragments'} || 1;
-	$CONFIG{'seo.index'} = 'seo.html';
+	$CONFIG{'file#robots'} = $CONFIG{'file#robots'} || '/robots.txt';
+	$CONFIG{'file#rewrites'} = $CONFIG{'file#rewrites'} || '/rewrites.json';
+	$CONFIG{'redirect#https'} = $CONFIG{'redirect#https'} || 0;
+	$CONFIG{'redirect#root'} = $CONFIG{'redirect#root'} || '/index.html';
+	$CONFIG{'redirect#missing'} = $CONFIG{'redirect#missing'} || '/index.html#!missing';
+	$CONFIG{'sitemap#syntax'} = $CONFIG{'sitemap#syntax'} || $ZOOVY::RELEASE;
+	$CONFIG{'seo#fragments'} = $CONFIG{'seo#fragments'} || 1;
+	$CONFIG{'seo#index'} = 'seo.html';
 
-#	$CONFIG{'html.compress'} = 0;
-#	$CONFIG{'js.compress'} = 0;
-#	$CONFIG{'css.compress'} = 0;
+#	$CONFIG{'html#compress'} = 0;
+#	$CONFIG{'js#compress'} = 0;
+#	$CONFIG{'css#compress'} = 0;
 
 	##
 	## SANITY: at this point %CONFIG is initialized.
@@ -179,7 +211,7 @@ my $app = sub {
 	
 	## did we receive an escape fragment? _escaped_fragment_
 	my $ESCAPED_FRAGMENTS = undef;
-	if ( $CONFIG{'seo.fragments'} && (defined $req->parameters()->get('_escaped_fragment_')) ) {
+	if ( $CONFIG{'seo#fragments'} && (defined $req->parameters()->get('_escaped_fragment_')) ) {
 		## $ESCAPED_FRAGMENTS = &ZTOOLKIT::parseparams($req->parameters()->get('_escaped_fragment_'));
 		my ($MID) = &ZOOVY::resolve_mid($USERNAME);
 		my ($udbh) = &DBINFO::db_user_connect($USERNAME);
@@ -203,7 +235,7 @@ my $app = sub {
 	#	}
 	#elsif ($path eq '/') { 
  	#	$HTTP_RESPONSE = 301;
-	#	$HEADERS->push_header('Location'=>$CONFIG{'redirect.root'});
+	#	$HEADERS->push_header('Location'=>$CONFIG{'redirect#root'});
 	#	}
 
 	my $USE_CACHE = 1;
@@ -240,6 +272,7 @@ my $app = sub {
 			## flush cache by moving, then nuking directory.
 			warn "FLUSH CACHE FOR $LOCALROOT\n";
 			system("/bin/mv $LOCALROOT $LOCALROOT.$$; /bin/rm -Rf $LOCALROOT.$$");
+			system("/local/cache/$USERNAME/$HOSTDOMAIN.json");
 			$USE_CACHE = 0;
 			}
 		else {
@@ -304,7 +337,7 @@ my $app = sub {
 
 		if ((not defined $BODY) || ($BODY eq '')) {
 			}
-		elsif (($CONFIG{'js.compress'}) && ($FILENAME =~ /\.js$/)) {
+		elsif (($CONFIG{'js#compress'}) && ($FILENAME =~ /\.js$/)) {
 			if ($FILENAME =~ /-min\.js$/) {
 				## already minified.
 				}
@@ -315,7 +348,7 @@ my $app = sub {
 				$BODY = $COPY;
 				}
 			}
-		elsif (($CONFIG{'html.compress'}) && ($FILENAME =~ /\.html$/)) {
+		elsif (($CONFIG{'html#compress'}) && ($FILENAME =~ /\.html$/)) {
 			## NOT AVAILABLE YET
 	#		my $tree = HTML::TreeBuilder->new(no_space_compacting=>0,ignore_unknown=>1,store_comments=>0); # empty tree
 	#		$tree->parse_content($BODY);
@@ -324,7 +357,7 @@ my $app = sub {
 #			optimizeHTML($el,\%CONFIG);
 				
 			}
-		elsif (($CONFIG{'css.compress'}) && ($FILENAME =~ /\.css$/)) {
+		elsif (($CONFIG{'css#compress'}) && ($FILENAME =~ /\.css$/)) {
 			## open F, ">/tmp/compress"; print F $BODY; close F;
          eval { $BODY = CSS::Minifier::XS::minify($BODY); };
 			if ($@) {
