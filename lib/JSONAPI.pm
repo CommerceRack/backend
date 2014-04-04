@@ -8964,6 +8964,9 @@ sub adminBlastMsg {
 				$objects{'%ORDER'} = $O2->TO_JSON();
 				}
 
+			if ($v->{'BODY'} ne '') { $objects{'BODY'} = $v->{'BODY'}; }
+			if ($v->{'SUBJECT'} ne '') { $objects{'SUBJECT'} = $v->{'SUBJECT'}; }
+
 			($msg) = $blast->msg($v->{'MSGID'},\%objects);
 			}
 
