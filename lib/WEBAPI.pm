@@ -4095,7 +4095,7 @@ sub sendMail {
 			$ref->{'PRT'} = 0;
 			}
 
-		if ($ref->{'MSGID'} eq 'ORDER.SHIPPED') {
+		if (($ref->{'MSGID'} eq 'ORDER.SHIPPED') || ($ref->{'MSGID'} eq 'BLANK')) {
 			my ($O2) = CART2->new_from_oid($USERNAME,$ref->{'OID'});
 			require BLAST;
 			my ($BLAST) = BLAST->new($USERNAME,$ref->{'PRT'});

@@ -79,11 +79,18 @@ sub send {
 			secret_key => $EMAIL{'smtp-password'},
 			);
 
+		my %MSG = ();
+		$MSG{'From'} = $FROM;
+		$MSG{'To'} = $RECIPIENT;
+		$MSG{'Subject'} = $SUBJECT;
+		$MSG{'Body'} = $BODY;
+		$MSG{'ReturnPath'} = $FROM;
+
 		my $r = undef;
-		eval { $r = $ses->send($msg); };
+		eval { $r = $ses->send(%MSG); };
 
 		use Data::Dumper; 
-		print STDERR 'AWS ERROR'.Dumper($r,$webdbref->{'%plugin.esp_awsses'})."\n";
+		print STDERR 'AWS OUTPUT; '.Dumper($r,$webdbref->{'%plugin.esp_awsses'})."\n";
 
 		}
 	else {
