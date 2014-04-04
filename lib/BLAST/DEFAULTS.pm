@@ -139,7 +139,7 @@ apply --img --media=$var --width=75 --height=75 --bgcolor='#ffffff' --replace;" 
 |,
 
 	'%PACKSLIP%'=> q|
-<table id="contents" data-tlc="bind $items '.@ITEMS'; foreach $item in $items {{ transmogrify --templateid='skuTemplate' --dataset=$item; apply --append; }}; ">
+<table id="contents" data-tlc="bind $items '.%ORDER.@ITEMS'; foreach $item in $items {{ transmogrify --templateid='skuTemplate' --dataset=$item; apply --append; }}; ">
 <thead>
 <tr>
 	<th>QTY</th>
@@ -918,10 +918,17 @@ foreach my $k (keys %BLAST::DEFAULTS::DEPRECATED) {
 		MSGOBJECT=>'ORDER',
 		MSGSUBJECT=>'Printable Invoice',
 		MSGBODY=>q|
-<h1>Order Number: %ORDERID%</h1>
-Created: %ORDERDATE%
+<div data-tlc="">
+<div data-tlc="bind $var '.%PRT.COMPANY'; apply --append;"></div>
+<div data-tlc="bind $var '.%PRT.PHONE'; apply --append;"></div>
+<div data-tlc="bind $var '.%PRT.MAILADDR'; apply --append;"></div>
+<div data-tlc="bind $var '.%PRT.HELPEMAIL'; apply --append;"></div>
+</div>
 
-<table>
+<h1>Order Number: %ORDERID%</h1>
+<div>Created: %ORDERDATE%</div>
+
+<table width="100%">
 <thead>
 <tr>
 	<td>Billing Address</td>

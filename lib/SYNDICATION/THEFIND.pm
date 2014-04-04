@@ -267,7 +267,7 @@ sub product {
 	push @columns, $P->fetch('zoovy:ship_cost1');
 
 	# "Free"; # Shipping If shipping is free for this product, specify as Free Shipping. This will override Merchant Center settings and any amount in Shipping Cost field.
-	push @columns, ($P->fetch('is:freeship'))?'Yes':'';
+	push @columns, ($P->fetch('is:shipfree'))?'Yes':'';
 
 	# "Online_Only"; # If the item is only sold online, specify Yes. Otherwise, No or leave blank.
 	push @columns, '';

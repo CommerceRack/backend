@@ -1261,13 +1261,18 @@ sub create_skuxml {
 				##		2. amazon allows any variation theme in this category, so we can't possibly validate that!
 				}
 			else {
-				my $were_good = 0;
-				foreach my $allowedtheme (split(/,/,$JSONREF->{'variation-themes'})) {
-					if ($allowedtheme eq $optiontheme) { $were_good++; }
-					}
-				if (not $were_good) {
-					$lm->pooshmsg(sprintf("ERROR|+Variation error - the variation theme:$optiontheme is invalid. (The following themes are valid for $JSONREF->{'catalog'}: %s)",$JSONREF->{'variation-themes'}));
-					}
+
+				##	for some categories there are variations that can't be sent as individual variations.
+				##		-	eg for category FineNecklaceBraceletAnklet variation 'StoneShape' must be sent with 'MetalType' as 'StoneShapeMetalType'
+				## 	- therefore we can't accuratey check the validity of theme until later in the code when the themes of all options are combined 
+
+#				my $were_good = 0;
+#				foreach my $allowedtheme (split(/,/,$JSONREF->{'variation-themes'})) {
+#					if ($allowedtheme eq $optiontheme) { $were_good++; }
+#					}
+#				if (not $were_good) {
+#					$lm->pooshmsg(sprintf("ERROR|+Variation error - the variation theme:$optiontheme is invalid. (The following themes are valid for $JSONREF->{'catalog'}: %s)",$JSONREF->{'variation-themes'}));
+#					}
 				}
 
 			#print "POG (build_prodFeed) ".Dumper($pog);
