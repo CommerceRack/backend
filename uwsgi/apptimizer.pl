@@ -12,6 +12,7 @@ use CSS::Minifier::XS;
 use AnyEvent::HTTP;
 use JavaScript::Minifier;
 use AnyEvent::Redis;
+use System::Command;
 use POSIX qw (strftime);
 
 use IO::Scalar;
@@ -184,6 +185,7 @@ my $app = sub {
 	$CONFIG{'cache'} = $CONFIG{'cache'} || 1;
 	$CONFIG{'release'} = $CONFIG{'release'} || $ZOOVY::RELEASE;
 	$CONFIG{'copyright'} = $CONFIG{'copyright'} || "Do not copy without permission."; 
+
 	$CONFIG{'js#compress'} = $CONFIG{'js#compress'} || 1;
 	$CONFIG{'css#compress'} = $CONFIG{'css#compress'} || 1;
 
@@ -191,6 +193,8 @@ my $app = sub {
 	$CONFIG{'html#fonts#embed'} = $CONFIG{'html#fonts#embed'} || 1;
 	$CONFIG{'html#css#embed'} = $CONFIG{'html#css#embed'} || 1;
 	$CONFIG{'html#image#embed'} = $CONFIG{'html#image#embed'} || 1;
+
+	$CONFIG{'image#compress'} = $CONFIG{'image#compress'} || 1;
 
 	$CONFIG{'file#robots'} = $CONFIG{'file#robots'} || '/robots.txt';
 	$CONFIG{'file#rewrites'} = $CONFIG{'file#rewrites'} || '/rewrites.json';
@@ -219,9 +223,9 @@ my $app = sub {
 		print STDERR "$pstmt\n";
 		(my $TS,$BODY) = $udbh->selectrow_array($pstmt);
 		## open F, ">/tmp/escape"; print F "$pstmt\n"; print F Dumper($ESCAPED_FRAGMENTS,$BODY); close F;
-#		$HEADERS->push_header('Cache-Control','max-age=3600');
 		$HEADERS->push_header('Age',time()-$TS);
 		$HEADERS->push_header('Last-Modified',POSIX::strftime("%a, %0d %b %Y %H:%M:%S GMT",gmtime($TS)));	# Last-Modified: Thu, 01 Dec 1994 16:00:00 GMT
+		$HEADERS->push_header('Expires',POSIX::strftime("%a, %0d %b %Y %H:%M:%S GMT",gmtime(time()+3600)));	# Last-Modified: Thu, 01 Dec 1994 16:00:00 GMT
 
 		if ($BODY ne '') { 
 			$BODY .= "\n<!-- _escaped_fragment_ created: ".&ZTOOLKIT::pretty_date($TS,1)." -->\n";
@@ -264,6 +268,7 @@ my $app = sub {
 		}
 	elsif (($USE_CACHE) && (defined $memd)) {
 		my $PROJECT_TS = $memd->get("$USERNAME.$PROJECTID");
+		$HEADERS->push_header('Last-Modified',POSIX::strftime("%a, %0d %b %Y %H:%M:%S GMT",gmtime($PROJECT_TS)));	# Last-Modified: Thu, 01 Dec 1994 16:00:00 GMT
 		#print STDERR "MEMCACHE - PROJECT_TS: $PROJECT_TS\n";
 
 		if (not defined $PROJECT_TS) {
@@ -380,6 +385,7 @@ my $app = sub {
 			}
 		elsif (($CONFIG{'css#compress'}) && ($FILENAME =~ /\.css$/)) {
 			## open F, ">/tmp/compress"; print F $BODY; close F;
+			
          eval { $BODY = CSS::Minifier::XS::minify($BODY); };
 			if ($@) {
 				$BODY = "/* 
@@ -387,6 +393,8 @@ CSS::Minifier::XS error: $@
 please use http://jigsaw.w3.org/css-validator/validator to correct, or disable css minification. 
 */\n".$BODY;
 				}
+			}
+		else {
 			}
 
 
@@ -405,8 +413,15 @@ please use http://jigsaw.w3.org/css-validator/validator to correct, or disable c
 			close F;	
 			$USE_ROOT = $LOCALROOT;
 			}
+
+		if (($CONFIG{'image#compress'}) && ($FILENAME =~ /\.(png|gif|jpg)$/)) {
+			my $cmd = System::Command->new( '/usr/local/bin/mogrify', '-strip', "$LOCALFILE" );
+			$BODY = slurp("$LOCALFILE");
+			}
+
 		}
 
+	$HEADERS->push_header('Expires',POSIX::strftime("%a, %0d %b %Y %H:%M:%S GMT",gmtime(time()+(86400*30))));	# Last-Modified: Thu, 01 Dec 1994 16:00:00 GMT
 	## print STDERR "HELL! $HTTP_RESPONSE $LOCALFILE\n";
 
 	## step2. make sure we're looking at a recent copy
@@ -476,6 +491,10 @@ please use http://jigsaw.w3.org/css-validator/validator to correct, or disable c
 		}
 	elsif ($USE_ROOT) {
 		($HTTP_RESPONSE,$HEADERS,$BODY) = @{Plack::App::File->new('root'=>$USE_ROOT)->call($env)};
+		if (ref($HEADERS) eq 'ARRAY') {
+			## Plack::App::File returns a hash of headers, lets make it into an object
+			$HEADERS = HTTP::Headers->new(@{$HEADERS});
+			}
 		}
 	else {
 		## UNKNOWN!
@@ -484,7 +503,17 @@ please use http://jigsaw.w3.org/css-validator/validator to correct, or disable c
     	## change at your own peril. -BH 5/18/13
     	$HEADERS->push_header( 'Content-Length' => length($BODY) );
 		}
-	  
+
+	if ($HTTP_RESPONSE == 200) {
+		if ($HEADERS->header('Expires') eq '') {
+			$HEADERS->push_header('Expires',POSIX::strftime("%a, %0d %b %Y %H:%M:%S GMT",gmtime(time()+(86400*30))));	# Last-Modified: Thu, 01 Dec 1994 16:00:00 GMT
+			}
+		if ($HEADERS->header('Cache-Control')) {
+			$HEADERS->push_header('Cache-Control','max-age');
+			}
+		}
+
+
 	my $res = Plack::Response->new($HTTP_RESPONSE,$HEADERS,$BODY);
 	return($res->finalize);
 	}
