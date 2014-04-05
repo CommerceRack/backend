@@ -20589,9 +20589,19 @@ sub cartPaypalSetExpressCheckout {
 		}
 	else {
 		$CART2 = $self->cart2( $v->{'_cartid'} );
+
+		if ($CART2->cartid() ne $v->{'_cartid'}) {
+			&JSONAPI::append_msg_to_response(\%R,'apperr',9997,"_cartid requested is not valid.");			
+			}
+		elsif (scalar(@{$CART2->stuff2()->items()})==0) {
+			&JSONAPI::append_msg_to_response(\%R,'apperr',9996,"requested cart is empty.");			
+			}
+
 		}
 
-	if (not defined $v->{'useShippingCallbacks'}) {
+	if (JSONAPI::hadError(\%R)) {
+		}
+	elsif (not defined $v->{'useShippingCallbacks'}) {
 		$v->{'useShippingCallbacks'} = 0;
 		}
 	elsif ($v->{'useShippingCallbacks'}) {
@@ -28077,6 +28087,8 @@ sub appSEO {
 	#elsif (not $self->projectid()) {
 	#	&JSONAPI::set_error('iseerr',7847,'No projectid set.');
 	#	}
+	elsif (not &JSONAPI::validate_required_parameter(\%R,$v,'token')) {
+		}
 	elsif ($v->{'_cmd'} eq 'appSEOStore') {
 		my $hostdomain = $redis->hget($REDIS_KEY,"hostdomain");
 
@@ -28129,7 +28141,7 @@ sub appSEO {
 		my $MID = $self->mid();
 
 		my $pstmt = "select ESCAPED_FRAGMENT,SITEMAP_SCORE from SEO_PAGES where MID=$MID and DOMAIN=$qtHOSTDOMAIN and GUID=$qtGUID order by SITEMAP_SCORE";
-		#print STDERR "$pstmt\n";
+		print STDERR "$pstmt\n";
 		my $sth = $udbh->prepare($pstmt);
 		$sth->execute();
 		my @DATA = ();

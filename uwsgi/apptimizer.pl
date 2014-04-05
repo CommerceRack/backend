@@ -215,17 +215,35 @@ my $app = sub {
 		## $ESCAPED_FRAGMENTS = &ZTOOLKIT::parseparams($req->parameters()->get('_escaped_fragment_'));
 		my ($MID) = &ZOOVY::resolve_mid($USERNAME);
 		my ($udbh) = &DBINFO::db_user_connect($USERNAME);
-		my $pstmt = "select BODY from SEO_PAGES where MID=$MID and DOMAIN=".$udbh->quote($HOSTDOMAIN)." and ESCAPED_FRAGMENT=".$udbh->quote($req->parameters()->get('_escaped_fragment_'));
+		my $pstmt = "select unix_timestamp(CREATED_TS),BODY from SEO_PAGES where MID=$MID and DOMAIN=".$udbh->quote($HOSTDOMAIN)." and ESCAPED_FRAGMENT=".$udbh->quote($req->parameters()->get('_escaped_fragment_'));
 		print STDERR "$pstmt\n";
-		($BODY) = $udbh->selectrow_array($pstmt);
+		(my $TS,$BODY) = $udbh->selectrow_array($pstmt);
 		## open F, ">/tmp/escape"; print F "$pstmt\n"; print F Dumper($ESCAPED_FRAGMENTS,$BODY); close F;
-		if ($BODY eq '') { 
+#		$HEADERS->push_header('Cache-Control','max-age=3600');
+		$HEADERS->push_header('Age',time()-$TS);
+		$HEADERS->push_header('Last-Modified',POSIX::strftime("%a, %0d %b %Y %H:%M:%S GMT",gmtime($TS)));	# Last-Modified: Thu, 01 Dec 1994 16:00:00 GMT
+
+		if ($BODY ne '') { 
+			$BODY .= "\n<!-- _escaped_fragment_ created: ".&ZTOOLKIT::pretty_date($TS,1)." -->\n";
 			$HTTP_RESPONSE = 200;
 			}
 		else {
 			$HTTP_RESPONSE = 404;
+			
+			$BODY = sprintf("<html>\nInvalid escaped fragment: %s\n",$req->parameters()->get('_escaped_fragment_'));
+			my $pstmt = "select ESCAPED_FRAGMENT from SEO_PAGES where MID=$MID and DOMAIN=".$udbh->quote($HOSTDOMAIN)." limit 0,250";
+			my $sth = $udbh->prepare($pstmt);
+			$sth->execute();
+			$BODY .= "<ul>";
+			while ( my ($FRAGMENT) = $sth->fetchrow() ) {
+				$BODY .= "<li> <a href=\"/?_escaped_fragment_=$FRAGMENT\">$FRAGMENT</a>\n";
+				}
+			$BODY .= "</ul></html>";
+			$sth->finish();
 			}
 		&DBINFO::db_user_close();
+		$HEADERS->push_header('Content-Length',length($BODY));
+		$HEADERS->push_header('Content-Type','text/html');
 		}
 	
 	
@@ -241,7 +259,10 @@ my $app = sub {
 	my $USE_CACHE = 1;
 	if (not $CONFIG{'cache'}) { $USE_CACHE = 0; }
 
-	if (($USE_CACHE) && (defined $memd)) {
+	if (defined $HTTP_RESPONSE) {
+		## already handled .. probably by _escaped_fragment_
+		}
+	elsif (($USE_CACHE) && (defined $memd)) {
 		my $PROJECT_TS = $memd->get("$USERNAME.$PROJECTID");
 		#print STDERR "MEMCACHE - PROJECT_TS: $PROJECT_TS\n";
 
