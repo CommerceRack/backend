@@ -996,29 +996,46 @@ foreach my $k (keys %BLAST::DEFAULTS::DEPRECATED) {
 		'MSGOBJECT'=>'ORDER',
 		'MSGSUBJECT'=>'Printable Packing Slip',
 		'MSGBODY'=>q|
-<h1>Order Number: %ORDERID%</h1>
-Created: %ORDERDATE%
-
-<table>
-<thead>
-<tr>
-	<td>Billing Address</td>
-	<td>Shipping Address</td>
+<table class="orderContentsTable" width="650">
+<tbody><tr>
+	<td valign="top" width="50%">
+	%COMPANY_LOGO%
+	</td>
+	<td valign="middle" width="50%">
+	<h2>Order Number: %ORDERID%</h2>
+	<div class="barcode">%ORDERID%</div>
+	</td>
 </tr>
-</thead>
-<tbody>
 <tr>
-	<td>%BILLADDR%</td>
-	<td>%SHIPADDR%</td>
-</tr>
-</tbody>
-</table>
+	<td valign="top">
 
-<h2>Order Contents</h2>
-%PACKSLIP%
+<h3>Billing Address</h3>
+%BILLADDR%
+
+	</td>
+	<td valign="top">
+
+<h3>Shipping Address</h3>
+%SHIPADDR%
+
+	</td>
+</tr>
+<tr>
+	<td class="orderContentsProdlistContainer" colspan="2">
+<h3>Order Contents</h3>
+<p>%ORDERITEMS%</p>
 
 <h3>Shipping Method</h3>
-%SHIPMETHOD%
+<p>%SHIPMETHOD%</p>
+
+<h3>Payment Information</h3>
+<p>%PAYINFO%</p>
+
+<h3>Payment Instructions</h3>
+<p>%PAYINSTRUCTIONS%</p>
+	</td>
+</tr>
+</tbody></table>
 |
 		},
 	'PRINTABLE.PICKLIST'=>{
