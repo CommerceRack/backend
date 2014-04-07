@@ -660,7 +660,7 @@ use strict;
 	'adminSupplierDetail'=>[ \&JSONAPI::adminSupplier, { 'admin'=>1, }, 'admin', { 'SUPPLIER'=>'R' } ],
 	'adminSupplierMacro'=>[ \&JSONAPI::adminSupplier, { 'admin'=>1, }, 'admin', { 'SUPPLIER'=>'U' } ],
 	'adminSupplierRemove'=>[ \&JSONAPI::adminSupplier, { 'admin'=>1, }, 'admin', { 'SUPPLIER'=>'D' } ],
-	'adminSupplierAction'=>[ \&JSONAPI::adminSupplier, { 'admin'=>1, }, 'admin', { 'SUPPLIER'=>'A' } ],
+	'adminSupplierAction'=>[ \&JSONAPI::adminSupplier, { 'admin'=>1, }, 'admin', { 'SUPPLIER'=>'D' } ],
 	'adminSupplierOrderList'=>[ \&JSONAPI::adminSupplier, { 'admin'=>1, }, 'admin', { 'SUPPLIER'=>'R','ORDER'=>'R' } ],
 	'adminSupplierOrderItemList'=>[ \&JSONAPI::adminSupplier, { 'admin'=>1, }, 'admin', { 'SUPPLIER'=>'R','ORDER'=>'R' } ],
 	'adminSupplierUnorderedItemList'=> [ \&JSONAPI::adminSupplier, { 'admin'=>1, }, 'admin', { 'SUPPLIER'=>'R','PRODUCT'=>'R' } ],
@@ -5342,10 +5342,11 @@ sub adminImageUploadMagick {
 	my %R = ();	
 
 	require MEDIA;
-	require ImageMagick;
 
 	my $PWD = undef;
 	if ($v->{'_cmd'} eq 'adminImageMagick') {
+		## folder is optional for adminImageMagick
+		if ($v->{'folder'}) { $PWD = &MEDIA::from_webapi($v->{'folder'}); }
 		}
 	elsif (not &JSONAPI::validate_required_parameter(\%R,$v,'folder')) {
 		}
@@ -5357,10 +5358,8 @@ sub adminImageUploadMagick {
 
 
 	my $filename = $v->{'filename'};
-	# print STDERR "PWD:$PWD\n";
-	# print STDERR Dumper($v);
-
 	my $DATA = undef;
+
 	if (JSONAPI::hadError(\%R)) {
 		}
 	elsif (defined $v->{'base64'}) {
@@ -5393,7 +5392,31 @@ sub adminImageUploadMagick {
 		&JSONAPI::set_error(\%R,'apperr',23411,'adminImageUpload requires either fileguid or base64 parameter');
 		}
 
-	
+
+	my $ext = ''; ## default
+	if (&JSONAPI::hadError(\%R)) {
+		}
+	elsif ($filename) {
+		## default upload
+		# see if we can get an extension from filename, otherwise assume it's a XXX (unknown)
+		if (index($filename,'.')>=0) { $ext = substr($filename,rindex($filename,'.')+1); } else { $ext = 'xyz'; }
+		## if we still have xyz here, we should probably use image blob detection
+		## $mimetypes->type('text/plain');
+
+		print STDERR "Assuming Filename is [$filename]\n";
+		if (index($filename,'.')>=0) {
+			# has file extension
+			$ext = substr($filename,rindex($filename,'.')+1);
+			$filename = substr($filename,0,rindex($filename,'.'));
+			print STDERR "overwriting defaults with best guess [$ext] [$filename]\n";
+			} 
+		else {
+			# no extension?? Hmm..
+			}
+		}
+
+	##
+	##	
 	if (&JSONAPI::hadError(\%R)) {
 		}
 	elsif ($v->{'_cmd'} eq 'adminImageMagick') {
@@ -5414,7 +5437,9 @@ sub adminImageUploadMagick {
 			foreach my $line (@{$v->{'@updates'}}) {
 				my $CMDSETS = &CART2::parse_macro_script($line);
 				foreach my $cmdset (@{$CMDSETS}) {
-					## don't add luser
+					## ** VERY IMPORTANT DIFFERENCE ** don't add luser, remove 'ts'
+					delete $cmdset->[1]->{'ts'};
+					delete $cmdset->[1]->{'luser'};
 					$cmdset->[2] = $line;
 					$cmdset->[3] = $count++;
 					push @CMDS, $cmdset;
@@ -5474,48 +5499,48 @@ sub adminImageUploadMagick {
 
 		$R{'%properties'} = \%properties;
 		$R{'mime'} = $p->get('mime');
-		$R{'base64'} = MIME::Base64::encode_base64($p->BlobToImage());
-
-		$R{'@MSGS'} = [];
-		foreach my $msg (@MSGS) {
-			my ($msgref,$status) = LISTING::MSGS::msg_to_disposition($msg);
-			if (substr($msgref->{'+'},0,1) eq '+') { $msgref->{'+'} = substr($msgref->{'+'},1); }
-			push @{$R{'@MSGS'}}, $msgref;
+		if ($R{'mime'} =~ /image\/(.*?)$/) {
+			$ext = $1; 
 			}
-		}
-	else {
-		## default upload
-		my $ext = 'xyz'; ## default
+		if ($ext eq 'jpeg') { $ext = 'jpg'; }
 
-		# see if we can get an extension from filename, otherwise assume it's a XXX (unknown)
-		if (index($filename,'.')>=0) { $ext = substr($filename,rindex($filename,'.')+1); } else { $ext = 'xyz'; }
+		if (scalar(@MSGS)>0) {
+			## changes were made, images will be output.
+			$R{'base64'} = MIME::Base64::encode_base64($DATA = $p->ImageToBlob());
 
-		## if we still have xyz here, we should probably use image blob detection
-		if ($ext eq 'xyz') {	}
-
-		print STDERR "Assuming Filename is [$filename]\n";
-		if (index($filename,'.')>=0) {
-			# has file extension
-			$ext = substr($filename,rindex($filename,'.')+1);
-			$filename = substr($filename,0,rindex($filename,'.'));
-			print STDERR "overwriting defaults with best guess [$ext] [$filename]\n";
-			} 
-		else {
-			# no extension?? Hmm..
-			}
-
-		if ($filename) {
-			# Quick sanity
-			# print STDERR "storing $USERNAME - $PWD/$filename.$ext\n";
-			my ($iref) = &MEDIA::store($self->username(),"$PWD/$filename.$ext",$DATA);
-			if ($iref->{'err'}>0) {
-				&JSONAPI::set_error(\%R,'iseerr',(23000+$iref->{'err'}),sprintf("MEDIA ERROR %s",$iref->{'errmsg'}));
+			$R{'@MSGS'} = [];
+			foreach my $msg (@MSGS) {
+				my ($msgref,$status) = LISTING::MSGS::msg_to_disposition($msg);
+				if (substr($msgref->{'+'},0,1) eq '+') { $msgref->{'+'} = substr($msgref->{'+'},1); }
+				push @{$R{'@MSGS'}}, $msgref;
 				}
 			}
-		else {
-			# print STDERR "No data\n";
-			&JSONAPI::set_error(\%R,'apperr',23420,"adminImageUpload did not receive a usable filename");
+
+		}
+
+
+	## 
+	##
+	##
+	if (&JSONAPI::hadError(\%R)) {
+		}
+	elsif ($filename && $ext) {
+		# Quick sanity
+		# print STDERR "storing $USERNAME - $PWD/$filename.$ext\n";
+		my ($iref) = &MEDIA::store($self->username(),"$PWD/$filename.$ext",$DATA);
+		if ($iref->{'err'}>0) {
+			&JSONAPI::set_error(\%R,'iseerr',(23000+$iref->{'err'}),sprintf("MEDIA ERROR %s",$iref->{'errmsg'}));
 			}
+		}
+	elsif ($v->{'_cmd'} eq 'adminImageMagick') {
+		## doen't need a filename.
+		}
+	elsif ($ext eq '') {
+		&JSONAPI::set_error(\%R,'apperr',23419,"adminImageUpload could not determine extension for file.");
+		}
+	else {
+		# print STDERR "No data\n";
+		&JSONAPI::set_error(\%R,'apperr',23420,"adminImageUpload did not receive a usable filename");
 		}
 
 	if (&JSONAPI::hadError(\%R)) {
@@ -9043,7 +9068,12 @@ sub adminBlastMsg {
 		my $MSGID = uc($v->{'MSGID'});
 		$params{'MSGID'} = $MSGID;
 		$params{'OBJECT'} = $v->{'OBJECT'} || $BLAST::DEFAULTS::MSGS{$MSGID}->{'MSGOBJECT'};
-		if (($params{'OBJECT'} eq '') && ($MSGID =~ /^(.*?)\./)) {
+		if ($params{'OBJECT'} ne '') {
+			}
+		elsif ($MSGID =~ /^PRINTABLE\.ORDER\./) { 
+			$params{'OBJECT'} = 'ORDER'; 
+			}
+		elsif ($MSGID =~ /^(.*?)\./) {
 			## so customer ORDER.XYZ will become OBJECT 'ORDER'
 			$params{'OBJECT'} = $1;
 			}
@@ -13111,12 +13141,16 @@ sub adminProject {
 			if ($BRANCH =~ /[^a-zA-Z0-9\-\_]/) { $ERROR = "ERROR|+invalid characters in branch name '$BRANCH' (allowed A-Z 0-9 - _)"; }
 			}
 
+		my $path = sprintf("%s/PROJECTS/%s",&ZOOVY::resolve_userpath($USERNAME),$UUID);
+		if (-d $path) { 
+			push @MSGS, "ERROR|+Will not create PROJECTS/$UUID folder (already exists)";
+			}
+
 		if (defined $ERROR) {
 			push @MSGS, "$ERROR";
 			}
 		elsif (scalar(@MSGS)==0) {	
 			if ($REPO ne '') {
-				my $path = sprintf("%s/PROJECTS/%s",&ZOOVY::resolve_userpath($USERNAME),$UUID);
 				
 				## /usr/local/bin/git clone http://github.com/brianhorakh/linktest.git /remote/snap/users/b/brian/PROJECTS/e8b9f059-a695-11e1-9cc4-1560a415
 				my @params = ();

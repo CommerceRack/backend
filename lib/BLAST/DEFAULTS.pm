@@ -17,6 +17,7 @@ package BLAST::DEFAULTS;
 #	[ 'PRODUCT', '%SENDER_SUBJECT%', 'The subject that was supplied by the user (cgi variable: sender_subject)' ],
 #	[ 'PRODUCT', '%SENDER_BODY%', 'The body that was supplied by the user (cgi variable sender_body)' ],
 
+	
 
 	'%PRODUCT_VIEWLINK%'=> q|<span data-tlc="bind $var '.%PRODUCT.ADDLINK'; apply --append;"></span>|,
 	'%PRODUCT_ADDLINK%'=> q|<span data-tlc="bind $var '.%PRODUCT.ADDLINK'; apply --append;"></span>|,
@@ -60,6 +61,15 @@ if (is $var --notblank) {{
 	format --prepend='mailto://'; 
 	apply --attrib='href'; 
 	apply --append;
+	}};
+"></span>|,
+
+	'%LOGOIMAGE%'=> q|<span><img data-tlc="
+bind $logoimg '.%PRT.LOGOIMAGE';
+if (is $img --blank) {{
+	apply --remove; 
+	}} else {{
+	apply --img --media=$logoimg;
 	}};
 "></span>|,
 
@@ -110,6 +120,9 @@ body { font-size: 8pt; font-family: helvetica, arial; }
 <div style="text-align:left; line-height:120%;">
 <table cellspacing="0" cellpadding="0" border="0" width="100%" style="border-top:1px solid #CCCCCC; margin-bottom:10px;">
 <tr>
+	<td data-bind="bind $logoimg '.%PRT.LOGOIMAGE'; if (is $img --blank) {{ apply --remove; }}">
+		<img data-bind="bind $logoimg '.%PRT.LOGOIMAGE'; apply --img --media=$logoimg;">
+	</td>
 	<td valign="top" style="padding:2px;">
 	<span data-tlc="bind $var '.%PRT.MAILADDR'; render --wiki; format apply --append;">	
 	</td>
@@ -1027,7 +1040,7 @@ foreach my $k (keys %BLAST::DEFAULTS::DEPRECATED) {
 <table class="orderContentsTable">
 <tbody><tr>
 	<td valign="top" width="50%">
-	%COMPANY_LOGO%
+	%LOGOIMAGE%
 	</td>
 
 	<td style="text-align:right" valign="top" width="50%">
@@ -1083,12 +1096,21 @@ foreach my $k (keys %BLAST::DEFAULTS::DEPRECATED) {
 	</td>
 </tr>
 <tr>
-	<td colspan="2">
-<h2>%COMPANY%</h2>
-<div>%MAILADDR%</div>
-<div>%DOMAIN%</div>
-<div>%PHONE%</div>
-<div>%HELPEMAIL%</div>
+	<td colspan="2" valign="top" width=>
+	<table>
+		<tr>
+			<td colspan=2 data-tlc="bind $logoimg '.%PRT.LOGOIMAGE'; if (is $logoimg --blank) {{ apply --remove; }};" valign="top">
+			%LOGOIMAGE%
+			</td>
+			<td>
+			<h2>%COMPANY%</h2>
+			<div>%MAILADDR%</div>
+			<div>%DOMAIN%</div>
+			<div>%PHONE%</div>
+			<div>%HELPEMAIL%</div>
+			</td>
+		</tr>
+	</table>
 	</td>
 </tr>
 </tbody></table>
@@ -1104,8 +1126,15 @@ foreach my $k (keys %BLAST::DEFAULTS::DEPRECATED) {
 		'MSGBODY'=>q|
 <table class="orderContentsTable" width="650">
 <tbody><tr>
+	<td data-tlc="bind $logoimg '.%PRT.LOGOIMAGE'; if (is $logoimg --blank) {{ apply --remove; }};" valign="top" width="100">
+	%LOGOIMAGE%
+	</td>
 	<td valign="top" width="50%">
-	%COMPANY_LOGO%
+	<b>%COMPANY%</b>
+	<div>%MAILADDR%</div>
+	<div>%DOMAIN%</div>
+	<div>%PHONE%</div>
+	<div>%HELPEMAIL%</div>
 	</td>
 	<td valign="middle" width="50%">
 	<h2>Order Number: %ORDERID%</h2>
