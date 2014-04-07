@@ -9,6 +9,7 @@ use Pegex;
 use Pegex::Tree::DataTLC;
 use POSIX qw(strftime);
 use JSON::XS;
+use Text::WikiCreole qw();
 
 require ZOOVY;
 
@@ -783,13 +784,46 @@ sub core_apply {
 	}
 
 
-## not implemented yet
-sub core_render {
-	my ($self, $command) = @_;
-
+## render --text; render --wiki; render --dwiw;
 #[3:10:42 PM] jt: var: {"string":"<h1>This is some text</h1><p>Text is grand</p>"}
 #TLC:   bind $var '.string'; render --text; append --apply;
 #output: &lt;h1&lt;This is some text&lt;/h1&lt;&lt;p&lt;Text is grand&lt;/p&lt;
+sub core_render {
+	my ($self, $command) = @_;
+
+	my $var = undef;
+	my $result = $self->{vars}{default};
+
+	for my $arg (@{$command->{args}}) {
+		## format --prepend, --currency
+		if ($arg->{'type'} eq 'variable') {
+			$var = $arg->{'value'};
+			$result = (defined $self->{'vars'}->{ $var }) ? $self->{vars}->{ $var } : undef;
+			}
+		elsif ($arg->{'type'} eq 'longopt') {
+			if ($arg->{'key'} eq 'dwiw') {
+				## not supported at the moment!
+				}
+
+			if ($arg->{'key'} eq 'text') {
+				if (not defined $result) { $result = ''; }
+				$result = &ZTOOLKIT::encode(sprintf("%s",$self->lookup_value($arg->{value})));
+				}
+			#elsif ($arg->{'key'} eq 'deentity') {
+			#	if (not defined $result) { $result = ''; }
+			#	$result = &ZTOOLKIT::decode(sprintf("%s",$self->lookup_value($arg->{value})));
+			#	}
+			elsif ($arg->{'key'} eq 'wiki') {
+				if (not defined $result) { $result = ''; }
+				$result = &Text::WikiCreole::creole_parse(sprintf("%s",$self->lookup_value($arg->{value})));
+				}
+			}
+		}
+
+
+	# print "format result: $result\n";
+	if ($var) { $self->{vars}->{$var} = $result; }
+	return( $self->{vars}{default} = $result );
 	}
 
 
