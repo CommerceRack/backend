@@ -918,35 +918,46 @@ foreach my $k (keys %BLAST::DEFAULTS::DEPRECATED) {
 		MSGOBJECT=>'ORDER',
 		MSGSUBJECT=>'Printable Invoice',
 		MSGBODY=>q|
-<div data-tlc="">
-<div data-tlc="bind $var '.%PRT.COMPANY'; apply --append;"></div>
-<div data-tlc="bind $var '.%PRT.PHONE'; apply --append;"></div>
-<div data-tlc="bind $var '.%PRT.MAILADDR'; apply --append;"></div>
-<div data-tlc="bind $var '.%PRT.HELPEMAIL'; apply --append;"></div>
-</div>
+<table class="orderContentsTable">
+<tbody><tr>
+	<td valign="top" width="50%">
+	%COMPANY_LOGO%
+	</td>
 
-<h1>Order Number: %ORDERID%</h1>
-<div>Created: %ORDERDATE%</div>
-
-<table width="100%">
-<thead>
-<tr>
-	<td>Billing Address</td>
-	<td>Shipping Address</td>
+	<td style="text-align:right" valign="top" width="50%">
+	<h3>Invoice: %ORDERID%</h3>
+	<!-- output the order status, maps to the same status the order is within in order manager.  -->
+	<h4 data-tlc="bind $var '.%ORDER.flow.pool'; if (is $var --notblank;) {{format --prepend='Order Status: '; apply --append;}};"></h4>
+	<!-- output the payment method -->
+	<h4 data-tlc="bind $var '.%ORDER.order.mkt.amazon_orderid'; if (is $var --notblank;) {{set $mkt 'Amazon OrderID: ';}}; if(is $var --notblank;) {{apply --append;}};"></h4>
+	<div>%ORDERDATE%</div>
+	<!-- output the date the order was paid for -->
+	<div data-tlc="bind $var '.%ORDER.flow.paid_ts'; datetime --out='mdy'; if (is $var --notblank;) {{format --prepend='Paid on: '; apply --append;}};"></div>
+	</td>
 </tr>
-</thead>
-<tbody>
 <tr>
-	<td>%BILLADDR%</td>
-	<td>%SHIPADDR%</td>
-</tr>
-</tbody>
-</table>
 
-<p>
-<h2>Order Contents</h2>
-%ORDERITEMS%
-</p>
+	<td valign="top">
+	<h3>Bill To</h3>
+	%BILLADDR%
+	</td>
+
+	<td valign="top">
+	<h3>Destination</h3>
+	%SHIPADDR%
+	</td>
+
+</tr>
+<tr>
+	<td class="orderContentsProdlistContainer" colspan="2">
+	<br>
+	<h2>Order Contents</h2>
+	%ORDERITEMS%
+	</td>
+</tr>
+<tr>
+	<td colspan="2">
+<p>%ORDERNOTES%</p>
 
 <p>
 <h3>Shipping Method</h3>
@@ -962,6 +973,21 @@ foreach my $k (keys %BLAST::DEFAULTS::DEPRECATED) {
 <h3>Payment Instructions</h3>
 %PAYINSTRUCTIONS%
 </p>
+	
+	</td>
+</tr>
+<tr>
+	<td colspan="2">
+<h2>%COMPANY%</h2>
+<div>%MAILADDR%</div>
+<div>%DOMAIN%</div>
+<div>%PHONE%</div>
+<div>%HELPEMAIL%</div>
+	</td>
+</tr>
+</tbody></table>
+
+
 
 |,
 		},
