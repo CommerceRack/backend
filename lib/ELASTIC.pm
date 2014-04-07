@@ -65,12 +65,15 @@ sub add_products {
 
 	foreach my $P (@{$PRODUCTSAR}) {
 		next if (not defined $P);
+		print "P: ".$P->pid()."\n";
+		next if ($P->pid() ne 'OUTFIT');
 		my $ES_PAYLOADS = $P->elastic_index( $FIELDSREF, $IMAGE_FIELDSREF );
 
 		if (defined $bulk) {
 			## ES requires we specify a command ex: 'index'
 			my @ES_BULK_ACTIONS = ();
 			foreach my $payload (@{$ES_PAYLOADS}) {
+				print STDERR Dumper($payload);
 				# push @ES_BULK_ACTIONS, { 'index'=>$payload };
 				if (defined $payload->{'data'}) { warn "payload contains legacy ->data attribute\n"; }
 				$bulk->index($payload)
@@ -322,7 +325,10 @@ sub rebuild_product_index {
 	$SKU_PROPERTIES{'pid'} = { 'analyzer'=>'lcKeyword',   'buffer_size'=>20, 'type'=>'string', 'store'=>'no', 'include_in_all'=>1 };
 	$SKU_PROPERTIES{'sku'} = { 'analyzer'=>'lcKeyword',   'buffer_size'=>35, 'type'=>'string', 'store'=>'no', 'include_in_all'=>1 };
 	$SKU_PROPERTIES{'available'} = { 'type'=>'integer', 'include_in_all'=>0 };
-	# $SKU_PROPERTIES{'lowstock'} = { 'type'=>'boolean', 'include_in_all'=>0 };
+	$SKU_PROPERTIES{'lowstock'} = { 'type'=>'boolean', 'include_in_all'=>0 };
+#	$SKU_PROPERTIES{'INV'} => {
+#		
+#		};
 
 	my %PRODUCT_PROPERTIES = ();
 	$PRODUCT_PROPERTIES{'pid'} = { 'analyzer'=>'lcKeyword',   'buffer_size'=>20, 'type'=>'string', 'store'=>'no', 'include_in_all'=>1 };
@@ -335,6 +341,12 @@ sub rebuild_product_index {
 	$PRODUCT_PROPERTIES{'assembly_pids'} = { 'analyzer'=>'lcKeyword',  'type'=>'string', 'store'=>'no', 'include_in_all'=>0 };
 	$PRODUCT_PROPERTIES{'marketplaces'} = { 'analyzer'=>'lcKeyword',  'type'=>'string', 'store'=>'no', 'include_in_all'=>0 };
 	# $PRODUCT_PROPERTIES{'breadcrumbs'} = { 'analyzer'=>'lcKeyword',  'type'=>'string', 'store'=>'no', 'include_in_all'=>0 };
+
+#	my %INVSUMMARY_PROPERTIES = ();	
+#	$PRODUCT_PROPERTIES{'pid'} = { 'analyzer'=>'lcKeyword',   'buffer_size'=>20, 'type'=>'string', 'store'=>'no', 'include_in_all'=>1 };
+#	$PRODUCT_PROPERTIES{'sku'} = { 'analyzer'=>'lcKeyword',   'buffer_size'=>35, 'type'=>'string', 'store'=>'no', 'include_in_all'=>1 };
+#	$PRODUCT_PROPERTIES{'sku'} = { 'analyzer'=>'lcKeyword',   'buffer_size'=>35, 'type'=>'string', 'store'=>'no', 'include_in_all'=>1 };
+
 
 	my @INDEXABLE_FIELDS = ();
 
@@ -398,7 +410,9 @@ sub rebuild_product_index {
 			}
 
 		$PRODUCT_PROPERTIES{$fref->{'index'}} = \%F;
-		if ($fref->{'sku'}) {
+		if ($fref->{'index'} eq '') {
+			}
+		elsif ($fref->{'sku'}) {
 			$SKU_PROPERTIES{$fref->{'index'}} = \%F;
 			}
 
@@ -563,6 +577,10 @@ sub rebuild_product_index {
 				'_routing'=>{ 'required'=>'false', 'path'=>'pid' },
 				'properties'=>\%SKU_PROPERTIES,
 				},
+			#'invsummary'=>{
+			#	'_praent'=>{ 'type' => 'sku' },
+			#	'properties'=>\%INVSUMMARY_PROPERTIES,
+			#	}
 			#'navcat'=> {
 			#	# '_parent'=>{ 'type' => 'product' },
 			#	# '_routing'=>{ 'required'=>'false', 'path' => 'pid '},

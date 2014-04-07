@@ -8032,8 +8032,8 @@ sub adminProduct {
 
 		$R{'#v'} = $epnsref->{'#v'};
 		if ($epnsref->{'#v'} >= 201324) {	
-			require TEMPLATE::KISS;
-			my $elements = TEMPLATE::KISS::getFlexedit($USERNAME,$profile);
+			require TEMPLATE::KISSTLC;
+			my $elements = TEMPLATE::KISSTLC::getFlexedit($USERNAME,$profile);
 			$R{'@elements'} = $elements;
 			}
 		else {
@@ -10685,11 +10685,11 @@ sub adminEBAY {
 			elsif ($v->{'_cmd'} eq 'adminEBAYProfilePreview') {
 				## new style launch template
 				print STDERR "PROFILE: $PROFILE\n";
-				require TEMPLATE::KISS;
+				require TEMPLATE::KISSTLC;
 				my @MSGS = ();
 				my ($MSGS) = LISTING::MSGS->new($self->username());
-				my ($html) = TEMPLATE::KISS::render($self->username(),'EBAY',$PROFILE,'SKU'=>$P->pid(),'@MSGS'=>\@MSGS,'*PRODUCT'=>$P);
-				$R{'html'} = TEMPLATE::KISS::ebayify_html($html);
+				my ($html) = TEMPLATE::KISSTLC::render($self->username(),'EBAY',$PROFILE,'SKU'=>$P->pid(),'@MSGS'=>\@MSGS,'*PRODUCT'=>$P);
+				$R{'html'} = TEMPLATE::KISSTLC::ebayify_html($html);
 				$R{'@MSGS'} = [];
 				foreach my $msgline (@MSGS) {
 					my ($ref) = LISTING::MSGS::msg_to_disposition($msgline);
@@ -10784,14 +10784,14 @@ sub adminEBAY {
 							push @MSGS, "ERROR|+Could not copy legacy template: $ebaytemplate";
 							}
 						}
-					else {
-						require TEMPLATE::TOXML;
-						my ($PROJECT,$TEMPLATE) = TEMPLATE::TOXML::upgradeLegacy($USERNAME,$ebaytemplate);
-						my ($T) = TEMPLATE->new($USERNAME,'EBAY',$PROJECT,$TEMPLATE);
-						if (not $T->install($PROFILE,'base'=>$BASEURL)) {
-							push @MSGS, "ERROR|+Could not copy legacy template: $PROJECT:$TEMPLATE";
-							}
-						}
+					#else {
+					#	require TEMPLATE::TOXML;
+					#	my ($PROJECT,$TEMPLATE) = TEMPLATE::TOXML::upgradeLegacy($USERNAME,$ebaytemplate);
+					#	my ($T) = TEMPLATE->new($USERNAME,'EBAY',$PROJECT,$TEMPLATE);
+					#	if (not $T->install($PROFILE,'base'=>$BASEURL)) {
+					#		push @MSGS, "ERROR|+Could not copy legacy template: $PROJECT:$TEMPLATE";
+					#		}
+					#	}
 					$new{'#v'} = $self->apiversion();	
 					&EBAY2::PROFILE::store($USERNAME,$PRT,$PROFILE,\%new);
 					}

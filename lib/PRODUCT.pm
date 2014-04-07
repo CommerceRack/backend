@@ -63,11 +63,14 @@ sub str { return( (defined $_[0])?$_[0]:'' ); }
 ## the TO_JSON method is used by JSON::XS->new->utf8->allow_blessed(1)->convert_blessed(1)->encode($R);
 ##	(PAGE::JQUERY)
 ##
-#sub TO_JSON {
-#	my ($self) = @_;
-#
-#	return(\%j);
-#	}
+sub TO_JSON {
+	my ($self) = @_;
+
+	my %j = ();
+	
+
+	return(\%j);
+	}
 
 sub DESTROY {
 	## called before we free
@@ -188,9 +191,11 @@ sub elastic_index {
 	my %STORE_SKUS = ();
 	my $TODO = $self->list_skus(); # an array of [ [sku1,skuref1], [sku2,skuref2] ]
 	## step1: 
+	my ($INVSUMMARY) = INVENTORY2->new($self->username(),"*events")->summary( '@PIDS'=>[ $PID ]);
 	foreach my $workset (@{$TODO}) {
 		my ($sku,$dataref) = @{$workset};
-		$STORE_SKUS{$sku} = { 'pid'=>$PID, 'sku'=>$sku };
+		## 
+		$STORE_SKUS{$sku} = { 'pid'=>$PID, 'sku'=>$sku, 'INV'=>$INVSUMMARY->{$sku}, 'DATA'=>$dataref };
 		$workset->[2] = $STORE_SKUS{$sku};
 		}
 

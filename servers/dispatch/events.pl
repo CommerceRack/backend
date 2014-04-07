@@ -7,6 +7,7 @@ use strict;
 use Fcntl ':flock';
 use POSIX qw();
 use App::Daemon qw();
+use Elasticsearch::Bulk;
 
 # App::Daemon::daemonize();
 
@@ -1650,6 +1651,7 @@ sub e_TICKET {
 ##
 sub e_INV_OUTOFSTOCK {
 	my ($EVENT,$USERNAME,$PRT,$YREF,$LM,$redis,$CACHEREF) = @_;
+	&e_PRODUCT_UPDATE(@_);
 
 	## lets check stock right now
 	my $SKU = $YREF->{'PID'};
@@ -1744,12 +1746,34 @@ sub e_INV_OUTOFSTOCK {
 
 
 
+sub e_INV_PRODUCT_UPDATE {
+	my ($EVENT,$USERNAME,$PRT,$YREF,$LM,$redis,$CACHEREF) = @_;
+
+	my ($es) = &ZOOVY::getElasticSearch($USERNAME);
+	my ($bulk) = Elasticsearch::Bulk->new('es'=>$es,'index'=>lc("$USERNAME.public"));
+	if ($YREF->{'PID'}) {
+		my ($INVSUMMARY) = INVENTORY2->new($USERNAME,"*events")->summary( '@PIDS'=>[ $YREF->{'PID'} ]);
+		my @ES_PAYLOADS = ();
+		foreach my $SKU (sort keys %{$INVSUMMARY}) {
+			my %DOC = ();
+			push @ES_PAYLOADS, { 'id'=>$SKU, 'doc_as_upsert'=>1, doc=>{ 'INV'=>$INVSUMMARY->{$SKU} } };
+			}	
+		foreach my $PAYLOAD (@ES_PAYLOADS) {
+			$bulk->update($PAYLOAD);
+			}
+		$bulk->flush();
+		}
+	
+
+	}
+
 #
 ## THIS EVENT FIRES WHEN A PRODUCT COMES BACK INTO STOCK.
 ##
 sub e_INV_GOTINSTOCK {
 	my ($EVENT,$USERNAME,$PRT,$YREF,$LM,$redis,$CACHEREF) = @_;
-	
+	&e_PRODUCT_UPDATE(@_);
+
 	## make sure we are focused on a product, not a STID.
 
 	# print Dumper($YREF);
@@ -1783,23 +1807,10 @@ sub e_INV_GOTINSTOCK {
 	#if ($prodref->{'ebay:ts'}>0) {
 	#	## when an item which has options comes back into stock, we need to fire off an update listing.
 	#	}
+
+	
 	
 	my ($gcref) = &ZWEBSITE::fetch_globalref($USERNAME);
-	# if (not defined $gcref->{'inv_notify'}) { $gcref->{'inv_notify'} = 0; }
-	## inventory is back in stock
-	#mysql> desc NAVCAT_MEMORY;
-	#+-------------+------------------+------+-----+---------+----------------+
-	#| Field			 | Type						 | Null | Key | Default | Extra					|
-	#+-------------+------------------+------+-----+---------+----------------+
-	#| ID					| int(10) unsigned | NO	 | PRI | NULL		| auto_increment |
-	#| USERNAME		| varchar(20)			| YES	|		 | NULL		|								|
-	#| MID				 | int(10) unsigned | YES	|		 | 0			 |								|
-	#| CREATED_GMT | int(10) unsigned | NO	 |		 | 0			 |								|
-	#| PID				 | varchar(20)			| NO	 | MUL | NULL		|								|
-	#| SAFENAME		| varchar(128)		 | NO	 |		 | NULL		|								|
-	#+-------------+------------------+------+-----+---------+----------------+
-	#6 rows in set (0.00 sec)		
-
 	my ($udbh) = &DBINFO::db_user_connect($USERNAME);
 	my @PRTS = ();
 	my $pstmt = "select PRT from NAVCAT_MEMORY where MID=$MID /* $USERNAME */ and PID=".$udbh->quote($PID)." group by PRT";
@@ -1847,16 +1858,13 @@ sub e_INV_GOTINSTOCK {
 			$udbh->do($pstmt);
 			}
 
-		#if ($gcref->{'inv_notify'} & 2) { 
-			&ZOOVY::add_notify($USERNAME,"INV.NAVCAT.SHOW",
-				'PRT'=>$PRT,'SAFE'=>join("\n",@PATHS), 'PID'=>$PID,
-				'link'=>"product://$PID",
-				'title'=>"$PID added to category prt#$PRT",
-				'detail'=>$detail,
-				);
-			&notify($USERNAME,$PID,"$PID back on website prt#$PRT",$detail);
-		#	}
-
+		&ZOOVY::add_notify($USERNAME,"INV.NAVCAT.SHOW",
+			'PRT'=>$PRT,'SAFE'=>join("\n",@PATHS), 'PID'=>$PID,
+			'link'=>"product://$PID",
+			'title'=>"$PID added to category prt#$PRT",
+			'detail'=>$detail,
+			);
+		&notify($USERNAME,$PID,"$PID back on website prt#$PRT",$detail);
 		}
 	 
 	## notify products 
@@ -1879,15 +1887,11 @@ sub e_INV_GOTINSTOCK {
 			my ($C) = CUSTOMER->new($USERNAME,CID=>$CID,INIT=>0xFF);
 			
 			## pinstock
-			#require SITE;
-			#my ($SITE) = SITE->new($USERNAME,NS=>$PROFILE,PRT=>$C->prt());
-			#require SITE::EMAILS;
-			#my ($se) = SITE::EMAILS->new($USERNAME,'*SITE'=>$SITE);
-			#$se->send($varsref->{'msgid'},CUSTOMER=>$C,PRODUCT=>$varsref->{'pid'},TO=>$varsref->{'email'},VARS=>$varsref);
-			#$se = undef;
 			my ($BLAST) = BLAST->new($USERNAME,$C->prt());
 			my ($rcpt) = $BLAST->recipient('CUSTOMER',$C);
+			if ($varsref->{'msgid'} eq 'PINSTOCK') { $varsref->{'msgid'} = 'PRODUCT.INSTOCK'; }	## legacy
 			my ($msg) = $BLAST->msg($varsref->{'msgid'},{'%VARS'=>$varsref});
+			
 			$BLAST->send($rcpt,$msg);
 			}
 		## END ADDNOTIFY
@@ -1912,7 +1916,8 @@ sub e_INV_GOTINSTOCK {
 ##
 sub e_INV_CHANGED {
 	my ($EVENT,$USERNAME,$PRT,$YREF,$LM,$redis,$CACHEREF) = @_;
-	
+
+	&e_PRODUCT_UPDATE(@_);
 	## make sure we are focused on a product, not a STID.
 
 	my ($MID) = &ZOOVY::resolve_mid($USERNAME);

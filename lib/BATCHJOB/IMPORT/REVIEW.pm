@@ -5,7 +5,6 @@ use Data::Dumper;
 use YAML::Syck;
 use lib "/backend/lib";
 require DBINFO;
-require LISTING::EVENT;
 
 
 ##

@@ -917,13 +917,13 @@ sub event_handler {
 		elsif ($ebnsref->{'#v'} >= 201324) {
 			## new style launch template
 			print STDERR "PROFILE: $PROFILE\n";
-			require TEMPLATE::KISS;
-			($html) = TEMPLATE::KISS::render($le->username(),'EBAY',$PROFILE,'SKU'=>$le->sku(),'@MSGS'=>$MSGS,'*PRODUCT'=>$P);
+			require TEMPLATE::KISSTLC;
+			($html) = TEMPLATE::KISSTLC::render($le->username(),'EBAY',$PROFILE,'SKU'=>$le->sku(),'@MSGS'=>$MSGS,'*PRODUCT'=>$P);
 
 			#$html =~ s/\<([\/]?[Mm][Ee][Tt][Aa].*?)\>/<!-- $1 -->/gs;	## ebay doesn't allow metas
 			#$html =~ s/\<([\/]?[Bb][Aa][Ss][Ee].*?)\>/<!-- $1 -->/gs;	## ebay doesn't allow base urls
 
-			$html = TEMPLATE::KISS::ebayify_html($html);
+			$html = TEMPLATE::KISSTLC::ebayify_html($html);
 			$html .= sprintf(qq~<!-- USERNAME:%s | PRODUCT:%s | EBAY_PROFILE:%s | DATE:%s | LISTING-EVENT:%d -->~,
 				$le->username(),$le->sku(),$PROFILE,&ZTOOLKIT::pretty_date(time(),1),$le->id(),
 				);

@@ -6,7 +6,6 @@ use YAML::Syck;
 use lib "/backend/lib";
 require DBINFO;
 require PRODUCT;
-require LISTING::EVENT;
 
 
 ##
@@ -43,7 +42,7 @@ sub parse {
 				$cols{'QTY'} = $line->[$pos];
 				}
 			elsif ($destfield eq 'TARGET') {
-				$cols{'TARGET'} = LISTING::EVENT::normalize_target($line->[$pos]);
+				$cols{'TARGET'} = $line->[$pos];
 				}
 			elsif (($destfield eq 'TARGET_LISTINGID') || ($destfield eq 'LISTINGID') || ($destfield eq 'LISTING_ID') || ($destfield eq 'EBAY_ID')) {
 				$cols{'TARGET_LISTINGID'} = int($line->[$pos]);

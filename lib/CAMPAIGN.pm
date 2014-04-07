@@ -16,7 +16,7 @@ use strict;
 
 use MIME::Entity;
 use Net::AWS::SES;
-require TEMPLATE::KISS;
+require TEMPLATE::KISSTLC;
 
 
 
@@ -429,8 +429,8 @@ sub __send__ {
 #		## 3. log that it was sent.
 #		my ($html) = '';
 #		if ($LM->can_proceed()) {
-#			require TEMPLATE::KISS;
-#			($html) = TEMPLATE::KISS::render($self->username(),'CPG',$self->campaignid(),'KEY'=>$KEY,'CID'=>$CID,'*CUSTOMER'=>$C,'PRT'=>$self->prt(),'@MSGS'=>\@MSGS);
+#			require TEMPLATE::KISSTLC;
+#			($html) = TEMPLATE::KISSTLC::render($self->username(),'CPG',$self->campaignid(),'KEY'=>$KEY,'CID'=>$CID,'*CUSTOMER'=>$C,'PRT'=>$self->prt(),'@MSGS'=>\@MSGS);
 #			}
 #	
 #		if ($LM->can_proceed()) {
@@ -734,8 +734,8 @@ sub html {
 	## my $file = sprintf("%s/index.html",$self->campaigndir());
 	## my $html = File::Slurp::read_file($file);
 
-	use TEMPLATE::KISS;
-	my ($html) = TEMPLATE::KISS::render($self->username(),'CPG',$self->campaignid(),%params);
+	use TEMPLATE::KISSTLC;
+	my ($html) = TEMPLATE::KISSTLC::render($self->username(),'CPG',$self->campaignid(),%params);
 
 	return($html);
 	}

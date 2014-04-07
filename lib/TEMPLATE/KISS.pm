@@ -1,4 +1,4 @@
-package TEMPLATE::KISS;
+package TEMPLATE::KISSTLC;
 
 use URI::URL;
 use Data::Dumper;
@@ -286,8 +286,8 @@ sub render_kiss1 {
 ##
 ##
 ##
-## perl -e 'use Data::Dumper; use lib "/backend/lib"; use TEMPLATE::KISS; $USERNAME=""; $PID=""; $PROFILE="";
-## print Dumper(TEMPLATE::KISS::render($USERNAME,"EBAY","$PROFILE","*PRODUCT"=>PRODUCT->new($USERNAME,"$PID")));'
+## perl -e 'use Data::Dumper; use lib "/backend/lib"; use TEMPLATE::KISSTLC; $USERNAME=""; $PID=""; $PROFILE="";
+## print Dumper(TEMPLATE::KISSTLC::render($USERNAME,"EBAY","$PROFILE","*PRODUCT"=>PRODUCT->new($USERNAME,"$PID")));'
 ##
 
 sub render {
@@ -479,6 +479,6 @@ sub ebay_parseElement {
 __DATA__
 
 perl -e 'use lib "/backend/lib"; 
-	use TEMPLATE::KISS;  
-	use Data::Dumper; print Dumper(TEMPLATE::KISS::render("brian","ASDF","TEST"));
+	use TEMPLATE::KISSTLC;  
+	use Data::Dumper; print Dumper(TEMPLATE::KISSTLC::render("brian","ASDF","TEST"));
 	';

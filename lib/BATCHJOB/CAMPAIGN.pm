@@ -7,7 +7,7 @@ use ZTOOLKIT;
 use Data::Dumper;
 require CAMPAIGN;
 require CUSTOMER;
-require TEMPLATE::KISS;
+require TEMPLATE::KISSTLC;
 use Net::AWS::SES;
 
 ##
