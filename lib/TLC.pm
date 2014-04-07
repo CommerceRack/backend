@@ -679,6 +679,12 @@ sub core_is {
 			$result = ($val < $val2);
 			if ($arg->{'key'} eq 'gt') { $result = (! $result); }
 			}
+		elsif (($arg->{'key'} eq 'gte') || ($arg->{'key'} eq 'lte')) {
+			if (defined $arg->{'value'}) { $val2 = $self->lookup_value($arg->{'value'}); }
+			## print STDERR "BAD_MATH: /$arg->{'key'}/ $val < $val2\n";
+			$result = ($val <= $val2);
+			if ($arg->{'key'} eq 'gte') { $result = (! $result); }
+			}
 		elsif (($arg->{'key'} eq 'eq') || ($arg->{'key'} eq 'ne')) {
 			if (defined $arg->{'value'}) { $val2 = $self->lookup_value($arg->{'value'}); }
 			## print STDERR "BAD_MATH: /$arg->{'key'}/ $val < $val2\n";
@@ -813,6 +819,9 @@ sub core_render {
 			#	if (not defined $result) { $result = ''; }
 			#	$result = &ZTOOLKIT::decode(sprintf("%s",$self->lookup_value($arg->{value})));
 			#	}
+			elsif ($arg->{'key'} eq 'crbr') {
+				$result =~ s/\n/<br>\n/gs;
+				}
 			elsif ($arg->{'key'} eq 'wiki') {
 				if (not defined $result) { $result = ''; }
 				$result = &Text::WikiCreole::creole_parse(sprintf("%s",$self->lookup_value($arg->{value})));
