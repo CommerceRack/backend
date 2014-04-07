@@ -32,7 +32,7 @@ package BLAST::DEFAULTS;
 	'%COMPANY%'=>q|<span data-tlc="bind $var '.%PRT.COMPANY'; apply --append;"></span>|,
 	'%PHONE%'=> q|<span data-tlc="bind $var '.%PRT.PHONE'; apply --append;"></span>|,
 	'%DOMAIN%'=> q|<span data-tlc="bind $var '.%PRT.DOMAIN'; apply --append;"></span>|,
-	'%MAILADDR%'=> q|<span data-tlc="bind $var '.%PRT.MAILADDR'; apply --append;"></span>|,
+	'%MAILADDR%'=> q|<span data-tlc="bind $var '.%PRT.MAILADDR'; render --wiki; apply --append;"></span>|,
 	'%HELPEMAIL%'=> q|<span data-tlc="bind $var '.%PRT.HELPEMAIL'; apply --append;"></span>|,
 	## should be NONE, APP, VSTORE
 
@@ -63,16 +63,68 @@ if (is $var --notblank) {{
 	}};
 "></span>|,
 
-	'%HEADER%'=>q|
+	'%HEADER%'=>q|<head>
+<!-- 
+// DEFAULT HEADER - customize me!
+// Tips:
+// * avoid referencing external files unless they are secure
+// * header must contain html 'body' tag and footer must have '/body'
+// ** in preview modes body tags will be automatically opened/closed when appropriate **
+// * always include both non-css (font, table) and css formatting for maximum email compatibility
+// * header stylesheets with css classes are allowed/encouraged and are transformed to inline styles for email compatibility.
+// * %macros% and javascript commands are NOT allowed/supported, only data-tlc commands.
+-->
+<html>
 <head>
-<style>
-<!-- a good guide on css/styles can be found at http://www.campaignmonitor.com/css/ -->
-<!-- note: gmail will be modified to use embedded styles for max compat. -->
-body { font-family: helvetica; }
+<style type="text/css">
+body { font-size: 8pt; font-family: helvetica, arial; }
+.header { font-size: 10pt; color: #FFFFFF; font-weight: bold; } 
+.light { background-color: #EFEFEF; }
+.dark { background-color: #666666; }
+
+.cats {text-decoration:none;}
 </style>
 </head>
-<body>|,
+<body alink="#0066FF" vlink="#0066FF" link="#0066FF" style="margin:4px; font-family:Arial, Helvetica, sans-serif; font-size:9pt; color:#000000;">
+<table cellspacing="0" cellpadding="0" border="0" width="100%" style="border-bottom:1px solid #cccccc; margin-bottom:5px;">
+<tr>
+   <td align="left" rowspan="2" style="height:62px;" valign="top">
+	<span style="font-size:9pt;" data-tlc="bind $var '.%PRT.DOMAIN'; if (is $var --notblank) {{format --prepend='http://'; apply --attrib='href'; apply --append; }};"></span>
+	</td>
+	<td align="right" valign="top">
+	<span style="font-size:9pt;" data-tlc="bind $var '.%PRT.PHONE'; if (is $var --notblank) {{ format --prepend='Questions? Call us at:'; apply --append; }};"></span>
+	</td>
+</tr>
+<tr>
+   <td width="85%" valign="bottom" align="right"><a href="%HOME_URL%" style="border:1px solid #CCCCCC; border-bottom:0px; margin-right:3px; padding:2px; font-size:9pt; text-dec
+</tr>
+</table>
+
+|,
 	'%FOOTER%'=>q|
+<!-- 
+// DEFAULT FOOTER - customize me!
+// * the "body" tag will be removed 
+-->
+<body>
+<div style="text-align:left; line-height:120%;">
+<table cellspacing="0" cellpadding="0" border="0" width="100%" style="border-top:1px solid #CCCCCC; margin-bottom:10px;">
+<tr>
+	<td valign="top" style="padding:2px;">
+	<span data-tlc="bind $var '.%PRT.MAILADDR'; render --wiki; format apply --append;">	
+	</td>
+	<td valign="top" style="padding:2px;" align="right">
+	<span data-tlc="bind $phone '.%PRT.PHONE'; if (is $phone --notblank) {{ format --append='<br>'; apply --append; }};"></span>
+	<span data-tlc="bind $phone '.%PRT.HELPEMAIL'; if (is $phone --notblank) {{ format --append='<br>'; apply --append; }};"></span>
+   </td>
+</tr>
+</table>
+</body>
+</html>
+
+
+
+
 <hr>
 <!-- DOMAIN LINK -->
 <span data-tlc="bind $var '.%PRT.DOMAIN'; if (is $var --notblank) {{	format --prepend='http://'; 	apply --attrib='href'; 	apply --append;	}};"></span>
@@ -105,6 +157,10 @@ if (is $domain --notblank) {{
 |,
 
 	'%ORDERITEMS%'=> q|
+<!-- 
+	some considerations: this uses tables and html4 for max compatibility in email messages 
+	classes used here are purely for simplicity, and documentation.
+-->
 <table id="contents">
 <thead>
 <tr>
@@ -120,20 +176,70 @@ if (is $domain --notblank) {{
 <tr>
 	<td>
 	 <img data-tlc="
-bind $var '.%attribs.zoovy:prod_image1'; 
+bind $var '.%attribs.zoovy:prod_image0'; 
 if (is $var --blank) {{ bind $var '.%attribs.zoovy:prod_image1'; }};
 apply --img --media=$var --width=75 --height=75 --bgcolor='#ffffff' --replace;" src="blank.gif" class="prodThumb" alt="" height="55" width="55">
 	</td>
 	<td>
-	<b data-tlc="bind $var '.prod_name'; if (is $var --notblank) {{apply --append;}};"></b>
 	<div data-tlc="bind $var '.sku'; format --prepend='Sku: '; if (is $var --notblank) {{apply --append;}};"></div>
+	<b data-tlc="bind $var '.prod_name'; if (is $var --notblank) {{apply --append;}};"></b>
+	<div data-tlc="bind $var '.mktid'; if (is $var --blank) {{ apply --remove;}};">
+		<!-- ** note: this will be removed when .mktid is blank -->
+		<div data-tlc="bind $mkt '.mkt'; if (is $mkt --eq="EBAY") {{ bind $var '.mktid'; format --prepend='eBay: '; }} else {{ apply --remove; }}"></div>
+		<div data-tlc="bind $mkt '.mkt'; if (is $mkt --eq="EBF") {{ bind $var '.mktid'; format --prepend='eBay: '; }} else {{ apply --remove; }}"></div>
+		<div data-tlc="bind $mkt '.mkt'; if (is $mkt --eq="EBY") {{ bind $var '.mktid'; format --prepend='eBay: '; }} else {{ apply --remove; }}"></div>
+	</div>
+	<div data-tlc="bind $var '.%attribs.zoovy:prod_mfgid; if (is $var --blank) {{ apply --remove; }} else {{ format --prepend='MfgId: '; apply --append; }}; "></div>
 	</td>
 	<td data-tlc="bind $var '.price'; if (is $var --notblank) {{ format --currency='USD'; format --prepend='x '; apply --append;}};"></td>
  	<td data-tlc="bind $var '.qty'; if (is $var --notblank) {{ apply --append;}};"></td>
 	<td data-tlc="bind $var '.extended'; if (is $var --notblank) {{ format --currency='USD'; format --prepend='= ';apply --append;}};"></td>
 </tr>
-
 </template>
+
+<!-- subtotal, tax, shipping, order total, special payments (giftcard, reward, returns), balance due -->
+
+<tr class="orderSubtotal">
+	<!-- note: subtotal will always appear -->
+	<td align="right" colspan="4" style="text-align: right">Subtotal:</td>
+	<td data-tlc="bind $var '.sum.items_total'; format --currency='USD'; apply --append;"></td>
+</tr>
+<tr class="orderTax">
+	<!-- note: tax will always appear -->
+	<td align="right" colspan="4" style="text-align: right">Sales Tax:</td>
+ 	<td data-tlc="bind $var '.sum.tax_total'; format --currency='USD'; apply --append;"></td>
+</tr>
+
+<tr class="orderShipping" data-tlc="bind $var '.sum.shp_total'; if (is $var --eq=0) {{ bind $var '.sum.shp_method'; if (is $var --blank) {{ apply --remove; }}; }}; ">
+	<!-- ** in point of sale, we don't have shipping, so shp_method is set to blank, and total is zero - then tlc will remove this -->
+	<td align="right" colspan="4" style="text-align: right" data-tlc="bind $var '.sum.shp_method'; apply --append;"></td>
+ 	<td data-tlc="bind $var '.sum.shp_total'; if (is $var --notblank) {{format --currency='USD'; apply --append;}};"></td>
+</tr>
+<tr class="orderTotal" data-tlc="bind $var '.sum.order_total'; if (is $var --eq=0) {{ apply --remove; }};" >
+	<td align="right" colspan="4" style="text-align: right">Order Totals:</td>
+	<td data-tlc="bind $var '.sum.order_total'; format --currency='USD'; apply --append;"></td>
+</tr>
+<tr class="giftcardTotal" data-tlc="bind $var '.sum.gfc_total'; if (is $var --eq=0) {{ apply --remove; }};" >
+	<!-- ** this comment (and td's below) will be removed unless .gfc_total is > 0 -->
+	<td align="right" colspan="4" style="text-align: right">Giftcard(s):</td>
+	<td data-tlc="bind $var '.sum.gfc_total'; format --currency='USD'; apply --append;"></td>
+</tr>
+<tr class="rewardPointsTotal" data-tlc="bind $var '.sum.pnt_total'; if (is $var --eq=0) {{ apply --remove; }};" >
+	<!-- ** this comment (and td's below) will be removed unless .rewardsPointsTotal is > 0 -->
+	<td align="right" colspan="4" style="text-align: right">Reward Points:</td>
+	<td data-tlc="bind $var '.sum.pnt_total'; format --currency='USD'; apply --append; "></td>
+</tr>
+<tr class="returnsCreditTotal" data-tlc="bind $var '.sum.rmc_total'; if (is $var --eq=0) {{ apply --remove; }};"  >
+	<!-- ** this comment (and td's below) will be removed unless .sum.rmc_total is > 0 -->
+	<td align="right" colspan="4" style="text-align: right">Returns Credit:</td>
+	<td data-tlc="bind $var '.sum.rmc_total'; format --currency='USD'; apply --append;"></div>
+</tr>
+<tr class="balancedueTotal" data-tlc="bind $var '.sum.balance_due_total'; if (is $var --eq=0) {{ apply --remove; }};" >
+	<!-- ** this comment (and td's below) will be removed unless .sum.balance_due_total is > 0 ** -->
+	<td align="right" colspan="4" style="text-align: right">Balance Due:</td>
+ 	<td data-tlc="bind $var '.sum.balance_due_total'; format --currency='USD'; apply --append;"></b></div>
+</tr>
+
 </tbody>
 </table>
 |,

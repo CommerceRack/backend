@@ -88,6 +88,7 @@ use Text::CSV_XS;
 use URI::Escape qw();
 use URI::Escape::XS;
 use MIME::Base64 qw();
+use Image::Magick qw();
 use Data::Dumper qw(Dumper);
 use Digest::SHA1 qw();
 use strict;
@@ -344,7 +345,8 @@ use strict;
 	'adminImageFolderList'=>[ \&JSONAPI::adminImageFolderList,  { 'admin'=>1, }, 'admin', { 'IMAGE'=>'L'} ],
 	'adminImageFolderCreate'=>[ \&JSONAPI::adminImageFolderCreate,  { 'admin'=>1, }, 'admin', { 'IMAGE'=>'C' } ],
 	'adminImageFolderDelete'=>[ \&JSONAPI::adminImageFolderDelete,  { 'admin'=>1, }, 'admin', { 'IMAGE'=>'D' } ],
-	'adminImageUpload'=>[ \&JSONAPI::adminImageUpload,  { 'admin'=>1, }, 'admin', { 'IMAGE'=>'U' } ],
+	'adminImageUpload'=>[ \&JSONAPI::adminImageUploadMagick,  { 'admin'=>1, }, 'admin', { 'IMAGE'=>'U' } ],
+	'adminImageMagick'=>[ \&JSONAPI::adminImageUploadMagick,  { 'admin'=>1, }, 'admin', { 'IMAGE'=>'U' } ],
 	'adminImageDelete'=>[ \&JSONAPI::adminImageDelete,  { 'admin'=>1, }, 'admin', { 'IMAGE'=>'D' } ],
 
 	'adminNavTreeList'=>[ \&JSONAPI::adminNavTree,  { 'admin'=>0,, 'navcat'=>1, }, 'admin', ], 
@@ -5278,20 +5280,81 @@ sub adminImageFolderDelete {
 <input optional="1" id="fileguid">fileguid (from file upload)</input>
 </API>
 
+<API id="adminImageMagick">
+<purpose>accepts an image, and performs Image::Magick functions on it.</purpose>
+<input optional="1" id="base64">base64 encoded image data</input>
+<input optional="1" id="fileguid">fileguid (from file upload)</input>
+<input optional="1" id="@updates"><![CDATA[
+a list of macros which will convert/mogrify the image
+see: http://www.imagemagick.org/script/perl-magick.php#manipulate
+@updates:[
+	'Resize?width=100&height=100,blur=1'
+	]
+]]>
+<output id="mime">image/png|image/gif|image/jpg</output>
+<output id="base64">base64 encoded copy of the result file</output>
+<output id="%properties.area">integer - 	current area resource consumed</output>
+<output id="%properties.base-columns">integer - base image width (before transformations)</output>
+<output id="%properties.base-filename">string - base image filename (before transformations)</output>
+<output id="%properties.base-rows">integer - base image height (before transformations)</output>
+<output id="%properties.class">{Direct - Pseudo} 	image class</output>
+<output id="%properties.colors">integer - number of unique colors in the image</output>
+<output id="%properties.columns">integer - image width</output>
+<output id="%properties.copyright">string - get PerlMagick's copyright</output>
+<output id="%properties.directory">string - tile names from within an image montage</output>
+<output id="%properties.elapsed-time">double - elapsed time in seconds since the image was created</output>
+<output id="%properties.error">double - the mean error per pixel computed with methods Compare() or Quantize()</output>
+<output id="%properties.bounding-box">string - image bounding box</output>
+<output id="%properties.disk">integer - current disk resource consumed</output>
+<output id="%properties.filesize">integer - number of bytes of the image on disk</output>
+<output id="%properties.format">string - get the descriptive image format</output>
+<output id="%properties.geometry">string - image geometry</output>
+<output id="%properties.height">integer - the number of rows or height of an image</output>
+<output id="%properties.id">integer - ImageMagick registry id</output>
+<output id="%properties.mean-error">double - the normalized mean error per pixel computed with methods Compare() or Quantize()</output>
+<output id="%properties.map">integer - current memory-mapped resource consumed</output>
+<output id="%properties.matte">{True - False} 	whether or not the image has a matte channel</output>
+<output id="%properties.maximum-error">double - the normalized max error per pixel computed with methods Compare() or Quantize()</output>
+<output id="%properties.memory">integer - current memory resource consumed</output>
+<output id="%properties.mime">string - MIME of the image format</output>
+<output id="%properties.montage">geometry - tile size and offset within an image montage</output>
+<output id="%properties.page.x">integer - x offset of image virtual canvas</output>
+<output id="%properties.page.y">integer - y offset of image virtual canvas</output>
+<output id="%properties.rows">integer - the number of rows or height of an image</output>
+<output id="%properties.signature">string - SHA-256 message digest associated with the image pixel stream</output>
+<output id="%properties.taint">{True - False} 	True if the image has been modified</output>
+<output id="%properties.total-ink-density">double - returns the total ink density for a CMYK image</output>
+<output id="%properties.transparent-color">color - ame 	set the image transparent color</output>
+<output id="%properties.user-time">double - user time in seconds since the image was created</output>
+<output id="%properties.version">string - get PerlMagick's version</output>
+<output id="%properties.width">integer - the number of columns or width of an image</output>
+<output id="%properties.x-resolution">integer - x resolution of the image</output>
+<output id="%properties.y-resolution">integer - y resolution of the image</output>
+
+</API>
+
 =cut
 
  
-sub adminImageUpload {
+sub adminImageUploadMagick {
 	my ($self,$v) = @_;
 
 	my %R = ();	
 
 	require MEDIA;
-	my $PWD = &MEDIA::from_webapi($v->{'folder'});
-	if (not &JSONAPI::validate_required_parameter(\%R,$v,'folder')) {
+	require ImageMagick;
+
+	my $PWD = undef;
+	if ($v->{'_cmd'} eq 'adminImageMagick') {
+		}
+	elsif (not &JSONAPI::validate_required_parameter(\%R,$v,'folder')) {
 		}
 	elsif (not &JSONAPI::validate_required_parameter(\%R,$v,'filename')) {
 		}
+	else {
+		$PWD = &MEDIA::from_webapi($v->{'folder'});
+		}
+
 
 	my $filename = $v->{'filename'};
 	# print STDERR "PWD:$PWD\n";
@@ -5331,16 +5394,104 @@ sub adminImageUpload {
 		}
 
 	
-	if (not &JSONAPI::hadError(\%R)) {
+	if (&JSONAPI::hadError(\%R)) {
+		}
+	elsif ($v->{'_cmd'} eq 'adminImageMagick') {
+		## 
+		my $p = Image::Magick->new();
+		$p->BlobToImage($DATA);
+
+		## validation phase
+		my @CMDS = ();
+		if (&JSONAPI::hadError(\%R)) {
+			## shit happened!
+			}
+		elsif (not defined $v->{'@updates'}) {
+			&JSONAPI::append_msg_to_response(\%R,'apperr',9002,'Could not find any @updates');
+			}
+		elsif (ref($v->{'@updates'}) eq 'ARRAY') {
+			my $count = 0;
+			foreach my $line (@{$v->{'@updates'}}) {
+				my $CMDSETS = &CART2::parse_macro_script($line);
+				foreach my $cmdset (@{$CMDSETS}) {
+					## don't add luser
+					$cmdset->[2] = $line;
+					$cmdset->[3] = $count++;
+					push @CMDS, $cmdset;
+					}
+				}
+			}
+
+		my @MSGS = ();
+		foreach my $CMDSET (@CMDS) {
+			my ($VERB, $pref) = @{$CMDSET};
+			my $result = sprintf('invalid command: %s',$VERB);
+			if ($VERB eq 'MinimalResize') {
+				## MinimalResize?width=100&height=100&pixel=1|0
+				## finds the best way to fit an image (maintaining it's aspect ratio) into a give width/height
+				## uses pixel (for logo) or standard sampling to scale
+				my $source_width = $p->get('width');
+				my $source_height = $p->get('height');
+				my ($scale_width,$scale_height) = &MEDIA::minsize($source_width,$source_height,$pref->{'width'},$pref->{'height'});
+				if (($source_width == $scale_width) && ($source_height == $scale_height)) {
+					## nothing to do here.
+					}
+				elsif ($pref->{'pixel'}) {
+					## use pixel simple scaling (better for logos)
+					$result = $p->Sample('width' => $scale_width,'height' => $scale_height);
+					}
+				else {
+					$result = $p->Scale('width' => $scale_width,'height' => $scale_height);
+					}
+				}
+			elsif ($p->can($VERB)) {
+				$result = $p->$VERB(%{$pref});
+				}
+
+			if ($result eq '') { 
+				push @MSGS, sprintf("SUCCESS|+[#%d] %s",$CMDSET->[3],$CMDSET->[2]);
+				}
+			else {
+				my ($errnum) = ($result =~ m/(\d+)/);
+				if ($errnum >= 400) {
+					push @MSGS, sprintf("ERROR|+[#%d] %s = %s",$CMDSET->[3],$CMDSET->[2],$result);
+					}
+				elsif (($errnum == 325) && ($result =~ m/extraneous bytes before marker/)) {
+					## Happens for a lot of images and appears to be completely non-critical
+					push @MSGS, sprintf("INFO|+[#%d] %s = %s",$CMDSET->[3],$CMDSET->[2],$result);
+					}
+				else {
+					push @MSGS, sprintf("ERROR|+[#%d] %s = %s",$CMDSET->[3],$CMDSET->[2],$result);
+					}
+				}
+			}
+		
+		my %properties = ();
+		foreach my $key ('area','base-columns','base-filename','base-rows','class','colors','columns','copyright','directory','elapsed-time','error','bounding-box','disk','filesize','format','geometry','height','id','mean-error','map','matte','maximum-error','memory','mime','montage','page.x','page.y','rows','signature','taint','total-ink-density','transparent-color','user-time','version','width','x-resolution','y-resolution') {
+			$properties{$key} = $p->get($key);
+			}
+
+
+		$R{'%properties'} = \%properties;
+		$R{'mime'} = $p->get('mime');
+		$R{'base64'} = MIME::Base64::encode_base64($p->BlobToImage());
+
+		$R{'@MSGS'} = [];
+		foreach my $msg (@MSGS) {
+			my ($msgref,$status) = LISTING::MSGS::msg_to_disposition($msg);
+			if (substr($msgref->{'+'},0,1) eq '+') { $msgref->{'+'} = substr($msgref->{'+'},1); }
+			push @{$R{'@MSGS'}}, $msgref;
+			}
+		}
+	else {
+		## default upload
 		my $ext = 'xyz'; ## default
 
 		# see if we can get an extension from filename, otherwise assume it's a XXX (unknown)
 		if (index($filename,'.')>=0) { $ext = substr($filename,rindex($filename,'.')+1); } else { $ext = 'xyz'; }
 
 		## if we still have xyz here, we should probably use image blob detection
-		if ($ext eq 'xyz') {
-			
-			}
+		if ($ext eq 'xyz') {	}
 
 		print STDERR "Assuming Filename is [$filename]\n";
 		if (index($filename,'.')>=0) {
@@ -5361,9 +5512,10 @@ sub adminImageUpload {
 				&JSONAPI::set_error(\%R,'iseerr',(23000+$iref->{'err'}),sprintf("MEDIA ERROR %s",$iref->{'errmsg'}));
 				}
 			}
-		} else {
+		else {
 			# print STDERR "No data\n";
 			&JSONAPI::set_error(\%R,'apperr',23420,"adminImageUpload did not receive a usable filename");
+			}
 		}
 
 	if (&JSONAPI::hadError(\%R)) {
