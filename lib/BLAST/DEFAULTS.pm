@@ -33,7 +33,7 @@ package BLAST::DEFAULTS;
 	'%COMPANY%'=>q|<span data-tlc="bind $var '.%PRT.COMPANY'; apply --append;"></span>|,
 	'%PHONE%'=> q|<span data-tlc="bind $var '.%PRT.PHONE'; apply --append;"></span>|,
 	'%DOMAIN%'=> q|<span data-tlc="bind $var '.%PRT.DOMAIN'; apply --append;"></span>|,
-	'%MAILADDR%'=> q|<span data-tlc="bind $var '.%PRT.MAILADDR'; render --wiki; apply --append;"></span>|,
+	'%MAILADDR%'=> q|<span data-tlc="bind $var '.%PRT.MAILADDR'; render --cr2br; apply --append;"></span>|,
 	'%HELPEMAIL%'=> q|<span data-tlc="bind $var '.%PRT.HELPEMAIL'; apply --append;"></span>|,
 	## should be NONE, APP, VSTORE
 
@@ -106,7 +106,10 @@ body { font-size: 8pt; font-family: helvetica, arial; }
 	</td>
 </tr>
 <tr>
-   <td width="85%" valign="bottom" align="right"><a href="%HOME_URL%" style="border:1px solid #CCCCCC; border-bottom:0px; margin-right:3px; padding:2px; font-size:9pt; text-dec
+   <td width="85%" valign="bottom" align="right">
+
+<a data-tlc="bind $var '.%PRT.DOMAIN'; if (is $var --notblank) {{	format --prepend='http://'; 	apply --attrib='href'; apply --append;	}};" style="border:1px solid #CCCCCC; border-bottom:0px; margin-right:3px; padding:2px; font-size:9pt; text-decoration:none;">Website</a> 
+
 </tr>
 </table>
 
@@ -804,6 +807,7 @@ Please contact us for wire transfer instructions.
 |,
 	#[ 'ORDER',
 	'%TRACKINGINFO%'=> q|
+
 <table>
 <thead>
 <tr>
@@ -825,7 +829,8 @@ foreach $shipment in $shipments {{
 
 <template id="shipmentTemplate">
 <tr>
-	<td data-tlc="
+	<td>
+	<span data-tlc="
 
 bind $carrier '.carrier'; 
 if (is $carrier --eq='U1DP') {{ set $carrier 'UPS'; }};
@@ -881,8 +886,10 @@ if (is $carrier --eq='EGGN') {{ set $carrier 'USPS'; }};
 export 'carrier' $carrier;
 apply --append;
 
-"></td>
-	<td data-tlc="
+"></span>
+	</td>
+	<td>
+	<span data-tlc="
 bind $carrier '.carrier'; 
 set $link '';
 
@@ -908,14 +915,15 @@ if (is $link --notblank) {{
 else {{
 	apply --append=$track;
 	}};
-"></td>
-	<td data-tlc="
+"></span></td>
+	<td><span data-tlc="
 bind $var '.created'; 
 if (is $var --gt=0) {{ datetime $var --epoch --out='mdy'; format --prepend='shipped: ' --crlf; apply --append; }};
 bind $var '.notes'; apply --append;
-"></td>
+"></span></td>
 </tr>
 </template>
+
 |,	
 	#[ 'ORDER',
 	'%ORDERDATE%'=> q|<div data-tlc="

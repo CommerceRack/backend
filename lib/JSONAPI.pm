@@ -85,6 +85,7 @@ use strict;
 use File::Slurp;
 use File::Path;
 use Text::CSV_XS;
+use Try::Tiny;
 use URI::Escape qw();
 use URI::Escape::XS;
 use MIME::Base64 qw();
@@ -18056,7 +18057,6 @@ sub appPublicSearch {
 		if (defined $v->{'from'}) { 	$params{'from'} = $v->{'from'}; }
 		if (defined $v->{'explain'}) { 	$params{'explain'} = $v->{'explain'}; }
 
-		$params{'timeout'} = '5s';
 		if (defined $params{'body'}) {
 			## require body->query or body->filter
 			}
@@ -18064,92 +18064,127 @@ sub appPublicSearch {
 			&JSONAPI::append_msg_to_response(\%R,"apperr",18233,"search mode:$v->{'mode'} requires either query and/or filter parameter.");
 			}
 
+		my $R = undef;
 		if (not &hadError(\%R)) {
 			## try
+			$params{'index'} = sprintf("%s.public",lc($self->username()));
 			if ($v->{'mode'} eq 'elastic-count') {
 				# mode:elastic-count
-				eval { %R = %{$es->count('index'=>sprintf("%s.public",lc($self->username())), %params)} };
+				if (defined $params{'body'}->{'filter'}) {
+					&JSONAPI::append_msg_to_response(\%R,"apperr",18232,"elastic-count is only compatible with query (not filter)");
+					}
+				else {
+					delete $params{'timeout'}; ## count doesn't allow a timeout
+					$params{'ignore'} => [400,404];
+					try { 
+						$R = $es->count( %params ); 
+						} 
+					catch { 
+						warn "caught error: $_";
+						};
+					if ($@) { $R = Storable::dclone($@); }
+					}
+
 				}
 			elsif ($v->{'mode'} eq 'elastic-explain') {
 				# mode:elastic-explain
-				eval { %R = %{$es->explain('index'=>sprintf("%s.public",lc($self->username())), %params)} };
+				eval { $R = $es->explain(%params) };
+				if ($@) { $R = $@; }
 				}
 			elsif ($v->{'mode'} eq 'elastic-scroll') {
 				# mode:elastic-scroll
-				eval { %R = %{$es->scroll('index'=>sprintf("%s.public",lc($self->username())), %params)} };
+				eval { $R = $es->scroll('index'=>sprintf("%s.public",lc($self->username())), %params) };
+				if ($@) { $R = $@; }
 				}
 			elsif ($v->{'mode'} eq 'elastic-scroll-helper') {
 				# mode:elastic-scroll
-				eval { %R = %{$es->scroll_helper( %params )} };
+				eval { $R = $es->scroll_helper( %params ) };
+				if ($@) { $R = $@; }
 				}
 			elsif ($v->{'mode'} eq 'elastic-scroll-clear') {
 				# mode:elastic-scroll
-				eval { %R = %{$es->scroll_clear( %params )} };
+				eval { $R = $es->scroll_clear( %params ) };
+				if ($@) { $R = $@; }
 				}
 			elsif ($v->{'mode'} eq 'elastic-mlt') {
 				# mode:elastic-more-like-this
-				eval { %R = %{$es->mlt('index'=>sprintf("%s.public",lc($self->username())), %params)} };
+				if (not JSONAPI::validate_required_parameter(\%R,$v,'id')) {
+					}
+				else {
+					$params{'id'} = $v->{'id'};
+					delete $params{'timeout'};
+					delete $params{'size'};
+					eval { $R = $es->mlt(%params) };
+					if ($@) { $R = $@; }
+					}
 				}
 			elsif ($v->{'mode'} eq 'elastic-suggest') {
 				# mode:elastic-suggest
-				eval { %R = %{$es->suggest('index'=>sprintf("%s.public",lc($self->username())), %params)} };
+				eval { $R = $es->suggest(%params) };
+				if ($@) { $R = $@; }
 				}
 			elsif ($v->{'mode'} eq 'elastic-explain') {
 				# mode:elastic-suggest
-				eval { %R = %{$es->explain('index'=>sprintf("%s.public",lc($self->username())), %params)} };
+				eval { $R = $es->explain(%params) };
+				if ($@) { $R = $@; }
 				}
 			elsif ($v->{'mode'} eq 'elastic-msearch') {
 				# mode:elastic-count
-				eval { %R = %{$es->count('index'=>sprintf("%s.public",lc($self->username())), %params)} };
+				eval { $R = $es->count(%params) };
+				if ($@) { $R = $@; }
 				}
 			elsif ($v->{'mode'} eq 'elastic-search') {
 				# mode:elastic-search
-				eval { %R = %{$es->search('index'=>sprintf("%s.public",lc($self->username())), %params)} };
-				}
-			else {
-				&JSONAPI::append_msg_to_response(\%R,"apperr",18234,"unknown mode");
-				}
-	
-
-		   if ($@) {
-				&JSONAPI::append_msg_to_response(\%R,"iseerr",18239,"elastic ise: $@");	
-				}
-			elsif (ref($@) eq 'ElasticSearch::Error::Request') {
-				my ($e) = $@;
-				my $txt = $e->{'-text'};
-				$txt =~ s/\[inet\[.*?\]\]//gs;	## remove: [inet[/192.168.2.35:9300]]
-				&JSONAPI::append_msg_to_response(\%R,"apperr",18200,"search mode:$v->{'mode'} failed: ".$e->{'-text'});
-			   }
-			elsif (ref($@) eq 'ElasticSearch::Error::Missing') {
-				&JSONAPI::append_msg_to_response(\%R,"iseerr",18202,sprintf("search mode:$v->{'mode'} %s",$@->{'-text'}));
-				$R{'dump'} = Dumper($@);
-				}
-			elsif ( scalar(keys %R)== 0 ) {
-				&JSONAPI::append_msg_to_response(\%R,"iseerr",18235,"empty response from elastic");	
-				}
-			elsif ( defined $R{'hits'} ) {
-				## yay, success!
-				$R{'_count'} = scalar(@{$R{'hits'}->{'hits'}});
-				#if ($R{'_count'}>0) {
-				#	foreach my $hit (@{$R{'hits'}->{'hits'}}) {
-				#		#$hit = $hit->{'_source'};
-				#		#delete $hit->{'description'};
-				#		#delete $hit->{'marketplaces'};
-				#		#delete $hit->{'skus'};
-				#		# $hit->{'prod_name'} = 'test';
-				#		}
-				#	}
+				$params{'timeout'} = '5s';
+				eval { $R = $es->search(%params) };
+				if ($@) { $R = $@; }
 				}
 			else {
 				&JSONAPI::append_msg_to_response(\%R,"iseerr",18201,"search mode:$v->{'mode'} failed with unknown error");
-				$R{'dump'} = Dumper($@);
+				## &JSONAPI::append_msg_to_response(\%R,"apperr",18234,"unknown mode");
+				}
+
+			open F, ">/dev/shm/elastic"; print F Dumper($v,\%params,$R); close F;
+
+		   #if ($R) {
+			#	&JSONAPI::append_msg_to_response(\%R,"iseerr",18239,"elastic ise: $@");	
+			#	}
+			if (&JSONAPI::hadError(\%R)) {
+				## no sense going any further.
+				}
+			elsif (ref($R) eq 'ElasticSearch::Error::Request') {
+				my $txt = $R->{'-text'};
+				$txt =~ s/\[inet\[.*?\]\]//gs;	## remove: [inet[/192.168.2.35:9300]]
+				&JSONAPI::append_msg_to_response(\%R,"apperr",18200,"search mode:$v->{'mode'} failed: ".$R->{'-text'});
+			   }
+			elsif (ref($@) eq 'ElasticSearch::Error::Missing') {
+				&JSONAPI::append_msg_to_response(\%R,"iseerr",18202,sprintf("search mode:$v->{'mode'} %s",$R->{'-text'}));
+				$R{'dump'} = Dumper($R);
+				}
+			elsif (ref($@) eq 'ElasticSearch::Error::Param') {
+				&JSONAPI::append_msg_to_response(\%R,"iseerr",18202,sprintf("search mode:$v->{'mode'} %s",$R->{'text'}));
+				$R{'dump'} = Dumper($R);
+				}
+			elsif ($v->{'mode'} eq 'elastic-search') {
+				%R = %{$R};
+				if ( scalar(keys %R)== 0 ) {
+					&JSONAPI::append_msg_to_response(\%R,"iseerr",18235,"empty response from elastic");	
+					}
+				elsif ( defined $R{'hits'} ) {
+					## yay, success!
+					$R{'_count'} = scalar(@{$R{'hits'}->{'hits'}});
+					}
+				}
+			else {
+				## no special handlers here, although there probably ought to be.
+				%R = %{$R};
 				}
 			}
 
 		}
 	else {
 		## NOTE: this line should NEVER be reached!
-		&JSONAPI::append_msg_to_response(\%R,"iseerr",18234,"search mode, not supported.");	
+		&JSONAPI::append_msg_to_response(\%R,"iseerr",18234,"search mode, not supported.");
 		}
 
 	return(\%R);

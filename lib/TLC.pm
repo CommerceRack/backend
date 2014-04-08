@@ -209,6 +209,8 @@ sub render_html {
 		$e->remove();
 		});
 
+	## print Dumper($self->_templates()); die();
+
 	## find all nodes having data-tlc attribute
 	$dom->find('*[data-tlc]')->each(sub {
 		my ($e, $count) = @_;

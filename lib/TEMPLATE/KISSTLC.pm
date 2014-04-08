@@ -1,4 +1,4 @@
-package TEMPLATE::KISS;
+package TEMPLATE::KISSTLC;
 
 use URI::URL;
 use Data::Dumper;
@@ -329,7 +329,7 @@ sub render {
 		if (defined $MSGS) { push @{$MSGS}, "ERROR|+template $TYPE/$CONTAINER cannot render index.html missing meta 'version' tag (try kiss/1.0)"; }
 		}
 	elsif ($META{'version'} eq 'tlc/1.0') {
-		my ($TLC) = TLC->new('username'=>$self->username());
+		my ($tlc) = TLC->new('username'=>$USERNAME);
 		$META{'USERNAME'} = $USERNAME;
 		$META{'CONTAINERTYPE'} = $TYPE;
 		$META{'CONTAINER'} = $CONTAINER;

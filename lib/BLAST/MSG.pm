@@ -34,22 +34,23 @@ sub new {
 	$self->{'%META'} = $metaref;
 	
 	my @PARTS = split(/\./,$MSGID);
-	print STDERR Dumper($MSGID,$metaref)."\n";
+	# print STDERR Dumper($MSGID,$metaref)."\n";
 
 	if (defined $metaref->{'BODY'}) {
 		$self->{'BODY'} = $metaref->{'BODY'};
 		$self->{'SUBJECT'} = $metaref->{'SUBJECT'};
+		$self->{'FORMAT'} = $metaref->{'FORMAT'} || 'HTML';
 		}
 	elsif (scalar(@PARTS)>0) {
 		my ($udbh) = &DBINFO::db_user_connect($self->username());
 		my ($MID) = &ZOOVY::resolve_mid($self->username());
-		my ($PRT) = $self->prt();
+		my ($PRT) = int($self->prt());	#I think this might not always be set right
 
 		do {
 			$MSGID = join('.',@PARTS);
 	
 			my $pstmt = "select BODY,SUBJECT,FORMAT,MSGBCC from SITE_EMAILS where MID=$MID and PRT=$PRT and MSGID=".$udbh->quote($MSGID);
-			print $pstmt."\n";
+			# print STDERR $pstmt."\n";
 			($self->{'BODY'},$self->{'SUBJECT'},$self->{'FORMAT'},$self->{'BCC'}) = $udbh->selectrow_array($pstmt);
 
 			if (($self->{'SUBJECT'} eq '') && (defined $BLAST::DEFAULTS::MSGS{$MSGID})) {
@@ -62,7 +63,6 @@ sub new {
 			if ($self->{'SUBJECT'} eq '') { pop @PARTS; } else { $self->{'MSGID'} = $MSGID; }
 			}
 		while ( (scalar(@PARTS)>0) && ($self->{'BODY'} eq '') );
-
 
 		&DBINFO::db_user_close();
 		}	
