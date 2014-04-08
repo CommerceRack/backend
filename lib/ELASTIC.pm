@@ -66,7 +66,6 @@ sub add_products {
 	foreach my $P (@{$PRODUCTSAR}) {
 		next if (not defined $P);
 		print "P: ".$P->pid()."\n";
-		next if ($P->pid() ne 'OUTFIT');
 		my $ES_PAYLOADS = $P->elastic_index( $FIELDSREF, $IMAGE_FIELDSREF );
 
 		if (defined $bulk) {
