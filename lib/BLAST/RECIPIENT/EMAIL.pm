@@ -211,7 +211,7 @@ sub email_parseElement {
 		print F Dumper($CSS);
 		close F;
 
-		if ((not defined $CSS) || (ref($CSS) eq 'CSS::Tiny')) {
+		if ((not defined $CSS) || (ref($CSS) ne 'CSS::Tiny')) {
 			$el->postinsert("<!-- // style is not valid, could not be interpreted by CSS::Tiny // -->");
 			}
 		else {

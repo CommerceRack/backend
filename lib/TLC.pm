@@ -6,12 +6,14 @@ use Data::Dumper;
 use JSON::Path;
 use Mojo::DOM;
 use Pegex;
-use Pegex::Tree::DataTLC;
 use POSIX qw(strftime);
 use JSON::XS;
 use Text::WikiCreole qw();
+use Try::Tiny;
 
+use lib "/backend/lib";
 require ZOOVY;
+use Pegex::Tree::DataTLC;
 
 our $VERSION = '1.00';
 our $TLC_GRAMMAR = q!
@@ -220,10 +222,17 @@ sub render_html {
 
 		$self->_cwt($e);
 		## parse and run data-tlc block, modifying $dom object on the fly
-		$self->run($e->attr('data-tlc'));
-		
-		## this data-tlc block is processed - let's delete it
-		$e->attr('data-tlc' => undef);
+
+		try {
+			## open F, ">/tmp/tlc"; print F Dumper(sprintf("%s",$e->attr('data-tlc')), $self); close F;
+			$self->run($e->attr('data-tlc'));
+			$e->attr('data-tlc' => undef);
+			}
+		catch {
+			## this data-tlc block is processed - let's delete it
+			$e->attr('data-tlc-error' => $_);
+			## open F, ">/tmp/tlc-err"; print F Dumper($e); close F;
+			};
 		});
 	
 	## dump resulting html as string
