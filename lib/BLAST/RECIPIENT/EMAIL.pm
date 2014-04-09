@@ -194,7 +194,7 @@ sub email_parseElement {
 		$sheet =~ s/\<[Ss][Tt][Yy][Ll][Ee].*?\>(.*)\<\/[Ss][Tt][Yy][Ll][Ee]\>/$1/s;
 		$sheet =~ s/\<\!\-\-(.*)\-\-\>/$1/s;
 
-		my $CSS = CSS::Tiny->new()->read_string($sheet);
+		my $CSS = CSS::Tiny->new()->read_string($sheet) || {};
 		foreach my $property (keys %{$CSS}) {
 			foreach my $k (keys %{$CSS->{$property}}) {
 				if ($CSS->{$property}->{$k} =~ /^[Uu][Rr][Ll]\((.*?)\)/) {
@@ -206,10 +206,20 @@ sub email_parseElement {
 					}
 				}
 			}
-		$sheet = $CSS->html();
-		my $sheetnode = HTML::Element->new('style','type'=>'text/css');
-		$sheetnode->push_content("<!-- \n".$CSS->write_string()."\n -->");
-		$el->replace_with($sheetnode);
+
+		open F, ">>/tmp/css";
+		print F Dumper($CSS);
+		close F;
+
+		if ((not defined $CSS) || (ref($CSS) eq 'CSS::Tiny')) {
+			$el->postinsert("<!-- // style is not valid, could not be interpreted by CSS::Tiny // -->");
+			}
+		else {
+			$sheet = $CSS->html();
+			my $sheetnode = HTML::Element->new('style','type'=>'text/css');
+			$sheetnode->push_content("<!-- \n".$CSS->write_string()."\n -->");
+			$el->replace_with($sheetnode);
+			}
 		}
 	
 	if (not $METAREF->{'base'}) {
