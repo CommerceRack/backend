@@ -332,6 +332,15 @@ sub is_valid {
 	if ($attr =~ /^zoovy\:qtyinc_mp([a-z0-9]){1,2}$/) { return(1); }
 	if ($attr =~ /^zoovy\:qtymin_mp([a-z0-9]){1,2}$/) { return(1); }
 	if ($attr =~ /^user\:([a-z][a-z0-9\_]*)$/) { return(1); }
+	if ($USERNAME && ($attr =~ /^$USERNAME:/)) { return(1); } # anything USERNAME: is valid
+	if ($USERNAME ne '') {
+		my $gref = &ZWEBSITE::fetch_globalref($USERNAME);
+		if (defined $gref->{'@flexedit'}) {
+			foreach my $set (@{$gref->{'@flexedit'}}) {
+				if ($set->{'id'} eq $attr) { return(1); }
+				}
+			}
+		}
 
 	return(0);
 	}

@@ -240,20 +240,20 @@ apply --img --media=$var --width=75 --height=75 --bgcolor='#ffffff' --replace;" 
 	<td align="right" colspan="4" style="text-align: right">Giftcard(s):</td>
 	<td data-tlc="bind $var '.sum.gfc_total'; format --currency='USD'; apply --append;"></td>
 </tr>
-<tr class="rewardPointsTotal" data-tlc="bind $var '.sum.pnt_total'; if (is $var --eq=0) {{ apply --remove; }};" >
+<tr class="rewardPointsTotal" data-tlc="bind $var '.sum.pnt_total'; if (is $var --lte=0) {{ apply --remove; }};" >
 	<!-- ** this comment (and td's below) will be removed unless .rewardsPointsTotal is > 0 -->
 	<td align="right" colspan="4" style="text-align: right">Reward Points:</td>
 	<td data-tlc="bind $var '.sum.pnt_total'; format --currency='USD'; apply --append; "></td>
 </tr>
-<tr class="returnsCreditTotal" data-tlc="bind $var '.sum.rmc_total'; if (is $var --eq=0) {{ apply --remove; }};"  >
+<tr class="returnsCreditTotal" data-tlc="bind $var '.sum.rmc_total'; if (is $var --lte=0) {{ apply --remove; }};"  >
 	<!-- ** this comment (and td's below) will be removed unless .sum.rmc_total is > 0 -->
 	<td align="right" colspan="4" style="text-align: right">Returns Credit:</td>
-	<td data-tlc="bind $var '.sum.rmc_total'; format --currency='USD'; apply --append;"></div>
+	<td data-tlc="bind $var '.sum.rmc_total'; format --currency='USD'; apply --append;"></td>
 </tr>
-<tr class="balancedueTotal" data-tlc="bind $var '.sum.balance_due_total'; if (is $var --eq=0) {{ apply --remove; }};" >
+<tr class="balancedueTotal" data-tlc="bind $var '.sum.balance_due_total'; if (is $var --lte=0) {{ apply --remove; }};" >
 	<!-- ** this comment (and td's below) will be removed unless .sum.balance_due_total is > 0 ** -->
 	<td align="right" colspan="4" style="text-align: right">Balance Due:</td>
- 	<td data-tlc="bind $var '.sum.balance_due_total'; format --currency='USD'; apply --append;"></b></div>
+ 	<td data-tlc="bind $var '.sum.balance_due_total'; format --currency='USD'; apply --append;"></td>
 </tr>
 
 </tbody>
