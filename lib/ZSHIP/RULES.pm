@@ -244,9 +244,8 @@ sub show_webdoc_exec {
 ## converts all keys to lowercase
 ##
 sub export_rules {
-	my ($USERNAME,$PRT,$RULESETID) = @_;
+	my ($webdbref,$RULESETID) = @_;
 
-	my $webdbref = &ZWEBSITE::fetch_website_dbref($USERNAME,$PRT);
 	if (not defined $webdbref->{'%SHIPRULES'}) {
 		$webdbref->{'%SHIPRULES'} = {};
 		} 
@@ -257,10 +256,6 @@ sub export_rules {
 		foreach my $rule (@{$RULESETS->{$ruleset}}) {
 			if (not defined $rule->{'GUID'}) { $rule->{'GUID'} = Data::GUID->new()->as_string(); $changes++; }
 			}
-		}
-	if ($changes) {
-		## store back the guids
-		&ZWEBSITE::save_website_dbref($USERNAME,$webdbref,$PRT);
 		}
 
 	if (not defined $RULESETS->{$RULESETID}) {

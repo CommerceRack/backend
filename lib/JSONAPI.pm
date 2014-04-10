@@ -23987,7 +23987,7 @@ sub adminConfigDetail {
 			push @COUPONS, $cpnref;
 
 			my $COUPON = $cpnref->{'coupon'};
-			my @rules = &ZSHIP::RULES::export_rules($USERNAME,$PRT,"COUPON-$COUPON");
+			my @rules = &ZSHIP::RULES::export_rules($webdb,"COUPON-$COUPON");
 			if ( (my $sizeof = &ZOOVY::sizeof(\@rules)) > 2500) {
 				push @MSGS, "WARNING|This coupon is more than 2500 bytes. Try using product tagging to reduce the size of the coupon and get some performance.";
 				}
@@ -24076,7 +24076,7 @@ sub adminConfigDetail {
 		foreach my $ruleset (
 			'DOM','DOM_NEXTEARLY','DOM_NEXTNOON','DOM_NEXTDAY','DOM_2DAY','DOM_3DAY','DOM_GROUND','DOM_HOME_EVE','DOM_HOME',
 			'INT','INT_NEXTEARLY','INT_NEXTNOON','INT_2DAY','INT_GROUND') {
-			my @rules = &ZSHIP::RULES::export_rules($USERNAME,$PRT,"SHIP-FEDEXAPI_$ruleset");
+			my @rules = &ZSHIP::RULES::export_rules($webdb,"SHIP-FEDEXAPI_$ruleset");
 			if ($ruleset eq 'DOM_HOME_EVE') { 
 				$fdxcfg->{"\@DOM_EVENING"} = \@rules;
 				}
@@ -24103,7 +24103,7 @@ sub adminConfigDetail {
 			}
 
 		foreach my $ruleset ('DOM','INT') {
-			my @rules = &ZSHIP::RULES::export_rules($USERNAME,$PRT,"SHIP-USPS_$ruleset");
+			my @rules = &ZSHIP::RULES::export_rules($webdb,"SHIP-USPS_$ruleset");
 			$usps{"\@$ruleset"} = \@rules;
 			}
 
@@ -24140,14 +24140,14 @@ sub adminConfigDetail {
 		foreach my $ruleset (
 			'DOM','DOM_GND','DOM_3DS','DOM_2DA','DOM_2DM','DOM_1DP','DOM_1DA','DOM_1DM',
 			'INT','INT_STD','INT_XPR','INT_XDM','INT_XPD') {
-			my @rules = &ZSHIP::RULES::export_rules($USERNAME,$PRT,"SHIP-UPSAPI_$ruleset");
+			my @rules = &ZSHIP::RULES::export_rules($webdb,"SHIP-UPSAPI_$ruleset");
 			$ups{"\@$ruleset"} = \@rules;
 			}
 		$ups{'%DEBUG'} = $UPS_CONFIG;
 		push @SHIPMETHODS, \%ups;
 
 		## UNIVERSAL FLAT RATE METHODS (universal)
-		my $methods = &ZWEBSITE::ship_methods($USERNAME,prt=>$PRT);
+		my $methods = &ZWEBSITE::ship_methods($webdb);
 		## now go through each method (so we do this 3 times, or once per region)
 		foreach my $m (@{$methods}) {
 			#          {
@@ -24162,7 +24162,7 @@ sub adminConfigDetail {
 
 			# next if ($m->{'region'} ne $region);	
 			my $has_rules = '';
-			$has_rules = scalar(&ZSHIP::RULES::export_rules($USERNAME,$PRT,"SHIP-$m->{'id'}"));
+			$has_rules = scalar(&ZSHIP::RULES::export_rules($webdb,"SHIP-$m->{'id'}"));
 			# $has_rules = Dumper($m->{'id'},&ZSHIP::RULES::export_rules($USERNAME,$PRT,"SHIP-$m->{'id'}"));
 			if ($m->{'rules'}==0) { $has_rules = 'OFF'; }
 			# $has_rules = 1;
@@ -24242,7 +24242,7 @@ sub adminConfigDetail {
 				}		
 
 			my $WEBDBKEY = uc(sprintf("SHIP-%s",$m->{'id'}));
-			my @rules = &ZSHIP::RULES::export_rules($USERNAME,$PRT,$WEBDBKEY);
+			my @rules = &ZSHIP::RULES::export_rules($webdb,$WEBDBKEY);
 			$m->{'@RULES'} = \@rules;
 
 			if (scalar(@MSGS)) { $m->{'@MSGS'} = \@MSGS; }
@@ -24273,7 +24273,7 @@ sub adminConfigDetail {
 				}
 			$handling{sprintf("\@%s",$TB)} = \@ROWS;
 			}
-		my @RULES = &ZSHIP::RULES::export_rules($USERNAME,$PRT,"SHIP-HANDLING");
+		my @RULES = &ZSHIP::RULES::export_rules($webdb,"SHIP-HANDLING");
 		$handling{'@RULES'} = \@RULES;
 		push @SHIPMETHODS, \%handling;
 
@@ -24315,7 +24315,7 @@ sub adminConfigDetail {
 			$insurance{sprintf("\@%s",$TB)} = \@ROWS;
 			}
 
-		@RULES = &ZSHIP::RULES::export_rules($USERNAME,$PRT,"SHIP-INSURANCE");
+		@RULES = &ZSHIP::RULES::export_rules($webdb,"SHIP-INSURANCE");
 		$insurance{'@RULES'} = \@RULES;
 		push @SHIPMETHODS, \%insurance;
 		## RE: WHOLESALE
@@ -25759,7 +25759,7 @@ sub adminConfigMacro {
 			elsif ($cmd eq 'SHIPMETHOD/REMOVE') {
 				if ($params->{'provider'} =~ /FLEX\:(.*?)$/) {
 					my $ID = $1;
-					&ZWEBSITE::ship_del_method($USERNAME,$PRT,$ID);
+					&ZWEBSITE::ship_del_method($webdb,$ID);
 					}
 				else {
 					push @MSGS, "ERROR|+requested provider is not FLEX: and cannot be removed";
@@ -25817,7 +25817,7 @@ sub adminConfigMacro {
 				elsif ($params->{'provider'} =~ /FLEX\:(.*?)$/) {
 					my $ID = $1;
 					my %ref = ();
-					my $exist = &ZWEBSITE::ship_get_method($USERNAME,$PRT,$ID);
+					my $exist = &ZWEBSITE::ship_get_method($webdb,$ID);
 					if (defined $exist) {
 						## okay so we've already got some existing data, we'll load that
 						%ref = %{$exist};
@@ -25900,7 +25900,7 @@ sub adminConfigMacro {
 			
 					if (scalar(@MSGS)==0) {
 						$ref{'data'} = &ZTOOLKIT::buildparams($tableref,1);						 
-						&ZWEBSITE::ship_add_method($USERNAME,$PRT,\%ref);
+						&ZWEBSITE::ship_add_method($webdb,\%ref);
 						}
 					}
 				else {
@@ -25918,7 +25918,7 @@ sub adminConfigMacro {
 					$ref{'name'} = sprintf("%s Shipping",$params->{'handler'});
 					$ref{'carrier'} = 'FOO';
 					$ref{'handler'} = $params->{'handler'};
-					&ZWEBSITE::ship_add_method($USERNAME,$PRT,\%ref);
+					&ZWEBSITE::ship_add_method($webdb,\%ref);
 					}
 				else {
 					push @MSGS, "ERROR|+Only FLEX:xxxxx provider types may be inserted";
@@ -26061,7 +26061,7 @@ sub adminConfigMacro {
 					my ($ID) = $1;
 
 					my %ref = ();
-					my $exist = &ZWEBSITE::ship_get_method($USERNAME,$PRT,$ID);
+					my $exist = &ZWEBSITE::ship_get_method($webdb,$ID);
 					if (defined $exist) {
 						## okay so we've already got some existing data, we'll load that
 						%ref = %{$exist};
@@ -26093,7 +26093,7 @@ sub adminConfigMacro {
 						$ref{'min_price'} = $params->{'minprice'};
 						}
 
-					&ZWEBSITE::ship_add_method($USERNAME,$PRT,\%ref);
+					&ZWEBSITE::ship_add_method($webdb,\%ref);
 					}
 				elsif ($params->{'provider'} eq 'HANDLING') {
 					## HANDLING:
@@ -26181,7 +26181,7 @@ sub adminConfigMacro {
 						&ZSHIP::RULES::append_rule($USERNAME,$PRT,$RULESETID,\%rule); 
 						}
 					elsif ($VERB eq 'UPDATE') {
-						my @rules = &ZSHIP::RULES::export_rules($USERNAME,$PRT,$RULESETID);
+						my @rules = &ZSHIP::RULES::export_rules($webdb,$RULESETID);
 						my $ID = &ZSHIP::RULES::resolve_guid_index(\@rules,$params->{'guid'}); 
 						$rule{'MODIFIED'} = &ZTOOLKIT::mysql_from_unixtime(time());
 						$LU->log("SETUP.SHIPPING.RULES","Updated Rule Content for $RULESETID","SAVE");
@@ -26193,7 +26193,7 @@ sub adminConfigMacro {
 					}
 				elsif ($VERB eq 'REMOVE') {
 					$LU->log("SETUP.SHIPPING.RULES","Deleted Rule for $RULESETID","SAVE");
-					my @rules = &ZSHIP::RULES::export_rules($USERNAME,$PRT,$RULESETID);
+					my @rules = &ZSHIP::RULES::export_rules($webdb,$RULESETID);
 					my $ID = &ZSHIP::RULES::resolve_guid_index(\@rules,$params->{'guid'}); 
 					if ($ID>-1) {
 						&ZSHIP::RULES::delete_rule($USERNAME,$PRT,$RULESETID,$ID);

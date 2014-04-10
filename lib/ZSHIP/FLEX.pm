@@ -30,7 +30,7 @@ sub calc {
 	if (int($WEIGHT) < $WEIGHT) { $WEIGHT = int($WEIGHT)+1; }		# strip decimals
 	if ($WEIGHT <= 0) { $WEIGHT = 0; }
 
-	my $methods = &ZWEBSITE::ship_methods($CART2->username(),prt=>$CART2->prt());
+	my $methods = &ZWEBSITE::ship_methods($WEBDBREF);
 	if (not defined $methods) { $methods = []; }
 
 	## now go through each method (so we do this 3 times, or once per region)

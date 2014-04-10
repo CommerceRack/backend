@@ -48,9 +48,6 @@ sub add {
 
 sub delete {
 	my ($USERNAME,$PRT,$CODE) = @_;
-#	$CODE = uc($CODE);
-#	$CODE = substr($CODE,0,8);
-#	$CODE =~ s/[^A-Z^0-9]+//gs;
 
 	if ($CODE ne '') {
 		my ($ref) = loadbin($USERNAME,$PRT);
@@ -64,10 +61,6 @@ sub delete {
 
 sub save {
 	my ($USERNAME,$PRT,$CODE, %options) = @_;
-
-#	$CODE = uc($CODE);
-#	$CODE = substr($CODE,0,8);
-#	$CODE =~ s/[^A-Z^0-9]+//gs;
 
 	if ($CODE ne '') {
 		my ($ref) = loadbin($USERNAME,$PRT);
@@ -90,11 +83,6 @@ sub save {
 
 sub load {
 	my ($USERNAME,$PRT,$CODE) = @_;
-
-#	$CODE = uc($CODE);
-#	$CODE = substr($CODE,0,8);
-#	$CODE =~ s/[^A-Z^0-9]+//gs;
-
 	my ($ref) = loadbin($USERNAME,$PRT);
 	
 	if (defined $ref->{$CODE}) {
@@ -134,45 +122,11 @@ sub loadbin {
 	my ($USERNAME,$PRT,$cache) = @_;
 
 	if (not defined $cache) { $cache = 0; }
-	if ($PRT>=0) {
-		my ($webdbref) = &ZWEBSITE::fetch_website_dbref($USERNAME,$PRT,$cache);
-		my $ref = $webdbref->{'%COUPONS'};
-		if (not defined $ref) { $ref = {}; }
-		return($ref);
-		}
-
-	$USERNAME = lc($USERNAME);
-	my $filename = &ZOOVY::resolve_userpath($USERNAME).'/coupons.bin';
-	my $cachefile = &ZOOVY::cachefile($USERNAME,'coupons.bin');
-
-	my $ref = undef;	
-	if ($cache > 0) {
-		my ($dev,$ino,$mode,$nlink,$uid,$gid,$rdev,$size,$atime,$mtime,$ctime,$blksize,$blocks) = stat($cachefile);
-		if ($mtime > $cache) {
-			$filename = $cachefile;
-			}
-		else {
-			$cache = 1;
-			}
-		}
-	
-	#print STDERR "ZSHIP::RULES is loading $filename\n";
-	# chmod(0666, $filename);
-	if (-f $filename) {
-		$ref = retrieve($filename);	
-		}
-	else {
-		$ref = {};
-		}
-
-	if ($cache == 1) {
-		Storable::nstore $ref, $cachefile;
-		chown $ZOOVY::EUID,$ZOOVY::EGID, $cachefile;
-		chmod 0666, $cachefile;
-		}
-
-	return($ref);	
-	}
+	my ($webdbref) = &ZWEBSITE::fetch_website_dbref($USERNAME,$PRT,$cache);
+	my $ref = $webdbref->{'%COUPONS'};
+	if (not defined $ref) { $ref = {}; }
+	return($ref);
+ 	}
 
 ##
 ##
@@ -180,29 +134,11 @@ sub loadbin {
 sub savebin {
 	my ($USERNAME, $PRT, $ref) = @_;
 
-	if ($PRT>=0) {
-		my ($webdbref) = &ZWEBSITE::fetch_website_dbref($USERNAME,$PRT);
-		$webdbref->{'%COUPONS'} = $ref;
-		&ZWEBSITE::save_website_dbref($USERNAME,$webdbref,$PRT);
-		&ZOOVY::touched($USERNAME,1);
-		return(0);
-		}
-
-	my $filename = &ZOOVY::resolve_userpath($USERNAME)."/coupons.bin";
-	#print STDERR "Saving $filename\n";
-
-	#foreach my $k (keys %{$ref}) { print STDERR "KEY: $k\n"; }
-
-	Storable::nstore $ref, $filename;
-	chown($ZOOVY::EUID,$ZOOVY::EGID, $filename);
-	chmod(0666, $filename);
-
-#	open F, ">$filename";
-#	print F freeze($ref);
-#	close F;
-
+	my ($webdbref) = &ZWEBSITE::fetch_website_dbref($USERNAME,$PRT);
+	$webdbref->{'%COUPONS'} = $ref;
+	&ZWEBSITE::save_website_dbref($USERNAME,$webdbref,$PRT);
 	&ZOOVY::touched($USERNAME,1);
-	return(0);	
+	return(0);
 	}
 
 1;

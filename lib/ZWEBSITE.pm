@@ -93,11 +93,6 @@ sub prts {
 	return(@{ZWEBSITE::list_partitions($USERNAME,output=>'prtonly')});
 	}
 
-sub fetch_website_db {
-	my ($USERNAME,$PRT) = @_;
-	return(%{&fetch_website_dbref($USERNAME,$PRT)});
-}
-
 
 ##
 ## 
@@ -229,22 +224,6 @@ sub checkfield_add {
 
 
 
-#sub checkout_profile {
-#	my ($USERNAME,$PRT) = @_;
-#	my $PROFILE = undef;
-#	my ($dbref) = &ZWEBSITE::fetch_website_dbref($USERNAME,$PRT);
-#	if ($PRT==0) { 
-#		$PROFILE = 'DEFAULT'; 
-#		}
-#	elsif ($dbref->{'profile'} eq '') { 
-#		$PROFILE = 'DEFAULT'; 
-#		}
-#	else {
-#		$PROFILE = $dbref->{'profile'};
-#		}
-#	return($PROFILE);
-#	}
-
 
 ##########################################################
 ##
@@ -261,9 +240,8 @@ sub checkfield_add {
 ##		]
 ##
 sub ship_add_method {
-	my ($USERNAME,$PRT,$ref) = @_;
+	my ($webdbref,$ref) = @_;
 		
-	my ($webdbref) = &ZWEBSITE::fetch_website_dbref($USERNAME,$PRT);
 	if (not defined $webdbref->{'@SHIPPING'}) {
 		$webdbref->{'@SHIPPING'} = [];
 		}
@@ -284,8 +262,6 @@ sub ship_add_method {
 		push @{$webdbref->{'@SHIPPING'}}, $ref;
 		}
 
-
-	&ZWEBSITE::save_website_dbref($USERNAME,$webdbref,$PRT);
 	return();
 	}
 
@@ -293,9 +269,8 @@ sub ship_add_method {
 ## deletes a specific method, keyed by ID
 ##
 sub ship_del_method {
-	my ($USERNAME,$PRT,$ID) = @_;
+	my ($webdbref,$ID) = @_;
 
-	my ($webdbref) = &ZWEBSITE::fetch_website_dbref($USERNAME,$PRT);
 	if (not defined $webdbref->{'@SHIPPING'}) { return([]); }
 	
 	my $found = -1;
@@ -314,16 +289,14 @@ sub ship_del_method {
 		my @ar = @{$webdbref->{'@SHIPPING'}};
 		splice(@ar,$found,1);
 		$webdbref->{'@SHIPPING'} = \@ar;
-		&ZWEBSITE::save_website_dbref($USERNAME,$webdbref,$PRT);
 		}
 	return($found);
 	}
 
 
 sub ship_get_method {
-	my ($USERNAME,$PRT,$ID) = @_;
+	my ($webdbref,$ID) = @_;
 
-	my ($webdbref) = &ZWEBSITE::fetch_website_dbref($USERNAME,$PRT);
 	if (not defined $webdbref->{'@SHIPPING'}) { return(undef); }
 	my $ref = undef;	
 
@@ -351,10 +324,7 @@ sub ship_get_method {
 ##	pass prt, or webdb
 ##
 sub ship_methods {
-	my ($USERNAME,%options) = @_;
-
-	my $webdbref = $options{'webdb'};
-	if (not defined $webdbref) { ($webdbref) = &ZWEBSITE::fetch_website_dbref($USERNAME,$options{'prt'}); }
+	my ($webdbref) = @_;
 	if (not defined $webdbref->{'@SHIPPING'}) { $webdbref->{'@SHIPPING'} = []; }
 	return( $webdbref->{'@SHIPPING'} );
 	}
@@ -591,7 +561,9 @@ sub save_globalref {
 sub fetch_website_dbref {
 	my ($USERNAME,$PRT,$cache) = @_;	
 
-	# print STDERR "Doing Change stuff!\n";
+
+	# open F, ">>/tmp/saven"; print F "$$\tREAD\t".time()."\t".join('|',caller(1))."\n"; close F;
+	
 	if (not defined $cache) { $cache = 0; }
 	if (not defined $PRT) { $PRT = 0; } else { $PRT = int($PRT); }
 	if ((not defined $USERNAME) || ($USERNAME eq '')) {
@@ -863,24 +835,11 @@ sub save_website_dbref {
 		die("No longer allowed to call save_website_dbref without partition");
 		}
 
-	#my $file = '';
-	#if ($PRT==0) {
-	#	$file = &ZOOVY::resolve_userpath($USERNAME).'/webdb.bin';
-	#	}
-	#else {
-	#	$file = &ZOOVY::resolve_userpath($USERNAME).'/webdb-'.$PRT.'.bin';		
-	#	}
-	#my $path = &ZOOVY::resolve_userpath($USERNAME);
-	#if (-d $path) {
-	#	Storable::nstore $ZWEBSITE::WEBDBCACHE, $file;
-	#	chmod(0666, $file);
-	#	&ZOOVY::touched($USERNAME,1);
-	#	}
 	my $USERPATH = &ZOOVY::resolve_userpath($USERNAME);
 	my $file = sprintf("%s/webdb-%d.json",$USERPATH,$PRT);
 	if (not defined $WEBDBREF) { $WEBDBREF = {}; }
 	open F, ">$file";		
-	print F JSON::XS->new->allow_nonref->encode($WEBDBREF);
+	print F JSON::XS->new->allow_nonref->pretty(1)->encode($WEBDBREF);
 	close F;
 	chmod(0666, $file);
 	&ZOOVY::touched($USERNAME,1);
@@ -892,25 +851,13 @@ sub save_website_dbref {
 	my $MEMCACHE_KEY = lc("webdb-ts|$USERNAME.$PRT");
 	my $memd = &ZOOVY::getMemd($USERNAME);
 	$memd->delete($MEMCACHE_KEY);
+
 	%ZWEBSITE::CACHE = ();
+
+	# open F, ">>/tmp/saven"; print F "$$\tWRITE\t".time()."\t".join('|',caller(1))."\n"; close F;
+
 	return(0);
-}
-
-##############################################################################
-##
-## ZWEBSITE::save_website_db
-## parameters: $USERNAME, $HASH_PTR
-##
-## returns: 0 on success, 1 on failure.											  
-##
-## note: try to avoid using this, its better to save each attribute				  
-##       using the save_website_attrib (unless you fetched the entire			  
-##
-sub save_website_db {
-	my ($USERNAME,$AR) = @_;
-	return(&save_website_dbref($USERNAME,$AR));	
 	}
-
 
 
 
