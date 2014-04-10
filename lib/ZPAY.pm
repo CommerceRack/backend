@@ -944,7 +944,7 @@ sub payment_methods {
 	my $ordertotal = (defined $options{'ordertotal'})?sprintf("%.2f",$options{'ordertotal'}):1;
 
 	my $has_giftcards = 0;
-	my $IS_PAYPAL_EC = 0;
+	# my $IS_PAYPAL_EC = 0;
 
 	my $C = undef;
 	my $CART2 = undef;
@@ -969,16 +969,16 @@ sub payment_methods {
 				}
 			}
 
-		if ($CART2->is_order()) {
-			## we don't use PAYPALEC exclusive mode when it's already an order (in fact we probably shouldn't show PAYPALEC at all)
-			}
-		elsif ($CART2->in_get('will/payby') eq 'PAYPALEC') {
-			## paypal express payment, once that is selected, nothing else can be.
-			$IS_PAYPAL_EC = 1;
-			}
-		elsif (scalar(@{$CART2->paymentQshow('TN'=>'PAYPALEC')})>0) {
-			$IS_PAYPAL_EC = 1;
-			}
+		#if ($CART2->is_order()) {
+		#	## we don't use PAYPALEC exclusive mode when it's already an order (in fact we probably shouldn't show PAYPALEC at all)
+		#	}
+		#elsif ($CART2->in_get('will/payby') eq 'PAYPALEC') {
+		#	## paypal express payment, once that is selected, nothing else can be.
+		#	$IS_PAYPAL_EC = 1;
+		#	}
+		#elsif (scalar(@{$CART2->paymentQshow('TN'=>'PAYPALEC')})>0) {
+		#	$IS_PAYPAL_EC = 1;
+		#	}
 
 		$has_giftcards = $CART2->has_giftcards();
 		}
@@ -991,15 +991,6 @@ sub payment_methods {
 
 	my $webdbref = $options{'webdb'};
 	if (not defined $webdbref) { $webdbref = &ZWEBSITE::fetch_website_dbref($USERNAME, $options{'prt'}); }
-#	open F, ">/tmp/asdf";
-#	use Data::Dumper; print F Dumper(\%options)."\n";
-#	close F;
-
-	#if ($webdbref->{'amzpay_simplepay'}>0) {
-	#	## enable pay_amzpay field if simplepay is turned on.
-	#	$webdbref->{'pay_amzspay'} = 0xFF; 
-	#	}
-
 	if ($webdbref->{'cc_processor'} eq '') { 
 		$webdbref->{'cc_processor'} = 'NONE'; 
 		}
@@ -1009,7 +1000,6 @@ sub payment_methods {
 		}
 
 	## SANITY: at this point $webdbref is assumed to have been initialized
-
 
 	my $is_secure = 0;
 	$is_secure++;
@@ -1057,11 +1047,11 @@ sub payment_methods {
 		## print STDERR "HAS GIFTCARD\n";
 		push @RESULTS, { id=>'ZERO', pretty=>"Zero-dollar order (no payment)", fee=>0 };
 		}
-	elsif ($IS_PAYPAL_EC) {
-		## once a user selects PAYPALEC for a cart, that's the only way you can pay.
-		## print STDERR "ISPAYPAL\n";
-		push @RESULTS, { id=>'PAYPALEC', pretty=>"Paypal Express Checkout", fee=>0 };
-		}
+	#elsif ($IS_PAYPAL_EC) {
+	#	## once a user selects PAYPALEC for a cart, that's the only way you can pay.
+	#	## print STDERR "ISPAYPAL\n";
+	#	push @RESULTS, { id=>'PAYPALEC', pretty=>"Paypal Express Checkout", fee=>0 };
+	#	}
 	elsif ((defined($ordertotal)) && ($ordertotal == 0) && (not &ZTOOLKIT::def($webdbref->{'disable_zero_paymethod'}))) {
 		## print STDERR "IS ZERO\n";
 		push @RESULTS, { id=>'ZERO', pretty=>"Zero-dollar order (no payment)", fee=>0 };
