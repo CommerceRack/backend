@@ -15,7 +15,7 @@ foreach my $PRT ( @{&ZWEBSITE::list_partitions($USERNAME,'output'=>'prtonly')}) 
 
 	my ($webdbref) = &ZWEBSITE::fetch_website_dbref($USERNAME,$PRT);
    if (my $UPSAPI_OPTIONS = $webdbref->{'upsapi_options'}) {
-      my %upsapi_config = %{&ZTOOLKIT::parseparams($webdb->{'upsapi_config'})};
+      my %upsapi_config = %{&ZTOOLKIT::parseparams($webdbref->{'upsapi_config'})};
       $upsapi_config{'.product'} = ($UPSAPI_OPTIONS&2)?1:0;
       $upsapi_config{'.multibox'} = ($UPSAPI_OPTIONS&4)?1:0;
       $upsapi_config{'.residential'} = ($UPSAPI_OPTIONS&8)?1:0;

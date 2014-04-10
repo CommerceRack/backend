@@ -201,9 +201,9 @@ apply --img --media=$var --width=75 --height=75 --bgcolor='#ffffff' --replace;" 
 	<b data-tlc="bind $var '.prod_name'; if (is $var --notblank) {{apply --append;}};"></b>
 	<div data-tlc="bind $var '.mktid'; if (is $var --blank) {{ apply --remove;}};">
 		<!-- ** note: this will be removed when .mktid is blank -->
-		<div data-tlc="bind $mkt '.mkt'; if (is $mkt --eq="EBAY") {{ bind $var '.mktid'; format --prepend='eBay: '; }} else {{ apply --remove; }}"></div>
-		<div data-tlc="bind $mkt '.mkt'; if (is $mkt --eq="EBF") {{ bind $var '.mktid'; format --prepend='eBay: '; }} else {{ apply --remove; }}"></div>
-		<div data-tlc="bind $mkt '.mkt'; if (is $mkt --eq="EBY") {{ bind $var '.mktid'; format --prepend='eBay: '; }} else {{ apply --remove; }}"></div>
+		<div data-tlc="bind $mkt '.mkt'; if (is $mkt --eq='EBAY') {{ bind $var '.mktid'; format --prepend='eBay: '; }} else {{ apply --remove; }}"></div>
+		<div data-tlc="bind $mkt '.mkt'; if (is $mkt --eq='EBF') {{ bind $var '.mktid'; format --prepend='eBay: '; }} else {{ apply --remove; }}"></div>
+		<div data-tlc="bind $mkt '.mkt'; if (is $mkt --eq='EBY') {{ bind $var '.mktid'; format --prepend='eBay: '; }} else {{ apply --remove; }}"></div>
 	</div>
 	<div data-tlc="bind $var '.%attribs.zoovy:prod_mfgid; if (is $var --blank) {{ apply --remove; }} else {{ format --prepend='MfgId: '; apply --append; }}; "></div>
 	</td>
