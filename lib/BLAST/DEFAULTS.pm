@@ -212,9 +212,12 @@ apply --img --media=$var --width=75 --height=75 --bgcolor='#ffffff' --replace;" 
 	<td data-tlc="bind $var '.extended'; if (is $var --notblank) {{ format --currency='USD'; format --prepend='= ';apply --append;}};"></td>
 </tr>
 </template>
+</tbody>
+</table>
 
+<table>
+<tbody>
 <!-- subtotal, tax, shipping, order total, special payments (giftcard, reward, returns), balance due -->
-
 <tr class="orderSubtotal">
 	<!-- note: subtotal will always appear -->
 	<td align="right" colspan="4" style="text-align: right">Subtotal:</td>

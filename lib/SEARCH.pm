@@ -2152,7 +2152,7 @@ sub search_structured {
 
 	require ElasticSearch::QueryParser;
 	my %opts = ();
-	my $qp = $es->query_parser(%opts);
+	my $qp = ElasticSearch::QueryParser->new(%opts);
 	# my $filtered_query_string = $qp->filter(qq~+"A501" +("A301" "A300")~, %opts);
 	my $filtered_query_string = $qp->filter($keywords, %opts);
 

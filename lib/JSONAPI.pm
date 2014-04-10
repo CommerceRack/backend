@@ -4895,10 +4895,6 @@ sub adminCartOrderMacro {
 #			$CART2->order_save();
 #			}
 
-		open F, ">/tmp/cart2";
-		print F Dumper($CART2);
-		close F;
-		
 		if (my $iseref = $LM->had(['WARNING'])) {
 			&JSONAPI::append_msg_to_response(\%R,"warning",7200,$iseref->{'+'});
 			}
@@ -13054,7 +13050,7 @@ sub adminProject {
 		}
 	elsif ($v->{'_cmd'} eq 'adminProjectRemove') {
 		$P->delete();
-		push @MSGS, "SUCCESS|Deleted project $v->{'UUID'}";
+		push @MSGS, "SUCCESS|+Deleted project $v->{'UUID'}";
 		}
 	elsif ($v->{'_cmd'} eq 'adminProjectClone') {
 		my ($ERROR) = $P->copyfrom($v->{'project'});
@@ -13085,7 +13081,7 @@ sub adminProject {
 						}
 					}
 				if (not $found_index) {
-					push @MSGS, "WARN|Missing index.html file, this project will not work.";
+					push @MSGS, "WARN|+Missing index.html file, this project will not work.";
 					}
 				}
 			my @FILES = ();
@@ -13102,10 +13098,10 @@ sub adminProject {
 		my $REPO = $v->{'repo'};
 		if ($REPO ne '') {
 			if ($REPO =~ /^http[s]?\:/) {
-				if ($REPO !~ /^http[s]?\:/) { $ERROR = "ERROR|+REPO must be http:"; }
-				if ($REPO !~ /^http[s]?\:\/\/[a-z0-9A-Z\-\_\:\/\.]+$/) { $ERROR = "ERROR|+REPO contains prohibited characters"; }
-				if ($REPO =~ /^http\:\/\/www\.github\.com/) { $ERROR = "ERROR|+GITHUB repos must be either ssh or https"; }
-				if ($REPO =~ /^http\:\/\/github\.com/) { $ERROR = "ERROR|+GITHUB repos must be either ssh or https"; }
+				if ($REPO !~ /^http[s]?\:/) { $ERROR = "REPO must be http:"; }
+				if ($REPO !~ /^http[s]?\:\/\/[a-z0-9A-Z\-\_\:\/\.]+$/) { $ERROR = "REPO contains prohibited characters"; }
+				if ($REPO =~ /^http\:\/\/www\.github\.com/) { $ERROR = "GITHUB repos must be either ssh or https"; }
+				if ($REPO =~ /^http\:\/\/github\.com/) { $ERROR = "GITHUB repos must be either ssh or https"; }
 				}
 			elsif ($REPO =~ /^ssh\:/) {
 				}
@@ -13114,15 +13110,15 @@ sub adminProject {
 		my $domain = ($v->{'domain'})?1:0;
 		my $TYPE = $v->{'type'};
 		if ($TYPE eq '') {
-			$ERROR = "ERROR|+PROJECT TYPE is required";
+			$ERROR = "PROJECT TYPE is required";
 			}
 
 		if ($domain) {
-			if ($TYPE eq 'DSS') { $ERROR = "ERROR|+DSS Projects do not require a domain"; }
+			if ($TYPE eq 'DSS') { $ERROR = "DSS Projects do not require a domain"; }
 			}
 
 		if ($TITLE eq '') {
-			$ERROR = "ERROR|+TITLE is required";
+			$ERROR = "TITLE is required";
 			}
 		
 		my $UUID = Data::GUID->new()->as_string();
@@ -13131,53 +13127,56 @@ sub adminProject {
 		if ($v->{'UUID'}) {
 			$UUID = $v->{'UUID'};
 			if ($UUID =~ /[^A-Z0-9\-\_a-z\.]/) {
-				$ERROR = "ERROR|+PROJECT UUID contains invalid characters";
+				$ERROR = "PROJECT UUID contains invalid characters";
 				}
 			}
 
 		## NOTE: branch names are most likely case sensitive (so don't uc them)
 		my $BRANCH = sprintf("%s",$v->{'branch'});
 		if (($ERROR eq '') && ($BRANCH ne '')) {
-			if ($BRANCH =~ /^[^a-zA-Z0-9]/) { $ERROR = "ERROR|+invalid characters in start of branch name"; }
-			if ($BRANCH =~ /[^a-zA-Z0-9\-\_]/) { $ERROR = "ERROR|+invalid characters in branch name '$BRANCH' (allowed A-Z 0-9 - _)"; }
+			if ($BRANCH =~ /^[^a-zA-Z0-9]/) { $ERROR = "invalid characters in start of branch name"; }
+			if ($BRANCH =~ /[^a-zA-Z0-9\-\_]/) { $ERROR = "invalid characters in branch name '$BRANCH' (allowed A-Z 0-9 - _)"; }
 			}
 
 		my $path = sprintf("%s/PROJECTS/%s",&ZOOVY::resolve_userpath($USERNAME),$UUID);
 		if (-d $path) { 
-			push @MSGS, "ERROR|+Will not create PROJECTS/$UUID folder (already exists)";
+			$ERROR = "Will not create PROJECTS/$UUID folder (already exists)";
 			}
 
 		if (defined $ERROR) {
-			push @MSGS, "$ERROR";
+			push @MSGS, "ERROR|+$ERROR";
+			&JSONAPI::set_error(\%R,'apperr',3200,$ERROR);
 			}
 		elsif (scalar(@MSGS)==0) {	
 			if ($REPO ne '') {
 				
 				## /usr/local/bin/git clone http://github.com/brianhorakh/linktest.git /remote/snap/users/b/brian/PROJECTS/e8b9f059-a695-11e1-9cc4-1560a415
+				## git clone https://github.com/zephyrsports/zephyrapp.git /users/zephyrsports/PROJECTS/ZEPHYR-201402B -b 201402
+
 				my @params = ();
-				if ($BRANCH) { push @params, "-b"; push @params, $BRANCH; }
 				push @params, $REPO;
 				push @params, $path;
+				if ($BRANCH) { push @params, "-b"; push @params, $BRANCH; }
 
-				#open F, ">/tmp/cmd";
-				#print F sprintf("git clone %s\n",join(' ',@params));
-				#close F;
+				chdir("/tmp");
+				open F, ">/tmp/cmd";
+				print F sprintf("git clone %s\n",join(' ',@params));
+				close F;
+
 				my ($r) = Git::Repository->run( 'clone', @params );
 				push @MSGS, "SUCCESS|+$r";
 				
 				if (-d $path) {
-					push @MSGS, "SUCCESS|REPO was cloned";
+					push @MSGS, "SUCCESS|+REPO was cloned";
 					}
 				else {
-					push @MSGS, $ERROR = "ERROR|+REPO could not be created, please try again";
+					push @MSGS, $ERROR = "REPO could not be created, please try again";
+					&JSONAPI::set_error(\%R,'apperr',3200,$ERROR);
 					}
 				}
 			else {
-				push @MSGS, "SUCCESS|Added project $UUID";
+				push @MSGS, "SUCCESS|+Added project $UUID";
 				}
-			}
-		else {
-			push @MSGS, "ERROR|+NO MESSAGES\n";
 			}
 
 		if ($TITLE eq '') { 
@@ -13198,6 +13197,8 @@ sub adminProject {
 			print STDERR $pstmt."\n";
 			&JSONAPI::dbh_do(\%R,$udbh,$pstmt);
 			}
+
+		$R{'@MSGS'} = \@MSGS;
 		}
 	else {
 		&JSONAPI::set_error(\%R,'apperr',120,"invalid _cmd");
@@ -16924,6 +16925,7 @@ sub cartDetail {
 	else {
 
 		$CART2 = $self->cart2($cartid,'create'=>$create_if_missing);
+		$R{'*CART2'} = $CART2;
 
 		if (defined $CART2) { 
 			$CART2->__SYNC__(); 
@@ -16944,6 +16946,7 @@ sub cartDetail {
 	else {
 		%R = %{$CART2->make_public()->jsonify()};
 		}
+
 
 	return(\%R);
 	}
@@ -17282,8 +17285,11 @@ sub appCartCreate {
 	$v->{'_cartid'} = $newid;		## make sure this $v is using the right cartid
 
 	if (defined $CART2) {
+		$CART2->in_set('cart/ip_address',$self->ipaddress());		## this will create "changes" which is necessary for a save
 		$self->linkCART2( $CART2 );
 		$R{'_cartid'} = $CART2->cartid();
+		$R{'*CART2'} = $CART2;
+		$CART2->cart_save('force'=>1);	## we *MUST* have a save here.
 		}
 
 	if ($v->{'cartDetail'}) {
