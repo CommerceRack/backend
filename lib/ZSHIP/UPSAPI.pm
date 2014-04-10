@@ -73,13 +73,13 @@ $ZSHIP::UPSAPI::DEFAULT_PARAMS = {
 	);
 
 # upsapi_options BITWISE MNEMONICS
-%ZSHIP::UPSAPI::OPTIONS = (
-	2  => 'product',
-	4  => 'multibox',
-	8  => 'residential',
-	16 => 'validation',
-	64 => 'disable_pobox',
-	);
+#%ZSHIP::UPSAPI::OPTIONS = (
+#	2  => 'product',
+#	4  => 'multibox',
+#	8  => 'residential',
+#	16 => 'validation',
+#	64 => 'disable_pobox',
+#	);
 
 #upsapi_dom_packaging
 #upsapi_int_packaging
@@ -198,12 +198,11 @@ sub upgrade_webdb {
 	$ref{'.shipper_number'} = $webdb->{'upsapi_shipper_number'};	delete $webdb->{'upsapi_shipper_number'};
 	$ref{'.rate_chart'} = $webdb->{'upsapi_rate_chart'};	delete $webdb->{'upsapi_rate_chart'};
 
-	$ref{'.product'} = ($webdb->{'upsapi_options'}&2)?1:0;
-	$ref{'.multibox'} = ($webdb->{'upsapi_options'}&4)?1:0;
-	$ref{'.residential'} = ($webdb->{'upsapi_options'}&8)?1:0;
-	$ref{'.validation'} = ($webdb->{'upsapi_options'}&16)?1:0;
-
-	$ref{'.disable_pobox'} = ($webdb->{'upsapi_options'}&64)?1:0;
+	#$ref{'.product'} = ($webdb->{'upsapi_options'}&2)?1:0;
+	#$ref{'.multibox'} = ($webdb->{'upsapi_options'}&4)?1:0;
+	#$ref{'.residential'} = ($webdb->{'upsapi_options'}&8)?1:0;
+	#$ref{'.validation'} = ($webdb->{'upsapi_options'}&16)?1:0;
+	#$ref{'.disable_pobox'} = ($webdb->{'upsapi_options'}&64)?1:0;
 	#delete $webdb->{'upsapi_options'};
 
 	$ref{'.dom_packaging'} = $webdb->{'upsapi_dom_packaging'}; delete $webdb->{'upsapi_dom_packaging'};

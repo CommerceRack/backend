@@ -25998,20 +25998,19 @@ sub adminConfigMacro {
 
 					my $UPSAPI_OPTIONS = 0;
 					# multibox, residential, validation, use_rules
-					foreach my $bit (keys %ZSHIP::UPSAPI::OPTIONS) {
-						my $name = $ZSHIP::UPSAPI::OPTIONS{$bit};
-						if ($params->{"option_$name"}) { $UPSAPI_OPTIONS += $bit; }
-						}
+					#foreach my $bit (keys %ZSHIP::UPSAPI::OPTIONS) {
+					#	my $name = $ZSHIP::UPSAPI::OPTIONS{$bit};
+					#	if ($params->{"option_$name"}) { $UPSAPI_OPTIONS += $bit; }
+					#	}
 
-					## now copy the license, and password
 					$upsapi_config{'.rate_chart'} = $params->{'rate_chart'};
-					$upsapi_config{'.product'} = ($UPSAPI_OPTIONS&2)?1:0;
-					$upsapi_config{'.multibox'} = ($UPSAPI_OPTIONS&4)?1:0;
-					$upsapi_config{'.residential'} = ($UPSAPI_OPTIONS&8)?1:0;
-					$upsapi_config{'.validation'} = ($UPSAPI_OPTIONS&16)?1:0;
-					$upsapi_config{'.use_rules'} = ($UPSAPI_OPTIONS&32)?1:0;
+					# $upsapi_config{'.product'} = ($UPSAPI_OPTIONS&2)?1:0;
+					$upsapi_config{'.multibox'} = $params->{'multibox'}; # ($UPSAPI_OPTIONS&4)?1:0;
+					$upsapi_config{'.residential'} = $params->{'residential'}; # ($UPSAPI_OPTIONS&8)?1:0;
+					$upsapi_config{'.validation'} = $params->{'validation'}; # ($UPSAPI_OPTIONS&16)?1:0;
+					# $upsapi_config{'.use_rules'} = ($UPSAPI_OPTIONS&32)?1:0;
+					# $upsapi_config{'.disable_pobox'} = ($UPSAPI_OPTIONS&64)?1:0;
 
-					$upsapi_config{'.disable_pobox'} = ($UPSAPI_OPTIONS&64)?1:0;
 					$upsapi_config{'.dom_packaging'} = $params->{'dom_packaging'};
 					$upsapi_config{'.int_packaging'} = $params->{'int_packaging'};
 					$webdb->{'upsapi_config'} = &ZTOOLKIT::buildparams(\%upsapi_config,1);
