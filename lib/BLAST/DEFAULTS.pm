@@ -67,7 +67,7 @@ if (is $var --notblank) {{
 	'%LOGOIMAGE%'=> q|<span><img data-tlc="
 bind $logoimg '.%PRT.LOGOIMAGE';
 if (is $img --blank) {{
-	apply --remove; 
+	apply --tag --remove; 
 	}} else {{
 	apply --img --media=$logoimg;
 	}};
@@ -199,13 +199,13 @@ apply --img --media=$var --width=75 --height=75 --bgcolor='#ffffff' --replace;" 
 	<td>
 	<div data-tlc="bind $var '.sku'; format --prepend='Sku: '; if (is $var --notblank) {{apply --append;}};"></div>
 	<b data-tlc="bind $var '.prod_name'; if (is $var --notblank) {{apply --append;}};"></b>
-	<div data-tlc="bind $var '.mktid'; if (is $var --blank) {{ apply --remove;}};">
+	<div data-tlc="bind $var '.mktid'; if (is $var --blank) {{ apply --tag --remove;}};">
 		<!-- ** note: this will be removed when .mktid is blank -->
-		<div data-tlc="bind $mkt '.mkt'; if (is $mkt --eq='EBAY') {{ bind $var '.mktid'; format --prepend='eBay: '; }} else {{ apply --remove; }}"></div>
-		<div data-tlc="bind $mkt '.mkt'; if (is $mkt --eq='EBF') {{ bind $var '.mktid'; format --prepend='eBay: '; }} else {{ apply --remove; }}"></div>
-		<div data-tlc="bind $mkt '.mkt'; if (is $mkt --eq='EBY') {{ bind $var '.mktid'; format --prepend='eBay: '; }} else {{ apply --remove; }}"></div>
+		<div data-tlc="bind $mkt '.mkt'; if (is $mkt --eq='EBAY') {{ bind $var '.mktid'; format --prepend='eBay: '; }} else {{ apply --tag --remove; }}"></div>
+		<div data-tlc="bind $mkt '.mkt'; if (is $mkt --eq='EBF') {{ bind $var '.mktid'; format --prepend='eBay: '; }} else {{ apply --tag --remove; }}"></div>
+		<div data-tlc="bind $mkt '.mkt'; if (is $mkt --eq='EBY') {{ bind $var '.mktid'; format --prepend='eBay: '; }} else {{ apply --tag --remove; }}"></div>
 	</div>
-	<div data-tlc="bind $var '.%attribs.zoovy:prod_mfgid; if (is $var --blank) {{ apply --remove; }} else {{ format --prepend='MfgId: '; apply --append; }}; "></div>
+	<div data-tlc="bind $var '.%attribs.zoovy:prod_mfgid'; if (is $var --blank) {{ apply --tag --remove; }} else {{ format --prepend='MfgId: '; apply --append; }}; "></div>
 	</td>
 	<td data-tlc="bind $var '.price'; if (is $var --notblank) {{ format --currency='USD'; format --prepend='x '; apply --append;}};"></td>
  	<td data-tlc="bind $var '.qty'; if (is $var --notblank) {{ apply --append;}};"></td>
@@ -229,31 +229,31 @@ apply --img --media=$var --width=75 --height=75 --bgcolor='#ffffff' --replace;" 
  	<td data-tlc="bind $var '.sum.tax_total'; format --currency='USD'; apply --append;"></td>
 </tr>
 
-<tr class="orderShipping" data-tlc="bind $var '.sum.shp_total'; if (is $var --eq=0) {{ bind $var '.sum.shp_method'; if (is $var --blank) {{ apply --remove; }}; }}; ">
+<tr class="orderShipping" data-tlc="bind $var '.sum.shp_total'; if (is $var --eq=0) {{ bind $var '.sum.shp_method'; if (is $var --blank) {{ apply --tag --remove; }}; }}; ">
 	<!-- ** in point of sale, we don't have shipping, so shp_method is set to blank, and total is zero - then tlc will remove this -->
 	<td align="right" colspan="4" style="text-align: right" data-tlc="bind $var '.sum.shp_method'; apply --append;"></td>
  	<td data-tlc="bind $var '.sum.shp_total'; if (is $var --notblank) {{format --currency='USD'; apply --append;}};"></td>
 </tr>
-<tr class="orderTotal" data-tlc="bind $var '.sum.order_total'; if (is $var --eq=0) {{ apply --remove; }};" >
+<tr class="orderTotal" data-tlc="bind $var '.sum.order_total'; if (is $var --eq=0) {{ apply --tag --remove; }};" >
 	<td align="right" colspan="4" style="text-align: right">Order Totals:</td>
 	<td data-tlc="bind $var '.sum.order_total'; format --currency='USD'; apply --append;"></td>
 </tr>
-<tr class="giftcardTotal" data-tlc="bind $var '.sum.gfc_total'; if (is $var --eq=0) {{ apply --remove; }};" >
+<tr class="giftcardTotal" data-tlc="bind $var '.sum.gfc_total'; if (is $var --eq=0) {{ apply --tag --remove; }};" >
 	<!-- ** this comment (and td's below) will be removed unless .gfc_total is > 0 -->
 	<td align="right" colspan="4" style="text-align: right">Giftcard(s):</td>
 	<td data-tlc="bind $var '.sum.gfc_total'; format --currency='USD'; apply --append;"></td>
 </tr>
-<tr class="rewardPointsTotal" data-tlc="bind $var '.sum.pnt_total'; if (is $var --lte=0) {{ apply --remove; }};" >
+<tr class="rewardPointsTotal" data-tlc="bind $var '.sum.pnt_total'; if (is $var --lte=0) {{ apply --tag --remove; }};" >
 	<!-- ** this comment (and td's below) will be removed unless .rewardsPointsTotal is > 0 -->
 	<td align="right" colspan="4" style="text-align: right">Reward Points:</td>
 	<td data-tlc="bind $var '.sum.pnt_total'; format --currency='USD'; apply --append; "></td>
 </tr>
-<tr class="returnsCreditTotal" data-tlc="bind $var '.sum.rmc_total'; if (is $var --lte=0) {{ apply --remove; }};"  >
+<tr class="returnsCreditTotal" data-tlc="bind $var '.sum.rmc_total'; if (is $var --lte=0) {{ apply --tag --remove; }};"  >
 	<!-- ** this comment (and td's below) will be removed unless .sum.rmc_total is > 0 -->
 	<td align="right" colspan="4" style="text-align: right">Returns Credit:</td>
 	<td data-tlc="bind $var '.sum.rmc_total'; format --currency='USD'; apply --append;"></td>
 </tr>
-<tr class="balancedueTotal" data-tlc="bind $var '.sum.balance_due_total'; if (is $var --lte=0) {{ apply --remove; }};" >
+<tr class="balancedueTotal" data-tlc="bind $var '.sum.balance_due_total'; if (is $var --lte=0) {{ apply --tag --remove; }};" >
 	<!-- ** this comment (and td's below) will be removed unless .sum.balance_due_total is > 0 ** -->
 	<td align="right" colspan="4" style="text-align: right">Balance Due:</td>
  	<td data-tlc="bind $var '.sum.balance_due_total'; format --currency='USD'; apply --append;"></td>
@@ -1110,7 +1110,7 @@ foreach my $k (keys %BLAST::DEFAULTS::DEPRECATED) {
 	<td colspan="2" valign="top" width=>
 	<table>
 		<tr>
-			<td colspan=2 data-tlc="bind $logoimg '.%PRT.LOGOIMAGE'; if (is $logoimg --blank) {{ apply --remove; }};" valign="top">
+			<td colspan=2 data-tlc="bind $logoimg '.%PRT.LOGOIMAGE'; if (is $logoimg --blank) {{ apply --tag --remove; }};" valign="top">
 			%LOGOIMAGE%
 			</td>
 			<td>
@@ -1137,7 +1137,7 @@ foreach my $k (keys %BLAST::DEFAULTS::DEPRECATED) {
 		'MSGBODY'=>q|
 <table class="orderContentsTable" width="650">
 <tbody><tr>
-	<td data-tlc="bind $logoimg '.%PRT.LOGOIMAGE'; if (is $logoimg --blank) {{ apply --remove; }};" valign="top" width="100">
+	<td data-tlc="bind $logoimg '.%PRT.LOGOIMAGE'; if (is $logoimg --blank) {{ apply --tag --remove; }};" valign="top" width="100">
 	%LOGOIMAGE%
 	</td>
 	<td valign="top" width="50%">
