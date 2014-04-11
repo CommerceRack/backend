@@ -201,9 +201,9 @@ apply --img --media=$var --width=75 --height=75 --bgcolor='#ffffff' --replace;" 
 	<b data-tlc="bind $var '.prod_name'; if (is $var --notblank) {{apply --append;}};"></b>
 	<div data-tlc="bind $var '.mktid'; if (is $var --blank) {{ apply --tag --remove;}};">
 		<!-- ** note: this will be removed when .mktid is blank -->
-		<div data-tlc="bind $mkt '.mkt'; if (is $mkt --eq='EBAY') {{ bind $var '.mktid'; format --prepend='eBay: '; }} else {{ apply --tag --remove; }}"></div>
-		<div data-tlc="bind $mkt '.mkt'; if (is $mkt --eq='EBF') {{ bind $var '.mktid'; format --prepend='eBay: '; }} else {{ apply --tag --remove; }}"></div>
-		<div data-tlc="bind $mkt '.mkt'; if (is $mkt --eq='EBY') {{ bind $var '.mktid'; format --prepend='eBay: '; }} else {{ apply --tag --remove; }}"></div>
+		<div data-tlc="bind $mkt '.mkt'; if (is $mkt --eq='EBAY') {{ bind $var '.mktid'; format --prepend='eBay: '; }} else {{ apply --tag --remove; }}; "></div>
+		<div data-tlc="bind $mkt '.mkt'; if (is $mkt --eq='EBF') {{ bind $var '.mktid'; format --prepend='eBay: '; }} else {{ apply --tag --remove; }}; "></div>
+		<div data-tlc="bind $mkt '.mkt'; if (is $mkt --eq='EBY') {{ bind $var '.mktid'; format --prepend='eBay: '; }} else {{ apply --tag --remove; }}; "></div>
 	</div>
 	<div data-tlc="bind $var '.%attribs.zoovy:prod_mfgid'; if (is $var --blank) {{ apply --tag --remove; }} else {{ format --prepend='MfgId: '; apply --append; }}; "></div>
 	</td>
@@ -221,42 +221,42 @@ apply --img --media=$var --width=75 --height=75 --bgcolor='#ffffff' --replace;" 
 <tr class="orderSubtotal">
 	<!-- note: subtotal will always appear -->
 	<td align="right" colspan="4" style="text-align: right">Subtotal:</td>
-	<td data-tlc="bind $var '.sum.items_total'; format --currency='USD'; apply --append;"></td>
+	<td data-tlc="bind $var '.%ORDER.sum.items_total'; format --currency='USD'; apply --append;"></td>
 </tr>
 <tr class="orderTax">
 	<!-- note: tax will always appear -->
 	<td align="right" colspan="4" style="text-align: right">Sales Tax:</td>
- 	<td data-tlc="bind $var '.sum.tax_total'; format --currency='USD'; apply --append;"></td>
+ 	<td data-tlc="bind $var '.%ORDER.sum.tax_total'; format --currency='USD'; apply --append;"></td>
 </tr>
 
-<tr class="orderShipping" data-tlc="bind $var '.sum.shp_total'; if (is $var --eq=0) {{ bind $var '.sum.shp_method'; if (is $var --blank) {{ apply --tag --remove; }}; }}; ">
+<tr class="orderShipping" data-tlc="bind $var '.%ORDER.sum.shp_total'; if (is $var --eq=0) {{ bind $var '.%ORDER.sum.shp_method'; if (is $var --blank) {{ apply --tag --remove; }}; }}; ">
 	<!-- ** in point of sale, we don't have shipping, so shp_method is set to blank, and total is zero - then tlc will remove this -->
-	<td align="right" colspan="4" style="text-align: right" data-tlc="bind $var '.sum.shp_method'; apply --append;"></td>
- 	<td data-tlc="bind $var '.sum.shp_total'; if (is $var --notblank) {{format --currency='USD'; apply --append;}};"></td>
+	<td align="right" colspan="4" style="text-align: right" data-tlc="bind $var '.%ORDER.sum.shp_method'; apply --append;"></td>
+ 	<td data-tlc="bind $var '.%ORDER.sum.shp_total'; if (is $var --notblank) {{format --currency='USD'; apply --append;}};"></td>
 </tr>
-<tr class="orderTotal" data-tlc="bind $var '.sum.order_total'; if (is $var --eq=0) {{ apply --tag --remove; }};" >
+<tr class="orderTotal" data-tlc="bind $var '.%ORDER.sum.order_total'; if (is $var --eq=0) {{ apply --tag --remove; }};" >
 	<td align="right" colspan="4" style="text-align: right">Order Totals:</td>
-	<td data-tlc="bind $var '.sum.order_total'; format --currency='USD'; apply --append;"></td>
+	<td data-tlc="bind $var '.%ORDER.sum.order_total'; format --currency='USD'; apply --append;"></td>
 </tr>
-<tr class="giftcardTotal" data-tlc="bind $var '.sum.gfc_total'; if (is $var --eq=0) {{ apply --tag --remove; }};" >
+<tr class="giftcardTotal" data-tlc="bind $var '.%ORDER.sum.gfc_total'; if (is $var --eq=0) {{ apply --tag --remove; }};" >
 	<!-- ** this comment (and td's below) will be removed unless .gfc_total is > 0 -->
 	<td align="right" colspan="4" style="text-align: right">Giftcard(s):</td>
-	<td data-tlc="bind $var '.sum.gfc_total'; format --currency='USD'; apply --append;"></td>
+	<td data-tlc="bind $var '.%ORDER.sum.gfc_total'; format --currency='USD'; apply --append;"></td>
 </tr>
-<tr class="rewardPointsTotal" data-tlc="bind $var '.sum.pnt_total'; if (is $var --lte=0) {{ apply --tag --remove; }};" >
+<tr class="rewardPointsTotal" data-tlc="bind $var '.%ORDER.sum.pnt_total'; if (is $var --lte=0) {{ apply --tag --remove; }};" >
 	<!-- ** this comment (and td's below) will be removed unless .rewardsPointsTotal is > 0 -->
 	<td align="right" colspan="4" style="text-align: right">Reward Points:</td>
-	<td data-tlc="bind $var '.sum.pnt_total'; format --currency='USD'; apply --append; "></td>
+	<td data-tlc="bind $var '.%ORDER.sum.pnt_total'; format --currency='USD'; apply --append; "></td>
 </tr>
-<tr class="returnsCreditTotal" data-tlc="bind $var '.sum.rmc_total'; if (is $var --lte=0) {{ apply --tag --remove; }};"  >
+<tr class="returnsCreditTotal" data-tlc="bind $var '.%ORDER.sum.rmc_total'; if (is $var --lte=0) {{ apply --tag --remove; }};"  >
 	<!-- ** this comment (and td's below) will be removed unless .sum.rmc_total is > 0 -->
 	<td align="right" colspan="4" style="text-align: right">Returns Credit:</td>
-	<td data-tlc="bind $var '.sum.rmc_total'; format --currency='USD'; apply --append;"></td>
+	<td data-tlc="bind $var '.%ORDER.sum.rmc_total'; format --currency='USD'; apply --append;"></td>
 </tr>
-<tr class="balancedueTotal" data-tlc="bind $var '.sum.balance_due_total'; if (is $var --lte=0) {{ apply --tag --remove; }};" >
+<tr class="balancedueTotal" data-tlc="bind $var '.%ORDER.sum.balance_due_total'; if (is $var --lte=0) {{ apply --tag --remove; }};" >
 	<!-- ** this comment (and td's below) will be removed unless .sum.balance_due_total is > 0 ** -->
 	<td align="right" colspan="4" style="text-align: right">Balance Due:</td>
- 	<td data-tlc="bind $var '.sum.balance_due_total'; format --currency='USD'; apply --append;"></td>
+ 	<td data-tlc="bind $var '.%ORDER.sum.balance_due_total'; format --currency='USD'; apply --append;"></td>
 </tr>
 
 </tbody>
@@ -285,7 +285,7 @@ apply --img --media=$var --width=75 --height=75 --bgcolor='#ffffff' --replace;" 
 |,
 
 	'%ORDERNOTES%'=> q|
-<div data-tlc="bind $var '.%want.order_notes'; apply --append;"></div>
+<div data-tlc="bind $var '.%ORDER.%want.order_notes'; apply --append;"></div>
 |,
 
 	'%DEBUG%'=> q|
@@ -332,15 +332,15 @@ apply --img --media=$var --width=75 --height=75 --bgcolor='#ffffff' --replace;" 
 
 	'%PAYINFO%'=> q|
 
-<div data-tlc="
+<div id="payment_method" data-tlc="
 /* PAYINFO */
+
 bind $payments '.%ORDER.@PAYMENTS';
-set $info '';
 foreach $payment in $payments {{
 	export '%payment' --dataset=$payment;
 	set $info '';
-	set $tender $payment --path='.tender';
-	set $ps 		$payment --path='.ps';
+	bind $tender '.%payment.tender';
+	bind $ps '.%payment.ps';
 
 	/* acct is a pipe delimed, colon separated key value pairs, each key is two digits */
 	bind $acct '.%payment.acct';
@@ -363,21 +363,30 @@ foreach $payment in $payments {{
 	/* append expiration date */
 	if (is $expmmyy --notblank) {{ format $info --append=' Exp:' --append=$expmmyy; }};
 	apply --append=$info;
+	export 'pm' --dataset=$info;
 
 	/* stringify $acct; apply --append; */
 	/* stringify $payment; apply --append; */
 	}};
 
 /* no payments .. default to payment_method in order */
-if (is $info --blank) {{ 
-	bind $info '.%ORDER.flow.payment_method';
-	apply --append;
+bind $pm '.pm';
+format $pm --prepend='***' --append='***';
+apply --append=$pm; 
+
+if (is $pm --blank) {{ 
+	bind $pm '.%ORDER.flow.payment_method';
+	apply --append=$pm; 
 	}};
 
 set $info '';
 format $info --crlf;
 apply --append=$info;
 
+"></div>
+
+<div id="payment_status" data-tlc="
+set $info '';
 bind $ps '.%ORDER.flow.payment_status';
 format $ps --truncate=1;
 if (is $ps --eq='0') {{ set $info 'Paid in Full'; }};
@@ -390,8 +399,7 @@ if (is $info --blank) {{ bind $ps '.%ORDER.flow.payment_status'; format $info --
 
 /* apply --append='payment status: ' --append=$ps; */
 apply --append=$info;
-">
-</div>
+"></div>
 |,
 
 	'%PAYINSTRUCTIONS%'=> q|
