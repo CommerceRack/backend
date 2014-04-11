@@ -72,10 +72,17 @@ sub hasACL {
 ##
 sub is_admin {
 	my ($self) = @_;
+
+	
 	
 	my $is_admin = (($self->{'IS_ADMIN'} eq 'Y')?1:0);
 	if ($self->is_support()) { $is_admin |= 2; }
 	if (uc($self->luser()) eq 'ADMIN') { return(4); }
+	if (defined $self->{'%ACL'}->{'%ROLES'}) {
+		if ($self->{'%ACL'}->{'%ROLES'}->{'SUPER'}) { return(8); }
+		if ($self->{'%ACL'}->{'%ROLES'}->{'BOSS'}) { return(16); }
+		if ($self->{'%ACL'}->{'%ROLES'}->{'AD1'}) { return(32); }
+		}
 
 	return( $is_admin );
 	}

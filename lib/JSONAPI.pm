@@ -396,7 +396,7 @@ use strict;
 	'adminCustomerUpdate'=>[\&JSONAPI::adminCustomerCreateUpdate, { 'admin'=>1, }, 'admin', { 'CUSTOMER'=>'U' } ],
 	'adminCustomerDetail'=>[\&JSONAPI::adminCustomerDetail, { 'admin'=>1, }, 'admin', { 'CUSTOMER'=>'R' } ],
 	'adminCustomerRemove'=>[\&JSONAPI::adminCustomerRemove, { 'admin'=>1, }, 'admin', { 'CUSTOMER'=>'D' } ],
-	'adminCustomerWalletPeek'=>[ \&JSONAPI::adminCustomerWalletPeek, { 'admin'=>1, }, 'admin', { 'CUSTOMER'=>'**' } ],
+	'adminCustomerWalletPeek'=>[ \&JSONAPI::adminCustomerWalletPeek, { 'admin'=>1, }, 'admin', { 'CUSTOMER/WALLET'=>'R' } ],
 	'adminCustomerOrganizationSearch'=>[\&JSONAPI::adminCustomerOrganization, { 'admin'=>1, }, 'admin', { 'CUSTOMER'=>'S' } ],
 	'adminCustomerOrganizationCreate'=>[\&JSONAPI::adminCustomerOrganization, { 'admin'=>1, }, 'admin', { 'CUSTOMER'=>'C' } ],
 	'adminCustomerOrganizationUpdate'=>[\&JSONAPI::adminCustomerOrganization, { 'admin'=>1, }, 'admin', { 'CUSTOMER'=>'U' } ],
@@ -2978,8 +2978,6 @@ sub handle {
 					}
 				else {
 					my $okay = 1;
-					##  my ($ACL) = &OAUTH::build_myacl($USERNAME,\@MYROLES);
-				
 					my %R = ();
 					my $LU = $self->LU();
 	
@@ -14540,6 +14538,11 @@ sub adminCustomerWalletPeek {
 
 	my $LU = $self->LU();
 	my %R = ();
+
+	open F, ">/tmp/luser";
+ 	print F Dumper($LU);
+	close F;
+
 	if ($LU->is_support()) {
 		## sorry but zoovy employees cannot view the contents of wallets
 		&JSONAPI::set_error(\%R,'iseerr',23403,'Provider employee not allowed');
@@ -16132,8 +16135,10 @@ sub bossUser {
 			if (defined $v->{'passpin'}) { $UREF{'PASSPIN'} = sprintf("%s",$v->{'passpin'}); }
 
 			if (defined $v->{'@roles'}) {	
-				$UREF{'ROLES'} = sprintf("%s",join(";",@{$v->{'@roles'}}));
+				$UREF{'ROLES'} = ';'.sprintf("%s",join(";",@{$v->{'@roles'}})).';';
 				}
+			$UREF{'IS_ADMIN'} = 'N';
+			if ($UREF{'ROLES'} =~ /;(SUPER|BOSS|AD1);/) { $UREF{'IS_ADMIN'} = 'Y'; }
 
 			if ($v->{'_cmd'} eq 'bossUserCreate') {
 				$self->accesslog('SETUP.USERMGR',"ACTION: CREATE SUB-USER: $LOGIN",'INFO');
@@ -24161,13 +24166,7 @@ sub adminConfigDetail {
 			#          }
 
 			# next if ($m->{'region'} ne $region);	
-			my $has_rules = '';
-			$has_rules = scalar(&ZSHIP::RULES::export_rules($webdb,"SHIP-$m->{'id'}"));
-			# $has_rules = Dumper($m->{'id'},&ZSHIP::RULES::export_rules($USERNAME,$PRT,"SHIP-$m->{'id'}"));
-			if ($m->{'rules'}==0) { $has_rules = 'OFF'; }
-			# $has_rules = 1;
 			my $summary = '';
-
 			if ($m->{'handler'} eq 'FIXED') {
 				$summary = '';
 				}
@@ -24215,8 +24214,8 @@ sub adminConfigDetail {
 				}
 
 			$m->{'provider'} = sprintf("FLEX:%s",$m->{'id'});
-			$m->{'enable'} = $m->{'active'};	## starting at 201318
-
+			# $m->{'enable'} = ($m->{'active'}?0:1);			## note: at one point this was 'active' (not sure when/if that changed)
+	
 			my @MSGS = ();
 			if ($m->{'carrier'} eq '') {
 				push @MSGS, "using carrier codes can improve your shipping efficiency.";
@@ -26089,7 +26088,7 @@ sub adminConfigMacro {
 						$ref{'addprice'} = $addprice;
 						}
 					elsif ($ref{'handler'} eq 'PRICE') {
-						$ref{'min_price'} = $params->{'minprice'};
+						$ref{'min_price'} = $params->{'min_price'};
 						}
 
 					&ZWEBSITE::ship_add_method($webdb,\%ref);

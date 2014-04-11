@@ -431,6 +431,10 @@ my $app = sub {
 		if (not defined $R) {
 			($R,my $cmdlines) = $JSAPI->handle($path,$v);
 			}
+
+		#if ($JSAPI->username() eq 'comfybabyonthego') {
+		#	use Data::Dumper; open F, ">>/tmp/comfybabyonthego"; print F Dumper(time(),$v,$R); close F;
+		#	}
 				
 		my $utf8_encoded_json_text = JSON::XS->new->utf8->allow_blessed(1)->convert_blessed(1)->encode($R);
 		## print STDERR "UF8 ENCODED TXT: $utf8_encoded_json_text\n";

@@ -36,7 +36,7 @@ sub calc {
 	## now go through each method (so we do this 3 times, or once per region)
 	foreach my $m (@{$methods}) {
 		next if ($m->{'region'} ne $REGION);	## this allows us to do grouping!
-		next unless ($m->{'active'});
+		next unless ($m->{'enable'});
 		$CART2->is_debug() && $PKG->pooshmsg("INFO|+Flex Shipping Trying: name=[$m->{'name'}] type=[$m->{'handler'}] carrier=[$m->{'carrier'}] id=[$m->{'id'}]");
 
 		#use Data::Dumper;
@@ -142,7 +142,6 @@ sub calc {
 
 			$CART2->is_debug() && $PKG->pooshmsg("TRACE|+PRICE IS: $TOTAL ");
 			print STDERR "TOTAL IS: $TOTAL\n";
-
 			if (($m->{'min_price'}>0) && ($TOTAL<$m->{'min_price'})) {
 				## total doesn't meet min price!
 				$price = undef;

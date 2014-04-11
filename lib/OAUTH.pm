@@ -46,7 +46,6 @@ require TXLOG;
 	'AMAZON',
 	'GIFTCARD',
 	'CUSTOMER',
-	'CUSTOMER/PASSWORD',
 	'CUSTOMER/WALLET',
 	'SUPPLIER',
 	'REVIEW',
@@ -231,7 +230,7 @@ sub build_myacl {
 	my %MYACL = ();
 	my $ALLROLES = &OAUTH::list_roles($USERNAME);	
 	foreach my $role ( @{$MYROLES} ) {
-		$MYACL{'_ROLES'}->{$role}++;
+		$MYACL{'%ROLES'}->{$role}++;
 		if (($role eq 'BOSS') || ($role eq 'SUPER')) {
 			foreach my $object (@OAUTH::OBJECTS) {
 				$MYACL{ $object } = { 'R'=>'+', 'C'=>'+', 'U'=>'+', 'L'=>'+', 'S'=>'+',, 'D'=>'+' };

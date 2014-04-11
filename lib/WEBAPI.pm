@@ -553,7 +553,6 @@ sub handle_sync {
 
 		if ($EC==0) {
 			my $PASSWORD = ''; 
-			my $IS_ADMIN = 0; 
 			my $MODE = 'PASSWORD';
 
 			if ($XSECURITY =~ /^([A-Z]+)\:(.*?)$/) { $MODE = $1; $XSECURITY = $2; }
@@ -571,7 +570,6 @@ sub handle_sync {
 				# print STDERR "Looking for Token: 'token_'.lc($CODE.$SEAT)\n";
 				my ($gref) = &ZWEBSITE::fetch_globalref($USERNAME);
 				my $TOKEN = $gref->{'webapi_zid'} || $gref->{'%plugins'}->{'desktop.zoovy.com'}->{'~password'};
-				$IS_ADMIN = 1;
 
 				my $IN = $USERNAME . (($LUSER ne '')?'*'.$LUSER:'') . $TOKEN . $XAPI . $XREQUEST . $XTIME . $DATA;
 				my $ACTUALMD5 = Digest::MD5::md5_hex( $IN );
@@ -584,11 +582,7 @@ sub handle_sync {
 				##if ($LUSER eq '') { $LUSER = 'admin'; }
 				#my $zdbh = &DBINFO::db_user_connect($USERNAME);
 				#my $pstmt = "select PASSHASH,PASSSALT,IS_ADMIN from LUSERS where MID=$MID and USERNAME=".$zdbh->quote($USERNAME)." and LUSER=".$zdbh->quote($LUSER);
-				#my ($PASSHASH,$PASSSALT,$IS_ADMIN) = $zdbh->selectrow_array($pstmt);
 				#&DBINFO::db_user_close();
-				#if (not $IS_ADMIN) {
-				#	$EC = 2010;	# user does not have administrative access
-				#	}
 				$LUSER = '';
 				my ($gref) = &ZWEBSITE::fetch_globalref($USERNAME);
 				my $CFG = $gref->{'%plugins'}->{'desktop.zoovy.com'} || {};
