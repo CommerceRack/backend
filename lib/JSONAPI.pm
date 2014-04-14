@@ -10227,7 +10227,7 @@ sub adminCampaign {
 		## COUPONS
 		my @COUPONS = ();
 		require CART::COUPON;
-		my $results = CART::COUPON::list($USERNAME,$PRT);
+		my $results = CART::COUPON::list($self->webdb());
 		foreach my $ref (@{$results}) {
 			$ref->{'coupon'} = $ref->{'code'};  delete $ref->{'code'};
 			next if ($ref->{'disabled'}>0);
@@ -23966,7 +23966,7 @@ sub adminConfigDetail {
 	if ($v->{'coupons'}) {
 		my @MSGS = ();
 		require CART::COUPON;
-		my $results = CART::COUPON::list($USERNAME,$PRT);	
+		my $results = CART::COUPON::list($webdb);	
 		if ( (my $sizeof = &ZOOVY::sizeof($results)) > 100000) {
 			push @MSGS, "WARNING|You have $sizeof bytes allocated to coupons - which is more than recommended 100,000 bytes of coupons.\n\nTry and reduce the number and/or size of each coupon.";
 			}
@@ -23979,7 +23979,7 @@ sub adminConfigDetail {
 			$cpnref->{'coupon'} = $cpnref->{'code'};  
 			delete $cpnref->{'code'};
 		
-			my ($cpnref) = &CART::COUPON::load($USERNAME,$PRT,$cpnref->{'coupon'});
+			my ($cpnref) = &CART::COUPON::load($webdb,$cpnref->{'coupon'});
 #			if (not defined $cpnref) {
 #				$cpnref->{'coupon'} = $cpnref->{'coupon'};
 #				}
@@ -24000,27 +24000,6 @@ sub adminConfigDetail {
 			}		
 		$R{'@COUPONS'} = \@COUPONS;
 		}
-
-#	if ($v->{'promotions') {
-#		require ZSHIP::RULES;
-#		require CART::COUPON;
-#		require CART2;
-#
-#		my $METHOD = '';
-#		my @MSGS = ();
-#
-#		$R{'promotion_advanced'} = 1;
-#		my (@rules) = &ZSHIP::RULES::export_rules($USERNAME,$PRT,$METHOD);
-#		$R{'@rules'} = \@rules;
-#
-#		my @rules = &ZSHIP::RULES::export_rules($USERNAME,$PRT,$METHOD);
-#		if ( (my $sizeof = &ZOOVY::sizeof(\@rules)) > 50000) {
-#			push @MSGS, "WARNING|Uber promotions are using $sizeof bytes of database space.\n\nThis is more than the recommended allocation of 25,000 bytes.\n";
-#			}
-#		if ( (my $rulecount = scalar(@rules)) > 75) {		
-#			push @MSGS, "WARNING|There are $rulecount uber promotions.\n\nThis is more than the recommended maximum of 50 rules.\n";
-#			}
-#		}
 
 
 	if ($v->{'shipping'}) {
@@ -25517,16 +25496,16 @@ sub adminConfigMacro {
 
 				require CART::COUPON;
 				if ($cmd eq 'COUPON/INSERT') {
-					CART::COUPON::add($USERNAME,$PRT,$COUPON);
-					CART::COUPON::save($USERNAME,$PRT,$COUPON,%ref);
+					CART::COUPON::add($webdb,$COUPON);
+					CART::COUPON::save($webdb,$COUPON,%ref);
 					$LU->log("SETUP.PROMO","Created Coupon $COUPON","SAVE");
 					}
 				elsif ($cmd eq 'COUPON/UPDATE') {
-					CART::COUPON::save($USERNAME,$PRT,$COUPON,%ref);
+					CART::COUPON::save($webdb,$COUPON,%ref);
 					$LU->log("SETUP.PROMO","Updated/Saved Coupon $COUPON","SAVE");
 					}
 				elsif ($cmd eq 'COUPON/REMOVE') {
-					CART::COUPON::delete($USERNAME,$PRT,$COUPON);
+					CART::COUPON::delete($webdb,$COUPON);
 					$LU->log("SETUP.PROMO","Deleted Coupon for $COUPON","SAVE");
 					}
 				}

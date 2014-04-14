@@ -401,6 +401,7 @@ please use http://jigsaw.w3.org/css-validator/validator to correct, or disable c
 
 		## 
 		if (not defined $BODY) {
+
 			## SHIT!: FILE DOES NOT EXIST
 			$HTTP_RESPONSE = 404;
 			open F, ">$LOCALFILE.missing";
@@ -440,6 +441,7 @@ please use http://jigsaw.w3.org/css-validator/validator to correct, or disable c
 				# print "LINE: $_\n";
 				$_ =~ s/[\n\r]+//gs;
 				my ($verb,$ifmatch,$thengoto) = split(/[\t]/,$_);
+				print STDERR "LINE:$line [$verb] [$ifmatch] [$thengoto]\n";
 				if ($_ eq '') {
 					## ignore blank lines!
 					}
@@ -455,21 +457,21 @@ please use http://jigsaw.w3.org/css-validator/validator to correct, or disable c
 					if ($part eq 'query') { $src = $URI->query(); }
 
 
-					# print "STYLE:$style SRC:$src  IFMATCH:$ifmatch\n";
+					#print STDERR "STYLE:$style SRC:$src  IFMATCH:$ifmatch\n";
 					if ($style eq '=') {
 						if ($src eq $ifmatch) { $goto = $thengoto; }
 						}
 					elsif ($style eq '~') {
-						# print "IFMATCH:$ifmatch THEN:$thengoto\n";
+						#print STDERR "IFMATCH:$ifmatch THEN:$thengoto SRC[$src]\n";
 						$ifmatch =~ s/"/\\"/g;			# protection from embedded code
-						if ($src =~ m/^$ifmatch$/) {
-							# print "GOMATCH: 1\n";
+						if ($src =~ m/$ifmatch/) {
+							#print STDERR "GOMATCH: 1[$1] 2[$2] 3[$3]\n";
 
 							$thengoto =~ s/"/\\"/g;		# embedded code protection
 							$thengoto = '"'.$thengoto.'"';
-							$src =~ s/^$ifmatch$/$thengoto/ee;
+							$src =~ s/$ifmatch/$thengoto/ee;
 							$goto = $src;
-							# print "GOTO: $goto\n";
+							#print STDERR "GOTO: $goto\n";
 							}
 						}
 					}
