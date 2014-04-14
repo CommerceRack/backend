@@ -11182,13 +11182,15 @@ sub adminSyndication {
 		push @FIELDS, { type=>'textbox', name=>'FTP Username', id=>'.ftp_user', required=>1 };
 		push @FIELDS, { type=>'textbox', name=>'FTP Password', id=>'.ftp_pass', required=>1 };
 		push @FIELDS, { type=>'textbox', name=>'FTP Server', id=>'.ftp_server', required=>1, hint=>'example: upload.nextag.com' };
+		push @FIELDS, { type=>'textbox', id=>'.linkstyle' };
 		}
-	elsif ($MKT eq 'GSM') {
-		## GOOGLE SITEMAP
-		($DST,$MARKETPLACE) = ('GSM','Google Sitemap');
-		# push @BC, { name=>'SiteMap',link=>"$PATH",'target'=>'_top', };
-		push @FIELDS, { type=>'checkbox', name=>'Enable', id=>'.enable', required=>1 };
-		}
+	#elsif ($MKT eq 'GSM') {
+	#	## GOOGLE SITEMAP
+	#	($DST,$MARKETPLACE) = ('GSM','Google Sitemap');
+	#	# push @BC, { name=>'SiteMap',link=>"$PATH",'target'=>'_top', };
+	#	push @FIELDS, { type=>'checkbox', name=>'Enable', id=>'.enable', required=>1 };
+	#	push @FIELDS, { type=>'textbox', id=>'.linkstyle' };
+	#	}
 	elsif ($MKT eq 'BUY') {
 		require SYNDICATION::BUYCOM;
 		($DST,$MARKETPLACE) = ('BUY','Buy.com');
@@ -11223,16 +11225,7 @@ sub adminSyndication {
 		push @FIELDS, { type=>'textbox', id=>'.host' };
 		push @FIELDS, { type=>'textbox', id=>'.user' };
 		push @FIELDS, { type=>'textbox', id=>'.pass' };
-		}
-	elsif ($MKT eq 'BST') {
-		require SYNDICATION::BUYCOM;
-		#push @TABS, { selected=>($VERB eq 'DBMAP')?1:0, 'name'=>'DB Maps', 'link'=>"$PATH?VERB=DBMAP&PROFILE=$PROFILE" };
-		#push @TABS, {  'name'=>'Files', 'link'=>"$PATH?VERB=FILES&PROFILE=$PROFILE" };
-		push @FIELDS, { align=>'left', type=>'checkbox', name=>'Is Active', id=>'.enable', default=>1, hint=>"Checkbox must be selected or syndication will not be attempted." };
-		push @FIELDS, { type=>'textbox', name=>'FTP Username', id=>'.ftp_user', required=>1 };
-		push @FIELDS, { type=>'textbox', name=>'FTP Password', id=>'.ftp_pass', required=>1 };
-		push @FIELDS, { type=>'textbox', name=>'Seller ID', id=>'.sellerid', required=>1 };
-		push @FIELDS, { type=>'textbox', name=>'Seller Password', id=>'.sellerpass', required=>1 };
+		push @FIELDS, { type=>'textbox', id=>'.linkstyle' };
 		}
 	elsif ($MKT eq 'PGR') {
 		($DST,$MARKETPLACE) = ('PGR','PriceGrabber.com');
@@ -11243,6 +11236,7 @@ sub adminSyndication {
 		push @FIELDS, { align=>'left', type=>'checkbox', name=>'Is Active', id=>'.enable', default=>1, hint=>"Checkbox must be selected or syndication will not be attempted." };
 		push @FIELDS, { type=>'textbox', name=>'FTP/Web Username', id=>'.user', required=>1, hint=>'hint: uploaded filename is always username.csv',};
 		push @FIELDS, { type=>'textbox', name=>'FTP/Web Password', id=>'.pass', required=>1 };
+		push @FIELDS, { type=>'textbox', id=>'.linkstyle' };
 		}
 	elsif ($MKT eq 'APA') {
 		($DST,$MARKETPLACE) = ('APA','Amazon Product Ads');
@@ -11253,6 +11247,7 @@ sub adminSyndication {
 		push @FIELDS, { type=>'textbox', name=>'FTP/Web Username', id=>'.ftp_user', required=>1, hint=>'hint: uploaded filename is always username.csv',};
 		push @FIELDS, { type=>'textbox', name=>'FTP/Web Password', id=>'.ftp_pass', required=>1 };
 		push @FIELDS, { type=>'textbox', name=>'FTP Server', id=>'.ftp_server', required=>1 };
+		push @FIELDS, { type=>'textbox', id=>'.linkstyle' };
 		}
 	elsif (($MKT eq 'EBF') || ($MKT eq 'EBAY')) {
 		($DST,$MARKETPLACE) = ('EBF','eBay Syndication');
@@ -11297,6 +11292,7 @@ sub adminSyndication {
 		($DST,$MARKETPLACE) = ('SAS','ShareASale.com');
 		push @FIELDS, { align=>'left', type=>'checkbox', name=>'Is Active', id=>'.enable', default=>1, hint=>"Checkbox must be selected or syndication will not be attempted." };
 		push @FIELDS, { type=>'textbox', name=>'Merchant ID', id=>'.merchantid', required=>1 };
+		push @FIELDS, { type=>'textbox', id=>'.linkstyle' };
 		}
 	elsif ($MKT eq 'SHO') {
 		($DST,$MARKETPLACE) = ('SHO','Shopping.com');
@@ -11304,6 +11300,7 @@ sub adminSyndication {
 		push @FIELDS, { type=>'textbox', name=>'FTP User', id=>'.ftp_user', required=>1 };
 		push @FIELDS, { type=>'textbox', name=>'FTP Password', id=>'.ftp_pass', required=>1 };
 		push @FIELDS, { type=>'textbox', name=>'FTP Server', id=>'.ftp_server', required=>1 };
+		push @FIELDS, { type=>'textbox', id=>'.linkstyle' };
 		}
 	elsif ($MKT eq 'FND') {
 		($DST,$MARKETPLACE) = ('FND','TheFind.com');
@@ -11311,6 +11308,7 @@ sub adminSyndication {
 		push @FIELDS, { type=>'textbox', name=>'FTP User', id=>'.ftp_user', required=>1 };
 		push @FIELDS, { type=>'textbox', name=>'FTP Password', id=>'.ftp_pass', required=>1 };
 		push @FIELDS, { type=>'textbox', name=>'FTP Server', id=>'.ftp_server', required=>1 };
+		push @FIELDS, { type=>'textbox', id=>'.linkstyle' };
 		}
 	elsif ($MKT eq 'BIN') {
 		($DST,$MARKETPLACE) = ('BIN','Bing.com');
@@ -11318,6 +11316,7 @@ sub adminSyndication {
 		push @FIELDS, { type=>'textbox', name=>'FTP User', id=>'.ftp_user', required=>1 };
 		push @FIELDS, { type=>'textbox', name=>'FTP Password', id=>'.ftp_pass', required=>1 };
 		push @FIELDS, { type=>'textbox', name=>'FTP Server', id=>'.ftp_server', required=>1 };
+		push @FIELDS, { type=>'textbox', id=>'.linkstyle' };
 		}
 	elsif ($MKT eq 'GOO') {
 		($DST,$MARKETPLACE) = ('GOO','Google Shopping');
@@ -11330,6 +11329,7 @@ sub adminSyndication {
 		push @FIELDS, { type=>'checkbox', id=>'.upc_exempt' };
 		push @FIELDS, { type=>'checkbox', id=>'.include_shipping' };
 		push @FIELDS, { type=>'checkbox', id=>'.ignore_validation' };
+		push @FIELDS, { type=>'textbox', id=>'.linkstyle' };
 		}
 	elsif ($MKT eq 'BZR') {
 		($DST,$MARKETPLACE) = ('BZR','Shopzilla');
@@ -11339,6 +11339,7 @@ sub adminSyndication {
 		push @FIELDS, { type=>'textbox', name=>'FTP User', id=>'.ftp_user', required=>1 };
 		push @FIELDS, { type=>'textbox', name=>'FTP Password', id=>'.ftp_pass', required=>1 };
 		push @FIELDS, { type=>'textbox', name=>'FTP Server', id=>'.ftp_server', required=>1 };
+		push @FIELDS, { type=>'textbox', id=>'.linkstyle' };
 		}
 	elsif ($MKT eq 'PTO') {
 		($DST,$MARKETPLACE) = ('PTO','Pronto.com');
@@ -11346,6 +11347,7 @@ sub adminSyndication {
 		push @FIELDS, { type=>'textbox', name=>'FTP User', id=>'.ftp_user', required=>1 };
 		push @FIELDS, { type=>'textbox', name=>'FTP Password', id=>'.ftp_pass', required=>1 };
 		push @FIELDS, { type=>'textbox', name=>'FTP Server', id=>'.ftp_server', required=>1 };
+		push @FIELDS, { type=>'textbox', id=>'.linkstyle' };
 		}
 	elsif ($MKT eq 'BCM') {
 		($DST,$MARKETPLACE) = ('BCM','Become.com');
@@ -11353,6 +11355,7 @@ sub adminSyndication {
 		push @FIELDS, { type=>'textbox', name=>'FTP User', id=>'.ftp_user', required=>1 };
 		push @FIELDS, { type=>'textbox', name=>'FTP Password', id=>'.ftp_pass', required=>1 };
 		push @FIELDS, { type=>'textbox', name=>'FTP Server', id=>'.ftp_server', required=>1 };
+		push @FIELDS, { type=>'textbox', id=>'.linkstyle' };
 		}
 	elsif ($MKT eq 'SMT') {
 		($DST,$MARKETPLACE) = ('SMT','Smarter.com');
@@ -11360,6 +11363,7 @@ sub adminSyndication {
 		push @FIELDS, { type=>'textbox', name=>'FTP User', id=>'.ftp_user', required=>1 };
 		push @FIELDS, { type=>'textbox', name=>'FTP Password', id=>'.ftp_pass', required=>1 };
 		push @FIELDS, { type=>'textbox', name=>'FTP Server', id=>'.ftp_server', required=>1 };
+		push @FIELDS, { type=>'textbox', id=>'.linkstyle' };
 		}
 	elsif ($MKT eq 'DIJ') {
 		($DST,$MARKETPLACE) = ('DIJ','Dijipop.com');
@@ -11368,6 +11372,7 @@ sub adminSyndication {
 		push @FIELDS, { type=>'textbox', name=>'FTP User', id=>'.ftp_user', required=>1 };
 		push @FIELDS, { type=>'textbox', name=>'FTP Password', id=>'.ftp_pass', required=>1 };
 		push @FIELDS, { type=>'textbox', name=>'FTP Server', id=>'.ftp_server', required=>1 };
+		push @FIELDS, { type=>'textbox', id=>'.linkstyle' };
 		}
 	elsif ($MKT eq 'LNK') {
 		($DST,$MARKETPLACE) = ('LNK','Linkshare.com');
@@ -11379,6 +11384,7 @@ sub adminSyndication {
 		push @FIELDS, { type=>'textbox', name=>'Linkshare MID', id=>'.linkshare_mid', required=>1, hint=>qq~Linkshare Merchant ID is assigned by LinkShare.~, };
 		push @FIELDS, { type=>'textbox', name=>'Linkshare Company', id=>'.linkshare_company', required=>1 };
 		push @FIELDS, { type=>'textbox', name=>'Linkshare Default ClassID', id=>'.linkshare_default_classid', size=>3, required=>1, hint=>qq~(ex: 140 is electronics)~, };
+		push @FIELDS, { type=>'textbox', id=>'.linkstyle' };
 		}
 	elsif ($MKT eq 'HSN') {
 		($DST,$MARKETPLACE) = ('HSN','HSN.com');
