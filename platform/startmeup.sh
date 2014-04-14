@@ -121,9 +121,10 @@ echo "nameserver 8.8.8.8" > /etc/resolv.conf
   chmod 777 /local/elastic
  echo > /tmp/rebuild.sh
 ## Needs uppercase user to reindex
+sudo service elasticsearch start
 for USER in `/httpd/platform/cfgecho.pl type:user | tr '[:upper:]' '[:lower:]'` ; do
-   echo "/httpd/scripts/elastic/reindex-products.pl $USER" >> /tmp/rebuild.sh
-   echo "/httpd/scripts/elastic/reindex-orders.pl $USER" >> /tmp/rebuild.sh
+   echo "/httpd/scripts/elastic/reindex-public.pl $USER" >> /tmp/rebuild.sh
+   echo "/httpd/scripts/elastic/reindex-private.pl $USER" >> /tmp/rebuild.sh
    done
  cat /tmp/rebuild.sh | at now
 
@@ -142,12 +143,6 @@ for USER in `/httpd/platform/cfgecho.pl type:user | tr '[:upper:]' '[:lower:]'` 
  done
 
  
-
-
-
-
-
-
 
 
 
