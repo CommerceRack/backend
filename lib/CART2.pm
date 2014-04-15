@@ -4195,9 +4195,8 @@ sub add_coupon {
 	my $count = 0;
 	if (not defined $cpnref) {
 		require CART::COUPON;
-		my $webdbref = $self->webdbref();
 		# push @SITE::ERRORS, "PRT=".$self->prt().",$code";
-		($cpnref) = CART::COUPON::load($webdbref,$code);
+		($cpnref) = CART::COUPON::load($self->username(),$self->prt(),$code);
 		}
 
 	if (not defined $cpnref) {
@@ -9960,6 +9959,9 @@ sub run_macro {
 sub run_macro_cmds {
 	my ($self, $CMDS, %params) = @_;
 
+	my $R = $params{'%R'} || {};
+	$R->{'errors'} = 0;
+
 	my $errs = 0;
 	my $lm = $params{'*LM'};
 	if (not defined $lm) { $lm = LISTING::MSGS->new(); }
@@ -10100,9 +10102,18 @@ sub run_macro_cmds {
 			#$se->sendmail($pref->{'msg'},%msgparams);
 			#$se = undef;
 			my ($BLAST) = BLAST->new($self->username(),$self->prt());
-			my ($rcpt) = $BLAST->recipient('CUSTOMER',$self->customer(),{'%ORDER'=>$self,'%CUSTOMER'=>$self->customer()});
+			my $recipientStr = $pref->{'recipient'};
+
+			my $rcpt = undef;
+			if ($recipientStr =~ /\@/) {
+				($rcpt) = $BLAST->recipient('EMAIL',$recipientStr,{'%ORDER'=>$self,'%RUPDATES'=>$R});
+				}
+			else {
+				($rcpt) = $BLAST->recipient('CUSTOMER',$self->customer(),{'%ORDER'=>$self,'%CUSTOMER'=>$self->customer(),'%RUPDATES'=>$R});
+				}
 			if ($pref->{'msg'} eq 'PTELLAF') { $pref->{'msg'} = 'PRODUCT.SHARE'; }
-			my ($msg) = $BLAST->msg($pref->{'msg'});
+			my ($msg) = $BLAST->msg($pref->{'msg'}, $pref);
+
 			$BLAST->send($rcpt,$msg);
 			}
 		elsif (($cmd eq 'ADDNOTE') || ($cmd eq 'ADDPUBLICNOTE') || ($cmd eq 'SETPUBLICNOTE')) {

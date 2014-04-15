@@ -3461,6 +3461,23 @@ Payload input and output are identical across protocols.
 However Request/Response formatting is designed to be familiar across protocols, but obviously intended to utilize the
 specifics.
 
+
+appMashUpRedis
+platform=appMashUpRedis-XXX.json
+
+_cartid=xyz
+%vars: [
+  	key1:value1, 
+	key2:value2
+	]
+
+@redis : [
+	[ command1, param1, param1b, param1c, .. ]
+	[ command2, param2, param2b, param2c, .. ]
+	]
+
+
+
 </SECTION>
 
 <API id="appMashUpSQS">
@@ -3558,7 +3575,144 @@ specifics.
 =cut
 
 sub appMashUp {
+	my ($self, $v) = @_;
 	##
+
+	my $CART2 = undef;
+	my %R = ();
+
+	if ($v->{'_cartid'}) {
+		my $cartid = sprintf("%s",$v->{'_cartid'});
+		$CART2 = $self->cart2($cartid);
+		if (not defined $CART2) {
+			&JSONAPI::set_error(\%R,'apierr','91217',"cart could not be loaded");
+			}
+		}	
+
+	my $VARS = $v->{'%vars'};
+
+	my $PROJECTDIR = $self->projectdir($self->projectid());
+	my $FILEREF = undef;
+
+	my $platform = $v->{'platform'};
+	if ($platform eq '') {
+		&JSONAPI::set_error(\%R,'apierr',91218,"platform file must be referenced (was blank).");
+		}
+	elsif ($platform !~ /^appMashUp(HTTP|HTTPS|SQS|MemCache|Redis|SMTP|FTP|SFTP)\-(.*?)\.json$/) {
+		&JSONAPI::set_error(\%R,'apierr',91219,"platform referenced must be appMashUpXXXX-ID.json");
+		}
+	elsif (not $self->projectid()) {
+		## usually this means somebody is referencing the wrong domain (ex: vstore)
+		&JSONAPI::append_msg_to_response(\%R,'iseerr',91220,"projectid is not set for host.domain (check DNS config)");
+		}
+	elsif (! -d $PROJECTDIR) {
+		&JSONAPI::append_msg_to_response(\%R,'apierr',91222,"project directory $PROJECTDIR does not seem to exist");
+		}
+	## appMashUpRedis-EMAILCART.json
+	elsif (not &JSONAPI::validate_required_parameter(\%R,$v,'%vars')) {
+		}
+	elsif (-f "$PROJECTDIR/platform/$platform") {
+		my $json = '';
+		open F, "<$PROJECTDIR/platform/$platform";
+		while (<F>) {
+			next if (substr($_,0,2) eq '//');
+			$json .= $_;
+			} 
+		close F;
+
+		## PHASE2B: parse the file.	
+		if ($json eq '') {
+			&JSONAPI::append_msg_to_response(\%R,'apierr',74220,"permissions file has no json");
+			}
+		else {
+			eval { $FILEREF  = JSON::XS::decode_json($json) };
+			if ($@) {
+				&JSONAPI::append_msg_to_response(\%R,'iseerr',91218,"mashup json platform file $platform decode error: $@");
+				}
+			}
+		
+		}
+	else {
+		&JSONAPI::append_msg_to_response(\%R,'iseerr',91218,"platform file requested [$platform] does not exist.");
+		}
+
+	my %SUB = ();
+	if (&JSONAPI::hadError(\%R)) {
+		}
+	elsif (not defined $FILEREF) {
+		&JSONAPI::append_msg_to_response(\%R,'iseerr',91218,"mashup platform file could not be decoded.");
+		}
+	elsif (not $FILEREF->{'version'}) {
+		&JSONAPI::append_msg_to_response(\%R,'iseerr',91218,"no 'version' key found in platform json file $platform");
+		}
+	else {
+		foreach my $line (@{$FILEREF->{'@whitelist'}}) {
+			if ($line->{'verb'} eq 'get') { $SUB{ $line->{'id'} } = $v->{'%vars'}->{ $line->{'value'} }; }
+			}
+		}
+
+
+	print STDERR 'FILEREF: '.Dumper($FILEREF,\%SUB,$v,\%R)."\n";
+	if (not defined $FILEREF->{'@CART-MACROS'}) {
+		}
+	elsif (not defined $CART2) {
+		&JSONAPI::append_msg_to_response(\%R,'iseerr',91215,"received \@CART-MACROS but don't have a valid CART2");		
+		}
+	else {
+		foreach my $line (@{$FILEREF->{'@CART-MACROS'}}) {	
+			$R{'%SUB'} = \%SUB;
+			my $copy = $line;
+			foreach my $k (keys %SUB) {
+				my $qk = quotemeta($k);
+				if ($copy =~ /$qk/) { $copy =~ s/$qk/$SUB{$k}/gs; }
+				}
+			my $CMDS = &CART2::parse_macro_script($copy);
+			push @{$R{'@LINES'}}, $copy;
+			push @{$R{'@CMDS'}},  $CMDS;
+			$CART2->run_macro_cmds($CMDS);
+			}
+		}
+
+	if (&JSONAPI::hadError(\%R)) {
+		}
+	elsif (($v->{'_cmd'} eq 'appMashUpHTTP') || ($v->{'_cmd'} eq 'appMashHTTPS')) {
+		}
+	elsif ($v->{'_cmd'} eq 'appMashUpSQS') {
+		}
+	elsif ($v->{'_cmd'} eq 'appMashUpMemCache') {
+		}
+	elsif ($v->{'_cmd'} eq 'appMashUpRedis') {
+		my ($redis) = &ZOOVY::getRedis($self->username(),1);
+		if (ref($FILEREF->{'@redis'}) ne 'ARRAY') {
+			&JSONAPI::append_msg_to_response(\%R,'apierr',91100,"\@redis is required and must be an array");
+			}
+		else {
+			my $i = 0;
+			foreach my $lineref (@{$FILEREF->{'@redis'}}) {
+				foreach my $id (@{$lineref}) {
+					if (defined $SUB{$id}) { $id = $SUB{$id}; }
+					}
+				
+				my ($cmd,@params) = @{$lineref};
+				$redis->$cmd(@params);
+				}
+			}
+		}
+	elsif ($v->{'_cmd'} eq 'appMashUpSMTP') {
+		}
+	elsif (($v->{'_cmd'} eq 'appMashUpFTP') || ($v->{'_cmd'} eq 'appMashUpSFTP')) {
+		}
+#	'appMashUpSQS'=>[ \&JSONAPI::appMashUp, {}, 		'mashup' ],
+#	'appMashUpSQL'=>[ \&JSONAPI::appMashUp, {}, 		'mashup' ],
+#	'appMashUpHTTP'=>[ \&JSONAPI::appMashUp, {}, 		'mashup' ],
+#	'appMashUpHTTPS'=>[ \&JSONAPI::appMashUp, {}, 	'mashup' ],
+#	'appMashUpMemCache'=>[ \&JSONAPI::appMashUp, {}, 'mashup' ],
+#	'appMashUpRedis'=>[ \&JSONAPI::appMashUp, {}, 	'mashup' ],
+#	'appMashUpSMTP'=>[ \&JSONAPI::appMashUp, {}, 		'mashup' ],
+#	'appMashUpFTP'=>[ \&JSONAPI::appMashUp, {}, 		'mashup' ],
+#	'appMashUpSFTP'=>[ \&JSONAPI::appMashUp, {}, 		'mashup' ],
+
+	return(\%R);
 	}
 
 sub appInteractInternal {
@@ -9089,6 +9243,11 @@ sub adminBlastMsg {
       $params{'MSGFROM'} = $META{'email_from'};
       $params{'MSGBCC'} = $META{'email_bcc'};
 
+		if ($v->{'_cmd'} eq 'adminBlastMsgCreate') {
+			if (not defined $params{'BODY'}) { $params{'BODY'} = 'New Message'; }
+			if (not defined $params{'SUBJECT'}) { $params{'SUBJECT'} = $MSGID; }
+			}
+
 		## messages can be sent as 'update' even if they don't really exist in the db (so we need this hack!)
 		my $pstmt = "select count(*) from SITE_EMAILS where MID=".$self->mid()." and PRT=".$self->prt()." and MSGID=".$udbh->quote($params{'MSGID'})." and LANG=".$udbh->quote($params{'LANG'});
 		my ($exists) = $udbh->selectrow_array($pstmt);
@@ -10026,6 +10185,8 @@ sub adminFile {
 			&JSONAPI::set_error(\%R,'youerr',9371,'adminFileUpload file was empty / no files found');
 			}
 		elsif ($v->{'FILENAME'} =~ /\.[Zz][Ii][Pp]$/) {
+			mkdir($dir);
+			chmod 0777, $dir;
 			my $SH = new IO::String($DATA);
 			my ($zip) = Archive::Zip->new();
 			$zip->readFromFileHandle($SH);

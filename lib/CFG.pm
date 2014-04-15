@@ -17,7 +17,7 @@ $::CFG = undef;
 #[system]
 #saas: 0|1	# is this a shared platform
 #
-#
+#	$cfg->get("RITTERSGIFTS","mid")
 #
 #
 #
