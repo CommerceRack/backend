@@ -105,6 +105,10 @@ sub resolve_tb {
 
 
 
+
+
+
+
 ##
 ## returns hashref
 ##		keyed by sku
@@ -229,7 +233,20 @@ sub summary {
 
 	&DBINFO::db_user_close();
 
-	if ($options{'PIDS_ONLY'}) {
+	if ($options{'ELASTIC_PAYLOADS'}) {
+		## for now this lowercases all keys, eventually might hide keys from ELASTIC
+		## basically returns the summary in a format that is suitable for an update into elastic sku record.
+		my %ES_PAYLOADS = ();
+		foreach my $SKU (keys %SUMMARY) {
+			my %esdata = ();
+			foreach my $k (keys %{$SUMMARY{$SKU}}) { 
+				$esdata{lc($k)} = $SUMMARY{$SKU}->{$k}; 
+				}
+			$ES_PAYLOADS{$SKU} = \%esdata;
+			}
+		return(\%ES_PAYLOADS);
+		}
+	elsif ($options{'PIDS_ONLY'}) {
 		foreach my $SKU (keys %SUMMARY) {
 			my ($PID) = &PRODUCT::stid_to_pid($SKU);
 
@@ -257,6 +274,9 @@ sub summary {
 			}
 		return($SUMMARY{$SKU});
 		}
+
+
+	
 
 	return(\%SUMMARY);
 	}

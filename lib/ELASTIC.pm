@@ -72,9 +72,10 @@ sub add_products {
 			## ES requires we specify a command ex: 'index'
 			my @ES_BULK_ACTIONS = ();
 			foreach my $payload (@{$ES_PAYLOADS}) {
-				print STDERR Dumper($payload);
 				# push @ES_BULK_ACTIONS, { 'index'=>$payload };
 				if (defined $payload->{'data'}) { warn "payload contains legacy ->data attribute\n"; }
+				print STDERR Dumper($payload);
+
 				$bulk->index($payload)
 				}
 
@@ -309,12 +310,13 @@ sub rebuild_product_index {
 
 	my %NC_PROPERTIES = ();
 	$NC_PROPERTIES{'path'} = { 'buffer_size'=>128, 'type'=>'string',  'analyzer'=>'lcKeyword', 'include_in_all'=>0 };
-	$NC_PROPERTIES{'pids'} = { 'store'=>'yes', 'type'=>'string',  'analyzer'=>'lcKeyword', 'include_in_all'=>1 };
-	$NC_PROPERTIES{'thumbnail'} = { 'type'=>'string',  'analyzer'=>'lcKeyword', 'include_in_all'=>0 };
-	$NC_PROPERTIES{'keywords'} = { 'buffer_size'=>20, 'type'=>'string',  'analyzer'=>'lcKeyword', 'include_in_all'=>0 };
-	$NC_PROPERTIES{'tags'} = { 'type'=>'string', 'analyzer'=>'lcKeyword', 'include_in_all'=>1 };
-	$NC_PROPERTIES{'breadcrumbs'} = { 'buffer_size'=>128, 'type'=>'string',  'analyzer'=>'lcKeyword', 'include_in_all'=>0 };
-	$NC_PROPERTIES{'public'} = { 'type'=>'boolean', 'include_in_all'=>0, },
+	$NC_PROPERTIES{'pid'} = { 'store'=>'yes', 'type'=>'string',  'analyzer'=>'lcKeyword', 'include_in_all'=>1 };
+	$NC_PROPERTIES{'prt'} = { 'type'=>'integer', 'include_in_all'=>0, };
+	#$NC_PROPERTIES{'thumbnail'} = { 'type'=>'string',  'analyzer'=>'lcKeyword', 'include_in_all'=>0 };
+	#$NC_PROPERTIES{'keywords'} = { 'buffer_size'=>20, 'type'=>'string',  'analyzer'=>'lcKeyword', 'include_in_all'=>0 };
+	#$NC_PROPERTIES{'tags'} = { 'type'=>'string', 'analyzer'=>'lcKeyword', 'include_in_all'=>1 };
+	#$NC_PROPERTIES{'breadcrumbs'} = { 'buffer_size'=>128, 'type'=>'string',  'analyzer'=>'lcKeyword', 'include_in_all'=>0 };
+	#$NC_PROPERTIES{'hidden'} = { 'type'=>'boolean', 'include_in_all'=>0, };
 
 	## special index fields:
 	## list of analyzers
@@ -323,11 +325,11 @@ sub rebuild_product_index {
 	my %SKU_PROPERTIES = ();
 	$SKU_PROPERTIES{'pid'} = { 'analyzer'=>'lcKeyword',   'buffer_size'=>20, 'type'=>'string', 'store'=>'no', 'include_in_all'=>1 };
 	$SKU_PROPERTIES{'sku'} = { 'analyzer'=>'lcKeyword',   'buffer_size'=>35, 'type'=>'string', 'store'=>'no', 'include_in_all'=>1 };
+	$SKU_PROPERTIES{'ts'} = { 'type'=>'integer', 'include_in_all'=>0 };
 	$SKU_PROPERTIES{'available'} = { 'type'=>'integer', 'include_in_all'=>0 };
-	$SKU_PROPERTIES{'lowstock'} = { 'type'=>'boolean', 'include_in_all'=>0 };
-#	$SKU_PROPERTIES{'INV'} => {
-#		
-#		};
+	$SKU_PROPERTIES{'markets'} = { 'type'=>'integer', 'include_in_all'=>0 };
+	$SKU_PROPERTIES{'onshelf'} = { 'type'=>'integer', 'include_in_all'=>0 };
+	$SKU_PROPERTIES{'dirty'} = { 'type'=>'boolean', 'include_in_all'=>0 };
 
 	my %PRODUCT_PROPERTIES = ();
 	$PRODUCT_PROPERTIES{'pid'} = { 'analyzer'=>'lcKeyword',   'buffer_size'=>20, 'type'=>'string', 'store'=>'no', 'include_in_all'=>1 };
@@ -454,23 +456,30 @@ sub rebuild_product_index {
 			$F{'type'} =  'string'; 
 			$F{'analyzer'} = 'lcKeyword';
 			}
+		elsif ($fref->{'type'} eq 'image') {
+			$F{'type'} =  'string'; 
+			$F{'analyzer'} = 'lcKeyword';
+			}
 		elsif ($fref->{'type'} eq 'currency') {
 			## currency is never stored as a floating point
 			$F{'type'} = 'integer';
 			$F{'include_in_all'} = 0;
 			## short,integer,float
 			}
-		elsif ($fref->{'type'} eq 'number') {
+		elsif (($fref->{'type'} eq 'number') || ($fref->{'type'} eq 'integer')) {
 			$F{'type'} = 'integer';
 			$F{'include_in_all'} = 0;
 			}
-		elsif ($fref->{'type'} eq 'checkbox') {
+		elsif (($fref->{'type'} eq 'checkbox') || ($fref->{'type'} eq 'boolean')) {
 			$F{'type'} = 'boolean';
 			$F{'include_in_all'} = 0;
 			}
 		elsif ($fref->{'type'} eq 'weight') {
 			$F{'type'} = 'integer';
 			$F{'include_in_all'} = 0;
+			}
+		elsif ($fref-{'type'} eq 'hash:currency') {
+			## used for sku:pricetags, but it can be ignored.
 			}
 		## NOTE: these types are implicitly added later in the code, and don't need to be handled here:
 		#elsif ($fref->{'type'} eq 'image') {
@@ -573,18 +582,14 @@ sub rebuild_product_index {
 				},
 			'sku'=> {
 				'_parent'=>{ 'type' => 'product' },
-				'_routing'=>{ 'required'=>'false', 'path'=>'pid' },
+				# '_routing'=>{ 'required'=>'false', 'path'=>'product.pid' },
 				'properties'=>\%SKU_PROPERTIES,
 				},
-			#'invsummary'=>{
-			#	'_praent'=>{ 'type' => 'sku' },
-			#	'properties'=>\%INVSUMMARY_PROPERTIES,
-			#	}
-			#'navcat'=> {
-			#	# '_parent'=>{ 'type' => 'product' },
-			#	# '_routing'=>{ 'required'=>'false', 'path' => 'pid '},
-			#	'properties'=>\%NC_PROPERTIES,
-			#	},
+			'navcat'=> {
+				'_parent'=>{ 'type' => 'product' },
+				# '_routing'=>{ 'required'=>'false', 'path' => 'product.pid '},
+				'properties'=>\%NC_PROPERTIES,
+				},
 			},
 		'settings'=>{
 			'number_of_shards' => 1,
@@ -653,9 +658,24 @@ sub rebuild_product_index {
 			&ELASTIC::add_products($USERNAME,\@Prods, '*es'=>$es,'gref'=>$globalref);
 			}
 		
+
+		my ($bulk) = Elasticsearch::Bulk->new('es'=>$es,'index'=>lc("$USERNAME.public"));
+		foreach my $PRT (&ZWEBSITE::prts($USERNAME)) {
+			my ($NC) = NAVCAT->new($USERNAME,'PRT'=>$PRT);
+			foreach my $payload (@{$NC->elastic_payloads()}) {
+				$payload->{'source'} = $payload->{'doc'}; delete $payload->{'doc'};
+				print Dumper($payload);
+				$bulk->index($payload)				
+				}
+			}
+		$bulk->flush();
+		
+
 		$globalref->{'%elastic'}->{'product.created_gmt'} = time();
 		&ZWEBSITE::save_globalref($USERNAME,$globalref);
 		}
+
+	## do navcats here.
 
 	return(\%public);
 	}
