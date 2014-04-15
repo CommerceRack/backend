@@ -5805,8 +5805,6 @@ sub panel_builder {
 	my $USERNAME = $LU->username();
 	my $LUSERNAME = $LU->luser();
 	my $PRT = $LU->prt();
-
-	my $PANEL = 'BUILDER:'.$D->domainname();
 	my $out = '';
 
 	## my (@domains) = DOMAIN::TOOLS::domains($USERNAME,PROFILE=>$NS,PRT=>$PRT);
