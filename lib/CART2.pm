@@ -4196,7 +4196,8 @@ sub add_coupon {
 	if (not defined $cpnref) {
 		require CART::COUPON;
 		# push @SITE::ERRORS, "PRT=".$self->prt().",$code";
-		($cpnref) = CART::COUPON::load($self->username(),$self->prt(),$code);
+		my ($webdbref) = $self->webdb();
+		($cpnref) = CART::COUPON::load($webdbref,$code);
 		}
 
 	if (not defined $cpnref) {
