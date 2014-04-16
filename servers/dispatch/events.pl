@@ -34,6 +34,7 @@ use SITE;
 require INVENTORY2;
 require BLAST;
 
+
 ## make sure we don't accidentally run two!
 use Proc::PID::File;
 die "Already running!" 
@@ -1651,7 +1652,7 @@ sub e_TICKET {
 ##
 sub e_INV_OUTOFSTOCK {
 	my ($EVENT,$USERNAME,$PRT,$YREF,$LM,$redis,$CACHEREF) = @_;
-	&e_PRODUCT_UPDATE(@_);
+	&e_INV_PRODUCT_UPDATE(@_);
 
 	## lets check stock right now
 	my $SKU = $YREF->{'PID'};
@@ -1772,7 +1773,7 @@ sub e_INV_PRODUCT_UPDATE {
 ##
 sub e_INV_GOTINSTOCK {
 	my ($EVENT,$USERNAME,$PRT,$YREF,$LM,$redis,$CACHEREF) = @_;
-	&e_PRODUCT_UPDATE(@_);
+	&e_INV_PRODUCT_UPDATE(@_);
 
 	## make sure we are focused on a product, not a STID.
 
@@ -1917,7 +1918,7 @@ sub e_INV_GOTINSTOCK {
 sub e_INV_CHANGED {
 	my ($EVENT,$USERNAME,$PRT,$YREF,$LM,$redis,$CACHEREF) = @_;
 
-	&e_PRODUCT_UPDATE(@_);
+	&e_INV_PRODUCT_UPDATE(@_);
 	## make sure we are focused on a product, not a STID.
 
 	my ($MID) = &ZOOVY::resolve_mid($USERNAME);

@@ -23699,7 +23699,10 @@ sub adminDebugShippingPromoTaxes {
 		$R{'@MSGS'} = \@MSGS;
 		}
 	elsif ($v->{'_cmd'} eq 'adminDebugShipping') {
-		$lm->pooshmsg("INFO|+Requesting shipmethods");
+
+		$lm = $CART2->msgs($lm);
+		$lm->pooshmsg("INFO|+Requesting shipmethods (setting debug to 0xFF)");
+		$CART2->is_debug(0xFF);
 		$CART2->shipmethods('flush'=>1);
 
 		my ($stuff2) = $CART2->stuff2();
@@ -23709,6 +23712,8 @@ sub adminDebugShippingPromoTaxes {
 			if ($item->{'%attribs'}->{'zoovy:virtual'} =~ /[\s]/) { $lm->pooshmsg("ERROR|+Preflight: STID[$stid] has space in zoovy:virtual field"); }
 			if ($item->{'%attribs'}->{'zoovy:virtual'} ne $item->{'virtual'}) { $lm->pooshmsg("ERROR|+Preflight: STID[$stid] has non-matching zoovy:virtual and item.virtual (internal error!?)"); }
 			}
+	
+		$R{'lm'} = $lm;
 
 		my @MSGS = ();
 		foreach my $msg (@{$lm->msgs()}) {

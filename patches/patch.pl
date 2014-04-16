@@ -43,10 +43,11 @@ if ($params{'version'} eq 'init') {
 	}
 elsif ($params{'patchid'}) {
 	$/ = undef;
-	my $contents = File::Slurp::read_file(sprintf("$PATCHDIR/%s",$params{'patchid'}));
-	my $patchid = sprintf("%s/%s",$params{'version'},$params{'patchid'});
+	my $contents = File::Slurp::read_file(sprintf("$PATCHDIR/../%s",$params{'patchid'}));
+	my $patchid = $params{'patchid'};
 	$/ = "\n";
 	$PATCHES{ $patchid } =  $contents;	
+	if ($contents eq '') { die("$patchid is empty"); }
 	}
 elsif (defined $params{'version'}) {
 	opendir my $D, $PATCHDIR;
@@ -68,7 +69,7 @@ elsif (defined $params{'version'}) {
 			$PATCHES{ $patchid } =  $contents ;
 			}		
 		else {
-			warn "Ignored $PATCHDIR/$file\n";
+			# warn "Ignored $PATCHDIR/$file\n";
 			}
 		$/ = "\n";
 		}
@@ -87,7 +88,7 @@ my ($CFG) = CFG->new();
 foreach my $USERNAME (@{$CFG->users()}) {
 
 	if (defined $params{'user'}) {
-		if ($params{'user'} ne lc($USERNAME)) {
+		if (lc($params{'user'}) ne lc($USERNAME)) {
 			print "skipping user:$USERNAME\n";
 			next;
 			}
@@ -112,8 +113,8 @@ foreach my $USERNAME (@{$CFG->users()}) {
 			}	
 		elsif ($IS_CRASHED) {
 			die("FOUND PREVIOUS CRASH $patchid -- cannot proceed
-to retry: ./patch.pl verb=retry patch=$patchid
-to finish: ./patch.pl verb=finish patch=$patchid
+to retry: ./patch.pl verb=retry user=$USERNAME version=$params{'version'} patchid=$patchid
+to finish: ./patch.pl verb=finish user=$USERNAME version=$params{'version'} patchid=$patchid
 ");
 			}
 		elsif (defined $RESULT) {
