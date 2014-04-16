@@ -18228,7 +18228,7 @@ sub appPublicSearch {
 		## size            => $no_of_results
 		if (defined $v->{'size'}) {	$params{'size'} = $v->{'size'};	}
 		##  sort            => ['_score',$field_1]
-		if (defined $v->{'sort'}) {	$params{'sort'} = $v->{'sort'};	}
+		if (defined $v->{'sort'}) {	$params{'body'}->{'sort'} = $v->{'sort'};	}
 
 # 		$v->{'scroll'} = '1m';
 		if (defined $v->{'scroll'}) { 	$params{'scroll'} = $v->{'scroll'}; }
@@ -18314,6 +18314,9 @@ sub appPublicSearch {
 			elsif ($v->{'mode'} eq 'elastic-search') {
 				# mode:elastic-search
 				$params{'timeout'} = '5s';
+
+				print STDERR 'params: '.Dumper(\%params);
+
 				eval { $R = $es->search(%params) };
 				if ($@) { $R = $@; }
 				}
