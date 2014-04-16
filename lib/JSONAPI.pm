@@ -23678,10 +23678,13 @@ sub adminDebugShippingPromoTaxes {
 	if (&JSONAPI::hadError(\%R)) {
 		}
 	elsif ($v->{'_cmd'} eq 'adminDebugPromotion') {
+
       if ($CART2->is_order()) {
          $lm->pooshmsg("WARN|+Appears we have an order, converting back into a cart");
          delete $CART2->{'ODBID'};
          }
+
+		$CART2->is_debug(0xFF);
 		$CART2->msgs($lm);
       # $CART2->is_debug($DEBUG);
       push @{$CART2->{'@CHANGES'}}, [ 'DEBUG' ];
@@ -23697,7 +23700,7 @@ sub adminDebugShippingPromoTaxes {
 		}
 	elsif ($v->{'_cmd'} eq 'adminDebugShipping') {
 
-		$lm = $CART2->msgs($lm);
+ 		$lm = $CART2->msgs($lm);
 		$lm->pooshmsg("INFO|+Requesting shipmethods (setting debug to 0xFF)");
 		$CART2->is_debug(0xFF);
 		$CART2->shipmethods('flush'=>1);
@@ -23724,6 +23727,8 @@ sub adminDebugShippingPromoTaxes {
 			push @RESULTS, $shipmethod;
 			}
 		$R{'@RESULTS'} = \@RESULTS;
+
+		## open F, ">/tmp/msgs"; print F Dumper(\%R); close F;
 		}
 	elsif ($v->{'_cmd'} eq 'adminDebugTaxes') {
 		my ($webdbref) = my $webdb = $self->webdb();

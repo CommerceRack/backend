@@ -67,23 +67,7 @@ sub parseinventory {
 		}
 
 
-	# print STDERR 'OPTIONSREF: '.Dumper($optionsref,\%INITCMD)."\n";
-
-	my %attribs = ();
-	if ($optionsref->{'DELIMITER'} ne '') {
-		if ($optionsref->{'DELIMITER'} eq 'COMMA') {
-			$attribs{'sep_char'} = ',';
-			}
-		elsif ($optionsref->{'DELIMITER'} eq 'TAB') {
-			$attribs{'sep_char'} = "\t";
-			}
-		else {
-			$attribs{'sep_char'} = $optionsref->{'DELIMITER'};
-			}
-		}
-	elsif ($optionsref->{'sep_char'} ne '') {
-		$attribs{'sep_char'} = $optionsref->{'sep_char'};
-		}
+	# print STDERR 'OPTIONSREF: '.Dumper($optionsref,\%INITCMD,$lineref)."\n";
 
 	my $linecount = 1;		## let's start with 1, so it makes sense to merchant
 	foreach my $line (@{$lineref}) {
@@ -91,7 +75,14 @@ sub parseinventory {
 		my %prodattribs = ();
 
 		my $ERROR = undef;
-		my @DATA = &ZCSV::parse_csv($line,\%attribs);
+		my @DATA = ();
+		if (ref($line) eq 'ARRAY') {
+			@DATA = @{$line};
+			}
+		else {
+			## OLD WAY (i don't think this is used anymore)
+			@DATA = &ZCSV::parse_csv($line,$optionsref);
+			}
 
 		my $pos = 0; # $pos keeps track of which field in the @DATA array we are on.
 		foreach my $destfield (@{$fieldsref}) {	
@@ -193,7 +184,10 @@ sub parseinventory {
 			$pos++;  # move to the next field that we should parse
 			}
 
-		if (not $ERROR) {
+
+		print STDERR 'INVCMD: '.Dumper(\%INVCMD);
+
+		if ($ERROR) {
 			}
 		elsif (! $INVCMD{'CMD'}) {
 			## ERROR: INVALID CMD
@@ -203,11 +197,17 @@ sub parseinventory {
 			## ERROR: NO SKU/UUID
 			$ERROR = "NO UUID,SKU, or PID specified";
 			}
-		elsif ( $optionsref->{'CHECKSKU'} && (defined($INVCMD{'PID'})) && !&ZOOVY::productidexists($INVCMD{'PID'}) ) {		
-			$ERROR = "INVALID PID";
+		elsif (not $optionsref->{'CHECKSKU'}) {
+			## no error, no check.
 			}
-		elsif ( $optionsref->{'CHECKSKU'} && (defined($INVCMD{'SKU'})) && !&ZCSV::validsku($INVCMD{'UUID'}) ) {		
-			$ERROR = "INVALID SKU";
+		elsif ((not defined $INVCMD{'PID'}) && (not defined $INVCMD{'SKU'})) {
+			$ERROR = "CHECKSKU FAILURE - NO PID/SKU FOUND";
+			}
+		elsif ( (defined($INVCMD{'PID'})) && (!&ZOOVY::productidexists($USERNAME,$INVCMD{'PID'})) ) {		
+			$ERROR = "CHECKSKU - INVALID PID";
+			}
+		elsif ( (defined($INVCMD{'SKU'})) && (!&ZCSV::skuexists($USERNAME,$INVCMD{'SKU'}))  ) {	
+			$ERROR = "CHECKSKU - INVALID SKU";
 			}
 
 		## only do SKU updates

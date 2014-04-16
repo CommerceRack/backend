@@ -270,7 +270,10 @@ sub macro_fixhtml {
 
 sub parse_csv {
    my ($line,$opts) = @_;
-	if (ref($line) eq 'ARRAY') { return(@{$line}); }
+	if (ref($line) eq 'ARRAY') { 	
+		print STDERR "RECEIVED ALREADY PARSED LINE\n";
+		return(@{$line}); 
+		}
    # print STDERR "Data: $_[0]\n";
 
 	if (not defined $opts) {}
@@ -282,14 +285,33 @@ sub parse_csv {
 
 	my %attribs = ();
 	## supports different separators (\t, |, etc)
-	if ($opts->{'SEP_CHAR'} eq 'TAB') {
+	if ($opts->{'DELIMITER'} ne '') {
+		if ($opts->{'DELIMITER'} eq 'COMMA') {
+			$attribs{'sep_char'} = ',';
+			}
+		elsif ($opts->{'DELIMITER'} eq 'TAB') {
+			$attribs{'sep_char'} = "\t";
+			}
+		else {
+			$attribs{'sep_char'} = $opts->{'DELIMITER'};
+			}
+		}
+	elsif ($opts->{'sep_char'} ne '') {
+		## compatibility, not used
+		$attribs{'sep_char'} = $opts->{'sep_char'};
+		}
+	elsif ($opts->{'SEP_CHAR'} eq 'TAB') {
+		## compatibility, not used
 		$attribs{'sep_char'} = "\t";
 		}
-	elsif ($opts->{'SEP_CHAR'} ne '') { $attribs{'sep_char'} = $opts->{'SEP_CHAR'}; }
+	elsif ($opts->{'SEP_CHAR'} ne '') { 
+		## compatibility, not used
+		$attribs{'sep_char'} = $opts->{'SEP_CHAR'}; 
+		}
 
 	$attribs{'binary'} = 1;
 
-#	print STDERR "attribs: ".Dumper(%attribs);
+	print STDERR "attribs: ".Dumper(%attribs);
 
    my @columns;
    my $csv = Text::CSV_XS->new(\%attribs);
@@ -332,9 +354,6 @@ sub readHeaders {
 		$OPTIONS{'SEP_CHAR'} = ',';
 		}
 	
-	# use Data::Dumper;
-	# print STDERR "OPTIONS:\n".Dumper(\%OPTIONS);
-
 
 	use IO::String;
 	$/ = "\n";
@@ -370,7 +389,21 @@ sub readHeaders {
 			if ($line =~ /=/) { 
 				my ($k,$v) = split(/=/,$line,2); 
 				if ($v eq 'on') { $v = 1; }
-				$OPTIONS{uc($k)}=$v; 
+				$k = uc($k);
+				$OPTIONS{$k}=$v; 
+				if ($k eq 'DELIMITER') {
+					if ($OPTIONS{'DELIMITER'} eq 'COMMA') {
+						$OPTIONS{'SEP_CHAR'} = ',';
+						}
+					elsif ($OPTIONS{'DELIMITER'} eq 'TAB') {
+						$OPTIONS{'SEP_CHAR'} = "\t";
+						}
+					else {
+						$OPTIONS{'SEP_CHAR'} = $OPTIONS{'DELIMITER'};
+						}
+					## use Data::Dumper; print STDERR "OPTIONS:\n".Dumper(\%params,\%OPTIONS); die();
+					}
+
 				} 
 			else { 
 				$OPTIONS{ uc($line) }++; 
@@ -442,9 +475,27 @@ sub validsku {
 
 	my $c = $sku;
 	$sku =~ s/[^\w\-:\#]+//g;
+
 	return($c eq $sku);
 	}
 
+
+##
+## quick and dirty check to verify a sku existsin SKU_LOOKUP
+##
+sub skuexists {
+	my ($USERNAME, $SKU) = @_;
+
+	my ($udbh) = &DBINFO::db_user_connect($USERNAME);
+	my $MID = &ZOOVY::resolve_mid($USERNAME);
+	my $qtSKU = $udbh->quote($SKU);
+	my $pstmt = "select count(*) from SKU_LOOKUP where MID=$MID and SKU=".$qtSKU;
+	print STDERR "$pstmt\n";
+	my ($exists) = $udbh->selectrow_array($pstmt);
+	&DBINFO::db_user_close();	
+	$exists = int($exists);
+	return($exists);
+	}
 
 
 ## not used???
