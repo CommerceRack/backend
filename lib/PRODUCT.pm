@@ -1687,7 +1687,22 @@ sub store {
 	}
 
 
+##
+## goes through seo:xxx fields and returns a hashref of keys and values.
+##
+sub seo_tags {
+	my ($self) = @_;
 
+	my %SEO_TAGS = ();
+	my $dataref = $self->{'%data'};
+	foreach my $k (keys %{$dataref}) {
+		if ($k =~ /^seo\:(.*?)$/) { 
+			$SEO_TAGS{$k} = $dataref->{$k};
+			}
+		## later maybe we can add user:seo_xyz
+		}	
+	return(\%SEO_TAGS);
+	}
 
 
 ##

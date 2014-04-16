@@ -28400,8 +28400,9 @@ sub adminCSVImport {
 <input id="token"></input>
 <output id="@OBJECTS">
 [
-{ type="product", pid="" },
-{ type="navcat", pid="" }
+{ type:"product", pid:"" },
+{ type:"product", pid:"", noindex:"1", xyz:"abc" },
+{ type:"navcat", pid:"" }
 ]
 </output>
 </API>
@@ -28461,7 +28462,9 @@ sub appSEO {
 				}
 			}
 		foreach my $pid (&ZOOVY::fetchproduct_list_by_merchant($USERNAME)) {
-			push @OBJECTS, { 'type'=>'pid', 'id'=>$pid };
+			my ($P) = PRODUCT->new($USERNAME,$pid);
+			my %TAGS = ( 'type'=>'pid', 'id'=>$pid, %{$P->seo_tags()} );
+			push @OBJECTS, \%TAGS;
 			}
 		
 		$R{'@OBJECTS'} = \@OBJECTS;

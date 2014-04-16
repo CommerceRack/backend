@@ -446,6 +446,7 @@ sub is_valid {
 'amz:search_terms' => { 'type'=>'chooser/amzsearchterms' },
 'amz:thesaurus' => { 'type'=>'chooser/amzthesaurus' },
 
+
 ## special amz:prod_ fields
 'amz:prod_desc' =>  { 'hint' => 'Used instead of Zoovy defined product description.', 'title' => 'Amazon Product Description', 'type' => 'textarea', 'rows' => 4, 'cols' => 50 },
 ## re: amz:prod_image1 https://admin.zoovy.com/support/index.cgi?ACTION=VIEWTICKET&TICKET=2030159&USERNAME=summitfashions
@@ -525,7 +526,6 @@ sub is_valid {
 'amz:prod_ce_pc_wrlstype' => { 'ns' => 'product', 'amz-format' => 'Text', 'src' => 'amz.ce.pc.json', 'title' => 'Wireless Type', 'type' => 'textlist' },
 'amz:prod_ce_pda_addlfeatures' => { 'ns' => 'product', 'amz-format' => 'Text', 'src' => 'amz.ce.pda.json', 'title' => 'Additional Features', 'type' => 'textbox' },
 'amz:prod_ce_pda_colorscreen' => { 'ns' => 'product', 'amz-format' => 'Text', 'src' => 'amz.ce.pda.json', 'title' => 'Color Screen', 'type' => 'checkbox' },
-'seo:noindex'=> { 'ns'=>'product', 'type'=>'boolean', 'src'=>'SEO Hint to noindex' },
 'amz:prod_ce_pda_computermemorytype' => { 'ns' => 'product', 'amz-format' => 'Text', 'src' => 'amz.ce.pda.json', 'title' => 'Computer Memory Type', 'mandatory' => 'Y', 'type' => 'textlist' },
 'amz:prod_ce_pda_computermemorytype_10' => { 'ns' => 'product', 'src' => 'amz.ce.pda.json', 'title' => 'Computer Memory Type_10', 'type' => 'textbox' },
 'amz:prod_ce_pda_harddrivesize' => { 'ns' => 'product', 'amz-format' => 'Measurement', 'src' => 'amz.ce.pda.json', 'title' => 'Hard Drive Size', 'type' => 'textbox' },
@@ -1297,6 +1297,8 @@ sub is_valid {
 #'amz:so_shipoption1' =>  { 'src' => 'mcdc:TEST-AMZ-ASIN', 'type' => 'legacy' },
 #'amz:so_shipoption2' =>  { 'src' => 'mcdc:TEST-AMZ-ASIN', 'type' => 'legacy' },
 #'amz:so_type' =>  { 'src' => 'mcdc:TEST-AMZ-ASIN', 'type' => 'legacy' },
+
+'seo:noindex'=> { 'ns'=>'product', 'type'=>'boolean', 'src'=>'SEO Hint to noindex' },
 
 'amz:thesaurus' =>  { 'src' => '2bhip:A10-00', 'type' => 'legacy' },
 'amz:ts' =>  { 'type' => 'checkbox' },
