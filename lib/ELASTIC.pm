@@ -439,11 +439,14 @@ sub rebuild_product_index {
 
 			if ($fref->{'id'} eq 'zoovy:prod_name') {
 				## http://www.elasticsearch.org/guide/reference/mapping/multi-field-type/
+				## in elasticsearch it's not possible to SORT based on an indexed (tokenized field) ex: prod_name  (because lucene/es will sort by the least/most significant token)
+				## I *think* a while ago (at least in the code) we had implemented multiple keys - specifically "prod_name.untouched" to work around this limitation, or maybe as a proof of concept.  Anyway I want to change prod_name.untouched to prod_name.xxx (not sure yet) but don't want to break anything.
+				## Let me know if you can recall using prod_name.untouched (to sort by prod_name) in any of your previous projects.
 				delete $F{'index'};
 				$F{'type'} = 'multi_field';
 				$F{'fields'} = {
 					'prod_name' => {"type" => "string", "index" => "analyzed"},
-					'untouched' => {"type" => "string", "index" => "not_analyzed" },
+					'raw' => {"type" => "string", "index" => "not_analyzed",  "analyzer" => "naturalsort" },
 					};
 				}
 
@@ -615,6 +618,11 @@ sub rebuild_product_index {
 					'synonym' => {
 						'tokenizer' => 'whitespace',
 						'filter' => [ ($HAS_SYNONYMS?'synonym':undef) ]
+						},
+					'naturalsort' => {
+						'tokenizer' => 'keyword',
+						'filter' => [ 'lowercase', 'asciifolding' ],
+						'char_filter' => [ 'html_strip' ]
 						},
 					},
 				'filter' => \%FILTERS,
