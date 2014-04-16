@@ -34,6 +34,7 @@ use SITE;
 require INVENTORY2;
 require BLAST;
 
+
 ## make sure we don't accidentally run two!
 use Proc::PID::File;
 die "Already running!" 
@@ -1651,7 +1652,7 @@ sub e_TICKET {
 ##
 sub e_INV_OUTOFSTOCK {
 	my ($EVENT,$USERNAME,$PRT,$YREF,$LM,$redis,$CACHEREF) = @_;
-	&e_PRODUCT_UPDATE(@_);
+	&e_INV_PRODUCT_UPDATE(@_);
 
 	## lets check stock right now
 	my $SKU = $YREF->{'PID'};
@@ -1749,22 +1750,22 @@ sub e_INV_OUTOFSTOCK {
 sub e_INV_PRODUCT_UPDATE {
 	my ($EVENT,$USERNAME,$PRT,$YREF,$LM,$redis,$CACHEREF) = @_;
 
-	my ($es) = &ZOOVY::getElasticSearch($USERNAME);
-	my ($bulk) = Elasticsearch::Bulk->new('es'=>$es,'index'=>lc("$USERNAME.public"));
 	if ($YREF->{'PID'}) {
-		my ($INVSUMMARY) = INVENTORY2->new($USERNAME,"*events")->summary( '@PIDS'=>[ $YREF->{'PID'} ]);
-		my @ES_PAYLOADS = ();
-		foreach my $SKU (sort keys %{$INVSUMMARY}) {
-			my %DOC = ();
-			push @ES_PAYLOADS, { 'id'=>$SKU, 'doc_as_upsert'=>1, doc=>{ 'INV'=>$INVSUMMARY->{$SKU} } };
-			}	
-		foreach my $PAYLOAD (@ES_PAYLOADS) {
-			$bulk->update($PAYLOAD);
+
+		my ($ESSUMMARY) = INVENTORY2->new($USERNAME,"*events")->summary( '@PIDS'=>[ $YREF->{'PID'} ], 'ELASTIC_PAYLOADS'=>1);
+
+		my ($es) = &ZOOVY::getElasticSearch($USERNAME);
+		my ($bulk) = Elasticsearch::Bulk->new('es'=>$es,'index'=>lc("$USERNAME.public"));
+		
+		foreach my $SKU (keys %{$ESSUMMARY}) {
+			my $ESUPDATE = { 'type'=>'sku', 'parent'=>$YREF->{'PID'}, 'id'=>$SKU, 'doc_as_upsert'=>1, 'doc'=>$ESSUMMARY->{$SKU} };
+			print Dumper($ESUPDATE);
+			$bulk->update($ESUPDATE);
 			}
 		$bulk->flush();
+
 		}
 	
-
 	}
 
 #
@@ -1772,7 +1773,7 @@ sub e_INV_PRODUCT_UPDATE {
 ##
 sub e_INV_GOTINSTOCK {
 	my ($EVENT,$USERNAME,$PRT,$YREF,$LM,$redis,$CACHEREF) = @_;
-	&e_PRODUCT_UPDATE(@_);
+	&e_INV_PRODUCT_UPDATE(@_);
 
 	## make sure we are focused on a product, not a STID.
 
@@ -1917,7 +1918,7 @@ sub e_INV_GOTINSTOCK {
 sub e_INV_CHANGED {
 	my ($EVENT,$USERNAME,$PRT,$YREF,$LM,$redis,$CACHEREF) = @_;
 
-	&e_PRODUCT_UPDATE(@_);
+	&e_INV_PRODUCT_UPDATE(@_);
 	## make sure we are focused on a product, not a STID.
 
 	my ($MID) = &ZOOVY::resolve_mid($USERNAME);
