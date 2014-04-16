@@ -1166,6 +1166,20 @@ sub compute {
 			}
 		close F; 
 		}
+	elsif ($ref->{'HighestSeverity'}->[0] eq 'ERROR') {
+		## THIS ERROR RESPONSE WAS LAST SEEN ON 4/16/14
+		$lm->pooshmsg("ISE|+FedEx API returned Severity:ERROR");
+		## see /backend/lib/ZSHIP/fedexws-sample-error.xml
+		foreach my $notificationmsg (@{ $ref->{'Notifications'} }) {
+			$lm->pooshmsg(sprintf(
+				"ERROR|API Error Response Source=%s Code=%d Severity=%s Message=%s",
+				$notificationmsg->{'Source'}->[0],
+				$notificationmsg->{'Code'}->[0],
+				$notificationmsg->{'Severity'}->[0],
+				$notificationmsg->{'Message'}->[0],
+				));
+			}
+		}
 	elsif ($ref->{'ns:HighestSeverity'}->[0] eq 'ERROR') {
 		$lm->pooshmsg("ISE|+FedEx API returned Severity:ERROR");
 		## see /backend/lib/ZSHIP/fedexws-sample-error.xml
@@ -1180,7 +1194,7 @@ sub compute {
 			}
 		}
 	else {
-		$lm->pooshmsg("ISE|+Did not receive a KNOWN response from FedEx API");
+		$lm->pooshmsg("ISE|+Did not receive a KNOWN response from FedEx API (check /dev/shm/fedex.unknown)");
 		open F, ">/dev/shm/fedex.unknown";
 		print F Dumper($ref);
 		close F;
