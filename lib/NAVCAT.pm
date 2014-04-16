@@ -67,6 +67,41 @@ sub DESTROY {
 
 
 ##
+## generates elastic payloads for a safe=> or pid=> (or the whole thing)
+##
+#  perl -e 'use lib "/httpd/modules"; use NAVCAT; my ($NC) = NAVCAT->new("sporks",0); use Data::Dumper; 
+# print Dumper($NC->elastic_payloads());'
+sub elastic_payloads {
+	my ($self, %params) = @_;
+
+	my @ES_PAYLOADS = ();
+	my @paths = ();
+	if (defined $params{'safe'}) {
+		push @paths;
+		}
+	else {
+		@paths = $self->paths();
+		}
+
+	foreach my $safe (@paths) {
+		my %vars = ();
+		my ($pretty,$children,$products,$sort,$metaref) = $self->get($safe);
+		# $vars{'hidden'} = (substr($pretty,0,1) eq '!')?1:0;
+		next if (substr($pretty,0,1) eq '!');
+		$vars{'path'} = $safe;
+		$vars{'prt'} = $self->prt();
+		foreach my $pid (split(/,/,$products)) {
+			next if ($pid eq '');
+			next if ((defined $params{'pid'}) && ($params{'pid'} ne $pid));
+			push @ES_PAYLOADS, { 'type'=>'navcat', 'id'=>sprintf("%d~%s~%s",$self->prt(),$pid,$safe), 'parent'=>$pid, 'doc'=>{ %vars, 'pid'=>$pid}  };
+			}
+		}
+	
+	return(\@ES_PAYLOADS);
+	}
+
+
+##
 ## perl -e 'use lib "/backend/lib"; use NAVCAT; my ($NC) = NAVCAT->new("brian",PRT=>0); print $NC->to_json(".");'
 ##
 sub to_json {

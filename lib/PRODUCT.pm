@@ -178,7 +178,7 @@ sub is_claim {
 ## perl -e 'use lib "/backend/lib"; use PRODUCT; my($P) = PRODUCT->new("zephyrsports","PB-BT-OMEGABLK");  use Data::Dumper; print Dumper($P->elastic_index());'
 ##
 sub elastic_index {
-	my ($self, $FIELDSREF, $IMAGE_FIELDSREF) = @_;
+	my ($self, $FIELDSREF, $IMAGE_FIELDSREF, $NC) = @_;
 
 	if (not defined $FIELDSREF || $IMAGE_FIELDSREF) {
 		require PRODUCT::FLEXEDIT;
@@ -189,13 +189,14 @@ sub elastic_index {
 	my ($PID) = $self->pid();
 
 	my %STORE_SKUS = ();
-	my $TODO = $self->list_skus(); # an array of [ [sku1,skuref1], [sku2,skuref2] ]
+	my $TODO = $self->list_skus('verify'=>1); # an array of [ [sku1,skuref1], [sku2,skuref2] ]
 	## step1: 
-	my ($INVSUMMARY) = INVENTORY2->new($self->username(),"*events")->summary( '@PIDS'=>[ $PID ]);
+	my ($INVSUMMARY) = INVENTORY2->new($self->username(),"*events")->summary( '@PIDS'=>[ $PID ], 'ELASTIC_PAYLOADS'=>1);
+
 	foreach my $workset (@{$TODO}) {
 		my ($sku,$dataref) = @{$workset};
-		## 
-		$STORE_SKUS{$sku} = { 'pid'=>$PID, 'sku'=>$sku, 'INV'=>$INVSUMMARY->{$sku}, 'DATA'=>$dataref };
+		my %PAYLOAD = ( 'pid'=>$PID, 'sku'=>$sku, %{$INVSUMMARY->{$sku}} );		
+		$STORE_SKUS{$sku} = \%PAYLOAD;
 		$workset->[2] = $STORE_SKUS{$sku};
 		}
 
@@ -409,6 +410,7 @@ sub elastic_index {
 		push @ES_PAYLOADS, {
 			'type'=>'sku',
 			'id'=>"$sku",
+			'parent'=>$PID,
 			'source'=>$STORE_SKUS{$sku}	# was 'data'=> in elastic 0.xx
 			};
 		}
