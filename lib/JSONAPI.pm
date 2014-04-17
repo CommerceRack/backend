@@ -18949,6 +18949,7 @@ sub cartPaymentQ {
 
 	my %R = ();
 	my $CART2 = undef;
+	my $webdbref = $self->webdb();
 
 	if ($v->{'_cartid'} eq '') {
 		&JSONAPI::append_msg_to_response(\%R,'apperr',9998,"_cartid parameter is required for apiversion > 201310");			
@@ -18986,8 +18987,110 @@ sub cartPaymentQ {
 				}
 			elsif (not &JSONAPI::validate_required_parameter(\%R,$v,'MM')) {
 				}
+#			elsif (
+#				($ENV{'REMOTE_ADDR'} eq '66.240.244.204') && (substr($paymentref->{'CC'},0,1) eq '9')) {
+#				## any card number starting with a "9" can be skipped when you're on the office network.
+#				}
+			elsif ($v->{'CC'} =~ /[^\d]+/) {
+				&JSONAPI::set_error(\%R,'apperr',50505,'Credit card number contains space or other non-numeric characters.');
+				}
+			elsif (not &ZPAY::cc_verify_length($v->{'CC'})) {
+				&JSONAPI::set_error(\%R,'apperr',50506,'Credit card number does not have the appropriate length.');
+				}
+			elsif (not &ZPAY::cc_verify_checksum($v->{'CC'})) {
+				&JSONAPI::set_error(\%R,'apperr',50507,'Credit card number supplied does not have a valid checksum (please verify the digits).');
+				}
+			else {
+				my $TYPE = &ZPAY::cc_type_from_number($v->{'CC'});
+				if (not $webdbref->{sprintf("cc_type_%s",lc($TYPE))}) {
+					&JSONAPI::set_error(\%R,'apperr',50508,'Credit card is not a type this merchant accepts.' );
+					}
+				}
+
+			if (not defined &JSONAPI::hadError(\%R)) {
+				}			
+			elsif (not &ZPAY::cc_verify_expiration($v->{'MM'},$v->{'YY'})) {
+				&JSONAPI::set_error(\%R,'apperr',50508,'Credit card has expired.');
+				}
+			#if (substr($self->fetch_property('chkout.cc_number'),0,1) eq '3') {
+			#	## american express does not process CVV #'s anymore, so lets remove it!
+			#	## apparently authorize.net still requires a code be sent.
+			#	# $self->fetch_property('chkout.cc_cvvcid') = '';
+			#	}
+			elsif (defined($webdbref->{'cc_cvvcid'}) && ($webdbref->{'cc_cvvcid'} > 0)) {
+				if ($v->{'CV'}) { 
+				# CIDCVV is requested
+					if (not &ZPAY::cc_verify_cvvcid($v->{'CC'},$v->{'CV'})) {
+						&JSONAPI::set_error(\%R,'apperr',50509,'CID or CVV number is invalid for card type.');
+						}
+					}
+				elsif ($webdbref->{'cc_cvvcid'} == 2) {
+					# CIDCVV is required		
+					&JSONAPI::set_error(\%R,'apperr',50510,'CID or CVV number must be provided.');
+					}
+				}
+
 			}
-			
+		elsif ($v->{'TN'} eq 'PO') {
+			if (&ZTOOLKIT::wordlength($v->{'PO'}) < 1) {
+				&JSONAPI::set_error(\%R,'apperr',50520,'PO # is required for tender PO');
+				}
+			}
+		elsif ($v->{'TN'} eq 'ECHECK') {
+			if (&ZTOOLKIT::wordlength($v->{'EB'}) < 4) {
+				&JSONAPI::set_error(\%R,'apperr',50530,'You must provide the name of the bank which of the checking account');
+				}
+			}
+#
+#			if (defined($webdbref->{'echeck_request_bank_state'}) && $webdbref->{'echeck_request_bank_state'}) {
+#				if (&ZTOOLKIT::wordlength($paymentref->{'ES'}) != 2) {
+#					push @ISSUES, [ 'ERROR', 'ec_es_length', 'payment.es', 'You must provide the state of the bank for the checking account' ];
+#					}
+#				}
+#
+#			if ($paymentref->{'ER'} !~ m/^\d\d\d\d\d\d\d\d\d$/ && $paymentref->{'ER'} !~ m/^\d\d\d\d\d\d\d\d$/) {
+#				$paymentref->{'ER'} =~ s/[^\d]+//gs;
+#				push @ISSUES, [ 'ERROR', 'ec_er_length', 'payment.er', 'ABA Routing Number must be 8 or 9 numeric digits - please re-enter the number)' ];
+#				}
+#	
+#			if ($paymentref->{'EA'} !~ m/^\d\d\d\d\d\d\d\d[\d]+$/) {
+#				$paymentref->{'EA'} =~ s/[^\d]+//gs;
+#				push @ISSUES, [ 'ERROR', 'ec_ea_length', 'payment.ea', 'Account Number must be at least 9 numeric digits - please re-enter the number)' ];
+#				}
+#
+#			if (defined($webdbref->{'echeck_request_acct_name'}) && $webdbref->{'echeck_request_acct_name'}) {
+#				if (&ZTOOLKIT::wordlength($paymentref->{'EN'}) < 4) {
+#					push @ISSUES, [ 'ERROR', 'ec_en_required', 'payment.en', 'You must provide the name which appears on the checking account' ];
+#					}
+#				}
+#	
+#			if (defined($webdbref->{'echeck_request_check_number'}) && $webdbref->{'echeck_request_check_number'}) {
+#				if ($paymentref->{'EI'} !~ m/^\d+$/) {
+#					push @ISSUES, [ 'ERROR', 'ec_ei_required', 'payment.ei', 'You must provide a check number' ];
+#					}
+#				}
+#			}
+#		elsif ($method eq 'PAYPALEC') {
+#			if ($paymentref->{'PT'} eq '') {
+#				warn "PAYPALEC TOKEN_NOT_IN_PAYMENT\n";
+#				}
+#			}
+#		elsif ($method eq '') {
+#			push @ISSUES, [ 'ERROR', 'payment_blank', 'chkout.payby', 'Payment Method is blank, please select a payment method.' ];
+#			# $errors{'payment_unknown'} = Data::Dumper::Dumper($SITE::CART2);
+#			}
+#		elsif ($method eq 'PAYPALEC') {
+#			## eventually we should probably do some additional checks for PAYPALEC
+#			}
+#		elsif (defined $method) {
+#			## nothing to be done here. -- this handles PICKUP, PAYPAL, ZERO, etc.
+#			warn "NON-VALIDATED PAYMENT METHOD: $method\n";
+#			} 
+#		else {
+#			## nothing to be done here.
+#			push @ISSUES, [ 'ERROR', 'payment_unknown', 'chkout.payby', "Unknown Payment Method [$method]" ];
+#			}
+
 		my $thisRow = undef;
 		if (not &JSONAPI::hadError(\%R)) {
 			$R{'paymentQ'} = $CART2->paymentQ( 'insert', %{$v} );

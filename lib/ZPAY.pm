@@ -1068,6 +1068,7 @@ sub payment_methods {
 		#EXP-DES-CBC-SHA Kx=RSA(512) Au=RSA Enc=DES(40) Mac=SHA1 export
 		#EXP-RC2-CBC-MD5 Kx=RSA(512) Au=RSA Enc=RC2(40) Mac=MD5 export
 		#EXP-RC4-MD5 Kx=RSA(512) Au=RSA Enc=RC4(40) Mac=MD5 export  
+		my @ICONS = ();
 
 		foreach my $pmref (@ZPAY::PAY_METHODS) {
 			my ($method,$pretty) = @{$pmref};
@@ -1142,7 +1143,8 @@ sub payment_methods {
 				}
 
 			my $fee = 0;
-		
+
+			push @ICONS, $method;	
 			if (not defined $IS_ALLOWED) {
 				warn "IS_ALLOWED is set to undef for method: $method";
 				}
@@ -1175,11 +1177,13 @@ sub payment_methods {
 					}
 				elsif ($method ne '') {
 					my @names = ();
-					foreach (&ZPAY::cc_merchant_types($USERNAME, $webdbref)) { 
-						push @names, $ZPAY::cc_names{$_}; 
+					foreach my $type ('visa','mc','novus','amex') {
+						if ($webdbref->{sprintf("cc_type_%s",$type)}) {
+							push @ICONS, $type;
+							push @names, $ZPAY::cc_names{uc($type)}; 
+							}
 						}
-					my $cc_desc = join('/', @names);
-					$pretty = "Credit Card ($cc_desc)";
+					$pretty = sprintf("Credit Card (%s)",join('/', @names));
 					}
 				}
 			elsif ($method eq 'CUSTOM') {
@@ -1204,7 +1208,7 @@ sub payment_methods {
 					## method added implicitly. (gives memory for PAYPAL vs PAYPALEC)
 					$ALLOWED_METHODS{$method} = 64;
 					}
-				push @RESULTS, { id=>$method, pretty=>"$pretty", fee=>$fee, is_allowed=>$IS_ALLOWED, allowed_reason=>$ALLOWED_METHODS{$method} };
+				push @RESULTS, { id=>$method, pretty=>"$pretty", fee=>$fee, is_allowed=>$IS_ALLOWED, allowed_reason=>$ALLOWED_METHODS{$method}, icons=>join(" ",@ICONS) };
 				}
 			
 			}
@@ -1466,16 +1470,16 @@ sub cc_verify_cvvcid {
 # Purpose: Looks to see if the credit card type is accepted by the merchant
 # Accepts: Merchant_id, Credit card number
 # Returns: 1 if the credit card is a type the merchant accepts, 0 if it isn't
-sub cc_verify_type_for_merchant {
- 	$DEBUG && &msg('Verifying credit card against merchant type.');
-	my ($USERNAME, $card_number, $webdbref) = @_;
-	if (not defined $card_number) { $card_number = ''; }
-	my $card_type = &cc_type_from_number($card_number);
-	foreach my $paymethod (&cc_merchant_types($USERNAME,$webdbref)) {
-		($card_type eq $paymethod) && return 1;
-		}
-	return 0;
-	}
+#sub cc_verify_type_for_merchant {
+# 	$DEBUG && &msg('Verifying credit card against merchant type.');
+#	my ($USERNAME, $card_number, $webdbref) = @_;
+#	if (not defined $card_number) { $card_number = ''; }
+#	my $card_type = &cc_type_from_number($card_number);
+#	foreach my $paymethod (&cc_merchant_types($USERNAME,$webdbref)) {
+#		($card_type eq $paymethod) && return 1;
+#		}
+#	return 0;
+#	}
 
 ########################################
 # CC MERCHANT TYPES
@@ -1484,19 +1488,6 @@ sub cc_verify_type_for_merchant {
 # Returns: An array of the card types the merchant accepts
 sub cc_merchant_types {
 	my ($USERNAME, $webdbref) = @_;
- 	$DEBUG && &msg('Gathering merchant credit car types accepted.');
-	if (not defined $webdbref) {
-		$webdbref = &ZWEBSITE::fetch_website_dbref($USERNAME);
-		}
-	# my $paymethods = defined($webdbref->{'cc_types'}) ? $webdbref->{'cc_types'} : '' ;
-	# return split (/\,/, $paymethods);
-	my @METHODS = ();
-	foreach my $type ('visa','mc','novus','amex') {
-		if ($webdbref->{sprintf("cc_type_%s",$type)}) {
-			push @METHODS, uc($type); 
-			}
-		}
-	return(@METHODS);
 	}
 
 ########################################
