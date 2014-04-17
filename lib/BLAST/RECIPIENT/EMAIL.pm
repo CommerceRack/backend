@@ -1,10 +1,13 @@
 package BLAST::RECIPIENT::EMAIL;
 
+use lib "/backend/lib";
+
 use strict;
 use parent 'BLAST::RECIPIENT';
 use Net::AWS::SES;
 use HTML::TreeBuilder;
 use CSS::Tiny;
+use Text::Wrap;
 
 require MIME::Lite;
 
@@ -43,7 +46,6 @@ sub send {
 
 	my $SUBJECT = $msg->subject();
 	$SUBJECT =~ s/<.*?>//gs;	# html stripping!
-
 
 	open F, ">>/tmp/emails";
 	print F Dumper($BODY);
@@ -160,6 +162,75 @@ sub emailify_html {
 
 	$HTML =~ s/\<([\/]?[Mm][Ee][Tt][Aa].*?)\>/<!-- $1 -->/gs;   ## ebay doesn't allow metas
 	$HTML =~ s/\<([\/]?[Bb][Aa][Ss][Ee].*?)\>/<!-- $1 -->/gs;   ## ebay doesn't allow base urls
+
+	## The Internet Message Format RFC the latest of which is 5322
+   ## 2.1.1. Line Length Limits
+   ## There are two limits that this standard places on the number of characters in a line. 
+	## Each line of characters MUST be no more than 998 characters, and SHOULD be no more than 78 characters, 
+	## excluding the CRLF.
+ 	## The more conservative 78 character recommendation is to accommodate the many implementations of user 
+	## interfaces that display these messages which may truncate, or disastrously wrap, 
+	## the display of more than 78 characters per line, in spite of the fact that such implementations are 
+	## non-conformant to the intent of this specification (and that of [RFC2821] if they actually cause 
+	## information to be lost). Again, even though this limitation is put on messages, it is encumbant upon 
+	## implementations which display messages
+
+	$Text::Wrap::columns = 77;
+	if ($Text::Wrap::columns) {}  # Keep perl -w from whining
+
+	my @LINES = split(/[\n]/,$HTML);
+	$HTML = '';
+	while (scalar(@LINES)>0) {
+		my $line = pop(@LINES);
+
+		if (length($line)<=77) {
+			$HTML = $line."\n" . $HTML;
+			}
+		elsif ($line =~ /^(.*<.*?>)(<.*?>.*)$/) {
+			## safely split between two html tags
+			push @LINES, $1;
+			push @LINES, $2;
+			}
+		elsif ($line =~ /^\<\!\-\- ([^>]+) \-\-\>$/) {
+			## html comment, can safely append this (it won't impact document)
+			$HTML = "<!-- $1 -->\n" . $HTML;
+			}
+		elsif ($line =~ /^\<([^>]+)\>$/) {
+			## a single html tag, this could probably be done better with a library, but i'm in a hurry
+			## print "SINGLE HTML TAG: $line\n";
+			foreach my $attrib (split(/[\s]+/,$1)) { 
+				push @LINES, $attrib;
+				}
+			}
+		elsif ($line =~ /^(.*)(<.*?>)(.*)$/) {
+			## HTML with some text before, or afteer
+			if ($1) { push @LINES, $1; } 
+			push @LINES, $2; 
+			if ($3) { push @LINES, $3; }
+			}
+		elsif ((length($line) < 256) && ($line =~ /http[s]:\/\//)) {
+			# URLS do not respond well to be mangled, so we'll increase the max line length to 256 (allowed 778)
+			$HTML = $line."\n" . $HTML;
+			}
+		else {
+			## no html, use word wrap
+			## print "WRAPPING: $line\n";
+			my $wrappedtxt = &Text::Wrap::wrap('','',$line);
+			foreach my $wrapline (split(/[\n]/,$wrappedtxt)) {
+				if (length($wrapline)>78) {
+					## aggressive wrapping
+					$HTML = $wrapline . $HTML;
+					}
+				else {
+					push @LINES, $wrapline;
+					}
+				}
+			}
+
+		}
+
+
+
 	return($HTML);
 	}
 
@@ -207,10 +278,7 @@ sub email_parseElement {
 				}
 			}
 
-		open F, ">>/tmp/css";
-		print F Dumper($CSS);
-		close F;
-
+		# open F, ">/tmp/css"; print F Dumper($CSS); close F;
 		if ((not defined $CSS) || (ref($CSS) ne 'CSS::Tiny')) {
 			$el->postinsert("<!-- // style is not valid, could not be interpreted by CSS::Tiny // -->");
 			}

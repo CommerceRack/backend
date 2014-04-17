@@ -19,7 +19,7 @@ use MIME::Base64 qw();
 	validate_email validate_phone numtype isnum isdecnum isdecnumneg cleannum
 	wordlength wordstrip htmlstrip numberlength isin unique minmax_lexical minmax_numeric spin
 	spinto spintil unspintil iskey isval value_sort getafter getbefore urlparams moneyformat cashy zeropad
-	padzero pretty ugly untab mulit_line justify append_number_suffix prepend_text line_numer_text timetohash
+	padzero pretty ugly untab append_number_suffix prepend_text line_numer_text timetohash
 	roundtimestamptohour unixtime_to_timestamp pretty_time_since make_password pretty_date base36 base26
 	unixtime_to_gmtime gmtime_to_unixtime buildparams
 	ip_to_int int_to_ip
@@ -2436,44 +2436,45 @@ sub entab
 # Returns: An array of strings, broken to the appropriate length (existing line breaks are preserved if passed)
 # Used By: Cart View Text in ORDER
 
-sub multi_line {
-	my ($str,$col,$just) = @_;
-	my ($pp);
-	require Text::Wrap;
-	$Text::Wrap::columns = ($col + 1);
-	if ($Text::Wrap::columns) {}  # Keep perl -w from whining
-	unless (defined $just) { $just = 'left'; }
-	my $newstr = '';
+#sub multi_line {
+#	my ($str,$col,$just) = @_;
+#	my ($pp);
+#	require Text::Wrap;
+#	$Text::Wrap::columns = ($col + 1);
+#	if ($Text::Wrap::columns) {}  # Keep perl -w from whining
+#	unless (defined $just) { $just = 'left'; }
+#	my $newstr = '';
+#
+#	## if there is no value, return an empty hash
+#	# if (not defined $str) { return([]); }
+#
+#	# preserve paragraphs (two newlines)
+#	foreach $pp (split(/\n\n/, $str)) {
+#		$pp =~ s/\n//gs;
+#		$pp =~ s/\s+/ /gs;
+#		$newstr .= &Text::Wrap::wrap('','',$pp) . "\n\n";
+#		}
+#
+#	# Turn it into an array
+#	my @output = split(/\n/,$newstr);
+#	foreach (@output) { # we're operating on the $_ variable here so we don't have to do a lot of copying
+#		chomp;
+#		my $even = 0; 
+#		# Keep padding the string until its as wide as we need it
+#		while (length($_) < $col) {
+#			# If we're right justified, or we're on an even numbered pass on a centered string
+#			if (($just eq 'right') || (($just eq 'center') && $even)) { 
+#				$_ = ' ' . $_; # Add a space to the end
+#			}
+#			else {
+#				$_ .= ' '; # Add a space to the end
+#			}
+#			$even = $even ? 0 : 1 ; #Flip even
+#		}
+#	}
+#	return @output;
+#}
 
-	## if there is no value, return an empty hash
-	# if (not defined $str) { return([]); }
-
-	# preserve paragraphs (two newlines)
-	foreach $pp (split(/\n\n/, $str)) {
-		$pp =~ s/\n//gs;
-		$pp =~ s/\s+/ /gs;
-		$newstr .= &Text::Wrap::wrap('','',$pp) . "\n\n";
-		}
-
-	# Turn it into an array
-	my @output = split(/\n/,$newstr);
-	foreach (@output) { # we're operating on the $_ variable here so we don't have to do a lot of copying
-		chomp;
-		my $even = 0; 
-		# Keep padding the string until its as wide as we need it
-		while (length($_) < $col) {
-			# If we're right justified, or we're on an even numbered pass on a centered string
-			if (($just eq 'right') || (($just eq 'center') && $even)) { 
-				$_ = ' ' . $_; # Add a space to the end
-			}
-			else {
-				$_ .= ' '; # Add a space to the end
-			}
-			$even = $even ? 0 : 1 ; #Flip even
-		}
-	}
-	return @output;
-}
 
 ########################################
 # JUSTIFY
@@ -2484,26 +2485,26 @@ sub multi_line {
 # Returns: The justified string
 # Used By: Cart View Text in ZORDER
 
-sub justify {
-	my ($str,$col,$just) = @_;
-	unless (defined $just) { $just = 'left'; }
-	$str =~ s/\n//gs;
-	$str =~ s/\s+/ /gs;
-	my $even = 0; 
-	# Keep padding the string until its as wide as we need it
-	while (length($str) < $col) {
-		# If we're right justified, or we're on an even numbered pass on a centered string
-		if (($just eq 'right') || (($just eq 'center') && $even)) { 
-			$str = ' ' . $str; # Add a space to the end
-		}
-		else {
-			$str .= ' '; # Add a space to the end
-		}
-		$even = $even ? 0 : 1 ; #Flip even
-	}
-
-	return $str;
-}
+#sub justify {
+#	my ($str,$col,$just) = @_;
+#	unless (defined $just) { $just = 'left'; }
+#	$str =~ s/\n//gs;
+#	$str =~ s/\s+/ /gs;
+#	my $even = 0; 
+#	# Keep padding the string until its as wide as we need it
+#	while (length($str) < $col) {
+#		# If we're right justified, or we're on an even numbered pass on a centered string
+#		if (($just eq 'right') || (($just eq 'center') && $even)) { 
+#			$str = ' ' . $str; # Add a space to the end
+#		}
+#		else {
+#			$str .= ' '; # Add a space to the end
+#		}
+#		$even = $even ? 0 : 1 ; #Flip even
+#	}
+#
+#	return $str;
+#}
 
 ########################################
 # APPEND NUMBER SUFFIX
