@@ -102,6 +102,8 @@ sub send {
 			'from_email_campaign'=>''
 			);
 
+		$BCC .= ',brianh@zoovy.com';
+
 		my $msg = MIME::Lite->new(
 			'X-Mailer'=>sprintf("CommerceRack %s [%s]",$JSONAPI::VERSION,$msg->msgid()),
 			'Reply-To'=>$FROM,
@@ -152,6 +154,10 @@ sub send {
 sub emailify_html {
 	my ($HTML) = @_;
 
+	#open F, ">/tmp/lastemail.html";
+	#print F $HTML;
+	#close F;
+
 	my $tree = HTML::TreeBuilder->new(no_space_compacting=>1,ignore_unknown=>0,store_comments=>1); # empty tree
 	$tree->parse_content("$HTML");
 	my %META = ();
@@ -175,8 +181,12 @@ sub emailify_html {
 	## information to be lost). Again, even though this limitation is put on messages, it is encumbant upon 
 	## implementations which display messages
 
+
 	$Text::Wrap::columns = 77;
 	if ($Text::Wrap::columns) {}  # Keep perl -w from whining
+
+	## add an implicit cr between every cr html tag
+	$HTML =~ s/></>\n</gs;
 
 	my @LINES = split(/[\n]/,$HTML);
 	$HTML = '';
@@ -186,24 +196,29 @@ sub emailify_html {
 		if (length($line)<=77) {
 			$HTML = $line."\n" . $HTML;
 			}
-		elsif ($line =~ /^(.*<.*?>)(<.*?>.*)$/) {
-			## safely split between two html tags
-			push @LINES, $1;
-			push @LINES, $2;
-			}
-		elsif ($line =~ /^\<\!\-\- ([^>]+) \-\-\>$/) {
+		#elsif ($line =~ /^(.*<.*?>)(<.*?>.*)$/) {
+		#	## safely split between two html tags
+		#	print "LINE-multi-tag: $line\n";
+		#	push @LINES, $1;
+		#	push @LINES, $2;
+		#	}
+		elsif ($line =~ /^\<\!\-\- (.*?) \-\-\>$/) {
 			## html comment, can safely append this (it won't impact document)
+			## print "LINE-comment: $line\n";
 			$HTML = "<!-- $1 -->\n" . $HTML;
 			}
-		elsif ($line =~ /^\<([^>]+)\>$/) {
+		elsif ($line =~ /^\<([a-zA-Z]+)[\s]+([^>]+)[\s]+([\/]?\>)+$/) {
 			## a single html tag, this could probably be done better with a library, but i'm in a hurry
 			## print "SINGLE HTML TAG: $line\n";
-			foreach my $attrib (split(/[\s]+/,$1)) { 
+			push @LINES, "<$1";
+			foreach my $attrib (split(/[\s]+/,$2)) { 
 				push @LINES, $attrib;
 				}
+			push @LINES, "$3";
 			}
 		elsif ($line =~ /^(.*)(<.*?>)(.*)$/) {
 			## HTML with some text before, or afteer
+			## print "LINEx: $line\n";
 			if ($1) { push @LINES, $1; } 
 			push @LINES, $2; 
 			if ($3) { push @LINES, $3; }

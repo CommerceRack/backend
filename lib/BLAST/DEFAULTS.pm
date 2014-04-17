@@ -229,32 +229,32 @@ apply --img --media=$var --width=75 --height=75 --bgcolor='#ffffff' --replace;" 
  	<td data-tlc="bind $var '.%ORDER.sum.tax_total'; format --currency='USD'; apply --append;"></td>
 </tr>
 
-<tr class="orderShipping" data-tlc="bind $var '.%ORDER.sum.shp_total'; if (is $var --eq=0) {{ bind $var '.%ORDER.sum.shp_method'; if (is $var --blank) {{ apply --tag --remove; }}; }}; ">
+<tr class="orderShipping" data-tlc="bind $var '.%ORDER.sum.shp_total'; if (is $var --lte=0) {{ bind $var '.%ORDER.sum.shp_method'; if (is $var --blank) {{ apply --tag --remove; }}; }}; ">
 	<!-- ** in point of sale, we don't have shipping, so shp_method is set to blank, and total is zero - then tlc will remove this -->
 	<td align="right" colspan="4" style="text-align: right" data-tlc="bind $var '.%ORDER.sum.shp_method'; apply --append;"></td>
  	<td data-tlc="bind $var '.%ORDER.sum.shp_total'; if (is $var --notblank) {{format --currency='USD'; apply --append;}};"></td>
 </tr>
-<tr class="orderTotal" data-tlc="bind $var '.%ORDER.sum.order_total'; if (is $var --eq=0) {{ apply --tag --remove; }};" >
+<tr class="orderTotal" data-tlc="bind $var '.%ORDER.sum.order_total'; if (is $var --lte=0) {{ apply --tag --remove; }};" >
 	<td align="right" colspan="4" style="text-align: right">Order Totals:</td>
 	<td data-tlc="bind $var '.%ORDER.sum.order_total'; format --currency='USD'; apply --append;"></td>
 </tr>
-<tr class="giftcardTotal" data-tlc="bind $var '.%ORDER.sum.gfc_total'; if (is $var --eq=0) {{ apply --tag --remove; }};" >
-	<!-- ** this comment (and td's below) will be removed unless .gfc_total is > 0 -->
+<tr class="giftcardTotal" data-tlc="bind $var '.%ORDER.sum.gfc_total'; if (is $var --lte=0) {{ apply --tag --remove; }};" >
+	<!-- ** this comment (and td's below) will be removed unless .gfc_total is less-than 0 -->
 	<td align="right" colspan="4" style="text-align: right">Giftcard(s):</td>
 	<td data-tlc="bind $var '.%ORDER.sum.gfc_total'; format --currency='USD'; apply --append;"></td>
 </tr>
 <tr class="rewardPointsTotal" data-tlc="bind $var '.%ORDER.sum.pnt_total'; if (is $var --lte=0) {{ apply --tag --remove; }};" >
-	<!-- ** this comment (and td's below) will be removed unless .rewardsPointsTotal is > 0 -->
+	<!-- ** this comment (and td's below) will be removed unless .rewardsPointsTotal is greater-than 0 -->
 	<td align="right" colspan="4" style="text-align: right">Reward Points:</td>
 	<td data-tlc="bind $var '.%ORDER.sum.pnt_total'; format --currency='USD'; apply --append; "></td>
 </tr>
 <tr class="returnsCreditTotal" data-tlc="bind $var '.%ORDER.sum.rmc_total'; if (is $var --lte=0) {{ apply --tag --remove; }};"  >
-	<!-- ** this comment (and td's below) will be removed unless .sum.rmc_total is > 0 -->
+	<!-- ** this comment (and td's below) will be removed unless .sum.rmc_total is greater-than 0 -->
 	<td align="right" colspan="4" style="text-align: right">Returns Credit:</td>
 	<td data-tlc="bind $var '.%ORDER.sum.rmc_total'; format --currency='USD'; apply --append;"></td>
 </tr>
 <tr class="balancedueTotal" data-tlc="bind $var '.%ORDER.sum.balance_due_total'; if (is $var --lte=0) {{ apply --tag --remove; }};" >
-	<!-- ** this comment (and td's below) will be removed unless .sum.balance_due_total is > 0 ** -->
+	<!-- ** this comment (and td's below) will be removed unless .sum.balance_due_total is greater-than 0 ** -->
 	<td align="right" colspan="4" style="text-align: right">Balance Due:</td>
  	<td data-tlc="bind $var '.%ORDER.sum.balance_due_total'; format --currency='USD'; apply --append;"></td>
 </tr>
