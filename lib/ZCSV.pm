@@ -377,7 +377,8 @@ sub readHeaders {
 			## fucking application escaped # line.
 			$line =~ s/[\r\n]+//s;
 			$line = substr($line,1);	# strip leading "
-			$line =~ s/\"[\,]+$//g;
+			$line =~ s/\"[\,]*[\n\r]*$//g;	# strip trailing ",\r (or anything similar)
+			print "LINE[$line]\n";
 			}
 
 		if (substr($line,0,1) eq '#') {

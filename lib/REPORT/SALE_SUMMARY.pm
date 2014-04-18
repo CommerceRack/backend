@@ -40,7 +40,7 @@ sub init {
 	
 
 	$r->{'@HEAD'} = [
-		{ id=>0, 'name'=>'SKU', type=>'CHR', link=>'/biz/product/index.cgi?VERB=QUICKSEARCH&VALUE=', target=>'_blank' },
+		{ id=>0, 'name'=>'SKU', },
 		{ id=>1, 'name'=>'Payment Method', type=>'CHR', },		
 		{ id=>2, 'name'=>'SKU Name', type=>'CHR', },
 		{ id=>3, 'name'=>'SKU Cost', type=>'NUM', },
@@ -52,30 +52,30 @@ sub init {
 		{ id=>9, 'name'=>'UPC', type=>'CHR', },
 		];
 
-	$r->{'@SUMMARY'} = [
-		{ 'name'=>'Totals', type=>'TITLE' },
-		{ 'name'=>'Grand Total Sum', type=>'SUM', src=>7, sprintf=>'$%.2f' },
-		{ 'name'=>'Grand Total Cost', type=>'SUM', src=>6, sprintf=>'$%.2f' },
-		{ 'name'=>'Items Sold', type=>'SUM', src=>5 },
+	#$r->{'@SUMMARY'} = [
+	#	{ 'name'=>'Totals', type=>'TITLE' },
+	#	{ 'name'=>'Grand Total Sum', type=>'SUM', src=>7, sprintf=>'$%.2f' },
+	#	{ 'name'=>'Grand Total Cost', type=>'SUM', src=>6, sprintf=>'$%.2f' },
+	#	{ 'name'=>'Items Sold', type=>'SUM', src=>5 },
 
-		{ 'name'=>'Averages', type=>'TITLE' },
-		{ 'name'=>'Average Sales Per Item', type=>'AVG', src=>7, sprintf=>'$%.2f' },
-		];
+	#	{ 'name'=>'Averages', type=>'TITLE' },
+	#	{ 'name'=>'Average Sales Per Item', type=>'AVG', src=>7, sprintf=>'$%.2f' },
+	#	];
 
-	$r->{'@DASHBOARD'} = [
-			{ 
-			'name'=>'Sales by Product (w/o Payment Method)', 
-			'@HEAD'=>[ 
-				{ type=>'CHR', name=>'SKU', link=>'/biz/product/index.cgi?VERB=QUICKSEARCH&VALUE=', target=>'_blank', src=>0 },
-				{ type=>'CHR', name=>'SKU Name', src=>2, },
-				{ type=>'NUM', name=>'SKU Cost', src=>3, sprintf=>'$%.2f' },
-				{ type=>'NUM', name=>'SKU Price', src=>4, sprintf=>'$%.2f'},
-				{ type=>'SUM', name=>'Quantity Sold', src=>5, },
-				{ type=>'SUM', name=>'Total Cost', src=>6, sprintf=>'$%.2f' },
-				{ type=>'SUM', name=>'Total', src=>7, sprintf=>'$%.2f'},
-				],
-			'groupby'=>0, 			
-			},
+	#$r->{'@DASHBOARD'} = [
+	#		{ 
+	#		'name'=>'Sales by Product (w/o Payment Method)', 
+	#		'@HEAD'=>[ 
+	#			{ type=>'CHR', name=>'SKU', link=>'/biz/product/index.cgi?VERB=QUICKSEARCH&VALUE=', target=>'_blank', src=>0 },
+	#			{ type=>'CHR', name=>'SKU Name', src=>2, },
+	#			{ type=>'NUM', name=>'SKU Cost', src=>3, sprintf=>'$%.2f' },
+	#			{ type=>'NUM', name=>'SKU Price', src=>4, sprintf=>'$%.2f'},
+	#			{ type=>'SUM', name=>'Quantity Sold', src=>5, },
+	#			{ type=>'SUM', name=>'Total Cost', src=>6, sprintf=>'$%.2f' },
+	#			{ type=>'SUM', name=>'Total', src=>7, sprintf=>'$%.2f'},
+	#			],
+	#		'groupby'=>0, 			
+	#		},
 
 		];
 

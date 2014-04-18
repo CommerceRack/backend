@@ -76,7 +76,7 @@ sub init {
 		{ id=>0, 'name'=>'Pool', type=>'CHR' },	
 		{ id=>1, 'name'=>'Order Id', type=>'CHR' },
 		{ id=>2, 'name'=>'Full Name', type=>'CHR' },
-		{ id=>3, 'name'=>'SKU', type=>'CHR', link=>'https://www.zoovy.com/biz/product/edit.cgi?PID=', target=>'_blank' },
+		{ id=>3, 'name'=>'SKU', type=>'CHR', },
 		{ id=>4, 'name'=>'Product Name', type=>'CHR' },
 		{ id=>5, 'name'=>'Units Sold', type=>'NUM', },
 		{ id=>6, 'name'=>'Dollars Sold', type=>'NUM', sprintf=>'%.2f' },
@@ -84,21 +84,19 @@ sub init {
 		{ id=>8, 'name'=>'Ship Date', type=>'CHR', },
 		];
 
-	$r->{'@SUMMARY'} = [
-		{ 'name'=>'Reporting Period', type=>'TITLE' },
-		{ 'name'=>'Begins', type=>'LOAD', meta=>'.start_gmt', transform=>'EPOCH-TO-DATETIME', },
-		{ 'name'=>'End', type=>'LOAD', meta=>'.end_gmt', transform=>'EPOCH-TO-DATETIME', },
+	#$r->{'@SUMMARY'} = [
+	#	{ 'name'=>'Reporting Period', type=>'TITLE' },
+	#	{ 'name'=>'Begins', type=>'LOAD', meta=>'.start_gmt', transform=>'EPOCH-TO-DATETIME', },
+	#	{ 'name'=>'End', type=>'LOAD', meta=>'.end_gmt', transform=>'EPOCH-TO-DATETIME', },
+	#	{ 'name'=>'Totals', type=>'TITLE' },
+	#	{ 'name'=>'Items Sold', type=>'SUM', src=>5 },
+	#	{ 'name'=>'Dollars Sold', type=>'SUM', src=>6,  sprintf=>'$%.2f' },
+	#	{ 'name'=>'Averages', type=>'TITLE' },
+	#	{ 'name'=>'Average Sale Price', type=>'AVG', src=>6, sprintf=>'$%.2f' },
+	#	];
 
-		{ 'name'=>'Totals', type=>'TITLE' },
-		{ 'name'=>'Items Sold', type=>'SUM', src=>5 },
-		{ 'name'=>'Dollars Sold', type=>'SUM', src=>6,  sprintf=>'$%.2f' },
-
-		{ 'name'=>'Averages', type=>'TITLE' },
-		{ 'name'=>'Average Sale Price', type=>'AVG', src=>6, sprintf=>'$%.2f' },
-		];
-
-	$r->{'@DASHBOARD'} = [
-		];
+	#$r->{'@DASHBOARD'} = [
+	#	];
 
 	$r->{'@BODY'} = [];
 	return($self);

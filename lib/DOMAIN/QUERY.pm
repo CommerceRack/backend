@@ -128,11 +128,11 @@ sub rebuild_cache {
 		#| CONFIG     | tinytext                                                  | YES  |     | NULL              |                             |
 		#| CHKOUT     | varchar(65)                                               | NO   |     |                   |                             |
 		#+------------+-----------------------------------------------------------+------+-----+-------------------+-----------------------------+
-		my $pstmt = "select HOSTNAME,HOSTTYPE,CONFIG,CHKOUT from DOMAIN_HOSTS where MID=$MID and DOMAINNAME=".$udbh->quote($DOMAIN);
+		my $pstmt = "select HOSTNAME,HOSTTYPE,CONFIG from DOMAIN_HOSTS where MID=$MID and DOMAINNAME=".$udbh->quote($DOMAIN);
 		my $sthx = $udbh->prepare($pstmt);
 		$sthx->execute();
 		$REF{'%HOSTS'} = {};
-		while ( my ($HOSTNAME,$HOSTTYPE,$CONFIG,$CHKOUT) = $sthx->fetchrow() ) {
+		while ( my ($HOSTNAME,$HOSTTYPE,$CONFIG) = $sthx->fetchrow() ) {
 			## print "HOSTNAME:$HOSTNAME.$DOMAIN\n";
 			$HOSTNAME = uc($HOSTNAME);
 			## REDIR=, URI=
@@ -143,15 +143,20 @@ sub rebuild_cache {
 			$HOST{'HOSTNAME'} = $HOSTNAME;
 			$HOST{'HOSTTYPE'} = $HOSTTYPE;
 			$HOST{'CANONICAL'} = sprintf("www.%s",$DOMAIN);
-			if (-f "$userpath/$HOSTNAME.$DOMAIN.pem") {
-				$HOST{'ssl_pem'} = "$userpath/$HOSTNAME.$DOMAIN.key";
-				}
-			if (-f "$userpath/$HOSTNAME.$DOMAIN.crt") {
+			#if (-f "$userpath/$HOSTNAME.$DOMAIN.pem") {
+			#	$HOST{'ssl_pem'} = "$userpath/$HOSTNAME.$DOMAIN.key";
+			#	}
+			my $CRT_FILE = sprintf("$userpath/%s.%s.crt",lc($HOSTNAME),lc($DOMAIN));
+			my $CHKOUT = undef;
+			if (-s $CRT_FILE) {
+				$CHKOUT = sprintf("%s.%s",lc($HOSTNAME),lc($DOMAIN));
 				$HOST{'ssl_pem'} = "$userpath/$HOSTNAME.$DOMAIN.crt";
 				}
 
 			$HOST{'vip.private'} = $CFG->get(sprintf("%s.%s",$HOSTNAME,$DOMAIN),"vip.private") || $REF{'vip.private'};
 			$HOST{'vip.public'} = $CFG->get(sprintf("%s.%s",$HOSTNAME,$DOMAIN),"vip.public") || $REF{'vip.public'};
+		
+			
 
 			## print "HOSTTYPE: $HOSTTYPE\n";
 			if ($HOSTTYPE !~ /^(APP|VSTORE-APP|VSTORE)/) {
