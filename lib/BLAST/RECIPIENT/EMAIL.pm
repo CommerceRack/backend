@@ -158,6 +158,8 @@ sub emailify_html {
 	#print F $HTML;
 	#close F;
 
+	my $SRC = $HTML;
+
 	my $tree = HTML::TreeBuilder->new(no_space_compacting=>1,ignore_unknown=>0,store_comments=>1); # empty tree
 	$tree->parse_content("$HTML");
 	my %META = ();
@@ -190,10 +192,16 @@ sub emailify_html {
 
 	my @LINES = split(/[\n]/,$HTML);
 	$HTML = '';
+	my $max_lines = 25000;
 	while (scalar(@LINES)>0) {
 		my $line = pop(@LINES);
 
-		if (length($line)<=77) {
+		if ($max_lines-- <= 0) {
+			## this is a fail safe, so if we end up in a loop where we process more than 25000 lines at least
+			## we'll have a record of it.
+			$HTML = $line."\n" . $HTML;
+			}
+		elsif (length($line)<=77) {
 			$HTML = $line."\n" . $HTML;
 			}
 		#elsif ($line =~ /^(.*<.*?>)(<.*?>.*)$/) {
@@ -244,6 +252,11 @@ sub emailify_html {
 
 		}
 
+	if ($max_lines <= 0) {
+		open F, ">/tmp/email-max-lines-failure.html";
+		print F $SRC;	
+		close F;	
+		}
 
 
 	return($HTML);
