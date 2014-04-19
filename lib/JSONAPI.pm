@@ -7890,7 +7890,7 @@ sub adminProduct {
 			}
 
 		if ($v->{'variations'}) {
-			$R{'@variations'} = $P->pogs();
+			$R{'@variations'} = $P->fetch_pogs();
 			}
 
 		my %PIDINVSUMMARY = ();
