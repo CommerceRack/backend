@@ -18152,6 +18152,16 @@ http://search.cpan.org/~drtech/Search-Elasticsearch-1.10/lib/Search/Elasticsearc
 <input hint="mode:elastic-*" id="query"> {'text':{ 'profile':'DEFAULT' } };</input>
 <input hint="mode:elastic-*" id="query"> {'text':{ 'profile':['DEFAULT','OTHER'] } }; ## this would succeed, </input>
 
+<input hint="mode:elastic-mlt" id="id">the document id you want to use for the mlt operation</input>
+<input hint="mode:elastic-mlt" id="more_like_this">
+"more_like_this" : {
+        "fields" : ["name.first", "name.last"],
+        "like_text" : "text like this one",
+        "min_term_freq" : 1,
+        "max_query_terms" : 12
+    }
+http://www.elasticsearch.org/guide/en/elasticsearch/reference/current/query-dsl-mlt-query.html
+</input>
 
 <response id="size">100 # number of results</response>
 <response id="sort">['_score','base_price','prod_name']</response>
@@ -18247,6 +18257,8 @@ sub appPublicSearch {
 		if (defined $params{'body'}) {
 			## require body->query or body->filter
 			}
+		elsif ($v->{'mode'} eq 'elastic-mlt') {
+			}
 		else {
 			&JSONAPI::append_msg_to_response(\%R,"apperr",18233,"search mode:$v->{'mode'} requires either query and/or filter parameter.");
 			}
@@ -18301,6 +18313,13 @@ sub appPublicSearch {
 					$params{'id'} = $v->{'id'};
 					delete $params{'timeout'};
 					delete $params{'size'};
+					foreach my $k (qw(boost_terms max_doc_freq max_query_terms max_word_length
+						min_doc_freq min_term_freq min_word_length mlt_fields percent_terms_to_match routing
+						search_from search_indices search_query_hint search_scroll search_size search_source
+						search_type search_types stop_words)) {
+						if (defined $v->{$k}) { $params{$k} = $v->{$k}; }
+						}
+
 					eval { $R = $es->mlt(%params) };
 					if ($@) { $R = $@; }
 					}
@@ -27112,6 +27131,8 @@ sub appResource {
 			#	$ref = PRODUCT::FLEXEDIT::get_GTOOLS_Form_grp($1); 
 			#	}
 			}
+		}
+	elsif ($FILENAME =~ /^sog-([0-Z][0-Z])\.(json|yaml|xml)) {
 		}
 	else {
 		&JSONAPI::set_error(\%R,'apperr',18803,"invalid file '$FILENAME' requested.");

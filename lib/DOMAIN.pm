@@ -881,6 +881,7 @@ sub new {
 		}
 	
 
+	my $userpath = &ZOOVY::resolve_userpath($USERNAME);
 	if ((not defined $self) && ($MID>0)) {
 		my ($udbh) = &DBINFO::db_user_connect($USERNAME);
 		my $qtUSERNAME = $udbh->quote($USERNAME);
@@ -915,6 +916,12 @@ sub new {
 				$self->{'%HOSTS'}->{$HOSTNAME} = &ZTOOLKIT::parseparams($CONFIG);
 				$self->{'%HOSTS'}->{$HOSTNAME}->{'HOSTNAME'} = $HOSTNAME;
 				$self->{'%HOSTS'}->{$HOSTNAME}->{'HOSTTYPE'} = $HOSTTYPE;
+
+				my $CRT_FILE = sprintf("$userpath/%s.%s.crt",lc($HOSTNAME),lc($DOMAIN));
+				my $CHKOUT = undef;
+				if (-s $CRT_FILE) {
+					$CHKOUT = sprintf("%s.%s",lc($HOSTNAME),lc($DOMAIN));
+					}
 				
 				if ($CHKOUT eq '') { $CHKOUT = &ZWEBSITE::domain_to_checkout_domain(sprintf("%s.%s",lc($HOSTNAME),$DOMAIN)); }
 				$self->{'%HOSTS'}->{$HOSTNAME}->{'CHKOUT'} = $CHKOUT;
@@ -928,12 +935,6 @@ sub new {
 				'HOSTTYPE'=>'ADMIN'
 				};
 
-			#foreach my $HOSTNAME (keys %{$self->{'%HOSTS'}}) {
-			#	## COMPATIBILITY
-			#	$self->{sprintf("%s_CONFIG",$HOSTNAME)} = &ZTOOLKIT::buildparams($self->{'%HOSTS'}->{$HOSTNAME});
-			#	$self->{sprintf("%s_HOST_TYPE",$HOSTNAME)} = $self->{'%HOSTS'}->{$HOSTNAME}->{'HOSTTYPE'};
-			#	$self->{sprintf("%s_CHKOUT_HOST",$HOSTNAME)} = $self->{'%HOSTS'}->{$HOSTNAME}->{'CHKOUT'};
-			#	}
 			}
 	
 		if (defined $self) {

@@ -123,8 +123,8 @@ body { font-size: 8pt; font-family: helvetica, arial; }
 <div style="text-align:left; line-height:120%;">
 <table cellspacing="0" cellpadding="0" border="0" width="100%" style="border-top:1px solid #CCCCCC; margin-bottom:10px;">
 <tr>
-	<td data-bind="bind $logoimg '.%PRT.LOGOIMAGE'; if (is $img --blank) {{ apply --remove; }}">
-		<img data-bind="bind $logoimg '.%PRT.LOGOIMAGE'; apply --img --media=$logoimg;">
+	<td data-tlc="bind $logoimg '.%PRT.LOGOIMAGE'; if (is $img --blank) {{ apply --remove; }}">
+		<img data-tlc="bind $logoimg '.%PRT.LOGOIMAGE'; apply --img --media=$logoimg;">
 	</td>
 	<td valign="top" style="padding:2px;">
 	<span data-tlc="bind $var '.%PRT.MAILADDR'; render --wiki; format apply --append;">	

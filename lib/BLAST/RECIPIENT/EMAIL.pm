@@ -158,6 +158,8 @@ sub emailify_html {
 	#print F $HTML;
 	#close F;
 
+	my $SRC = $HTML;
+
 	my $tree = HTML::TreeBuilder->new(no_space_compacting=>1,ignore_unknown=>0,store_comments=>1); # empty tree
 	$tree->parse_content("$HTML");
 	my %META = ();
@@ -181,6 +183,7 @@ sub emailify_html {
 	## information to be lost). Again, even though this limitation is put on messages, it is encumbant upon 
 	## implementations which display messages
 
+	my $DEBUG = 0;
 
 	$Text::Wrap::columns = 77;
 	if ($Text::Wrap::columns) {}  # Keep perl -w from whining
@@ -190,10 +193,17 @@ sub emailify_html {
 
 	my @LINES = split(/[\n]/,$HTML);
 	$HTML = '';
+	my $max_lines = 25000;
 	while (scalar(@LINES)>0) {
 		my $line = pop(@LINES);
 
-		if (length($line)<=77) {
+		if ($max_lines-- <= 0) {
+			## this is a fail safe, so if we end up in a loop where we process more than 25000 lines at least
+			## we'll have a record of it.
+			$DEBUG && print "MAX LENGTH: $line\n";
+			$HTML = $line."\n" . $HTML;
+			}
+		elsif (length($line)<=77) {
 			$HTML = $line."\n" . $HTML;
 			}
 		#elsif ($line =~ /^(.*<.*?>)(<.*?>.*)$/) {
@@ -204,32 +214,51 @@ sub emailify_html {
 		#	}
 		elsif ($line =~ /^\<\!\-\- (.*?) \-\-\>$/) {
 			## html comment, can safely append this (it won't impact document)
-			## print "LINE-comment: $line\n";
+			$DEBUG && print "LINE-comment: $line\n";
 			$HTML = "<!-- $1 -->\n" . $HTML;
 			}
-		elsif ($line =~ /^\<([a-zA-Z]+)[\s]+([^>]+)[\s]+([\/]?\>)+$/) {
-			## a single html tag, this could probably be done better with a library, but i'm in a hurry
-			## print "SINGLE HTML TAG: $line\n";
-			push @LINES, "<$1";
-			foreach my $attrib (split(/[\s]+/,$2)) { 
-				push @LINES, $attrib;
+		elsif ($line =~ /^(\<[a-zA-Z]+)[\s]+([^>]+)[\s]*([\/]?\>)$/) {
+			## this is for handling very long tags, which exist on one line, by themselves, we'll try and break down attributes
+			## into smaller chunks.
+			## this could probably be done better with a library, but I couldn't find one readily available.
+			if ($line =~ /^(\<[a-zA-Z]+)[\s]+(.*?)([\s]*[\/]?\>)$/) {
+				## we're going to do the same regex again, but this time let $2 be bit less greedy (so it will leave the /> as $$) 
+				## ex:  <td data-bind="bind $logoimg &#39;.%PRT.LOGOIMAGE&#39;; if (is $img --blank) {{ apply --remove; }}">
+				$DEBUG && print "SINGLE HTML TAG: $line [$1] [$2]\n";
+				my ($start,$mid,$end) = ($1,$2,$3);
+				my $TAG = "$start\n";
+				foreach my $attrib (split(/[\s]+([a-z\-A-Z]+\=\".*?\")[\s]*/,$mid)) { 
+					next if ($attrib eq '');
+					$TAG .= " $attrib\n";
+					}
+				$TAG .= "$end";
+				$HTML = "$TAG\n$HTML";
 				}
-			push @LINES, "$3";
+			else {
+				## NO CLUE HOW WE GOT HERE, BUT IT's A FAILSAFE
+				$HTML .= $line."\n".$HTML;
+				}
 			}
 		elsif ($line =~ /^(.*)(<.*?>)(.*)$/) {
 			## HTML with some text before, or afteer
-			## print "LINEx: $line\n";
-			if ($1) { push @LINES, $1; } 
-			push @LINES, $2; 
-			if ($3) { push @LINES, $3; }
+			$DEBUG && print "LINEx: $line [$1][$2][$3]\n";
+			if (($1 eq '') && ($3 eq '')) {
+				$HTML .= $line."\n".$HTML;
+				}
+			else {
+				if ($1) { push @LINES, $1; } 
+				push @LINES, $2; 
+				if ($3) { push @LINES, $3; }
+				}
 			}
 		elsif ((length($line) < 256) && ($line =~ /http[s]:\/\//)) {
 			# URLS do not respond well to be mangled, so we'll increase the max line length to 256 (allowed 778)
+			$DEBUG && print "longURL: $line\n";
 			$HTML = $line."\n" . $HTML;
 			}
 		else {
 			## no html, use word wrap
-			## print "WRAPPING: $line\n";
+			$DEBUG && print "WRAPPING: $line\n";
 			my $wrappedtxt = &Text::Wrap::wrap('','',$line);
 			foreach my $wrapline (split(/[\n]/,$wrappedtxt)) {
 				if (length($wrapline)>78) {
@@ -244,6 +273,11 @@ sub emailify_html {
 
 		}
 
+	if ($max_lines <= 0) {
+		open F, ">/tmp/email-max-lines-failure.html";
+		print F $SRC;	
+		close F;	
+		}
 
 
 	return($HTML);

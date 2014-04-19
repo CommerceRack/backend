@@ -195,6 +195,7 @@ sub elastic_index {
 
 	foreach my $workset (@{$TODO}) {
 		my ($sku,$dataref) = @{$workset};
+		if (not defined $INVSUMMARY->{$sku}) { $INVSUMMARY->{$sku} = {}; }
 		my %PAYLOAD = ( 'pid'=>$PID, 'sku'=>$sku, %{$INVSUMMARY->{$sku}} );		
 		$STORE_SKUS{$sku} = \%PAYLOAD;
 		$workset->[2] = $STORE_SKUS{$sku};
