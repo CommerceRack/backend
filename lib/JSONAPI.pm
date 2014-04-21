@@ -20088,6 +20088,13 @@ sub appBuyerCreate {
 		if (($v->{'_vendor'}) && ($self->apiversion()<201402)) { 
 			$script = $v->{'_vendor'}; 
 			}
+		if (($v->{'vendor'}) && ($self->apiversion()<201402)) { 
+			## i think this is the right one.
+			$script = $v->{'vendor'}; 
+			}
+		if ((not defined $v->{'_script'}) && ($v->{'vendor'} || $v->{'_vendor'}) && ($self->apiversion()>201402) ) { 
+			&JSONAPI::append_msg_to_response($R,'apperr',74229,'_script parameter is required (historically called /vendor/)');
+			}
 
 		my ($cfg) = $self->loadPlatformJSON('appBuyerCreate',$script,$v,$R);
 		$R->{'%VARS'} = {};
@@ -20143,7 +20150,7 @@ sub appBuyerCreate {
 			}
 		elsif (not &JSONAPI::validate_required_parameter($R,$v,'email')) {
 			}
-		elsif (&JSONAPI::customer_exists($self->username(),$v->{'email'},$self->prt())) {
+		elsif (&CUSTOMER::customer_exists($self->username(),$v->{'email'},$self->prt())) {
 			## 665 is ALWAYS 'customer always exists'
 			&JSONAPI::append_msg_to_response($R,'youerr',665,'Customer already exists.');
 			}

@@ -197,7 +197,7 @@ my $app = sub {
 	$CONFIG{'image#compress'} = $CONFIG{'image#compress'} || 1;
 
 	$CONFIG{'file#robots'} = $CONFIG{'file#robots'} || '/robots.txt';
-	$CONFIG{'file#rewrites'} = $CONFIG{'file#rewrites'} || '/rewrites.json';
+	$CONFIG{'file#rewrites'} = $CONFIG{'file#rewrites'} || '/platform/rewrites.txt';
 	$CONFIG{'redirect#https'} = $CONFIG{'redirect#https'} || 0;
 	$CONFIG{'redirect#root'} = $CONFIG{'redirect#root'} || '/index.html';
 	$CONFIG{'redirect#missing'} = $CONFIG{'redirect#missing'} || '/index.html#!missing';
@@ -430,18 +430,25 @@ please use http://jigsaw.w3.org/css-validator/validator to correct, or disable c
 	my $MEMD = undef;
 	if ((defined $HTTP_RESPONSE) && ($HTTP_RESPONSE == 404)) {
 		## check for rewrite rules.
-		if (-f "$NFSROOT/platform/rewrites.txt") {
-			open F, "<$NFSROOT/platform/rewrites.txt";
+		my $REWRITES_FILE = $CONFIG{'file#rewrites'} || "/platform/rewrites.txt";	## this was act
+		$REWRITES_FILE =~ s/[.]+/./gs;	# no .. are allowed
+		$REWRITES_FILE =~ s/[\/]+/\//gs;	# no // are allowed
+
+		if (! -f "$REWRITES_FILE") {
+			open F, "<$NFSROOT/$REWRITES_FILE";
 			my $line = 0;
-			my $goto = undef;
+			my $GOTO = undef;
+			my %GOTO_modifiers = ();
+
 			while (<F>) {
-				last if ($goto);
+				last if ($GOTO);
 				$line++;
 
 				# print "LINE: $_\n";
 				$_ =~ s/[\n\r]+//gs;
-				my ($verb,$ifmatch,$thengoto) = split(/[\t]/,$_);
-				print STDERR "LINE:$line [$verb] [$ifmatch] [$thengoto]\n";
+				my ($verb,$ifmatch,$thengoto,$modifiers) = split(/[\t]/,$_);
+				print STDERR "LINE:$line [$verb] [$ifmatch] [$thengoto] [$modifiers]\n";
+
 				if ($_ eq '') {
 					## ignore blank lines!
 					}
@@ -458,8 +465,11 @@ please use http://jigsaw.w3.org/css-validator/validator to correct, or disable c
 
 
 					#print STDERR "STYLE:$style SRC:$src  IFMATCH:$ifmatch\n";
-					if ($style eq '=') {
-						if ($src eq $ifmatch) { $goto = $thengoto; }
+					if (substr($thengoto,0,1) eq '=') {
+						## 410 
+						}
+					elsif ($style eq '=') {
+						if ($src eq $ifmatch) { $GOTO = $thengoto; }
 						}
 					elsif ($style eq '~') {
 						#print STDERR "IFMATCH:$ifmatch THEN:$thengoto SRC[$src]\n";
@@ -470,20 +480,48 @@ please use http://jigsaw.w3.org/css-validator/validator to correct, or disable c
 							$thengoto =~ s/"/\\"/g;		# embedded code protection
 							$thengoto = '"'.$thengoto.'"';
 							$src =~ s/$ifmatch/$thengoto/ee;
-							$goto = $src;
-							#print STDERR "GOTO: $goto\n";
+							$GOTO = $src;
+							#print STDERR "GOTO: $GOTO\n";
 							}
 						}
+
+					if ((defined $GOTO) && ($modifiers ne '')) {
+						foreach my $token (split(/,/,$modifiers)) {
+							$token =~ s/^[\s]+//gs; $token =~ s/[\s]+$//gs; # strip leading/trailing whitespace
+							my ($k,$v) = split(/=/,$modifiers,2);
+							$GOTO_modifiers{$k} = $v;
+							}
+
+						if (defined $GOTO_modifiers{'set'}) {
+							## this is a rewrite, it lets us do something like this:
+					
+							if ($GOTO_modifiers{'set'} eq 'path') { $URI->path($GOTO); $GOTO = undef; }
+							}
+
+						}
+
 					}
 				else {
-					$goto = "/index.html?error=invalid_rewrite_prefix_$verb\_line_$line";
+					$GOTO = "/index.html?error=invalid_rewrite_prefix_$verb\_line_$line";
 					}
 				}
 			close F;
 				
-			if (defined $goto) {
+			if (not defined $GOTO) {
+				}
+			elsif ($GOTO_modifiers{'http'}==410) {
+				$HTTP_RESPONSE = 410;
+				}
+			elsif ($GOTO_modifiers{'http'}==404) {
+				$HTTP_RESPONSE = 404;
+				}
+			elsif ($GOTO_modifiers{'http'}==302) {
+				$HTTP_RESPONSE = 302;
+				$HEADERS->push_header('Location'=>$GOTO);
+				}
+			else {
 				$HTTP_RESPONSE = 301;
-				$HEADERS->push_header('Location'=>$goto);
+				$HEADERS->push_header('Location'=>$GOTO);
 				}
 
 			}
