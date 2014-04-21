@@ -2544,9 +2544,18 @@ sub hasFlag {
 sub deprecated {
 	my ($self,$R,$version) = @_;
 
-	if ($self->apiversion() >= $version) {
-		&JSONAPI::set_error($R,'apperr',666,"Deprecated");		
-		return(1);
+	if ($version > 0) {
+		if ($self->apiversion() >= $version) {
+			&JSONAPI::set_error($R,'apperr',666,"Deprecated");		
+			return(1);
+			}
+		}
+	else {
+		$version = 0-$version;
+		if ($self->apiversion() <= $version) {
+			&JSONAPI::set_error($R,'apperr',666,"Deprecated - please upgrade to $version");		
+			return(1);
+			}
 		}
 	return(0);
 	}
@@ -7890,7 +7899,7 @@ sub adminProduct {
 			}
 
 		if ($v->{'variations'}) {
-			$R{'@variations'} = $P->pogs();
+			$R{'@variations'} = $P->fetch_pogs();
 			}
 
 		my %PIDINVSUMMARY = ();
@@ -23943,27 +23952,14 @@ sub adminConfigDetail {
 		}
 
 
-	if ($v->{'notifications'}) {
-		if (not defined $webdbref->{'%NOTIFICATIONS'}) { $webdb->{"%NOTIFICATIONS"} = {}; }
+	if ( not $v->{'notifications'}) {
+		}
+	elsif ($self->deprecated(\%R,-201402) ) {
+		}
+	elsif ($v->{'notifications'}) {
 		my @EVENTS = ();
-
-		my @DEFAULTS = (
-			'ENQUIRY','ERROR','ALERT','APIERR','CUSTOMER.ORDER.CANCEL','INV.NAVCAT.SHOW','INV.NAVCAT.HIDE','INV.NAVCAT.FAIL',
-			);
-		foreach my $default (@DEFAULTS) {
-			if (not defined $webdbref->{'%NOTIFICATIONS'}->{$default}) {		
-				$webdbref->{'%NOTIFICATIONS'}->{$default} = [ 'verb=task' ];
-				}
-			}
-
-		foreach my $EVENT (sort keys %{$webdbref->{'%NOTIFICATIONS'}}) {
-			foreach my $ROWSTR (@{$webdbref->{'%NOTIFICATIONS'}->{$EVENT}}) {
-				my $row = &ZTOOLKIT::parseparams($ROWSTR);
-				$row->{'event'} = $EVENT;
-				push @EVENTS, $row;
-				}
-			}
-		$R{'@NOTIFICATIONS'} = \@EVENTS;
+		require NOTIFICATIONS;
+		$R{'@NOTIFICATIONS'} = NOTIFICATIONS::list($webdbref);
 		}
 
 
