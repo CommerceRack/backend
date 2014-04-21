@@ -126,7 +126,7 @@ sub list_roles {
 		'title'=>'Customer Service: Trusted', 
 		'detail'=>'Looks up orders, tickets, customers, processes payment, issues credits, changes order contents and pricing.',
 		'%objects'=>{
-			'CUSTOMER'=>{'R'=>'+','C'=>'+','L'=>'+','S'=>'+'},
+			'CUSTOMER'=>{'R'=>'+','C'=>'+','L'=>'+','S'=>'+','U'=>'+'},
 			'DOMAIN'=>{'L'=>'+' },
 			'ORDER/PAYMENT'=>{'U'=>'+'},
 			'ORDER'=>{'R'=>'+','U'=>'+','C'=>'+','L'=>'+','S'=>'+'},
