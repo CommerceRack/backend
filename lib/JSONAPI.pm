@@ -26346,7 +26346,7 @@ sub adminConfigMacro {
 					$ref{'enable'} = $ref{'active'} = ($params->{'enable'})?1:0;
 
 					$ref{'region'} = $params->{'region'};
-					my $HANDLER = $ref{'handler'};
+					my $HANDLER = $ref{'handler'};			## NOTE: loaded by the provider (this is *not* passed by client)
 		
 					$ref{'name'} = $params->{'name'};
 					$ref{'name'} =~ s/^[\s]+(.*?)$/$1/g;
@@ -26366,6 +26366,9 @@ sub adminConfigMacro {
 						}
 					elsif ($ref{'handler'} eq 'PRICE') {
 						$ref{'min_price'} = $params->{'min_price'};
+						}
+					elsif ($ref{'handler'} eq 'FREE') {
+						$ref{'total'} = sprintf("%.2f",$params->{'total'});
 						}
 
 					&ZWEBSITE::ship_add_method($webdb,\%ref);
@@ -27132,7 +27135,7 @@ sub appResource {
 			#	}
 			}
 		}
-	elsif ($FILENAME =~ /^sog-([0-Z][0-Z])\.(json|yaml|xml)) {
+	elsif ($FILENAME =~ /^sog-([0-Z][0-Z])\.(json|yaml|xml)/) {
 		}
 	else {
 		&JSONAPI::set_error(\%R,'apperr',18803,"invalid file '$FILENAME' requested.");
