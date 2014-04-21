@@ -26347,7 +26347,7 @@ sub adminConfigMacro {
 						}
 
 					$ref{'rules'} = ($params->{'rules'})?1:0;
-					$ref{'active'} = ($params->{'enable'})?1:0;
+					$ref{'enable'} = $ref{'active'} = ($params->{'enable'})?1:0;
 
 					$ref{'region'} = $params->{'region'};
 					my $HANDLER = $ref{'handler'};
