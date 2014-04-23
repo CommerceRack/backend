@@ -249,6 +249,7 @@ my $LIMIT = $params{'limit'};
 if ($LIMIT == 0) { $LIMIT = -1; }
 
 my $loop = 0;
+my %DIGESTS = ();
 while ( my $YAML = $redis->brpoplpush("EVENTS","EVENTS.PROCESSING",1) ) {
 	## DBUG:
 	# print "YAML:$YAML\n"; sleep(1);
@@ -297,7 +298,7 @@ while ( my $YAML = $redis->brpoplpush("EVENTS","EVENTS.PROCESSING",1) ) {
 		$YREF = eval { YAML::Syck::Load($YAML); };
 		}
 	
-	print "YAML:$YAML\n";
+	# print "YAML:$YAML\n";
 
 	my $USERNAME = $YREF->{'_USERNAME'};
 	my $TS = $YREF->{'_TS'};
@@ -307,6 +308,15 @@ while ( my $YAML = $redis->brpoplpush("EVENTS","EVENTS.PROCESSING",1) ) {
 		$redis->lrem("EVENTS.PROCESSING",-1,$YAML);
 		next;
 		}
+
+	my $MD5 = Digest::MD5::md5_hex($YAML);
+	$DIGESTS{$MD5}++;
+
+#	if (( $YREF->{'_USERNAME'} eq 'NUMBER21SPORTS' ) && ( $YREF->{'_EVENT'} eq 'INV.GOTINSTOCK' )) {
+#		warn "removing! $MD5 $DIGESTS{$MD5}\n";
+#		$redis->lrem("EVENTS.PROCESSING",-1,$YAML);
+#		next;
+#		}
 
 	next if (! -d &ZOOVY::resolve_userpath($USERNAME));
 
@@ -1750,7 +1760,16 @@ sub e_INV_OUTOFSTOCK {
 sub e_INV_PRODUCT_UPDATE {
 	my ($EVENT,$USERNAME,$PRT,$YREF,$LM,$redis,$CACHEREF) = @_;
 
-	if ($YREF->{'PID'}) {
+	my $PID = $YREF->{'PID'};
+	my $REDIS_REATTEMPT_KEY = "EVENTS/INVENTORY/ELASTIC+$USERNAME+$PID";
+	my ($beenhere_donethat) = $redis->get($REDIS_REATTEMPT_KEY);
+	if (not $beenhere_donethat) {
+		$redis->setex($REDIS_REATTEMPT_KEY,time(),2*60);
+		}
+
+	if ($beenhere_donethat) {
+		}
+	elsif ($YREF->{'PID'}) {
 
 		my ($ESSUMMARY) = INVENTORY2->new($USERNAME,"*events")->summary( '@PIDS'=>[ $YREF->{'PID'} ], 'ELASTIC_PAYLOADS'=>1);
 
@@ -1941,7 +1960,18 @@ sub e_INV_CHANGED {
 	my ($P) = PRODUCT->new($USERNAME,$PID,'create'=>0);
 	if (not defined $P) { $error = "PRODUCT $PID not in database"; }
 
+	my $REDIS_REATTEMPT_KEY = "EVENTS/INVENTORY+$USERNAME+$PID";
+	my ($beenhere_donethat) = $redis->get($REDIS_REATTEMPT_KEY);
 	if ($error) {
+		}
+	elsif (not $beenhere_donethat) {
+		$redis->setex($REDIS_REATTEMPT_KEY,time(),2*60);
+		}
+
+	if ($error) {
+		}
+	elsif ($beenhere_donethat) {
+		warn "been here, done that already\n";
 		}
 	elsif ($P->fetch('ebay:ts')>0) {
 		## has ebay syndication enabled for the product, lets get a list of fixed price syndicated listings, and update the inventory

@@ -619,7 +619,7 @@ sub save {
 
 			## if we have an SSL certificate, then set our CHKOUT
 			$h->{'CHKOUT'} = '';
-			if (-f sprintf("%s/%s.%s.crt",$userpath,$self->domainname())) {
+			if (-f sprintf("%s/%s.%s.crt",$userpath,lc($h->{'HOSTNAME'}),lc($self->domainname()))) {
 				$h->{'CHKOUT'} = lc(sprintf("%s.%s",$h->{'HOSTNAME'},$self->domainname()));
 				}
 
