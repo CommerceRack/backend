@@ -1610,13 +1610,6 @@ if (JSEpochIs < $ts+86400) {
 		push @OUT, [ 'google-adwords', $OUTPUT ];
 		}
 
-	#if (($nsref->{'yahooshop:filter'}) && ($META !~ /YAHOO/i)) {
-	#	my $OUTPUT .=  "<!-- SKIPPED YAHOO DUE TO OUTPUT FILTER: $META -->";
-	#	}
-	#elsif ($nsref->{'yahooshop:chkoutjs'} ne '') {
-	#	my $OUTPUT .=  "\n<!-- begin yahooshop -->".$msgs->show($nsref->{'yahooshop:chkoutjs'})."<!-- end yahooshop -->";
-	#	}
-
 	if (($nsref->{'nextag:filter'}) && ($META !~ /NEXTAG/i)) {
 		my $OUTPUT .=  "\n<!-- SKIPPED NEXTAG DUE TO OUTPUT FILTER: $META -->";
 		push @OUT, [ 'nextag', $OUTPUT ];

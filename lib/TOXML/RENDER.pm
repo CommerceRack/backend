@@ -55,7 +55,7 @@ $TOXML::RENDER::DEBUG = 0;
 	'HITGRAPH'      => \&TOXML::RENDER::RENDER_HITGRAPH,
 	'CART'          => \&TOXML::RENDER::RENDER_CART,
 	'DECAL'			 => \&TOXML::RENDER::RENDER_DECAL,
-	'ORDER'     	 => \&TOXML::RENDER::RENDER_ORDER,
+#	'ORDER'     	 => \&TOXML::RENDER::RENDER_ORDER,
 	'SLIDE'         => \&TOXML::RENDER::RENDER_SLIDE,
 	'DYNIMAGE'      => \&TOXML::RENDER::RENDER_DYNIMAGE,
 	'ADDTOCART'     => \&TOXML::RENDER::RENDER_ADDTOCART,
@@ -7351,30 +7351,30 @@ print("");
 #
 
 
-sub RENDER_ORDER {
-	my ($iniref,undef,$SITE) = @_;
-
-	my $out = '';
-	#if ($iniref->{'_PREVIEW'}) {
-	#	require ORDER;
-	#	my $USERNAME = $SITE->username();
-	#	# $SITE->{'*order'} = ORDER->create($USERNAME,tmp=>1,preview=>1);
-	#	}
-	
-	#if (defined $iniref->{'*ORDER'}) {
-	#	$iniref->{'*order'} = $iniref->{'*ORDER'};
-	#	}
-
-	if (defined $SITE->{'*CART2'}) {
-		$out .= CART2::VIEW::as_html( $SITE->{'*CART2'}, $iniref->{'MODE'}, $iniref, $SITE);
-		}
-	else {
-		$out .= "<!-- *CART2 not defined -->";
-		}
-
-	# Spit it back up the chain
-	return $out;
-	}
+#sub RENDER_ORDER {
+#	my ($iniref,undef,$SITE) = @_;
+#
+#	my $out = '';
+#	#if ($iniref->{'_PREVIEW'}) {
+#	#	require ORDER;
+#	#	my $USERNAME = $SITE->username();
+#	#	# $SITE->{'*order'} = ORDER->create($USERNAME,tmp=>1,preview=>1);
+#	#	}
+#	
+#	#if (defined $iniref->{'*ORDER'}) {
+#	#	$iniref->{'*order'} = $iniref->{'*ORDER'};
+#	#	}
+#
+#	if (defined $SITE->{'*CART2'}) {
+#		$out .= CART2::VIEW::as_html( $SITE->{'*CART2'}, $iniref->{'MODE'}, $iniref, $SITE);
+#		}
+#	else {
+#		$out .= "<!-- *CART2 not defined -->";
+#		}
+#
+#	# Spit it back up the chain
+#	return $out;
+#	}
 
 ##
 ##	RENDER_CART

@@ -1068,9 +1068,9 @@ sub payment_methods {
 		#EXP-DES-CBC-SHA Kx=RSA(512) Au=RSA Enc=DES(40) Mac=SHA1 export
 		#EXP-RC2-CBC-MD5 Kx=RSA(512) Au=RSA Enc=RC2(40) Mac=MD5 export
 		#EXP-RC4-MD5 Kx=RSA(512) Au=RSA Enc=RC4(40) Mac=MD5 export  
-		my @ICONS = ();
 
 		foreach my $pmref (@ZPAY::PAY_METHODS) {
+			my @ICONS = ();
 			my ($method,$pretty) = @{$pmref};
 
 			my $IS_ALLOWED = undef;
@@ -1326,7 +1326,9 @@ sub cc_verify_expiration {
  	$DEBUG && &msg('Verifying credit card expiration.');
 	my ($card_exp_month, $card_exp_year) = @_;
 
-	# print STDERR "MO:$card_exp_month YY:$card_exp_year\n";
+	if ($card_exp_year>2000) { $card_exp_year -= 2000; }
+
+	## print STDERR "MO:$card_exp_month YY:$card_exp_year\n";
 	if (($card_exp_month < 0) || ($card_exp_month>12)) { return(0); }
 	$card_exp_month = sprintf("%02d",$card_exp_month);
 

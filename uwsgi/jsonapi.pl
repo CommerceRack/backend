@@ -429,12 +429,12 @@ my $app = sub {
 		$HEADERS->push_header( 'Expires' => -1 );
 
 		if (not defined $R) {
-			($R,my $cmdlines) = $JSAPI->handle($path,$v);
+			($R,my $cmdlines) = $JSAPI->handle($v);
 			}
 
-		#if ($JSAPI->username() eq 'comfybabyonthego') {
-		#	use Data::Dumper; open F, ">>/tmp/comfybabyonthego"; print F Dumper(time(),$v,$R); close F;
-		#	}
+		if ($JSAPI->username() eq 'sporks') {
+			use Data::Dumper; open F, ">>/tmp/sporks"; print F Dumper(time(),$v,$R); close F;
+			}
 				
 		my $utf8_encoded_json_text = JSON::XS->new->utf8->allow_blessed(1)->convert_blessed(1)->encode($R);
 		## print STDERR "UF8 ENCODED TXT: $utf8_encoded_json_text\n";

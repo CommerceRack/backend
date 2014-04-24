@@ -1072,33 +1072,33 @@ function buySAFEOnClick(WantsBond) {
 			}
 		}
 
-	if ($CART2->has_points()>0) {
-		my $pnttotal = $cart2{'sum/pnt_total'};
-
-		if ($pnttotal>0) {
-			my $pntbalance = 0;
-			if ($pnttotal > $grandtotal) {
-				## our giftcard is for more than the order total.
-				$pntbalance = $pnttotal - $grandtotal;
-				$pnttotal = $grandtotal;
-				$grandtotal = 0;
-				}
-			else {
-				$grandtotal = $grandtotal - $pnttotal;
-				$pntbalance = 0;
-				}
-			my $pntspec = (defined $iniref->{'SURCHARGE_PNT_SPEC'})?$iniref->{'SURCHARGE_PNT_SPEC'}:$surcharge_spec;
-			$VARS{'SURCHARGEID'} = lc('SURCHARGE_PNT_SPEC');
-			$VARS{'SURCHARGE'} = sprintf('$%.2f in GiftCard(s)', $cart2{'sum/pnt_total'});
-			$VARS{'SURCHARGEVALUE'} = sprintf("%.2f",$pnttotal);
-			$VARS{'SURCHARGE_LINE'} .= $TXSPECL->translate3($pntspec,[\%VARS,$oddrow,$headrow],replace_undef=>0);
-			if ($pntbalance > 0) {
-				$VARS{'SURCHARGE'} = 'Points Balance:';
-				$VARS{'SURCHARGEVALUE'} = $pntbalance;
-				$VARS{'SURCHARGE_LINE'} .= $TXSPECL->translate3($pntspec,[\%VARS,$oddrow,$headrow],replace_undef=>0);
-				}
-			}
-		}
+#	if ($CART2->has_points()>0) {
+#		my $pnttotal = $cart2{'sum/pnt_total'};
+#
+#		if ($pnttotal>0) {
+#			my $pntbalance = 0;
+#			if ($pnttotal > $grandtotal) {
+#				## our giftcard is for more than the order total.
+#				$pntbalance = $pnttotal - $grandtotal;
+#				$pnttotal = $grandtotal;
+#				$grandtotal = 0;
+#				}
+#			else {
+#				$grandtotal = $grandtotal - $pnttotal;
+#				$pntbalance = 0;
+#				}
+#			my $pntspec = (defined $iniref->{'SURCHARGE_PNT_SPEC'})?$iniref->{'SURCHARGE_PNT_SPEC'}:$surcharge_spec;
+#			$VARS{'SURCHARGEID'} = lc('SURCHARGE_PNT_SPEC');
+#			$VARS{'SURCHARGE'} = sprintf('$%.2f in GiftCard(s)', $cart2{'sum/pnt_total'});
+#			$VARS{'SURCHARGEVALUE'} = sprintf("%.2f",$pnttotal);
+#			$VARS{'SURCHARGE_LINE'} .= $TXSPECL->translate3($pntspec,[\%VARS,$oddrow,$headrow],replace_undef=>0);
+#			if ($pntbalance > 0) {
+#				$VARS{'SURCHARGE'} = 'Points Balance:';
+#				$VARS{'SURCHARGEVALUE'} = $pntbalance;
+#				$VARS{'SURCHARGE_LINE'} .= $TXSPECL->translate3($pntspec,[\%VARS,$oddrow,$headrow],replace_undef=>0);
+#				}
+#			}
+#		}
 
 	$VARS{'GRANDTOTAL'} = sprintf("%.2f",$grandtotal);
 #	if (($grandtotal<0) && ($cart{'gfc_total'}>0)) {

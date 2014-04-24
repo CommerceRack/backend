@@ -186,6 +186,11 @@ sub epoch2xmltime {
 	}
 
 
+sub SESSION {
+	my ($self, $session) = @_;
+	if (defined $session) { $self->{'*SESSION'} = $session; }
+	return($self->{'*SESSION'});
+	}
 
 ##
 ##
@@ -973,23 +978,23 @@ sub reduceyyyymm {
 
 
 
-sub paymentQshow {
-	my ($self, $filter, $value) = @_;
-
-	if (not defined $self->{'@PAYMENTQ'}) { $self->{'@PAYMENTQ'} = []; }
-	my @RESULT = ();
-	foreach my $payq (@{$self->{'@PAYMENTQ'}}) {
-		if ($filter eq 'tender') {
-			if ($payq->{'TN'} eq $value) {
-				push @RESULT, $payq;
-				}
-			}
-		else {
-			warn "UNKNOWN paymentQshow filter: $filter\n";
-			}
-		}
-	return(\@RESULT);
-	}
+#sub paymentQshow {
+#	my ($self, $filter, $value) = @_;
+#
+#	if (not defined $self->{'@PAYMENTQ'}) { $self->{'@PAYMENTQ'} = []; }
+#	my @RESULT = ();
+#	foreach my $payq (@{$self->{'@PAYMENTQ'}}) {
+#		if ($filter eq 'tender') {
+#			if ($payq->{'TN'} eq $value) {
+#				push @RESULT, $payq;
+#				}
+#			}
+#		else {
+#			warn "UNKNOWN paymentQshow filter: $filter\n";
+#			}
+#		}
+#	return(\@RESULT);
+#	}
 	
 
 
@@ -1010,149 +1015,18 @@ sub paymentQshow {
 ##			[ id=>'', tender=>'', 'amountI'=>'', 'GC'=>, 'GI'=>'', 'CC'=>'', etc.. ],
 ##
 sub paymentQ {
-	my ($self, $cmd, %params) = @_;
+	my ($self, $payqref) = @_;
 
-	if (not defined $self->{'@PAYMENTQ'}) { $self->{'@PAYMENTQ'} = []; }
-
-	#$self->__SET__( 'sum/gfc_total', undef );
-	#$self->__SET__( 'sum/gfc_method', undef );
-	#$self->__SET__( 'is/gfc_taxable', undef );
-
-	my @ROWS = ();
-	if ($cmd eq 'reset') {
-		$self->{'@PAYMENTQ'} = \@ROWS;
-		push @{$self->{'@CHANGES'}}, [ 'paymentQ' ];
-		}
-	elsif ($cmd eq 'delete') {
-		foreach my $row (@{$self->{'@PAYMENTQ'}}) {
-			if ($row->{'ID'} ne $params{'ID'}) { push @ROWS, $row; }
-			}
-		$self->{'@PAYMENTQ'} = \@ROWS;
-		push @{$self->{'@CHANGES'}}, [ 'paymentQ' ];
-		}
-	elsif ($cmd eq 'insert') {
-		## first whitelist only two digit variables
-
-		my %newrow = ();
-		foreach my $k (keys %params) { 
-			if (length($k)!=2) { 
-				}
-			elsif (uc($k) ne $k) {
-				}
-			else {
-				$newrow{$k} = $params{$k}; 
-				}
-			}
-		if (not defined $newrow{'ID'}) {
-			## auto-generate a new ID
-			$newrow{'ID'} = sprintf("PaY%10s",Data::GUID->new()->as_string());
-			}
-
-		foreach my $row (@{$self->{'@PAYMENTQ'}}) {
-			if ($row->{'ID'} ne $newrow{'ID'}) { push @ROWS, $row; }
-			}
-
-		if (($newrow{'TN'} eq 'CREDITCARD') || ($newrow{'TN'} eq 'CREDIT')) {
-			## still need to version and upgrade all 'CREDIT' to 'CARD' or something like that.
-			if ((defined $newrow{'CT'}) && ($newrow{'CT'} ne '')) {
-				## it's already set
-				}
-			elsif ((defined $newrow{'CC'}) && (length($newrow{'CC'})==2)) {
-				$newrow{'CT'} = &ZPAY::cc_type_from_number($newrow{'CC'});
-				}
-			elsif ((defined $newrow{'CM'}) && (length($newrow{'CM'})==2)) {
-				$newrow{'CT'} = &ZPAY::cc_type_from_number($newrow{'CM'});
-				}
-			}
-		elsif ($newrow{'TN'} eq 'GIFTCARD') {
-			## GC is required, but GI (id) and GB (available balance)  can be looked up
-			if ((defined $newrow{'GC'}) && (($newrow{'GI'}==0) || ($newrow{'T$'}==0)) ) { 
-				my $GCREF = &GIFTCARD::lookup($self->username(),$newrow{'GC'});
-				$newrow{'GI'} = $GCREF->{'GCID'};
-				$newrow{'T$'} = &f2int($GCREF->{'BALANCE'});
-				$newrow{'GP'} = 'GNN'; 
-				if ($GCREF->{'CARDTYPE'} > 0) {
-					$newrow{'GP'} = sprintf("X%1s%1s", 
-					(($GCREF->{'COMBINABLE'}&2)>0)?'N':'Y',
-					(($GCREF->{'CASHEQUIV'}&4)>0)?'N':'Y'
-					);
-					}
-				# $newrow{'cardtype'} = $giftcard->{'CARDTYPE'};
-				}
-			if ($newrow{'T$'}<=0) { 
-				$newrow{'T$'} = 0; 
-				$newrow{'ERR'} = "No available balance"; 
-				}
-			}
-		elsif ($newrow{'TN'} eq 'PAYPALEC') {
-			require ZPAY::PAYPALEC;
-			my ($api) = ZPAY::PAYPALEC::GetExpressCheckoutDetails($self,$params{'PT'},$params{'PI'},\%params);
-
-			#open F, ">/tmp/paypalec";
-			#print F Dumper($api,$newrow{'PT'},$newrow{'PI'},\%params);
-			#close F;
-
-		 	## this line is a compatibility hack to make legacy checkout work.
-			if ($self->in_get('want/payby') eq '') { 
-				$self->in_set('want/payby','PAYPALEC');
-				}
-			foreach my $k (keys %{$api}) { $newrow{$k} = $api->{$k}; }
-
-			## make sure we don't have any duplicates in the queue
-			my @DEDUPEDPAYMENTQ = ();
-			foreach my $queuedpayment (@{$self->{'@PAYMENTQ'}}) {
-				if ($queuedpayment->{'PT'} eq $params{'PT'}) {
-					## this is already in the payment queue, so we don't add it.
-					}
-				else {
-					push @DEDUPEDPAYMENTQ, $queuedpayment;
-					}
-				}
-			$self->{'@PAYMENTQ'} = \@DEDUPEDPAYMENTQ;
- 			}
-
-		unshift @ROWS, \%newrow;
-		$self->{'@PAYMENTQ'} = \@ROWS;
-		push @{$self->{'@CHANGES'}}, [ 'paymentQ' ];
-
-		#open F, ">>/tmp/asdfasdf"; print F Dumper( \%newrow, $self->{'@PAYMENTQ'}, $cmd, \%params); close F;
-
-		}
-	elsif ($cmd eq 'sync') {
+	if ($self->SESSION()) {
+		## print STDERR "SESSION ROUTE!\n";
+		return($self->{'@PAYMENTQ'} = $self->SESSION()->paymentQ($payqref));
 		}
 	else {
-		warn "unknown surcharge cmd:$cmd\n";
+		## print STDERR "NON SESSION ROUTE!\n";
+		if (not defined $self->{'@PAYMENTQ'}) { $self->{'@PAYMENTQ'} = []; }
+		if (defined $payqref) { $self->{'@PAYMENTQ'} = $payqref; }
+		return($self->{'@PAYMENTQ'});
 		}
-
-	## SYNC want/payby field.
-	#if ($self->version()<201310) {
-	#	## versions before 201310 don't use paymentq the same way (it's non authoratitive)
-	#	## LEGACY CHECKOUT IS 201301
-	#	}
-	
-
-	if ($self->{'IS_LEGACY_CHECKOUT'}) {	
-		## LEGACY CHECKOUT DOES NOT USE PAYMENTQ
-		}
-	else {
-		if	(scalar(@{$self->{'@PAYMENTQ'}})==0) {
-			#open F, ">/tmp/asdf2"; print F Dumper($self,scalar($self->{'@PAYMENTQ'})); close F;
-
-			## I KNOW THIS SEEMS LIKE A GOOD IDEA BUT -- IT IS!
-			## $self->in_set('want/payby',undef);		## this line will break pay_chkod_fee, etc., but it fixes paypalec
-			}
-		elsif (scalar(@{$self->{'@PAYMENTQ'}})==1) {
-			$self->in_set('want/payby', $self->{'@PAYMENTQ'}->[0]->{'TN'});
-			}
-		else {
-			## LEAVE BRITTNEY ALONE.
-			$self->in_set('want/payby',undef);
-			}
-		}
-
-	#open F, ">/tmp/payq"; print F Dumper($self); close F;
-
-	return($self->{'@PAYMENTQ'});
 	}
 
 
@@ -1397,7 +1271,6 @@ sub __INIT_TAX_RATES__ {
 
 sub __SYNC__ {
 	my ($self, %params) = @_;
-	
 
 	if (not defined $self->{'@CHANGES'}) { $self->{'@CHANGES'} = []; }
 	if (scalar(@{$self->{'@CHANGES'}})==0) {
@@ -1589,9 +1462,6 @@ sub __SYNC__ {
 	## NOTE: if 'want/shipping_id' is blank, then it means the user hasn't chosen a shipping method .. that does NOT
 	## mean we don't default to one.
 
-	
-	## PAYMENTS 
-	$self->paymentQ('sync');
 
 	## SPECIALITY FEES
 	if ($self->is_order()) {
@@ -2178,52 +2048,6 @@ sub __SYNC__ {
 	#			);
 	#		}
 
-#	## BUYSAFE CODE
-#	if ($self->is_memory()) {
-#		}
-#	elsif ($self->is_marketplace_order()) {
-#		}
-#	elsif ($self->is_order()) {
-#		}
-#	elsif (1) {}	## DISABLE BUYSAFE
-#	elsif (int($webdbref->{'buysafe_mode'})==3) {
-#		## buysafe guaranteed, no api calls!
-#		}
-#	elsif (int($webdbref->{'buysafe_mode'})>0) {
-#		## CACHING LAYER, decide if we really need to call buysafe or not (if checksum didn't change
-#		##					then the cart didn't change enough to warrant calling buysafe)
-#		my $changed = 0;
-#		my @DIGESTABLE = ();
-#		if (defined $self->{'%ship'}) {
-#			foreach my $k (sort %{$self->{'%ship'}}) { push @DIGESTABLE, sprintf("ship/%s=%s",$k,$self->{'%ship'}->{$k});  }
-#			}
-#		if (defined $self->{'%bill'}) {
-#			foreach my $k (sort %{$self->{'%bill'}}) { push @DIGESTABLE, sprintf("bill/%s=%s",$k,$self->{'%bill'}->{$k});  }
-#			}
-#		if (defined $self->{'%this'}) {
-#			foreach my $k (sort %{$self->{'%cart'}}) { push @DIGESTABLE, sprintf("cart/%s=%s",$k,$self->{'%cart'}->{$k});  }
-#			}
-#		foreach my $item (@{$self->stuff2()->items()}) { push @DIGESTABLE, "$item->{'stid'}|$item->{'qty'}|$item->{'price'}|$item->{'weight'}"; }
-#		my $buydigest = Digest::MD5::md5_base64(Encode::encode_utf8(join("|",@DIGESTABLE)));
-#		if (not defined $self->{'_buysafe_digest'}) { $self->{'_buysafe_digest'} = ''; }
-#		if ($self->{'_buysafe_digest'} ne $buydigest) {
-#			require PLUGIN::BUYSAFE;
-#			&PLUGIN::BUYSAFE::update('AddUpdateShoppingCart',$self,$webdbref);
-#			@DIGESTABLE = ();
-#			if (defined $self->{'%ship'}) {
-#				foreach my $k (sort %{$self->{'%ship'}}) { push @DIGESTABLE, sprintf("ship/%s=%s",$k,$self->{'%ship'}->{$k});  }
-#				}
-#			if (defined $self->{'%bill'}) {
-#				foreach my $k (sort %{$self->{'%bill'}}) { push @DIGESTABLE, sprintf("bill/%s=%s",$k,$self->{'%bill'}->{$k});  }
-#				}
-#			if (defined $self->{'%cart'}) {
-#				foreach my $k (sort %{$self->{'%cart'}}) { push @DIGESTABLE, sprintf("cart/%s=%s",$k,$self->{'%cart'}->{$k});  }
-#				}
-#			foreach my $item (@{$self->stuff2()->items('')}) { push @DIGESTABLE, "$item->{'stid'}|$item->{'qty'}|$item->{'price'}|$item->{'weight'}"; }
-#			$self->{'_buysafe_digest'} = Digest::MD5::md5_base64(Encode::encode_utf8(join("|",@DIGESTABLE)));
-#			}
-#		}
-#
 	
 	##
 	## NOTE: at this point sum/order_total must be correct
@@ -2274,7 +2098,7 @@ sub __SYNC__ {
 	
 	## PAYMENTS
 	## 	GIFTCARDS! (eventually we might actually want to reload the actual card balances!)
-	$self->paymentQ('sync');
+
 	## GIFTCARDS
 	$self->__SET__('sum/gfc_total',undef);			# total we're using
 	$self->__SET__('sum/gfc_available', undef);	# total we *COULD* spend
@@ -2541,7 +2365,7 @@ sub __SYNC__ {
 			my ($INV2) = INVENTORY2->new($self->username(),"*paid");
 			my $NEEDS_PROCESS = 0;
 			foreach my $LINEREF (values %{$self->invdetail()}) {
-				print STDERR 'LINEREF'.Dumper($LINEREF)."\n";
+				## print STDERR 'LINEREF'.Dumper($LINEREF)."\n";
 				if ($LINEREF->{'BASETYPE'} eq 'UNPAID') {
 					$INV2->orderinvcmd($self,$LINEREF->{'UUID'},"ITEM-PAID");
 					$LINEREF->{'BASETYPE'} = 'PICK';
@@ -2718,16 +2542,23 @@ sub __SYNC__ {
 	
 		## BEGIN balance payments code
 
-		if (not defined $self->{'@PAYMENTQ'}) { $self->{'@PAYMENTQ'} = []; }
 		##
 		## AT THIS STAGE ANY PAYMENTS **SHOULD** be on @PAYMENTQ and 
 		##
 		}
 
-	if ((defined $self->{'@PAYMENTQ'}) && (scalar($self->{'@PAYMENTQ'})>0)) {
+	if (scalar($self->paymentQ())>0) {
 		##
 		## now - reorient the @PAYMENTQ so any giftcards are first
 		##
+		if (scalar(@{$self->paymentQ()})==1) {
+			$self->in_set('want/payby', $self->paymentQ()->[0]->{'TN'});
+			}
+		else {
+			## LEAVE BRITTNEY ALONE.
+			$self->in_set('want/payby',undef);
+			}
+
 		my $balance_due_i = &f2int($self->in_get('sum/balance_due_total')*100);
 		my $balance_paid_i = &f2int($self->in_get('sum/balance_paid_total')*100);
 		my $balance_authorized_i = &f2int($self->in_get('sum/balance_auth_total')*100);
@@ -2737,7 +2568,7 @@ sub __SYNC__ {
 		my $PAYBY = undef;
 		my @FIXED_PAYMENTQ =  	();  # fixed payments will ALWAYs be processed second.
 		my @SPLIT_PAYMENTQ = 	();  # finally, we'll split any remaining payments
-		foreach my $payq (@{$self->{'@PAYMENTQ'}}) {	
+		foreach my $payq (@{$self->paymentQ()}) {	
 			if ($payq->{'TN'} eq 'GIFTCARD') {
 				if ($payq->{'TE'}>0) {
 					unshift @PRE_PAYMENTQ, $payq;
@@ -2778,7 +2609,8 @@ sub __SYNC__ {
 			$PAYBY = $PRE_PAYBY;
 			}
 
-		$self->{'@PAYMENTQ'} = [];  # don't panic, we'll rebuild this in a sec.
+		my @PAYMENTQ = ();
+		# don't panic, we'll rebuild this in a sec.
 
 		##
 		## NEXT, RUN THROUGH THE PREPAID METHODS AND SEE HOW MUCH THEY CAN KNOCK THE BALANCE DOWN
@@ -2804,15 +2636,15 @@ sub __SYNC__ {
 					$prepayq->{'$$'} = sprintf("%.2f",$balance_due_i/100);
 					}
 				$balance_due_i = $balance_due_i - &ZOOVY::f2int($prepayq->{'$$'}*100);
-				push @{$self->{'@PAYMENTQ'}}, $prepayq;
+				push @PAYMENTQ, $prepayq;
 				}
 			elsif ($prepayq->{'TN'} eq 'POINTS') {
 				$balance_due_i = $balance_due_i - &ZOOVY::f2int($prepayq->{'$$'}*100);
-				push @{$self->{'@PAYMENTQ'}}, $prepayq;
+				push @PAYMENTQ, $prepayq;
 				}
 			elsif ($prepayq->{'TN'} eq 'RMC') {
 				$balance_due_i = $balance_due_i - &ZOOVY::f2int($prepayq->{'$$'}*100);
-				push @{$self->{'@PAYMENTQ'}}, $prepayq;
+				push @PAYMENTQ, $prepayq;
 				}
 			}
 
@@ -2836,7 +2668,7 @@ sub __SYNC__ {
 				}
 			$after_paymentq_balance_auth_i = $after_paymentq_balance_auth_i + &ZOOVY::f2int($payq->{'$$'}*100);
 			$after_paymentq_balance_due_i = $after_paymentq_balance_due_i - &ZOOVY::f2int($payq->{'$$'}*100);
-			push @{$self->{'@PAYMENTQ'}}, $payq;
+			push @PAYMENTQ, $payq;
 			}
 
 		##
@@ -2865,13 +2697,14 @@ sub __SYNC__ {
 
 			## any split payments will consume the entire balance_due and finish the balance_auth
 			$split_payment_count--;
-			push @{$self->{'@PAYMENTQ'}}, $payq;
+			push @PAYMENTQ, $payq;
 			}
 		## END balance payemnts
+		$self->paymentQ(\@PAYMENTQ);
 
 
 		## SUMMARIZE TOTAL OF GIFTCARDS, POINTS, RETURN MERCHANDISE CREDITS
-		if ((defined $self->{'@PAYMENTQ'}) && (ref($self->{'@PAYMENTQ'}) eq 'ARRAY')) {
+		if (scalar(@PAYMENTQ)>0) {
 			## GIFTCARDS
 			my $GFC_TOTAL = 0;
 			my $GFC_AVAILABLE = 0;
@@ -2879,7 +2712,7 @@ sub __SYNC__ {
 			my $PNT_AVAILABLE = 0;
 			my $RMC_TOTAL = 0;
 			my $RMC_AVAILABLE = 0;
-			foreach my $payq (@{$self->{'@PAYMENTQ'}}) {
+			foreach my $payq (@PAYMENTQ) {
 				if ($payq->{'TN'} eq 'GIFTCARD') {
 					$GFC_TOTAL += (&f2int($payq->{'$$'}*100));
 					$GFC_AVAILABLE += (&f2int($payq->{'T$'}*100));
@@ -2935,17 +2768,17 @@ sub __SYNC__ {
 
 
 
-sub __SAVE__ {
-	my ($self) = @_;
-
-	if (not defined $self->{'@CHANGES'}) { $self->{'@CHANGES'} = []; }
-	if (scalar(@{$self->{'@CHANGES'}})>0) {
-		## we have changs we need to __SYNC__ to make sure all other fiels are up to date.
-		$self->__SYNC__();
-		}
-
-	return();
-	}
+#sub __SAVE__ {
+#	my ($self) = @_;
+#
+#	if (not defined $self->{'@CHANGES'}) { $self->{'@CHANGES'} = []; }
+#	if (scalar(@{$self->{'@CHANGES'}})>0) {
+#		## we have changs we need to __SYNC__ to make sure all other fiels are up to date.
+#		$self->__SYNC__();
+#		}
+#
+#	return();
+#	}
 
 
 
@@ -3239,6 +3072,11 @@ sub new_persist {
 		warn "possible - issue had to re-bless STUFF2 in cart (it's k, i fixed it for now)\n";
 		bless $self->{'*stuff'}, 'STUFF2';	
 		}
+
+	if (defined $self && $params{'*SESSION'}) {
+		$self->SESSION($params{'*SESSION'});
+		}
+
 	return($self);	
 	}
 
@@ -3491,23 +3329,23 @@ sub new_from_oid {
 
 
 			}
-		elsif ($self->{'version'} < 200) {
-
-			warn "DETECTED OLD LEGACY FORMAT ORDER IN DB: $USERNAME / $ORDER_ID";
-#			return(undef);
-
-			require ORDER;
-			my ($o,$err) = ORDER->new($USERNAME, $ORDER_ID, 'new'=>0, 'create'=>0);
-
-			if ($err) { warn "ORDER[$ORDER_ID] ERROR:$err\n"; return(undef); }
-			if (ref($o) ne 'ORDER') { warn "ORDER[$ORDER_ID] ERROR:$err\n"; return(undef); }
-			$o->{'order_id'} = $ORDER_ID; 	# fix corrupt orders?
-
-			my $C2 = CART2->new_from_order($o);
-			$C2->{'ODBID'} = $ID;		## make usre we know this is already in the database
-			$C2->order_save('silent'=>1,'force'=>1);		## force upgrade
-			return($C2);
-			}
+#		elsif ($self->{'version'} < 200) {
+#
+#			warn "DETECTED OLD LEGACY FORMAT ORDER IN DB: $USERNAME / $ORDER_ID";
+##			return(undef);
+#
+#			require ORDER;
+#			my ($o,$err) = ORDER->new($USERNAME, $ORDER_ID, 'new'=>0, 'create'=>0);
+#
+#			if ($err) { warn "ORDER[$ORDER_ID] ERROR:$err\n"; return(undef); }
+#			if (ref($o) ne 'ORDER') { warn "ORDER[$ORDER_ID] ERROR:$err\n"; return(undef); }
+#			$o->{'order_id'} = $ORDER_ID; 	# fix corrupt orders?
+#
+#			my $C2 = CART2->new_from_order($o);
+#			$C2->{'ODBID'} = $ID;		## make usre we know this is already in the database
+#			$C2->order_save('silent'=>1,'force'=>1);		## force upgrade
+#			return($C2);
+#			}
 		else {
 			Carp::confess("UNKNOWN ORDER FORMAT -- this line should never be reached");
 			}
@@ -3945,7 +3783,7 @@ sub reset_session {
 		if (defined $redis) {
 			my $REDIS_ID = &CART2::redis_cartid($self->username(),$self->prt(),$self->cartid());
 			$redis->del($REDIS_ID);
-			print STDERR "REDIS ID: $REDIS_ID\n";
+			## print STDERR "REDIS ID: $REDIS_ID\n";
 			}
 		}
 
@@ -4247,17 +4085,17 @@ sub add_coupon {
 
 
 
-sub has_points { 
-	my ($self) = @_;
-	if (not defined $self->{'@PAYMENTQ'}) { $self->{'@PAYMENTQ'} = []; }
-	my $count = 0;
-	foreach my $payq (@{$self->{'@PAYMENTQ'}}) {
-		if ($payq->{'TN'} eq 'POINTS') {
-			$count++;
-			## ignore this.
-			}
-		}
-	}
+#sub has_points { 
+#	my ($self) = @_;
+#	if (not defined $self->{'@PAYMENTQ'}) { $self->{'@PAYMENTQ'} = []; }
+#	my $count = 0;
+#	foreach my $payq (@{$self->{'@PAYMENTQ'}}) {
+#		if ($payq->{'TN'} eq 'POINTS') {
+#			$count++;
+#			## ignore this.
+#			}
+#		}
+#	}
 
 
 ##
@@ -4269,10 +4107,8 @@ sub has_giftcards { return($_[0]->has_giftcard()); }	 # this reads better in the
 sub has_giftcard {
 	my ($self, $code) = @_;
 
-	if (not defined $self->{'@PAYMENTQ'}) { $self->{'@PAYMENTQ'} = []; }
-
 	my $count = 0;
-	foreach my $payq (@{$self->{'@PAYMENTQ'}}) {
+	foreach my $payq (@{$self->paymentQ()}) {
 		if ($payq->{'TN'} ne 'GIFTCARD') {
 			## ignore this.
 			}
@@ -4283,119 +4119,15 @@ sub has_giftcard {
 	}
 
 
-#	if ($code eq '') {
-#		## if no code is passed, then return the number of giftcards
-#		if (not defined $self->{'@PAYMENTQ'}) { return(0); }
-#		return(scalar(@{$self->{'@PAYMENTQ'}})>0);
-#		}
-#
-#	my $ref = undef;
-#	$code =~ s/[^A-Z0-9]+//g;
-#	foreach my $gcref (@{$self->{'@PAYMENTQ'}}) {
-#		if (uc($gcref->{'CODE'}) eq uc($code)) { $ref = $gcref; }
-#		}
-#	return($ref);
-#	}
-
-
 ##
 ## How giftcards work:
 ##		code=>xyz, 
 ##
-sub add_giftcard {
-	my ($self,$code,$errorsref) = @_;
-
-	require GIFTCARD;
-
-	if (not defined $errorsref) {
-		$errorsref = [];
-		}
-
-	if (not defined $self->{'@PAYMENTQ'}) { $self->{'@PAYMENTQ'} = []; }
-
-	$code = uc($code);
-	$code =~ s/[\s\t\n\r\-]+//gs;	# remove bad characters.
-	my $err = &GIFTCARD::checkCode($code);
-	if ($err>0) { 
-		push @{$errorsref}, "The code you supplied [$code] is not a valid giftcard (reason: $err)";
-		}
-	elsif ($self->has_giftcard($code)) {
-		push @{$errorsref}, "The giftcard $code is already in the cart.";
-		}
-	else {
-		my ($GCREF) = &GIFTCARD::lookup($self->username(),PRT=>$self->prt(),CODE=>$code);
-		# my ($newpayq) = &GIFTCARD::giftcard_to_payment($GCREF,'mask'=>0);
-		## returns the giftcard in fields suitable for paymentq format
-		my %newpayq = ();
-		$newpayq{'TN'} = 'GIFTCARD';
-		$newpayq{'GC'} = $GCREF->{'CODE'};	# giftcard code (can be masked)
-		#if ($options{'obfuscate'}) {
-		# $newpayq{'GC'} = &GIFTCARD::obfuscateCode($newpayq{'GC'},$options{'obfuscate'});
-		#	}
-		$newpayq{'GI'} = $GCREF->{'GCID'}; # giftcard gcid
-		$newpayq{'T$'} = $GCREF->{'BALANCE'}; # balance (if known) 
-		$newpayq{'GP'} = 'GNN'; 
-		$newpayq{'$#'} = $GCREF->{'BALANCE'};	# when they add this way, we always try and use the full balance.
-
-		if ($GCREF->{'CARDTYPE'} > 0) {
-			$newpayq{'GP'} = sprintf("X%1s%1s", 
-				(($GCREF->{'COMBINABLE'}&2)>0)?'Y':'N',
-				(($GCREF->{'CASHEQUIV'}&4)>0)?'Y':'N'
-				);
-			}
-	
-		if (not defined $GCREF) {
-			push @{$errorsref}, "Could not find giftcard [$code]";
-			}
-		elsif ($GCREF->{'GCID'} == 0) {
-			push @{$errorsref}, "Giftcard did not have valid GCID [$code]"; # 
-			}
-		elsif ($newpayq{'T$'}==0) {
-			push @{$errorsref}, "Giftcard has no available balance.";
-			}
-		elsif ($newpayq{'T$'} < 0) {
-			push @{$errorsref}, "Giftcard has a negative balance -- cannot use.";
-			}
-		else {
-			my ($X0,$X1,$X2) = split(//,$newpayq{'GP'});
-			my $HAS_NON_COMBINABLE = (&ZOOVY::is_true($X1))?1:0;
-
-			my @NEW_PAYMENTQ = ();
-			push @NEW_PAYMENTQ, \%newpayq;		## always add the current card.
-
-			foreach my $payq (@{$self->{'@PAYMENTQ'}}) {
-				if ($payq->{'TN'} ne 'GIFTCARD') {
-					# preserve non-giftcards
-					push @NEW_PAYMENTQ, $payq;
-					}
-				elsif ($payq->{'GI'} eq $newpayq{'GI'}) {
-					## attempting to re-add the same card - we can ignore this.
-					}
-				else {
-					## more giftcards.
-					my ($X0,$X1,$X2) = split(//,$payq->{'GP'});
-					if ($X2 eq 'Y') {	
-						## NON_COMBINABLE-- there can only be one!
-						if ($HAS_NON_COMBINABLE == 0) {
-							$HAS_NON_COMBINABLE++;  
-							push @NEW_PAYMENTQ, $payq;
-							}
-						else {
-							push @{$errorsref}, "The giftcard $payq->{'GC'} is promotional and may not be combined with other promotional giftcards";
-							}
-						}					
-					}
-				}
-			$self->{'@PAYMENTQ'} = \@NEW_PAYMENTQ;
-			# $self->log(Dumper( $self, $newpayq ));
-			}
-		push @{$self->{'@CHANGES'}}, [ 'add_giftcard' ];
-		}
-
-	$self->__SYNC__();
-
-	return($errorsref);
-	}
+#sub add_giftcard {
+#	my ($self,$code,$errorsref) = @_;
+#
+#	return($errorsref);
+#	}
 
 
 
@@ -4726,6 +4458,8 @@ sub empty {
 	foreach my $item (@{$self->stuff2()->items()}) {
 		$self->stuff2()->drop('uuid'=>$item->{'uuid'});
 		}
+
+	$self->paymentQ([]); ## clear the paymentQ
 
 	delete $self->{'%ship'};
 	delete $self->{'%bill'};
@@ -5517,7 +5251,7 @@ sub shipmethods {
 		elsif ($country eq 'CA') { $area = 'can'; }
 		else { $area = 'int'; }
 	
-		print STDERR "!!!!!!!!!!!!!!!!!!!!!! HANDLING:  $WEBDBREF->{'handling'}\n";
+		## print STDERR "!!!!!!!!!!!!!!!!!!!!!! HANDLING:  $WEBDBREF->{'handling'}\n";
 		if (not defined $WEBDBREF->{'handling'}) { $WEBDBREF->{'handling'} = 0; }
 
 		if (defined $metaref->{'ERROR'}) {
@@ -5544,7 +5278,7 @@ sub shipmethods {
 				}
 	
 			($HANDLING) = &ZSHIP::RULES::do_ship_rules($CART2, $CART2->stuff2(), "HANDLING", $HANDLING);
-			print STDERR "HANDLING: $HANDLING\n";
+			## print STDERR "HANDLING: $HANDLING\n";
 
 			# $WEBDBREF->{'handling'} = 2;
 			if (not defined $HANDLING) {
@@ -6149,121 +5883,121 @@ sub init_mkts {
 ##		specifically because it *might* have values like CV in it -- if it is saved to a database it's
 ##		a memhash.. but in general we avoid passing CV
 ##
-sub add_auto_payby {
-	my ($self, $pay_vars) = @_;
-
-	my $AUTO_PAYQ_LINE = undef;
-
-	if (not defined $pay_vars) { Carp::croak("Undefined pay_vars"); }
-
-	if ($self->__GET__('will/payby') =~ /^WALLET\:([\d]+)$/) {
-		## payment method on file.
-		my ($SECUREID) = int($1);
-		$pay_vars = $self->customer()->wallet_retrieve($SECUREID);	
-		### $self->add_history("DEBUG: ".&ZTOOLKIT::buildparams($pay_vars));
-
-		if (defined $pay_vars) {
-			$pay_vars->{'ID'} = "WALLET:$SECUREID";
-			$pay_vars->{'IP'} = $self->__GET__('cart/ip_address');
-			}
-
-		if ($SECUREID == 0) {
-			$self->add_history("Attempted to access WALLET:0 (not valid)",etype=>2);
-			}
-		elsif (not defined $pay_vars) {
-			$self->add_history("Empty/Corrupt WALLET:$SECUREID",etype=>2);
-			}
-		elsif (defined $pay_vars->{'CC'}) {
-			## CREDIT CARD ON FILE
-			$self->__SET__('want/payby','CREDIT');
-			$self->add_history("Verified WALLET:$SECUREID TYPE=CREDIT",etype=>2);	
-			}
-		elsif (defined $pay_vars->{'EA'}) {
-			## ELECTRONIC CHECK ON FILE
-			$self->__SET__('want/payby','ECHECK');
-			$self->add_history("Verified WALLET:$SECUREID TYPE=ECHECK",etype=>2);
-			}
-		else {
-			$self->add_history(sprintf("Unknown WALLET PAYMENT %s", $self->__GET__('will/payby')),etype=>2);
-			$pay_vars = undef;
-			}
-
-		if (defined $pay_vars) {
-			$AUTO_PAYQ_LINE = { 'TN'=>'WALLET', %{$pay_vars} };
-			}
-		}
-	elsif ($self->__GET__('will/payby') eq 'PAYPALEC') {
-		my $ppecref;
-		if ($self->__GET__('cart/paypalec_result') ne '') {
-			$ppecref = &ZPAY::unpackit($self->__GET__('cart/paypalec_result'));	
-			}
-		else {
-			$self->add_history("PAYPALEC HAD BLANK cart/paypalec_result");
-			}
-		$AUTO_PAYQ_LINE = { 'TN'=>'PAYPALEC', %{$ppecref} };
-		}
-	## NOTE: google checkout now passes '@payments' directly 4/4/11
-	elsif ($self->__GET__('will/payby') eq 'CREDIT') {
-		#$ordhash{'payment_cc_status'} = 2;  # 2 (pending) status because it hasn't been charged yet
-		#$ordhash{'card_number'}		 = $cart{'chkout.cc_number'};
-		#$ordhash{'card_exp_month'}	 = $cart{'chkout.cc_exp_month'};
-		#$ordhash{'card_exp_year'}	  = $cart{'chkout.cc_exp_year'};
-		#$ordhash{'cvvcid_number'}	  = $cart{'chkout.cc_cvvcid'};
-		if ((defined $pay_vars->{'YY'}) && (length($pay_vars->{'YY'})==4)) {
-			## new one page checkout uses four digit year, but checkout uses two digit.
-			$pay_vars->{'YY'} = substr($pay_vars->{'YY'},2,2);
-			}
-		$AUTO_PAYQ_LINE = { 'TN'=>'CREDIT', %{$pay_vars} };
-		}
-	#elsif ($self->__GET__('will/payby') eq 'PAYPAL') {
-	#	# $ordhash{'paypal_acct'} = $cart{'data.bill_email'};
-	#	($payrec) = $o->add_payment('PAYPAL',$balance_due,
-	#		'note'=>'Customer needs follow link to Paypal.com to pay for order',
-	#		'ps'=>'106',
-	#		);
-	#	$o->add_history("PAYPAL LEGACY CART was selected as payment method. Use Paypal EC for better compatibility",etype=>2);
-	#	$AUTO_PAYQ_LINE = { 'TN'=>'CREDIT' };
-	#	}
-	#elsif ($self->__GET__('will/payby') eq 'AMZSPAY') {
-	#	# $ordhash{'paypal_acct'} = $cart{'data.bill_email'};
-	#	($payrec) = $o->add_payment('AMZSPAY',$balance_due,
-	#		'note'=>'Customer needs follow link to Amazon.com to pay for order',
-	#		'ps'=>'106',
-	#		);
-	#	$o->add_history("Amazon Simple Pay (not Checkout by Amazon) was selected as payment method.",etype=>2);
-	#	}
-	elsif ($self->__GET__('will/payby') eq 'PO') {
-		# $ordhash{'po_number'} = $cart{'chkout.po_number'};
-		$AUTO_PAYQ_LINE = { 'TN'=>'PO', 'PO'=>$self->__GET__('chkout.po_number') };			
-		}
-	elsif (
-		($self->__GET__('will/payby') eq 'CALL') || 
-		($self->__GET__('will/payby') eq 'CHKOD') || 
-		($self->__GET__('will/payby') eq 'PICKUP') || 
-		($self->__GET__('will/payby') eq 'CHECK') || 
-		($self->__GET__('will/payby') eq 'COD') || 
-		($self->__GET__('will/payby') eq 'CASH') ||
-		($self->__GET__('will/payby') eq 'MO') ||
-		($self->__GET__('will/payby') eq 'WIRE') ||
-		($self->__GET__('will/payby') eq 'BIDPAY') ||
-		($self->__GET__('will/payby') eq 'CUSTOM')
-		) {
-		$AUTO_PAYQ_LINE = { 'TN'=> $self->__GET__('will/payby') };
-		}
-	else {
-		warn "NON-WHITELISTED PAYMENT TENDER: ".$self->__GET__('will/payby')."\n";
-		$AUTO_PAYQ_LINE = { 'TN'=> $self->__GET__('will/payby') };
-		}
-
-	$AUTO_PAYQ_LINE->{'auto'} = 1;
-	push @{$self->{'@PAYMENTQ'}}, $AUTO_PAYQ_LINE;
-
-	## make sure we let the system know we ought to sync. (**VERY IMPORTANT**)
-	push @{$self->{'@CHANGES'}}, [ 'auto_payq_line_added' ];
-
-	return();
-	}
-
+#sub add_auto_payby {
+#	my ($self, $pay_vars) = @_;
+#
+#	my $AUTO_PAYQ_LINE = undef;
+#
+#	if (not defined $pay_vars) { Carp::croak("Undefined pay_vars"); }
+#
+#	if ($self->__GET__('will/payby') =~ /^WALLET\:([\d]+)$/) {
+#		## payment method on file.
+#		my ($SECUREID) = int($1);
+#		$pay_vars = $self->customer()->wallet_retrieve($SECUREID);	
+#		### $self->add_history("DEBUG: ".&ZTOOLKIT::buildparams($pay_vars));
+#
+#		if (defined $pay_vars) {
+#			$pay_vars->{'ID'} = "WALLET:$SECUREID";
+#			$pay_vars->{'IP'} = $self->__GET__('cart/ip_address');
+#			}
+#
+#		if ($SECUREID == 0) {
+#			$self->add_history("Attempted to access WALLET:0 (not valid)",etype=>2);
+#			}
+#		elsif (not defined $pay_vars) {
+#			$self->add_history("Empty/Corrupt WALLET:$SECUREID",etype=>2);
+#			}
+#		elsif (defined $pay_vars->{'CC'}) {
+#			## CREDIT CARD ON FILE
+#			$self->__SET__('want/payby','CREDIT');
+#			$self->add_history("Verified WALLET:$SECUREID TYPE=CREDIT",etype=>2);	
+#			}
+#		elsif (defined $pay_vars->{'EA'}) {
+#			## ELECTRONIC CHECK ON FILE
+#			$self->__SET__('want/payby','ECHECK');
+#			$self->add_history("Verified WALLET:$SECUREID TYPE=ECHECK",etype=>2);
+#			}
+#		else {
+#			$self->add_history(sprintf("Unknown WALLET PAYMENT %s", $self->__GET__('will/payby')),etype=>2);
+#			$pay_vars = undef;
+#			}
+#
+#		if (defined $pay_vars) {
+#			$AUTO_PAYQ_LINE = { 'TN'=>'WALLET', %{$pay_vars} };
+#			}
+#		}
+#	elsif ($self->__GET__('will/payby') eq 'PAYPALEC') {
+#		my $ppecref;
+#		if ($self->__GET__('cart/paypalec_result') ne '') {
+#			$ppecref = &ZPAY::unpackit($self->__GET__('cart/paypalec_result'));	
+#			}
+#		else {
+#			$self->add_history("PAYPALEC HAD BLANK cart/paypalec_result");
+#			}
+#		$AUTO_PAYQ_LINE = { 'TN'=>'PAYPALEC', %{$ppecref} };
+#		}
+#	## NOTE: google checkout now passes '@payments' directly 4/4/11
+#	elsif ($self->__GET__('will/payby') eq 'CREDIT') {
+#		#$ordhash{'payment_cc_status'} = 2;  # 2 (pending) status because it hasn't been charged yet
+#		#$ordhash{'card_number'}		 = $cart{'chkout.cc_number'};
+#		#$ordhash{'card_exp_month'}	 = $cart{'chkout.cc_exp_month'};
+#		#$ordhash{'card_exp_year'}	  = $cart{'chkout.cc_exp_year'};
+#		#$ordhash{'cvvcid_number'}	  = $cart{'chkout.cc_cvvcid'};
+#		if ((defined $pay_vars->{'YY'}) && (length($pay_vars->{'YY'})==4)) {
+#			## new one page checkout uses four digit year, but checkout uses two digit.
+#			$pay_vars->{'YY'} = substr($pay_vars->{'YY'},2,2);
+#			}
+#		$AUTO_PAYQ_LINE = { 'TN'=>'CREDIT', %{$pay_vars} };
+#		}
+#	#elsif ($self->__GET__('will/payby') eq 'PAYPAL') {
+#	#	# $ordhash{'paypal_acct'} = $cart{'data.bill_email'};
+#	#	($payrec) = $o->add_payment('PAYPAL',$balance_due,
+#	#		'note'=>'Customer needs follow link to Paypal.com to pay for order',
+#	#		'ps'=>'106',
+#	#		);
+#	#	$o->add_history("PAYPAL LEGACY CART was selected as payment method. Use Paypal EC for better compatibility",etype=>2);
+#	#	$AUTO_PAYQ_LINE = { 'TN'=>'CREDIT' };
+#	#	}
+#	#elsif ($self->__GET__('will/payby') eq 'AMZSPAY') {
+#	#	# $ordhash{'paypal_acct'} = $cart{'data.bill_email'};
+#	#	($payrec) = $o->add_payment('AMZSPAY',$balance_due,
+#	#		'note'=>'Customer needs follow link to Amazon.com to pay for order',
+#	#		'ps'=>'106',
+#	#		);
+#	#	$o->add_history("Amazon Simple Pay (not Checkout by Amazon) was selected as payment method.",etype=>2);
+#	#	}
+#	elsif ($self->__GET__('will/payby') eq 'PO') {
+#		# $ordhash{'po_number'} = $cart{'chkout.po_number'};
+#		$AUTO_PAYQ_LINE = { 'TN'=>'PO', 'PO'=>$self->__GET__('chkout.po_number') };			
+#		}
+#	elsif (
+#		($self->__GET__('will/payby') eq 'CALL') || 
+#		($self->__GET__('will/payby') eq 'CHKOD') || 
+#		($self->__GET__('will/payby') eq 'PICKUP') || 
+#		($self->__GET__('will/payby') eq 'CHECK') || 
+#		($self->__GET__('will/payby') eq 'COD') || 
+#		($self->__GET__('will/payby') eq 'CASH') ||
+#		($self->__GET__('will/payby') eq 'MO') ||
+#		($self->__GET__('will/payby') eq 'WIRE') ||
+#		($self->__GET__('will/payby') eq 'BIDPAY') ||
+#		($self->__GET__('will/payby') eq 'CUSTOM')
+#		) {
+#		$AUTO_PAYQ_LINE = { 'TN'=> $self->__GET__('will/payby') };
+#		}
+#	else {
+#		warn "NON-WHITELISTED PAYMENT TENDER: ".$self->__GET__('will/payby')."\n";
+#		$AUTO_PAYQ_LINE = { 'TN'=> $self->__GET__('will/payby') };
+#		}
+#
+#	$AUTO_PAYQ_LINE->{'auto'} = 1;
+#	push @{$self->{'@PAYMENTQ'}}, $AUTO_PAYQ_LINE;
+#
+#	## make sure we let the system know we ought to sync. (**VERY IMPORTANT**)
+#	push @{$self->{'@CHANGES'}}, [ 'auto_payq_line_added' ];
+#
+#	return();
+#	}
+#
 
 ##
 ##	should compute the balance_due here 
@@ -6336,7 +6070,7 @@ sub finalize_order {
 	my ($self, %params) = @_;
 
 	$SIG{'SIGTERM'} = \&CART2::ignore_finalize_term();
-	my ($redis) = &ZOOVY::getRedis($self->username(),1);
+	my ($redis) = &ZOOVY::getRedis($self->username(),0);
 
 	if ($params{'app'}) {
 		$self->add_history(
@@ -6357,6 +6091,8 @@ sub finalize_order {
 	my $EREFID = $self->__GET__('want/erefid');
 	if ((not defined $EREFID) || ($EREFID eq '')) { $EREFID = $self->__GET__('mkt/erefid'); }
 	if (not defined $EREFID) { $EREFID = ''; }
+
+	my $REDIS_ASYNC_KEY = $params{'R_A_K'} || sprintf("FINALIZE.%s.CART.%s",$self->username(),$self->uuid());
 
 	my ($udbh) = &DBINFO::db_user_connect($self->username());
 	my $MID = $self->mid();
@@ -6388,6 +6124,7 @@ sub finalize_order {
 		$lm->pooshmsg("ISE|+Logic failure - not a cart, not an order (not sure what to do)");
 		}
 	elsif ( not $self->is_persist() ) {
+		## no database row id
 		## YAY -- we can just get a OID and keep moving.	
 		my ($OID) = &CART2::next_id($self->username(),0,$EREFID);
 		$self->__SET__('our/orderid',$OID);
@@ -6395,115 +6132,74 @@ sub finalize_order {
 			$lm->pooshmsg("ISE|+tried to finalize non-persistent, non-marketplace order.");
 			}
 		}
+	elsif ( $self->is_persist() && $params{'retry'} ) {
+		##
+		## a recovery situation, we'll load the previous, we can just continue.
+		##
+
+#		my $PREVIOUS_OID = $params{'retry'};
+#		$self->add_history("CHECKOUT RECOVERY / $PREVIOUS_OID");	
+#		my ($O2) = CART2->new_from_oid($USERNAME,$PREVIOUS_OID);
+#		if ((defined $O2) && (ref($O2) eq 'ORDER')) {
+#		## copy all the fields from the current order
+#			$self->make_readonly();
+#			foreach my $k (keys %{$O2}) { $self->{$k} = $O2->{$k}; }
+#			if ($REDIS_ASYNC_KEY) { $redis->append($REDIS_ASYNC_KEY,"RETRY-WIN|$PREVIOUS_OID COPIED\n"); }
+#			}
+#		else {
+#			$self->add_history("Attempting to re-create this order");
+#			$lm->pooshmsg("WARN|+RETRY FAILED - ORDER DOES NOT EXIST");
+#			if ($REDIS_ASYNC_KEY) { $redis->append($REDIS_ASYNC_KEY,"RETRY-FAILED|$PREVIOUS_OID DOES NOT EXIST\n"); }
+#			}
+#		}
+#		elsif (not $lm->can_proceed()) {
+#			## we probably won't be placing an order.
+#			}
+#		elsif ($self->__GET__('our/orderid')) {
+#			## we're good to go, we've already got an order ID.
+#			}
+#		else {
+#			## interesting, we got here.
+#			($PREVIOUS_OID) = &CART2::next_id($self->username(),1,$self->cartid());
+#			$self->__SET__('our/orderid',$PREVIOUS_OID);
+#			$lm->pooshmsg("DEBUG|+LINK $PREVIOUS_OID with $qtCARTID");
+#			}
+		}
 	elsif ( $self->is_persist() ) {
 		##
 		## PERSIST CART - VERIFY THIS ORDERID IS NOT A DUPLICATE TO ONE ALREADY CREATED, and LOCK IT.
-		##						
+		##	
+		my ($OID) = &CART2::next_id($self->username(),0,$self->cartid());
+		$self->__SET__('our/orderid',$OID);
+
 		my ($ORDER_TB) = &DBINFO::resolve_orders_tb($USERNAME,$self->mid());
 		my $PRT = $self->prt();
 		my $qtCARTID = $udbh->quote($self->cartid());
-		my $PREVIOUS_OID = undef;
 
-		my ($redis) = &ZOOVY::getRedis($self->username(),0);
-		my $REDIS_CART_FINALIZE_KEY = undef;
+		## There can only be one process (when creating from a website)
+		$redis->append($REDIS_ASYNC_KEY,"\nORDERID|$OID");
+		$redis->expire($REDIS_ASYNC_KEY,86400*7);
 
-		if ($self->uuid() ne '') {
-			## There can only be one process (when creating from a website)
-			$REDIS_CART_FINALIZE_KEY = sprintf("FINALIZE.%s.CART.%s",$self->username(),$self->uuid());
-			my $REDIS_MY_PROCESS_UUID = sprintf("START|%s.%s.%d\n",&ZOOVY::servername(),$$,time());
-			if (not defined $redis) {
-				$lm->pooshmsg("ISE|+Could not contact redis database for cluster");
-				}
-			elsif ( $redis->setnx($REDIS_CART_FINALIZE_KEY, $REDIS_MY_PROCESS_UUID) == 1) {
-				## WOOT GOT LOCK! -- we will continue
-				my ($OID) = &CART2::next_id($self->username(),1,$self->cartid());
-				$self->__SET__('our/orderid',$OID);
-				$redis->append($REDIS_CART_FINALIZE_KEY,"ORDERID|$OID\n");
-				}
-			else {
-				my $i = 0;
-				while (( not defined $PREVIOUS_OID ) && ($i<5)) {
-					my ($TXT) = $redis->get($REDIS_CART_FINALIZE_KEY);
-					print STDERR "TXT: $TXT\n";
-					foreach my $line (split(/\n/,$TXT)) {
-						if ($line =~ /^ORDERID\|(.*?)$/) { $PREVIOUS_OID = $1; }
-						}
-					if (not defined $PREVIOUS_OID) {
-						sleep($i++);
-						}
-					last if ($i>5);
-					}
-				$lm->pooshmsg("RETRY|+PREVIOUS_OID $PREVIOUS_OID");
-				$redis->append($REDIS_CART_FINALIZE_KEY,"PREVIOUS-OID|$PREVIOUS_OID\n");
-				if (defined $PREVIOUS_OID) {
-					$self->__SET__('our/orderid',$PREVIOUS_OID);
-					$self->make_readonly();
-					}
-				}
-			$redis->expire($REDIS_CART_FINALIZE_KEY,86400*7);
+		## NEW REDIS BASED CODE
+		my $pstmt = "select ID,ORDERID,CREATED_GMT from $ORDER_TB where MID=$MID /* $USERNAME */ and PRT=$PRT and CARTID=$qtCARTID";
+		print STDERR "$pstmt\n";
+		my ($DBID,$DBOID,$DBCREATED_GMT) = $udbh->selectrow_array($pstmt);
+
+		if (not defined $DBID) {
+			## NO RECORD IN DATABASE - BEST CASE
+			$lm->pooshmsg("WARN|+No order was stored in REDIS (duplication could happen)");
 			}
-
-		##
-		## STAGE1: before we burn a new OID, check to see if we have a duplicate
-		##			 already in the cart
-		if (not $lm->can_proceed()) {
-			}
-		elsif ($PREVIOUS_OID) {
-			## already found a previous OID from redis, move along.
+		elsif ($DBID>0) {
+			## ORDER ALREADY EXIST
+			$self->__SET__('our/orderid',$DBOID);
+			$lm->pooshmsg("RETRY|+USE DBROW:$DBID DBOID:$DBOID CREATED:$DBCREATED_GMT");
+			## we could probably add code to be more intelligent here.
+			$self->add_history("WARNING - Recovered ORDERID:$DBOID ROW:#$DBID from CART:$qtCARTID");
 			}
 		else {
-			## NEW REDIS BASED CODE
-			my $pstmt = "select ID,ORDERID,CREATED_GMT from $ORDER_TB where MID=$MID /* $USERNAME */ and PRT=$PRT and CARTID=$qtCARTID";
-			print STDERR "$pstmt\n";
-			my ($DBID,$DBOID,$DBCREATED_GMT) = $udbh->selectrow_array($pstmt);
-
-			if (not defined $DBID) {
-				## NO RECORD IN DATABASE - BEST CASE
-				if ($self->__GET__('our/orderid') eq '') {
-					my ($OID) = &CART2::next_id($self->username(),1,$self->cartid());
-					$self->__SET__('our/orderid',$OID);
-					$lm->pooshmsg("WARN|+No order was stored in REDIS (duplication could happen)");
-					}
-				}
-			elsif ($DBID>0) {
-				## ORDER ALREADY EXIST
-				$self->__SET__('our/orderid',$DBOID);
-				$lm->pooshmsg("RETRY|+USE DBROW:$DBID DBOID:$DBOID CREATED:$DBCREATED_GMT");
-				## we could probably add code to be more intelligent here.
-				$self->add_history("WARNING - Recovered ORDERID:$DBOID ROW:#$DBID from CART:$qtCARTID");
-				}
-			else {
-				$lm->pooshmsg("ISE|+FATALITY DURING COID/DBID CHECK - THIS LINE IS NEVER REACHED");
-				}
+			$lm->pooshmsg("ISE|+FATALITY DURING COID/DBID CHECK - THIS LINE IS NEVER REACHED");		
 			}
 
-		if ($lm->had(['RETRY'])) {
-			$self->add_history("CHECKOUT RECOVERY / $PREVIOUS_OID");	
-			my ($O2) = CART2->new_from_oid($USERNAME,$PREVIOUS_OID);
-			if ((defined $O2) && (ref($O2) eq 'ORDER')) {
-				## copy all the fields from the current order
-				$self->make_readonly();
-				foreach my $k (keys %{$O2}) { $self->{$k} = $O2->{$k}; }
-				if ($REDIS_CART_FINALIZE_KEY) { $redis->append($REDIS_CART_FINALIZE_KEY,"RETRY-WIN|$PREVIOUS_OID COPIED\n"); }
-				}
-			else {
-				$self->add_history("Attempting to re-create this order");
-				$lm->pooshmsg("WARN|+RETRY FAILED - ORDER DOES NOT EXIST");
-				if ($REDIS_CART_FINALIZE_KEY) { $redis->append($REDIS_CART_FINALIZE_KEY,"RETRY-FAILED|$PREVIOUS_OID DOES NOT EXIST\n"); }
-				}
-			}
-		elsif (not $lm->can_proceed()) {
-			## we probably won't be placing an order.
-			}
-		elsif ($self->__GET__('our/orderid')) {
-			## we're good to go, we've already got an order ID.
-			}
-		else {
-			## interesting, we got here.
-			($PREVIOUS_OID) = &CART2::next_id($self->username(),1,$self->cartid());
-			$self->__SET__('our/orderid',$PREVIOUS_OID);
-			$lm->pooshmsg("DEBUG|+LINK $PREVIOUS_OID with $qtCARTID");
-			}
 		}
 	else {
 		$lm->pooshmsg("ISE|+Finalize workflow failure.");
@@ -6549,44 +6245,7 @@ sub finalize_order {
 
 	if ($lm->can_proceed()) {
 		$CID = $self->customerid();
-
-		#if (not defined $self->__GET__('our/profile')) {
-		#	## it's always nice to have a profile set (comes in so handy for emails, etc.)
-		#	$self->__SET__('our/profile',&ZOOVY::prt_to_profile($self->username(),$self->prt()));
-		#	}
-
-	#	## we're probably going to need to send some emails as part of this process, so we'll initialize the SITE::EMAILS ($se) object
-	#	require SITE;
-	#	require SITE::EMAILS;
-	#	## $params{'domain'} parameter was added in 201401 for compatibility with legacy email system.
-	#	my $DOMAIN = $params{'domain'} || $self->site()->linkable_domain();
-	#	print STDERR "EMAIL FROM DOMAIN:$DOMAIN\n";
-	#	($SREF) = SITE->new($self->username(),'PRT'=>$self->prt(),'DOMAIN'=>$DOMAIN);
-
-	#	## CHEAPO HACKO
-	#	if ($self->site()->domain_host() || $self->site()->domain_only()) {
-	#		## NOTE: I don't think this line is ever used, because domain_host and domain_only aren't populated
-	#		## by setting DOMAIN=>
-	#		$SREF->{'_DOMAIN_HOST'} = $self->site()->domain_host();
-	#		$SREF->{'_DOMAIN_ONLY'} = $self->site()->domain_only();
-	#		}
-	#	elsif ($DOMAIN ne '') {
-	#		## we really could do a lot more with well known prefix's here so we'd know it was afe to split.
-	#		($SREF->{'_DOMAIN_HOST'},$SREF->{'_DOMAIN_ONLY'}) = split(/\./,$DOMAIN,2);
-	#		}
-	#	if ($SREF->{'_DOMAIN_ONLY'} eq '') { $SREF->{'_DOMAIN_ONLY'} = '#DOMAIN_NOT_SET'; }
-	#	if ($SREF->{'_DOMAIN_HOST'} eq '') { $SREF->{'_DOMAIN_HOST'} = 'www'; }
-
-	#	#open F, ">/tmp/email.site2"; print F Dumper($SREF); close F;
-	#	($SE) = SITE::EMAILS->new($self->username(),'*SITE'=>$SREF);
-
-		($BLAST) = BLAST->new($self->username(),$self->prt());
-	
-		##
-		## initialize some of the CRM stuff	
-		## NOTE: CRM STUFF *MUST* come before payments so we don't create a new customer account while creating a wallet
-		##			for a failed payment.
-		##
+		($BLAST) = BLAST->new($self->username(),$self->prt());	
 		}
 
 
@@ -6865,6 +6524,7 @@ sub finalize_order {
 		}
 	else {
 		INVENTORY2->new($USERNAME)->checkout_cart2($self);
+		if ($REDIS_ASYNC_KEY) { $redis->append($REDIS_ASYNC_KEY,"STATUS|Updated inventory.\n"); }
 		}
 
 	## Save the order and reload it so we know if there's somethign wrong in the checkout there must have been something
@@ -6884,27 +6544,12 @@ sub finalize_order {
 	else {
 		my $ORDER_PS = $self->payment_status();
 		my $ORDER_PS_PRETTY = &ZPAY::payment_status_short_desc($ORDER_PS);	 # PAID|PENDING|DENIED
-		#my @TRY_MSGIDS = ();
-		#push @TRY_MSGIDS, sprintf('ORDER.CONFIRM.%s.%03d',$ORDER_PS,$ORDER_PS);
-		#push @TRY_MSGIDS, sprintf('ORDER.CONFIRM_%s',$ORDER_PS_PRETTY);
-		#push @TRY_MSGIDS, 'ORDER.CONFIRM';
-		#my $MSGID = undef;
-		#foreach my $trymsgid (@TRY_MSGIDS) {
-		#	next if (defined $MSGID);
-		#	if ($SE->exists($trymsgid)) { $MSGID = $trymsgid; }
-		#	}
-		#if (not defined $MSGID) {
-		#	$MSGID = 'ORDER.CONFIRM';
-		#	$self->add_history("MSGID was not set after trying, this should never happen. defaulting to ORDER.CONFIRM");;
-		#	}
-		#$SE->sendmail($MSGID,'*CART2'=>$self,'*SITE'=>$SREF,'CID'=>$CID,'CUSTOMER'=>$self->customer());
 		my ($MSGID) = sprintf('ORDER.CONFIRM.%s.%03d',$ORDER_PS,$ORDER_PS);
 		my ($rcpt) = $BLAST->recipient('CART',$self,{'%ORDER'=>$self->TO_JSON()});
 		my ($msg) = $BLAST->msg($MSGID);
 		$BLAST->send($rcpt,$msg);
+		if ($REDIS_ASYNC_KEY) { $redis->append($REDIS_ASYNC_KEY,"STATUS|Sent order confirmation email.\n"); }
 		}
-
-
 
 	##
 	## INITIALIZE SOME TRACKING VARIABLES
@@ -6949,9 +6594,6 @@ sub finalize_order {
 			}
 		}
 
-	#if (not $lm->can_proceed()) {
-	#	## don't flag orders
-	#	}
 	## NOTE: it seems like we should *ALWAYS* try and reliably save ebay.com and amazon.com orders before we commit to the database
 	##			because otherwise we can create duplicates, this way worst case we end up doing a recovery.
 	if ($self->__GET__('our/sdomain') eq 'ebay.com') {
@@ -6991,9 +6633,6 @@ sub finalize_order {
 		$self->queue_event('create','override'=>1);	
 		}
 
-	#if ($self->is_marketplace_order()) {
-	#	## specifically ebay, makes changes to the order after checkout finalize. -- we should probably try and fix this
-	#	}
 	if ($params{'do_not_lock'}) {
 		## google checkout dispatches after create, it's not technically a marketplace, .. but bleh.
 		## amazon cba has the same issue
@@ -7009,7 +6648,6 @@ sub finalize_order {
 
 	## SANITY: at this point $ERROR should either be undef, or OID\tERRORMSG 
 	##				in some cases OID may not be known.
-
 	if (not $lm->can_proceed()) {
 		## SOME TYPE OF NON-RECOVERABLE ERROR
 		# 1294884190		totalfanshop	 CART-OID-STAGE1-ALREADY-SET  cv3omrQUWhslhHtYAzzzhdOEL
@@ -7028,11 +6666,14 @@ sub finalize_order {
 			}
 		}
 	else {
+		if ($REDIS_ASYNC_KEY) { $redis->append($REDIS_ASYNC_KEY,sprintf("SUCCESS|Order %s has been placed\n",$self->oid())); }
 		$lm->pooshmsg("SUCCESS|OID:".$self->oid());
 		unlink("$recoveryfile");
 		}
 	untie %cart2;
 	delete $SIG{'SIGTERM'};
+
+	
 
 	open F, ">/tmp/order.debug";
 	print F Dumper($lm);
@@ -7790,7 +7431,7 @@ sub order_save {
 
 	if ($self->__GET__('our/orderid') eq '') {
 		## wow! this is a bad error case. -- we should NEVER reach this
-		$self->__SET__('our/orderid',&CART2::next_id($self->username(),1));
+		$self->__SET__('our/orderid',&CART2::next_id($self->username(),1,$self->cartid()));
 		$self->add_history('order_save() had blank Order ID (very bad) setting to next available id');
 		}
 

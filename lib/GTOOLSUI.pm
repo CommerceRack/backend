@@ -929,7 +929,12 @@ sub analytics {
 	my $NSREF = undef;
 	my $WEBDB = undef;
 	$WEBDB = &ZWEBSITE::fetch_website_dbref($USERNAME,$PRT);
-	my ($D) = DOMAIN->new($LU->username(),$LU->domainname());
+	my ($D) = DOMAIN->new($JSONAPI->username(),$JSONAPI->domain());
+
+	open F, ">/tmp/debug";
+	print F Dumper($JSONAPI->username(),$JSONAPI->domain(),$D);
+	close F;
+
 	my ($NSREF) = $D->as_legacy_nsref();
 	
 	my $help = '51020';
@@ -1077,7 +1082,7 @@ sub analytics {
 	
 		$SITE::CART2 = CART2->new_memory($USERNAME,$PRT);
 		$SITE::CART2->in_set('cart/refer',$cgiv->{'meta'});
-		my ($SITE) = SITE->new($USERNAME,'PRT'=>$PRT,'DOMAIN'=>$LU->domainname(),'*CART2'=>$SITE::CART2);
+		my ($SITE) = SITE->new($USERNAME,'PRT'=>$PRT,'DOMAIN'=>$JSONAPI->domain(),'*CART2'=>$SITE::CART2);
 	
 		my @MSGS = ();
 		foreach my $i (1..3) {
@@ -2975,7 +2980,7 @@ sub toxml {
 	##
 	if ($ACTION eq 'SITEBUTTONS') {
 	
-		my ($SITE) = SITE->new($USERNAME,'PRT'=>$PRT,'DOMAIN'=>$LU->domainname());
+		my ($SITE) = SITE->new($USERNAME,'PRT'=>$PRT,'DOMAIN'=>$JSONAPI->domain());
 	
 		require TOXML::UTIL;
 		my ($toxml) = TOXML->new('WRAPPER',$DOCID,USERNAME=>$USERNAME,MID=>$MID);
@@ -3678,7 +3683,7 @@ sub builder_themes {
 	$GTOOLSUI::TAG{'<!-- MENUPOS -->'} = 1;
 	my $webdbref = &ZWEBSITE::fetch_website_dbref($USERNAME);
 	## my $NSREF = &ZOOVY::fetchmerchantns_ref($USERNAME,$NS);
-	my ($D) = DOMAIN->new($LU->username(),$LU->domainname());
+	my ($D) = DOMAIN->new($LU->username(),$JSONAPI->domain());
 	my $NSREF = $D->as_legacy_nsref();
 	
 	if ($webdbref->{'branding'}>0) {
@@ -4327,7 +4332,7 @@ sub builder_themes {
 			
 			$SITE::CONFIG = $tinfo;
 			$SITE::CONFIG->{'%SITEBUTTONS'} = &ZTOOLKIT::parseparams($tinfo->{'SITEBUTTONS'});
-			my ($SITE) = SITE->new($USERNAME,PRT=>$PRT,'DOMAIN'=>$LU->domainname());
+			my ($SITE) = SITE->new($USERNAME,PRT=>$PRT,'DOMAIN'=>$JSONAPI->domain());
 	
 			$out .= "<div>";
 			foreach my $b ('add_to_cart','cancel','back','forward','|','empty_cart','checkout','continue_shopping','update_cart') {

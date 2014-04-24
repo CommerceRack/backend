@@ -160,7 +160,7 @@ else {
 	}
 if (not defined $v->{'_uuid'}) { $v->{'_uuid'} = time(); }
 $ref->{'ts'} = time();
-my ($R,my $cmdlines) = $JSAPI->handle('',$v);
+my ($R,my $cmdlines) = $JSAPI->handle($v);
 ##									
 										  uwsgi::websocket_send(JSON::XS::encode_json($R));
 

@@ -299,11 +299,12 @@ sub handler {
 	if (defined $v->{'giftcardcode'}) {
 		## first thing we need to do is figure out
 		$lm->pooshmsg("INFO|+Looks like we might have a giftcard");
-		my @errors = ();
-		$SITE::CART2->add_giftcard($v->{'giftcardcode'},\@errors);
-		foreach my $err (@errors) { 
-			$lm->pooshmsg("ERROR|+$err"); 
-			}
+		#my @errors = ();
+		#$SITE::CART2->add_giftcard($v->{'giftcardcode'},\@errors);
+		$lm->pooshmsg("ERROR|+Please add giftcards during checkout.");
+		#foreach my $err (@errors) { 
+		#	$lm->pooshmsg("ERROR|+$err"); 
+		#	}
 		}
 
 #	if (defined $v->{'giftcardcode'}) {

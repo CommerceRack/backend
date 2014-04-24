@@ -12,7 +12,6 @@ use Date::Calc qw (Day_of_Week Today Date_to_Days Localtime);
 use DBINFO;
 use TXLOG;
 use strict;
-use ORDER;
 use ZOOVY;
 use CUSTOMER;
 use WHOLESALE;
