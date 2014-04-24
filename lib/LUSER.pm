@@ -318,7 +318,6 @@ sub prt {
 	return($_[0]->{'PRT'});
 	}
 
-sub domainname { my ($self) = shift @_; return($self->domain(@_)); }
 sub domain {
 	if ($_[1]) { $_[0]->{'DOMAIN'} = $_[1]; }
 	return($_[0]->{'DOMAIN'});

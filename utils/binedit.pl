@@ -64,6 +64,7 @@ elsif ($ARGV[0] eq 'cart' || $ARGV[0] eq 'c') {
 	$params{'type'} = 'cart';
 	$params{'user'} = $ARGV[1];
 	$params{'id'} = $ARGV[2];
+	$params{'prt'} = $ARGV[3];
 	}
 elsif ($ARGV[0] =~ /(.*?)\:(.*?)$/) {
 	$params{'type'} = 'file';

@@ -139,6 +139,7 @@ require ORDER::BATCH;
 require ZTOOLKIT::XMLUTIL;
 require SITE;
 require CART2;
+require GIFTCARD;
 require ZWEBSITE;	
 require ZTOOLKIT;
 require DBINFO;
@@ -267,7 +268,8 @@ use strict;
 	'cartPaypalSetExpressCheckout'=>[ \&JSONAPI::cartPaypalSetExpressCheckout,  { 'cart'=>1 }, 'cart', ],
 	'cartAmazonPaymentURL'=>[ \&JSONAPI::cartAmazonPaymentURL,  { 'cart'=>1 }, 'cart', ],
 	'cartItemsInventoryVerify'=>[ \&JSONAPI::cartItemsInventoryVerify,  { 'cart'=>1 }, 'cart', ],
-	'cartOrderCreate'=>[ \&JSONAPI::cartOrderCreate,  { 'cart'=>1 }, 'cart', ],
+	'cartOrderCreate'=>[ \&JSONAPI::cartOrder,  { 'cart'=>1 }, 'cart', ],
+	'cartOrderStatus'=>[ \&JSONAPI::cartOrder,  { }, 'cart', ],
 	'cartGiftcardAdd' =>[  \&JSONAPI::cartPromoCodeOrGiftcardOrCouponToCartAdd,  { 'cart'=>1 }, 'cart', ],
 	'cartCouponAdd' =>[  \&JSONAPI::cartPromoCodeOrGiftcardOrCouponToCartAdd,  { 'cart'=>1 }, 'cart', ],
 	'cartPromoCodeAdd' =>[  \&JSONAPI::cartPromoCodeOrGiftcardOrCouponToCartAdd,  { 'cart'=>1 }, 'cart', ],
@@ -298,7 +300,7 @@ use strict;
 	'adminOrderSearch'=>[ \&JSONAPI::adminOrderList,  { 'admin'=>1, }, 'admin', { 'ORDER'=>'L'}  ],
 	'adminOrderDetail'=>[ \&JSONAPI::adminOrderDetail,  { 'admin'=>1, }, 'admin', { 'ORDER'=>'R'} ],
 	'adminOrderMacro'=>[ \&JSONAPI::adminCartOrderMacro,  { 'admin'=>1, }, 'admin', { 'ORDER'=>'U'} ],
-	'adminOrderCreate'=>[ \&JSONAPI::adminOrderCreate, { 'admin'=>1, }, 'admin', { 'ORDER'=>'C'} ],
+	'adminOrderCreate'=>[ \&JSONAPI::cartOrder, { 'admin'=>1, }, 'admin', { 'ORDER'=>'C'} ],
 	'adminOrderPaymentAction'=>[ \&JSONAPI::adminOrderPaymentAction, { 'admin'=>1, }, 'admin', { 'ORDER/PAYMENT'=>'U' } ],
 	'adminOrderPaymentMethods'=>[ \&JSONAPI::adminOrderPaymentMethods,  { 'admin'=>1, }, 'admin', { 'ORDER/PAYMENT'=>'U' } ],
 	'adminOrderRouteList'=>[ \&JSONAPI::adminOrderRouteList,  { 'admin'=>1, }, 'admin', { 'ORDER'=>'U' } ],
@@ -793,58 +795,276 @@ use strict;
 
 
 ##
+## a payment queue that is outside the cart.
+##
+sub paymentQ {
+	my ($self, $ref) = @_;
+	if (defined $ref) { $self->{'@PAYMENTQ'} = $ref; }
+	if (not defined $self->{'@PAYMENTQ'}) { $self->{'@PAYMENTQ'} =  []; }
+	return($self->{'@PAYMENTQ'});
+	}
+
+##
+##	this manipulates the carts payment queue
+##
+sub paymentQCMD {
+	my ($self, $R, $cmd, $v) = @_;
+
+	if (not defined $v) { $v = {}; }	# certain commands like 'sync' need no parameters.
+	my $webdbref = $self->webdb();
+
+	$self->{'@PAYMENTQ'} = $self->paymentQ();
+	if ($cmd eq 'sync') {
+		## nothing to do here.
+		}
+	elsif ($cmd eq 'reset') {
+		$self->{'@PAYMENTQ'} = [];
+		}
+	elsif (not &JSONAPI::validate_required_parameter($R,$v,'ID')) {
+  		}
+	elsif ($cmd eq 'insert') {
+
+		my $ID = $v->{'ID'};		## this is for a wallet
+		if ($self->apiversion()<201314) {
+			## no error checking.
+			}
+		elsif ($self->apiversion() < 201402) {
+			## the stricter validation checks here are not appreciated by earlier version.
+			}
+		## wallets don't pass a 'TN'
+		#elsif (not &JSONAPI::validate_required_parameter($R,$v,'TN')) {
+		#	}
+		elsif ($v->{'TN'} eq 'CREDIT') {
+			## credit cards require some special parameters
+			if (not &JSONAPI::validate_required_parameter($R,$v,'CC')) {
+				}
+			elsif (not &JSONAPI::validate_required_parameter($R,$v,'YY')) {
+				}
+			elsif (not &JSONAPI::validate_required_parameter($R,$v,'MM')) {
+				}
+			#elsif (
+			#	($ENV{'REMOTE_ADDR'} eq '66.240.244.204') && (substr($paymentref->{'CC'},0,1) eq '9')) {
+			#	## any card number starting with a "9" can be skipped when you're on the office network.
+			#	}
+			elsif ($v->{'CC'} =~ /[^\d]+/) {
+				&JSONAPI::set_error($R,'apperr',50505,'Credit card number contains space or other non-numeric characters.');
+				}
+			elsif (not &ZPAY::cc_verify_length($v->{'CC'})) {
+				&JSONAPI::set_error($R,'apperr',50506,'Credit card number does not have the appropriate length.');
+				}
+			elsif (not &ZPAY::cc_verify_checksum($v->{'CC'})) {
+				&JSONAPI::set_error($R,'apperr',50507,'Credit card number supplied does not have a valid checksum (please verify the digits).');
+				}
+			elsif (not &ZPAY::cc_verify_expiration($v->{'MM'},$v->{'YY'})) {
+				&JSONAPI::set_error($R,'apperr',50508,'Credit card has expired.');
+				}
+
+			## cvv length check
+			if (&JSONAPI::hadError($R)) {
+				}
+			elsif (defined($webdbref->{'cc_cvvcid'}) && ($webdbref->{'cc_cvvcid'} > 0)) {
+				if ($v->{'CV'}) { 
+				# CIDCVV is requested
+					if (not &ZPAY::cc_verify_cvvcid($v->{'CC'},$v->{'CV'})) {
+						&JSONAPI::set_error($R,'apperr',50509,'CID or CVV number is invalid for card type.');
+						}
+					}
+				elsif ($webdbref->{'cc_cvvcid'} == 2) {
+					# CIDCVV is required		
+					&JSONAPI::set_error($R,'apperr',50510,'CID or CVV number must be provided.');
+					}
+				}
+			
+			## cc type check
+			if (&JSONAPI::hadError($R)) {
+				}
+			else {
+				my $TYPE = &ZPAY::cc_type_from_number($v->{'CC'});
+				if (not $webdbref->{sprintf("cc_type_%s",lc($TYPE))}) {
+					&JSONAPI::set_error($R,'apperr',50508,'Credit card is not a type this merchant accepts.' );
+					}
+				}
+			#if (substr($self->fetch_property('chkout.cc_number'),0,1) eq '3') {
+			#	## american express does not process CVV #'s anymore, so lets remove it!
+			#	## apparently authorize.net still requires a code be sent.
+			#	# $self->fetch_property('chkout.cc_cvvcid') = '';
+			#	}
+
+			}
+		elsif ($v->{'TN'} eq 'PO') {
+			if (&ZTOOLKIT::wordlength($v->{'PO'}) < 1) {
+				&JSONAPI::set_error($R,'apperr',50520,'PO # is required for tender PO');
+				}
+			}
+		elsif ($v->{'TN'} eq 'ECHECK') {
+			if (&ZTOOLKIT::wordlength($v->{'EB'}) < 4) {
+				&JSONAPI::set_error($R,'apperr',50530,'You must provide the name of the bank which of the checking account');
+				}
+			$v->{'ER'} =~ s/[^\d]+//gs;
+			if ($v->{'ER'} !~ m/^\d\d\d\d\d\d\d\d\d$/ && $v->{'ER'} !~ m/^\d\d\d\d\d\d\d\d$/) {
+				&JSONAPI::set_error($R,'apperr',50531,'ABA Routing Number must be 8 or 9 numeric digits - please re-enter the number)');
+				}
+			$v->{'EA'} =~ s/[^\d]+//gs;
+			if ($v->{'EA'} !~ m/^\d\d\d\d\d\d\d\d[\d]+$/) {
+				&JSONAPI::set_error($R,'apperr',50532,'Account Number must be at least 9 numeric digits - please re-enter the number)');
+				}
+			#if (defined($webdbref->{'echeck_request_acct_name'}) && $webdbref->{'echeck_request_acct_name'}) {
+			#	if (&ZTOOLKIT::wordlength($v->{'EN'}) < 4) {
+			#		push @ISSUES, [ 'ERROR', 'ec_en_required', 'payment.en', 'You must provide the name which appears on the checking account' ];
+			#		}
+			#	}
+			#if (defined($webdbref->{'echeck_request_check_number'}) && $webdbref->{'echeck_request_check_number'}) {
+			#	if ($v->{'EI'} !~ m/^\d+$/) {
+			#		push @ISSUES, [ 'ERROR', 'ec_ei_required', 'payment.ei', 'You must provide a check number' ];
+			#		}
+			#	}
+			}
+		elsif ($v->{'TN'} eq 'PAYPALEC') {
+		#	if ($v->{'PT'} eq '') {
+		#		&JSONAPI::set_error($R,'apperr',50540,'Paypal Payment Token is invalid');
+		#		}
+		#	}
+		#elsif ($v->{'TN'} eq 'PAYPALEC') {
+		#	if ($thisRow->{'ERR'}) {
+		#		&JSONAPI::append_msg_to_response($R,'apierr',3599,$thisRow->{'ERR'});
+		#		}
+		#	elsif ($thisRow->{'ACK'} eq 'Failure') {
+		#		if ($thisRow->{'ERR'} eq '') { $thisRow->{'ERR'} = sprintf("Paypal error[%d] %s",$thisRow->{'L_ERRORCODE0'},$thisRow->{'L_LONGMESSAGE0'}); }
+		#		if ($thisRow->{'ERR'} eq '') { $thisRow->{'ERR'} = "Paypal ACK=Failure but no ERR message set"; }
+		#		&JSONAPI::append_msg_to_response($R,'apierr',3598,$thisRow->{'ERR'});
+		#		}
+		#	elsif ($thisRow->{'ACK'} eq 'Success') {
+		#		&JSONAPI::append_msg_to_response($R,'success',0);
+		#		}
+		#	else {
+		#		&JSONAPI::append_msg_to_response($R,'iseerr',3592,sprintf('Unhandled internal ACK status:%s',$thisRow->{'ACK'}));
+		#		}
+			}
+		else {
+			## other payment type!
+			}
+
+		if (not &JSONAPI::hadError($R)) {
+			## never let developers pass $$ (calc amount to charge) onto the paymentQ (we might *eventually* let admin users do this)
+			## if ($v->{'$$'}<=0 && $v->{'$#'}>0) { $v->{'$#'} = $v->{'$$'}; delete $v->{'$$'}; }
+
+			my $thisRow = undef;
+			foreach my $row (@{ $self->{'@PAYMENTQ'} }) { 
+				if ($row->{'ID'} eq $ID) { $thisRow = $row; } 
+				}
+
+			if (not defined $thisRow) {
+				$thisRow = $v;
+				push @{$self->{'@PAYMENTQ'}}, $thisRow;
+				}
+
+			if (not defined $thisRow) {
+				&JSONAPI::set_error($R,'iseerr',7835,sprintf("unknown logic failure - row was not be added to paymentQ"));
+				}
+
+			open F, ">/tmp/payq";
+			print F Dumper($self->{'@PAYMENTQ'},$thisRow,$R)."\n";
+			close F;
+			}
+
+
+
+		}
+	elsif ($cmd eq 'delete') {
+		my $ID = $v->{'ID'};
+		my $thisRow = undef;
+
+		$self->paymentQCMD( $R, 'sync');
+		foreach my $row (@{ $self->{'@PAYMENTQ'} }) { 
+			if ($row->{'ID'} eq $ID) { $thisRow = $row; } 
+			}
+
+		if (not defined $thisRow) {
+			&JSONAPI::set_error($R,'apperr',7836,sprintf("logic failure - row did not exist in paymentQ"));
+			}
+		else {
+			$self->paymentQCMD($R, 'delete',{ 'ID'=>$ID });
+			}
+		# $CART2->in_set('want/payby',undef);
+		}
+	else {
+		&JSONAPI::set_error($R,'apperr',7834,sprintf("logic failure - invalid cmd parameter"));
+		}
+	$self->{'paymentQ'} = $self->paymentQ();
+
+	return($R);
+	}
+
+
+##
 ## serialize a call to disk.
 ##
-sub call_serialize {
-	my ($self, $v) = @_;
+#sub call_serialize {
+#	my ($self, $v) = @_;
+#
+#	my %out = ();
+#	foreach my $k (keys %{$self}) {
+#		if (substr($k,0,1) eq '*') {
+#			## no support for *LU at the moment
+#			}
+#		elsif ($k eq uc($k)) { 
+#			## ex. APIVERSION
+#			$out{'%_'}->{$k} = $self->{$k}; 
+#			}
+#		}
+#	$out{'%CMD'} = $v;
+#	my $CALLID = sprintf("%s-%s-%s-%s-%s",$self->username(),$v->{'_cmd'},$v->{'_uuid'},&ZTOOLKIT::timestamp(),Data::GUID->new()->as_string());
+#	open F, sprintf(">/dev/shm/call-%s.json",$CALLID);
+#	JSON::XS::encode_json(\%out);
+#	close F;
+#	return($CALLID);
+#	}
 
-	my %out = ();
-	foreach my $k (keys %{$self}) {
-		if (substr($k,0,1) eq '*') {
-			## no support for *LU at the moment
-			}
-		elsif ($k eq uc($k)) { 
-			## ex. APIVERSION
-			$out{'%_'}->{$k} = $self->{$k}; 
-			}
-		}
-	$out{'%CMD'} = $v;
-	my $CALLID = sprintf("%s-%s-%s-%s-%s",$self->username(),$v->{'_cmd'},$v->{'_uuid'},&ZTOOLKIT::timestamp(),Data::GUID->new()->as_string());
-	open F, sprintf(">/dev/shm/call-%s.json",$CALLID);
-	JSON::XS::encode_json(\%out);
-	close F;
-	return($CALLID);
+##
+##
+##
+#sub call_deserialize {
+#	my ($CALLID) = @_;
+#
+#	my ($JSONAPI,$v) = ();
+#	my $IN = undef;
+#	if (-f "/dev/shm/call-%s.json") {
+#		open F, sprintf("</dev/shm/call-%s.json",$CALLID);
+#		$/ = undef; my $json = <F>; $/ = "\n";
+#		close F;
+#
+#		$IN = JSON::XS::decode_json($json);
+#		}
+#
+#	if (not defined $IN) {
+#		$JSONAPI = JSONAPI->new();
+#		foreach my $k (keys %{$IN->{'%_'}}) {
+#			$JSONAPI->{$k} = $IN->{'%_'};
+#			}
+#		$v = $IN->{'%CMD'};
+#		}	
+#		
+#	## first, establish .. 
+#	return($JSONAPI,$v); 
+#	}
+
+
+
+
+##
+##
+##
+sub async_fetch {
+	my ($token) = @_;
+
+	$/ = undef;
+	open F, "</dev/shm/async-$token.json"; my ($JSON) = <F>; close F;
+	$/ = "\n";
+
+
+	return();
 	}
-
-##
-##
-##
-sub call_deserialize {
-	my ($CALLID) = @_;
-
-	my ($JSONAPI,$v) = ();
-	my $IN = undef;
-	if (-f "/dev/shm/call-%s.json") {
-		open F, sprintf("</dev/shm/call-%s.json",$CALLID);
-		$/ = undef; my $json = <F>; $/ = "\n";
-		close F;
-
-		$IN = JSON::XS::decode_json($json);
-		}
-
-	if (not defined $IN) {
-		$JSONAPI = JSONAPI->new();
-		foreach my $k (keys %{$IN->{'%_'}}) {
-			$JSONAPI->{$k} = $IN->{'%_'};
-			}
-		$v = $IN->{'%CMD'};
-		}	
-		
-	## first, establish .. 
-	return($JSONAPI,$v); 
-	}
-
-
+	
 
 
 ##
@@ -1642,6 +1862,30 @@ sub init {
 ## 
 sub trace { if ($_[1]) { $_[0]->{'TRACE'} = $_[1]; } return($_[0]->{'TRACE'}); }
 
+##
+## a spooler initialized api
+##
+sub spoolinit {
+	my ($self, $env) = @_;
+
+	## keys that are copied in a spool environment
+	foreach my $k ('USERNAME','LUSER','APIVERSION','SESSION','CLIENTID','DEVICEID','DOMAIN','PRT') {
+		$self->{$k} = $env->{$k};
+		}
+	if ($env->{'json:@PAYMENTQ'}) {
+		$self->{'@PAYMENTQ'} = JSON::XS::decode_json($env->{'json:@PAYMENTQ'});
+		}
+
+	if ($self->domain()) {
+		## instantiate a site object
+		$self->{'*SITE'} = SITE->new($self->username(), 'PRT'=>$self->prt(), 'DOMAIN'=>$self->domain());
+		}
+
+	## VERY IMPORTANT (KEEPS US FROM LOOPING ON ASYNC MODE)
+	$self->{'_IS_SPOOLER'}++;
+
+	return($self);
+	}
 
 ##
 ##
@@ -2241,7 +2485,7 @@ sub cart2 {
 	else {
 		## SANITY: at this point the cart isn't in cache
 		if (not defined $options{'create'}) { $options{'create'} = 1; }
-		$CART2 = CART2->new_persist( $self->username(), $self->prt(), $cartid, %options );
+		$CART2 = CART2->new_persist( $self->username(), $self->prt(), $cartid, '*SESSION'=>$self, %options );
 		if (defined $CART2) {
 			$self->{'%CARTS'}->{ $CART2->cartid() } = $CART2;
 			}
@@ -2256,6 +2500,10 @@ sub cart2 {
 ##
 sub is_admin {	
 	my ($self) = @_; return($self->{'_IS_ADMIN'});	
+	}
+
+sub is_spooler {	
+	my ($self) = @_; return($self->{'_IS_SPOOLER'});	
 	}
 
 sub is_buyer { return($_[0]->isLoggedIn()); }
@@ -2296,6 +2544,7 @@ sub sessionInit {
 			$ref = {};
 			}
 
+		my @PAYMENTQ = ();
 		foreach my $k (keys %{$ref}) {
 			if ($k eq '#CUSTOMER') {
 				if ($ref->{'#CUSTOMER'} > 0) {
@@ -2304,15 +2553,26 @@ sub sessionInit {
 				# print STDERR 'INSTANTIATED CUSTOMER: '.Dumper( $self->{'*CUSTOMER'}, $ref );
 				}
 			elsif ($k =~ /^#CART:(.*?)$/o) {
-				my ($CART2) = CART2->new_persist( $self->username(), $self->prt(), $1 );
+				my ($CART2) = CART2->new_persist( $self->username(), $self->prt(), $1, '*SESSION'=>$self );
 				if (defined $CART2) {
 					$self->{'%CARTS'}->{ $CART2->cartid() } = $CART2;
 					}
+				}
+			elsif ($k =~ /^#GIFTCARD:(.*?)$/o) {
+				my ($payment) = &ZTOOLKIT::parseparams($ref->{$k});
+				## it would be nice to refresh giftcards here.
+				# my ($cardinfo) = GIFTCARD::lookup($self->username(),'CODE'=>$ref->{'#GIFTCARD'});
+				push @PAYMENTQ, $payment;
+				## the insert cmd below, don't use it, it gets an erro (although it'd be nice if we could someday)
+				## $self->paymentQCMD({},'insert',$payment);	
 				}
 			else {
 				## not sure wtf this is .. (just in case we'll copy it into $self)
 				}
 			}
+		$self->paymentQ(\@PAYMENTQ);
+
+		print STDERR "sessionInit: ".Dumper($ref,$self->paymentQ())."\n";
 		}
 
 	## print STDERR "!!!!!! INIT SESSION: [$session]\n";
@@ -2365,8 +2625,17 @@ sub sessionSave {
 			$DATA{sprintf("#CART:%s",$k)}++;
 			}
 
+
+		foreach my $payment (@{$self->paymentQ()}) {
+			## store any giftcard's that were added.
+			if ($payment->{'TN'} eq 'GIFTCARD') {
+				$DATA{sprintf("#GIFTCARD:%s",$payment->{'GI'})} = &ZTOOLKIT::buildparams($payment,1);
+				}
+			}
+
+
 		my $YAML = YAML::Syck::Dump(\%DATA);
-		print STDERR "SESSION STORE YAML: $YAML\n";
+		print STDERR "SESSION STORE YAML: $YAML\n".Dumper($self->paymentQ())."\n";
 		if (not defined $redis) {
 			warn "\$redis NOT DEFINED -wtf?\n";
 			}
@@ -2826,7 +3095,7 @@ Response:
 ## 
 ##
 sub handle {
-	my ($self,$URI,$v,%options) = @_;
+	my ($self,$v,%options) = @_;
 
 	my %R = ();
 	my $i = 0;
@@ -2836,7 +3105,7 @@ sub handle {
 	@JSONAPI::TRACE = ();
 
 	if ($TRACE) {
-		push @JSONAPI::TRACE, "--- START $$ URI:$URI";
+		push @JSONAPI::TRACE, "--- START $$";
 		push @JSONAPI::TRACE, sprintf("sdomain:%s prt:%s",$self->sdomain(),$self->prt());
 		push @JSONAPI::TRACE, $v;
 		}
@@ -3113,6 +3382,8 @@ sub handle {
 			my ($is_pipelined,$cmdset) = @{$cmdline};
 			if ($is_pipelined) { $was_pipelined++; }
 			my ($response) = (undef);
+
+			## print STDERR "CMD: $cmdset->{'_cmd'}\n";
 
 			if ( defined $cmdline->[2] ) {
 				## array position #2 holds the response, if it's defined already we don't run the command.
@@ -16713,7 +16984,7 @@ sub whoAmI {
 				$CART2 = $self->{'%CARTS'}->{$v->{'_cartid'}};
 				}
 			if (not $CART2) {
-				$CART2 = CART2->new_persist($self->username(),$self->prt(),$v->{'_cartid'},'is_fresh'=>0); 
+				$CART2 = CART2->new_persist($self->username(),$self->prt(),$v->{'_cartid'},'is_fresh'=>0,'*SESSION'=>$self); 
 				}
 
 			if ((defined $CART2) && (ref($CART2) eq 'CART2')) {
@@ -17462,7 +17733,7 @@ sub appCartCreate {
 
 	## they want a new cart (we'll give them a persistent one)
 	my ($newid) = &CART2::generate_cart_id();
-	$CART2 = CART2->new_persist( $self->username(), $self->prt(), $newid, 'cartid'=> $newid, 'create'=>1 );
+	$CART2 = CART2->new_persist( $self->username(), $self->prt(), $newid, 'cartid'=> $newid, 'create'=>1, '*SESSION'=>$self );
 	$v->{'_cartid'} = $newid;		## make sure this $v is using the right cartid
 
 	if (defined $CART2) {
@@ -18977,204 +19248,20 @@ sub cartPaymentQ {
 		$CART2 = $self->cart2( $v->{'_cartid'} );
 		}
 
+	#print STDERR "cartPaymentQ cmd: $v->{'cmd'}\n";
 	if (&hadError(\%R)) {
 		}
 	elsif (not &JSONAPI::validate_required_parameter(\%R,$v,'cmd',['reset','delete','insert','sync'])) {
 		}
-	elsif ($v->{'cmd'} eq 'sync') {
-		## nothing to do here.
-		}
-	elsif ($v->{'cmd'} eq 'reset') {
-		$R{'paymentQ'} = $CART2->paymentQ('reset');
-		}
-	elsif (not &JSONAPI::validate_required_parameter(\%R,$v,'ID')) {
-		}
-	elsif ($v->{'cmd'} eq 'insert') {
-
-		my $ID = $v->{'ID'};
-
-		if ($self->apiversion()<201314) {
-			## no error checking.
-			}
-		elsif (not &JSONAPI::validate_required_parameter(\%R,$v,'TN')) {
-			}
-		elsif ($v->{'TN'} eq 'CREDIT') {
-			## credit cards require some special parameters
-			if (not &JSONAPI::validate_required_parameter(\%R,$v,'CC')) {
-				}
-			elsif (not &JSONAPI::validate_required_parameter(\%R,$v,'YY')) {
-				}
-			elsif (not &JSONAPI::validate_required_parameter(\%R,$v,'MM')) {
-				}
-#			elsif (
-#				($ENV{'REMOTE_ADDR'} eq '66.240.244.204') && (substr($paymentref->{'CC'},0,1) eq '9')) {
-#				## any card number starting with a "9" can be skipped when you're on the office network.
-#				}
-			elsif ($v->{'CC'} =~ /[^\d]+/) {
-				&JSONAPI::set_error(\%R,'apperr',50505,'Credit card number contains space or other non-numeric characters.');
-				}
-			elsif (not &ZPAY::cc_verify_length($v->{'CC'})) {
-				&JSONAPI::set_error(\%R,'apperr',50506,'Credit card number does not have the appropriate length.');
-				}
-			elsif (not &ZPAY::cc_verify_checksum($v->{'CC'})) {
-				&JSONAPI::set_error(\%R,'apperr',50507,'Credit card number supplied does not have a valid checksum (please verify the digits).');
-				}
-			else {
-				my $TYPE = &ZPAY::cc_type_from_number($v->{'CC'});
-				if (not $webdbref->{sprintf("cc_type_%s",lc($TYPE))}) {
-					&JSONAPI::set_error(\%R,'apperr',50508,'Credit card is not a type this merchant accepts.' );
-					}
-				}
-
-			if (not defined &JSONAPI::hadError(\%R)) {
-				}			
-			elsif (not &ZPAY::cc_verify_expiration($v->{'MM'},$v->{'YY'})) {
-				&JSONAPI::set_error(\%R,'apperr',50508,'Credit card has expired.');
-				}
-			#if (substr($self->fetch_property('chkout.cc_number'),0,1) eq '3') {
-			#	## american express does not process CVV #'s anymore, so lets remove it!
-			#	## apparently authorize.net still requires a code be sent.
-			#	# $self->fetch_property('chkout.cc_cvvcid') = '';
-			#	}
-			elsif (defined($webdbref->{'cc_cvvcid'}) && ($webdbref->{'cc_cvvcid'} > 0)) {
-				if ($v->{'CV'}) { 
-				# CIDCVV is requested
-					if (not &ZPAY::cc_verify_cvvcid($v->{'CC'},$v->{'CV'})) {
-						&JSONAPI::set_error(\%R,'apperr',50509,'CID or CVV number is invalid for card type.');
-						}
-					}
-				elsif ($webdbref->{'cc_cvvcid'} == 2) {
-					# CIDCVV is required		
-					&JSONAPI::set_error(\%R,'apperr',50510,'CID or CVV number must be provided.');
-					}
-				}
-
-			}
-		elsif ($v->{'TN'} eq 'PO') {
-			if (&ZTOOLKIT::wordlength($v->{'PO'}) < 1) {
-				&JSONAPI::set_error(\%R,'apperr',50520,'PO # is required for tender PO');
-				}
-			}
-		elsif ($v->{'TN'} eq 'ECHECK') {
-			if (&ZTOOLKIT::wordlength($v->{'EB'}) < 4) {
-				&JSONAPI::set_error(\%R,'apperr',50530,'You must provide the name of the bank which of the checking account');
-				}
-			}
-#
-#			if (defined($webdbref->{'echeck_request_bank_state'}) && $webdbref->{'echeck_request_bank_state'}) {
-#				if (&ZTOOLKIT::wordlength($paymentref->{'ES'}) != 2) {
-#					push @ISSUES, [ 'ERROR', 'ec_es_length', 'payment.es', 'You must provide the state of the bank for the checking account' ];
-#					}
-#				}
-#
-#			if ($paymentref->{'ER'} !~ m/^\d\d\d\d\d\d\d\d\d$/ && $paymentref->{'ER'} !~ m/^\d\d\d\d\d\d\d\d$/) {
-#				$paymentref->{'ER'} =~ s/[^\d]+//gs;
-#				push @ISSUES, [ 'ERROR', 'ec_er_length', 'payment.er', 'ABA Routing Number must be 8 or 9 numeric digits - please re-enter the number)' ];
-#				}
-#	
-#			if ($paymentref->{'EA'} !~ m/^\d\d\d\d\d\d\d\d[\d]+$/) {
-#				$paymentref->{'EA'} =~ s/[^\d]+//gs;
-#				push @ISSUES, [ 'ERROR', 'ec_ea_length', 'payment.ea', 'Account Number must be at least 9 numeric digits - please re-enter the number)' ];
-#				}
-#
-#			if (defined($webdbref->{'echeck_request_acct_name'}) && $webdbref->{'echeck_request_acct_name'}) {
-#				if (&ZTOOLKIT::wordlength($paymentref->{'EN'}) < 4) {
-#					push @ISSUES, [ 'ERROR', 'ec_en_required', 'payment.en', 'You must provide the name which appears on the checking account' ];
-#					}
-#				}
-#	
-#			if (defined($webdbref->{'echeck_request_check_number'}) && $webdbref->{'echeck_request_check_number'}) {
-#				if ($paymentref->{'EI'} !~ m/^\d+$/) {
-#					push @ISSUES, [ 'ERROR', 'ec_ei_required', 'payment.ei', 'You must provide a check number' ];
-#					}
-#				}
-#			}
-#		elsif ($method eq 'PAYPALEC') {
-#			if ($paymentref->{'PT'} eq '') {
-#				warn "PAYPALEC TOKEN_NOT_IN_PAYMENT\n";
-#				}
-#			}
-#		elsif ($method eq '') {
-#			push @ISSUES, [ 'ERROR', 'payment_blank', 'chkout.payby', 'Payment Method is blank, please select a payment method.' ];
-#			# $errors{'payment_unknown'} = Data::Dumper::Dumper($SITE::CART2);
-#			}
-#		elsif ($method eq 'PAYPALEC') {
-#			## eventually we should probably do some additional checks for PAYPALEC
-#			}
-#		elsif (defined $method) {
-#			## nothing to be done here. -- this handles PICKUP, PAYPAL, ZERO, etc.
-#			warn "NON-VALIDATED PAYMENT METHOD: $method\n";
-#			} 
-#		else {
-#			## nothing to be done here.
-#			push @ISSUES, [ 'ERROR', 'payment_unknown', 'chkout.payby', "Unknown Payment Method [$method]" ];
-#			}
-
-		my $thisRow = undef;
-		if (not &JSONAPI::hadError(\%R)) {
-			$R{'paymentQ'} = $CART2->paymentQ( 'insert', %{$v} );
-
-			## never let developers pass $$ onto the paymentQ (we might *eventually* let admin users do this)
-			if ($v->{'$$'}<=0 && $v->{'$#'}>0) { $v->{'$#'} = $v->{'$$'}; delete $v->{'$$'}; }
-
-			foreach my $row (@{$R{'paymentQ'}}) { 
-				if ($row->{'ID'} eq $ID) { $thisRow = $row; } 
-				}	
-			}
-
-		if (&JSONAPI::hadError(\%R)) {
-			}
-		elsif (not defined $thisRow) {
-			&JSONAPI::set_error(\%R,'iseerr',7835,sprintf("unknown logic failure - row was not be added to paymentQ"));
-			}
-		elsif ($v->{'TN'} eq 'PAYPALEC') {
-			if ($thisRow->{'ERR'}) {
-				&JSONAPI::append_msg_to_response(\%R,'apierr',3599,$thisRow->{'ERR'});
-				}
-			elsif ($thisRow->{'ACK'} eq 'Failure') {
-				if ($thisRow->{'ERR'} eq '') { $thisRow->{'ERR'} = sprintf("Paypal error[%d] %s",$thisRow->{'L_ERRORCODE0'},$thisRow->{'L_LONGMESSAGE0'}); }
-				if ($thisRow->{'ERR'} eq '') { $thisRow->{'ERR'} = "Paypal ACK=Failure but no ERR message set"; }
-				&JSONAPI::append_msg_to_response(\%R,'apierr',3598,$thisRow->{'ERR'});
-				}
-			elsif ($thisRow->{'ACK'} eq 'Success') {
-				&JSONAPI::append_msg_to_response(\%R,'success',0);
-				}
-			else {
-				&JSONAPI::append_msg_to_response(\%R,'iseerr',3592,sprintf('Unhandled internal ACK status:%s',$thisRow->{'ACK'}));
-				}
-			}
-		else {
-			## other payment type!
-			}
-
-		}
-	elsif ($v->{'cmd'} eq 'delete') {
-		# print STDERR "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!\n";
-		my $ID = $v->{'ID'};
-		my $thisRow = undef;
-
-		$R{'paymentQ'} = $CART2->paymentQ('sync');
-		foreach my $row (@{$R{'paymentQ'}}) { 
-			# print STDERR "ROW: ".Dumper($ID,$row);
-			if ($row->{'ID'} eq $ID) { $thisRow = $row; } 
-			}
-
-		if (not defined $thisRow) {
-			&JSONAPI::set_error(\%R,'apperr',7836,sprintf("logic failure - row did not exist in paymentQ"));
-			}
-		else {
-			$R{'paymentQ'} = $CART2->paymentQ('delete','ID'=>$ID);
-			}
-		$CART2->in_set('want/payby',undef);
-		}
 	else {
-		&JSONAPI::set_error(\%R,'apperr',7834,sprintf("logic failure - invalid cmd parameter"));
+		$self->paymentQCMD(\%R,$v->{'cmd'},$v);
 		}
-
 
 	if (not &JSONAPI::hadError(\%R)) {
-		$R{'paymentQ'} = $CART2->paymentQ( 'sync' );
+		$self->paymentQCMD( \%R, 'sync' );
+		$CART2->{'@PAYMENTQ'} = $self->paymentQ();
 		}
+	#print STDERR "cartPaymentQ Dump: ".Dumper($CART2->{'@PAYMENTQ'})."\n";
 
 	if (not &JSONAPI::hadError(\%R)) {
 		&JSONAPI::append_msg_to_response(\%R,'success',0);		
@@ -19309,10 +19396,94 @@ sub cartPromoCodeOrGiftcardOrCouponToCartAdd {
 			}
 		else {
 			## first thing we need to do is figure out
-			my ($errs) = $CART2->add_giftcard($v->{'giftcard'},[]);
+			## my ($errs) = $CART2->add_giftcard($v->{'giftcard'},[]);
 			## note: all giftcards "add" errors receive a generic 8202
+			## foreach my $e (@{$errs}) { push @ERRORS, "8202|youerr|$e"; }
 
-			foreach my $e (@{$errs}) { push @ERRORS, "8202|youerr|$e"; }
+
+			my $code = uc($v->{'giftcard'});
+			$code =~ s/[\s\t\n\r\-]+//gs;	# remove bad characters.
+			my $err = &GIFTCARD::checkCode($code);
+			if ($err>0) { 
+				push @ERRORS, "8203|The code you supplied [$code] is not a valid giftcard (reason: $err)";
+				}
+			elsif ($CART2->has_giftcard($code)) {
+				push @ERRORS, "8204|The giftcard $code is already in the cart.";
+				}
+			else {
+				my ($GCREF) = &GIFTCARD::lookup($self->username(),PRT=>$self->prt(),CODE=>$code);
+				# my ($newpayq) = &GIFTCARD::giftcard_to_payment($GCREF,'mask'=>0);
+				## returns the giftcard in fields suitable for paymentq format
+
+				my %newpayq = ();
+				$newpayq{'TN'} = 'GIFTCARD';
+				$newpayq{'GC'} = $GCREF->{'CODE'};	# giftcard code (can be masked)
+				#if ($options{'obfuscate'}) {
+				# $newpayq{'GC'} = &GIFTCARD::obfuscateCode($newpayq{'GC'},$options{'obfuscate'});
+				#	}
+				$newpayq{'GI'} = $GCREF->{'GCID'}; # giftcard gcid
+				$newpayq{'T$'} = $GCREF->{'BALANCE'}; # balance (if known) 
+				$newpayq{'GP'} = 'GNN'; 
+				$newpayq{'$#'} = $GCREF->{'BALANCE'};	# when they add this way, we always try and use the full balance.
+
+				if ($GCREF->{'CARDTYPE'} > 0) {
+					$newpayq{'GP'} = sprintf("X%1s%1s", 
+						(($GCREF->{'COMBINABLE'}&2)>0)?'Y':'N',
+						(($GCREF->{'CASHEQUIV'}&4)>0)?'Y':'N'
+						);
+					}
+		
+				if (not defined $GCREF) {
+					push @ERRORS, "8205|Could not find giftcard [$code]";
+					}
+				elsif ($GCREF->{'GCID'} == 0) {
+					push @ERRORS, "8206|Giftcard GCID [$code] not valid for this partition."; # 
+					}
+				elsif ($newpayq{'T$'}==0) {
+					push @ERRORS, "8207|Giftcard has no available balance.";
+					}
+				elsif ($newpayq{'T$'} < 0) {
+					push @ERRORS, "8208|Giftcard has a negative balance -- cannot use.";
+					}
+				else {
+					my ($X0,$X1,$X2) = split(//,$newpayq{'GP'});
+					my $HAS_NON_COMBINABLE = (&ZOOVY::is_true($X1))?1:0;
+			
+					my @NEW_PAYMENTQ = ();
+					push @NEW_PAYMENTQ, \%newpayq;		## always add the current card.
+					foreach my $payq (@{$self->paymentQ()}) {
+						if ($payq->{'TN'} ne 'GIFTCARD') {
+							# preserve non-giftcards
+							push @NEW_PAYMENTQ, $payq;
+							}
+						elsif ($payq->{'GI'} eq $newpayq{'GI'}) {
+							## attempting to re-add the same card - we can ignore this.
+							}
+						else {
+							## more giftcards.
+							my ($X0,$X1,$X2) = split(//,$payq->{'GP'});
+							if ($X2 eq 'Y') {	
+								## NON_COMBINABLE-- there can only be one!
+								if ($HAS_NON_COMBINABLE == 0) {
+									$HAS_NON_COMBINABLE++;  
+									push @NEW_PAYMENTQ, $payq;
+									}
+								else {
+									push @ERRORS, "820X|The giftcard $payq->{'GC'} is promotional and may not be combined with other promotional giftcards";
+									}
+								}					
+							}
+						}
+
+					$self->paymentQ(\@NEW_PAYMENTQ);
+
+					print STDERR "paymentQ: ".Dumper($self->paymentQ())."\n";
+					# $self->log(Dumper( $self, $newpayq ));
+					}
+				push @{$CART2->{'@CHANGES'}}, [ 'add_giftcard' ];
+				}
+
+			$CART2->__SYNC__();
 			}
 		}
 
@@ -21458,6 +21629,10 @@ sub cartSet {
 
 		foreach my $k (keys %{$v}) {
 			next if (substr($k,0,1) eq '_');	# skip reserved variables
+			next if ($k eq 'payment/CC');
+			next if ($k eq 'payment/CV');
+			next if ($k eq 'payment/MM');
+			next if ($k eq 'payment/YY');
 			$CART2->pu_set($k,$v->{$k});
 			}		
 		}
@@ -21757,156 +21932,6 @@ sub cartItemsInventoryVerify {
 
 
 
-
-
-
-#################################################################################
-##
-##
-## cartCreateOrder (you mean cartOrderCreate)
-
-=pod
-
-<API id="cartOrderCreate">
-<purpose></purpose>
-<input id="_cartid"></input>
-<response id="iama"> some string that makes sense to you</response>
-<response id="orderid"> 2011-01-1234</response>
-<response id="payment"> </response>
-
-</API>
-
-=cut
-
-sub cartOrderCreate {
-	my ($self,$v) = @_;
-
-
-	my %R = ();
-	my %payment = ();
-
-	## populate %payment 
- 	##ex : "chkout.payby":"CREDIT","payment.cc":"4111111111111111","payment.mm":"1","payment.yy":"2013","payment.cv":"123",
-	my $CART2 = undef;
-	if ($v->{'_cartid'} eq '') {
-		&JSONAPI::append_msg_to_response(\%R,'apperr',9998,"_cartid parameter is required for apiversion > 201310");			
-		}
-	else {
-		$CART2 = $self->cart2( $v->{'_cartid'} );
-		}
-	my ($redis) = &ZOOVY::getRedis($self->username(),0);
-	my $CARTID = $CART2->cartid();
-	my $UUID = $v->{'_uuid'};
-
-	if ($v->{'iama'}) {
-		$CART2->add_history(sprintf("%s\@%s: %s",$self->clientid(),$self->apiversion(),$v->{'iama'}));
-		}
-
-	## SITE::URL is required for SITE::EMAIL ->sendmail
-	my ($LM) = LISTING::MSGS->new( $self->username() );
-	my $webdbref = $self->webdb();
-
-	if ((not defined $webdbref->{'chkout_deny_ship_po'}) || ($webdbref->{'chkout_deny_ship_po'}==0)) {
-		## po boxes are no problem
-		}
-	elsif ($CART2->is_pobox()>0) {
-		# only check pobox address on shipping (not billing)
-		$LM->pooshmsg("STOP|+Shipping to PO boxes not allowed by business rules.");
-		}
-
-
-	if ($webdbref->{'banned'} ne '') {
-		## BANNED LIST
-		my $banned = 0;
-		foreach my $line (split(/[\n\r]+/,$webdbref->{'banned'})) {
-			my ($type,$match,$ts) = split(/\|/,$line);
-			$match = quotemeta($match);
-			$match =~ s/\\\*/.*/g; 
-			if (($type eq 'IP') && ($ENV{'REMOTE_ADDR'} =~ /^$match$/)) { $banned++; }
-			elsif (($type eq 'EMAIL') && ($CART2->in_get('bill/email') =~ /^$match$/i)) { $banned++; }
-			elsif (($type eq 'ZIP') && ($CART2->in_get('ship/postal') =~ /^$match$/)) { $banned++; }
-			elsif (($type eq 'ZIP') && ($CART2->in_get('bill/postal') =~ /^$match$/)) { $banned++; }
-			}
-		if ($banned) {
-			$LM->pooshmsg("STOP|+Order blocked by store settings - cannot process (this is not an error).");
-			}
-		}
-
-	if ($LM->can_proceed()) {
-		($LM) = $CART2->finalize_order( '*LM'=>$LM, 'app'=>sprintf("JSONAPI %s",$self->apiversion()), 'domain'=>$v->{'domain'} );
-
-		my ($BLAST) = BLAST->new($self->username(),$self->prt());
-		my ($TLC) = TLC->new('username'=>$self->username());
-		$R{'payment_status_msg'} = $BLAST->macros()->{'%PAYINFO%'} || "%PAYINFO% macro";
-		$R{'payment_status_msg'} = $TLC->render_html($R{'payment_status_msg'}, { '%ORDER'=>$CART2->jsonify() });
-		$R{'payment_status_detail'} = $BLAST->macros()->{'%PAYINSTRUCTIONS%'} || "%PAYINSTRUCTIONS% macro";
-		$R{'payment_status_detail'} = $TLC->render_html($R{'payment_status_detail'}, { '%ORDER'=>$CART2->jsonify() });
-		#$R{'payment_status_detail'} = $CART2->explain_payment_status('html'=>1,'format'=>'detail','*SITE'=>$self->_SITE());
-		#$R{'payment_status_msg'} = $CART2->explain_payment_status('html'=>1,'format'=>'summary','*SITE'=>$self->_SITE());
-		}
-
-	my $DISPLAY = 0;
-	$DISPLAY |= ($self->webdb()->{'chkout_roi_display'}) ?1:0;
-	$DISPLAY |= ($LM->has_win())?2:0;
-
-	$R{'version'} = $self->apiversion();
-	if ($self->apiversion() >= 201338) {
-		$R{'@TRACKERS'} = [];
-		$R{'orderid'} = $CART2->oid();
-		$R{'payment_status'} = $CART2->payment_status();
-		if (not $DISPLAY) {
-			push @{$R{'@TRACKERS'}}, { owner=>'nobody', 'script'=>'<!-- TRACKERS NOT OUTPUT DUE TO DISPLAY SETTING -->' };
-			}
-		elsif ($DISPLAY) {
-			foreach my $trackset (@{$self->_SITE()->conversion_trackers_as_array($CART2)}) {
-				my ($trackid, $trackhtml) = @{$trackset};
-				push @{$R{'@TRACKERS'}}, { owner=>$trackid, script=>$trackhtml };
-				}
-			}
-		}
-	else {
-		## on successfully paid, the output all the tracking codes.
-		$R{'orderid'} = $CART2->oid();
-		$R{'payment_status'} = $CART2->payment_status();
-		if ($DISPLAY) {
-			$R{'html:roi'} = $self->_SITE()->conversion_trackers($CART2);
-			}
-		else {
-			$R{'html:roi'} = '<!-- TRACKERS NOT OUTPUT DUE TO PAYMENT STATUS -->';
-			}
-		}
-
-	if ($LM->has_win()) {
-		&JSONAPI::append_msg_to_response(\%R,'success',0);		
-		$R{'order'} = $CART2->make_public()->jsonify();
-		$CART2->empty(0xFF);   
-		}
-	elsif (my $iseref = $LM->had(['ISE'])) {
-		&JSONAPI::append_msg_to_response(\%R,"apierr",200,$iseref->{'+'});
-		if ($iseref->{'OID'}) {
-			&JSONAPI::append_msg_to_response(\%R,'success',0);
-			$CART2->empty(0xFF);
-			}
-		}
-	elsif (my $appref = $LM->had(['ERROR'])) {
-		&JSONAPI::append_msg_to_response(\%R,"apperr",500,$appref->{'+'});
-		}
-	elsif ($appref = $LM->had(['STOP'])) {
-		&JSONAPI::append_msg_to_response(\%R,"youerr",501,$appref->{'+'});
-		}
-	else {
-		my @OUTPUT = ();
-		foreach my $msg (@{$LM->msgs()}) {
-			my ($ref,$status) = LISTING::MSGS::msg_to_disposition($msg);
-			next if ($ref->{'_'} eq 'INFO');
-			push @OUTPUT, sprintf("%s[%s] ",$ref->{'_'},$ref->{'+'});
-			}
-		&JSONAPI::append_msg_to_response(\%R,"apierr",202,"UNHANDLED ERROR(s): ".join(";",@OUTPUT));
-		}
-
-
-	return(\%R);
-	}
 
 
 
@@ -22265,7 +22290,6 @@ sub adminPartner {
 
 #################################################################################
 ##
-##
 ## cartCreateOrder (you mean cartOrderCreate)
 
 =pod
@@ -22273,72 +22297,298 @@ sub adminPartner {
 <API id="adminOrderCreate">
 <purpose></purpose>
 <input id="_cartid"></input>
+<input id="@PAYMENTS">
+@PAYMENTS : [
+  'insert?ID=xyz&TN=credit',
+  'insert?ID=xyz&TN=credit'
+]
+</input>
 <response id="orderid"> 2011-01-1234</response>
 <response id="payment"> </response>
+</API>
 
+<API id="cartOrderCreate">
+<purpose></purpose>
+<input id="_cartid"></input>
+<response id="iama"> some string that makes sense to you</response>
+<response id="orderid"> 2011-01-1234</response>
+<response id="payment"> </response>
+</API>
+
+<API id="cartOrderStatus">
+<purpose></purpose>
+<input id="cartid"></input>
+<input id="orderid"></input>
+<response id="orderid"> 2011-01-1234</response>
+<response id="payment"> </response>
 </API>
 
 =cut
 
-sub adminOrderCreate {
+sub cartOrder {
 	my ($self,$v) = @_;
 
 	my %R = ();
+	$R{'version'} = $self->apiversion();
 
 	my %payment = ();
 	## populate %payment 
  	##ex : "chkout.payby":"CREDIT","payment.cc":"4111111111111111","payment.mm":"1","payment.yy":"2013","payment.cv":"123",
 
+	my $redis = &ZOOVY::getRedis($self->username(),0);
+	my $UUID = $v->{'_uuid'};
 	my $CART2 = undef;
+	my ($CARTID,$OID) = (undef,undef);
+
 	if ($v->{'_cartid'} eq '') {
-		&JSONAPI::append_msg_to_response(\%R,'apperr',9998,"_cartid parameter is required for apiversion > 201310");			
+		&JSONAPI::set_error(\%R,'apperr',9998,"_cartid parameter is required for apiversion > 201310");			
+		}
+	elsif ($v->{'_cartid'} =~ /^(.*?)\$\$(.*?)$/) {
+		## reallylongcartid$$orderid
+		($CARTID,$OID) = ($1,$2);
+		$CART2 = CART2->new_from_oid($self->username(),$OID,'create'=>0);
+		if (not defined $CART2) {
+			}
+		elsif ($CART2->cartid() ne $CARTID) {
+			$CART2 = undef;
+			&JSONAPI::set_error(\%R,'iseerr',9997,sprintf("requested cart/order \"%s\" is not valid.",$v->{'_cartid'}));
+			}
 		}
 	else {
 		$CART2 = $self->cart2( $v->{'_cartid'} );
+		$CARTID = $CART2->cartid();
+		if ($v->{'iama'}) {
+			## used by cartOrderCreate
+			$CART2->add_history(sprintf("%s\@%s: %s",$self->clientid(),$self->apiversion(),$v->{'iama'}));
+			}
 		}
 
-	$CART2->in_set('want/payby','PAYMENTQ');
+	my $REDIS_ASYNC_KEY = sprintf("FINALIZE.%s.CART.%s",$self->username(), $CARTID );
+	print STDERR "REDIS_ASYNC_KEY: $REDIS_ASYNC_KEY\n";
 
-	# open F, ">>/dev/shm/payment.dmp"; print F Dumper(\%payment,$v); close F;
-	# open F, ">/tmp/admin.dmp"; print F Dumper($CART2); close F;
 
 	## SITE::URL is required for SITE::EMAIL ->sendmail
+	my $webdbref = $self->webdb();
+	if (&JSONAPI::hadError(\%R)) {
+		}
+	elsif ($v->{'_cmd'} eq 'cartOrderCreate') {
+		if ((not defined $webdbref->{'chkout_deny_ship_po'}) || ($webdbref->{'chkout_deny_ship_po'}==0)) {
+			## po boxes are no problem
+			}
+		elsif ($CART2->is_pobox()>0) {
+			# only check pobox address on shipping (not billing)
+			&JSONAPI::set_error(9996,'youerr','Shipping to PO boxes not allowed by business rules.');
+			}
+
+		if ($webdbref->{'banned'} ne '') {
+			## BANNED LIST
+			my $banned = 0;
+			foreach my $line (split(/[\n\r]+/,$webdbref->{'banned'})) {
+				my ($type,$match,$ts) = split(/\|/,$line);
+				$match = quotemeta($match);
+				$match =~ s/\\\*/.*/g; 
+				if (($type eq 'IP') && ($ENV{'REMOTE_ADDR'} =~ /^$match$/)) { $banned++; }
+				elsif (($type eq 'EMAIL') && ($CART2->in_get('bill/email') =~ /^$match$/i)) { $banned++; }
+				elsif (($type eq 'ZIP') && ($CART2->in_get('ship/postal') =~ /^$match$/)) { $banned++; }
+				elsif (($type eq 'ZIP') && ($CART2->in_get('bill/postal') =~ /^$match$/)) { $banned++; }
+				}
+			if ($banned) {
+				&JSONAPI::set_error(9996,'youerr','Order blocked by store settings - cannot process (this is not an error).');
+				}
+			}
+		}
+
+
+	if (&JSONAPI::hadError(\%R)) {
+		}
+	elsif ((defined $v->{'@PAYMENTS'}) && (ref($self->{'@PAYMENTS'}) eq 'ARRAY')) {
+		## we're setting payments passed into the cart
+		#@PAYMENTS : [
+		#  'insert?ID=xyz&TN=credit',
+ 		# 'insert?ID=xyz&TN=credit'
+		# ]
+		my @CMDS = ();
+		&JSONAPI::parse_macros($self,$v->{'@PAYMENTS'},\@CMDS);
+		foreach my $CMDSET (@CMDS) {
+			my ($VERB, $pref) = @{$CMDSET};
+			$self->paymentQCMD(\%R,$VERB,$pref);
+			}
+		$CART2->{'@PAYMENTQ'} = $self->paymentQ();
+		}
+
+	##
+	## request processing starts here
+	##
 	my ($LM) = LISTING::MSGS->new( $self->username() );
-	($LM) = $CART2->finalize_order('*LM'=>$LM, 'app'=>sprintf("JSONAPI (%s) %s",$self->clientid(),$self->apiversion()) );
-	# print STDERR "LM: ".Dumper($LM);
+	if (&JSONAPI::hadError(\%R)) {
+		}
+	elsif ($v->{'_cmd'} eq 'cartOrderStatus') {
+		## 
+		$redis->append($REDIS_ASYNC_KEY,sprintf("\nPOLLED|%s",time()));
 
-	my ($BLAST) = BLAST->new($self->username(),$self->prt());
-	my ($TLC) = TLC->new('username'=>$self->username());
-	$R{'payment_status_msg'} = $BLAST->macros()->{'%PAYINFO%'} || "%PAYINFO% macro";
-	$R{'payment_status_msg'} = $TLC->render_html($R{'payment_status_msg'}, { '%ORDER'=>$CART2->jsonify() });
-	$R{'payment_status_detail'} = $BLAST->macros()->{'%PAYINSTRUCTIONS%'} || "%PAYINSTRUCTIONS% macro";
-	$R{'payment_status_detail'} = $TLC->render_html($R{'payment_status_detail'}, { '%ORDER'=>$CART2->jsonify() });
-	#$R{'payment_status_detail'} = $CART2->explain_payment_status('html'=>1,'format'=>'detail','*SITE'=>$self->_SITE());
-	#$R{'payment_status_msg'} = $CART2->explain_payment_status('html'=>1,'format'=>'summary','*SITE'=>$self->_SITE());
+		$R{'@MSGS'} = [];
+		my ($redis) = &ZOOVY::getRedis($self->username(),0);
+		$R{'finished'} = 0;
+		my ($POLLED_COUNT) = 0;
+		my ($FINISHED) = 0;
+		foreach my $line (split(/[\n]+/,$redis->get($REDIS_ASYNC_KEY))) {
+			my %MSG = ();
+			($MSG{'_'},$MSG{'+'}) = split(/\|/,$line,2);
 
-	my $DISPLAY = 0;
-	$DISPLAY |= ($self->webdb()->{'chkout_roi_display'}) ?1:0;
-	$DISPLAY |= ($LM->has_win())?2:0;
-	$R{'version'} = $self->apiversion();
-	if ($self->apiversion() >= 201338) {
-		$R{'@TRACKERS'} = [];
+			if ($MSG{'_'} eq 'POLLED') { $POLLED_COUNT++; }
+			next if ($MSG{'_'} eq 'POLLED');
+
+			if ($MSG{'_'} eq 'FINISHED') { $R{'finished'} = int($MSG{'+'}); }
+			# my ($msgref,$status) = LISTING::MSGS::msg_to_disposition($line);
+			if (substr($MSG{'+'},0,1) eq '+') { $MSG{'+'} = substr($MSG{'+'},1); }
+			push @{$R{'@MSGS'}}, \%MSG;
+			}
+
+
+		if ((defined $CART2) && ($R{'finished'})) {
+			$R{'payment_status'} = $CART2->payment_status();
+			$R{'orderid'} = $CART2->oid();
+			$R{'finished'} = $R{'finished'};
+			$LM->pooshmsg("SUCCESS|+Finished $OID");
+			$redis->append($REDIS_ASYNC_KEY,sprintf("\nWIN|cart2 exists, polls[%d].",$POLLED_COUNT));
+			}
+		elsif ($POLLED_COUNT>10) {
+			## a failsafe to stop polling.
+			$R{'payment_status'} = '911';
+			$R{'orderid'} = $OID;
+			$R{'finished'} = time();
+			$LM->pooshmsg("FAILURE|+Max polling reached.");
+			$redis->append($REDIS_ASYNC_KEY,sprintf("\nERROR|max polling [%d] was reached.",$POLLED_COUNT));
+			## 
+			## &JSONAPI::set_error(\%R,'apierr',911,'max polling was reached - order status is unknown');
+			}
+
+		$R{'status-cartid'} = $v->{'_cartid'};		## jt needs this to make his code easy.
+
+		print STDERR 'CARTORDERSTATUS: '.Dumper(\%R)."\n";
+		}
+	elsif (($v->{'async'}) && (not $self->is_spooler())) {
+		$R{'async'} = $v->{'async'};
+		$CART2->in_set('want/payby','PAYMENTQ');
+		my %SERIAL = ();
+		$SERIAL{'USERNAME'} = $self->username();
+		$SERIAL{'LUSER'}  = $self->luser();
+		$SERIAL{'APIVERSION'} = $self->apiversion();
+		$SERIAL{'SESSION'} = $self->session();
+		$SERIAL{'CLIENTID'} = $self->clientid();
+		$SERIAL{'DEVICEID'} = $self->deviceid();
+		$SERIAL{'DOMAIN'} = $self->domain();
+		$SERIAL{'PRT'} = $self->prt();
+		$SERIAL{'ASYNC'} = $v->{'async'};
+		$SERIAL{'REDIS_ASYNC_KEY'} = $REDIS_ASYNC_KEY;
+		$SERIAL{'json:@PAYMENTQ'} = JSON::XS->new->ascii->pretty->allow_nonref->encode($self->paymentQ());
+
+		my $EREFID = $CART2->in_get('want/erefid');
+		if ((not defined $EREFID) || ($EREFID eq '')) { $EREFID = $CART2->in_get('mkt/erefid'); }
+		if (not defined $EREFID) { $EREFID = $CART2->cartid(); }
+
+		$R{'previous-cartid'} = $CARTID;
+		my ($OID) = &CART2::next_id($self->username(),0,$EREFID);
+		$CART2->in_set('our/orderid',$OID);	
+		$R{'orderid'} = $OID;
+		$R{'status-cartid'} = sprintf("%s\$\$%s",$CARTID,$OID);
+		
+		$v->{'*CART2'} = $CART2;
+		$SERIAL{'body'} = JSON::XS->new->ascii->pretty->allow_nonref->convert_blessed->encode($v);
+
+		if ($redis->append($REDIS_ASYNC_KEY,sprintf("\nSTART|%d\nORDERID|%s",time(),$OID))>0) {
+			## the line below apparently has zero effect (contrary to the docs)
+ 			## $SERIAL{'spooler'} = '/dev/shm/spooler';
+			## we should probably test permissions here!
+			## at, priority
+
+			try {
+				#require Net::uwsgi;
+				#Net::uwsgi::uwsgi_spool('/var/run/uwsgi-spooler.sock',\%SERIAL);
+				uwsgi::spool(\%SERIAL);
+				$redis->append($REDIS_ASYNC_KEY,sprintf("\nSPOOLED"));
+				}
+			catch {
+				&JSONAPI::append_msg_to_response(\%R,"iseerr",212,"spooler error - $_");
+				$redis->append($REDIS_ASYNC_KEY,sprintf("\nSPOOLER-ERROR|$_"));
+				}
+			finally {
+				if (not @_) {
+					&JSONAPI::append_msg_to_response(\%R,"processing",200,"request is processing");
+					}	
+				};
+			}
+		else {
+			$redis->append($REDIS_ASYNC_KEY,sprintf("\n***DID-NOT-SPOOL***"));
+			}
+
+		$R{'finished'} = 0;
+		}
+	elsif ($self->is_spooler()) {
+		## spooler checkout!
+		$CART2->in_set('want/payby','PAYMENTQ');
+		($LM) = $CART2->finalize_order( 
+			'*LM'=>$LM, 
+			'app'=>sprintf("SPOOLER %s",$self->apiversion()), 
+			'domain'=>$self->domain(),
+			'R_A_K'=>$REDIS_ASYNC_KEY,
+			);		
+		}
+	elsif ($self->apiversion()>201402) {	
+		&JSONAPI::set_error(\%R,'apperr',9293,'versions 201403 and later require async=1 flag');
+		}
+	else {
+		## a conventional, non-async, non-spooler checkout
+		$CART2->in_set('want/payby','PAYMENTQ');
+		($LM) = $CART2->finalize_order( 
+			'*LM'=>$LM, 
+			'app'=>sprintf("JSONAPI %s",$self->apiversion()), 
+			'domain'=>$v->{'domain'},
+			'R_A_K'=>$REDIS_ASYNC_KEY,
+			);
+
+		my ($BLAST) = BLAST->new($self->username(),$self->prt());
+		my ($TLC) = TLC->new('username'=>$self->username());
+		$R{'payment_status_msg'} = $BLAST->macros()->{'%PAYINFO%'} || "%PAYINFO% macro";
+		$R{'payment_status_msg'} = $TLC->render_html($R{'payment_status_msg'}, { '%ORDER'=>$CART2->jsonify() });
+		$R{'payment_status_detail'} = $BLAST->macros()->{'%PAYINSTRUCTIONS%'} || "%PAYINSTRUCTIONS% macro";
+		$R{'payment_status_detail'} = $TLC->render_html($R{'payment_status_detail'}, { '%ORDER'=>$CART2->jsonify() });
+		$R{'finished'} = time();
+
 		$R{'orderid'} = $CART2->oid();
 		$R{'payment_status'} = $CART2->payment_status();
-		if (not $DISPLAY) {
+		}
+
+	##
+	## now output trackers (if appropriate)
+	##
+	my $DISPLAY_TRACKERS = 0;
+	$DISPLAY_TRACKERS |= ($self->webdb()->{'chkout_roi_display'}) ?1:0;
+	$DISPLAY_TRACKERS |= ($LM->has_win())?2:0;
+
+	if (($v->{'async'}) || (not $R{'finished'}) || ($self->is_spooler())) {
+		}
+	elsif (&JSONAPI::hadError(\%R)) {
+		}
+	elsif (not $R{'finished'}) {
+		## don't display trackers till we're finished
+		}
+	elsif ($self->apiversion() >= 201338) {
+		$R{'@TRACKERS'} = [];
+		if (not $DISPLAY_TRACKERS) {
 			push @{$R{'@TRACKERS'}}, { owner=>'nobody', 'script'=>'<!-- TRACKERS NOT OUTPUT DUE TO DISPLAY SETTING -->' };
 			}
-		elsif ($DISPLAY) {
+		elsif ($DISPLAY_TRACKERS) {
 			foreach my $trackset (@{$self->_SITE()->conversion_trackers_as_array($CART2)}) {
 				my ($trackid, $trackhtml) = @{$trackset};
 				push @{$R{'@TRACKERS'}}, { owner=>$trackid, script=>$trackhtml };
 				}
 			}
+		$redis->append($REDIS_ASYNC_KEY,sprintf("\nTRACKERS|%s.%d",time(),$R{'finished'}));
 		}
 	else {
 		## on successfully paid, the output all the tracking codes.
-		$R{'orderid'} = $CART2->oid();
-		$R{'payment_status'} = $CART2->payment_status();
-		if ($DISPLAY) {
+		if ($DISPLAY_TRACKERS) {
 			$R{'html:roi'} = $self->_SITE()->conversion_trackers($CART2);
 			}
 		else {
@@ -22346,16 +22596,51 @@ sub adminOrderCreate {
 			}
 		}
 
-	if ($LM->has_win()) {
+	##
+	##
+	##
+	if ($v->{'_cmd'} eq 'cartOrderStatus') {
+		## an entirely different way of handling responses!
+		if (not $R{'finished'}) {
+			}
+		elsif ((not defined $CART2) || (ref($CART2) ne 'CART2')) {
+			$redis->append($REDIS_ASYNC_KEY,"\nERROR|CART2 is not defined");
+			}
+		else {
+			my ($BLAST) = BLAST->new($self->username(),$self->prt());
+			my ($TLC) = TLC->new('username'=>$self->username());
+			$R{'payment_status_msg'} = $BLAST->macros()->{'%PAYINFO%'} || "%PAYINFO% macro";
+			$R{'payment_status_msg'} = $TLC->render_html($R{'payment_status_msg'}, { '%ORDER'=>$CART2->jsonify() });
+			$R{'payment_status_detail'} = $BLAST->macros()->{'%PAYINSTRUCTIONS%'} || "%PAYINSTRUCTIONS% macro";
+			$R{'payment_status_detail'} = $TLC->render_html($R{'payment_status_detail'}, { '%ORDER'=>$CART2->jsonify() });
+
+			$R{'order'} = $CART2->make_public()->jsonify();
+			}
+		}
+	elsif ($v->{'async'}) {
+		## an entirely different way of handling responses!
+		}
+	elsif ($self->apiversion()>201402) {
+		## ALL OLD NON-ASYNC CHECKOUT METHODS	
+		$CART2->empty(0xFF); 
+		}
+	elsif ($LM->has_win()) {
 		&JSONAPI::append_msg_to_response(\%R,'success',0);		
-		$CART2->empty(0xFF);   
+		$R{'order'} = $CART2->make_public()->jsonify();
+		$CART2->empty(0xFF); 
 		}
 	elsif (my $iseref = $LM->had(['ISE'])) {
-		if ($iseref->{'OID'}) { $CART2->empty(0xFF); }
-		&JSONAPI::append_msg_to_response(\%R,"apierr",200,$iseref->{'+'});
+		&JSONAPI::set_error(\%R,"apierr",200,$iseref->{'+'});
+		if ($iseref->{'OID'}) { 
+			$CART2->empty(0xFF); 
+			if ($v->{'_cmd'} eq 'cartOrderCreate') { &JSONAPI::append_msg_to_response(\%R,'success',0); }
+			}
 		}
 	elsif (my $appref = $LM->had(['ERROR'])) {
-		&JSONAPI::append_msg_to_response(\%R,"apperr",201,$appref->{'+'});
+		&JSONAPI::set_error(\%R,"apperr",201,$appref->{'+'});
+		}
+	elsif ($appref = $LM->had(['STOP'])) {
+		&JSONAPI::set_error(\%R,"youerr",501,$appref->{'+'});
 		}
 	else {
 		my @OUTPUT = ();
@@ -22364,10 +22649,8 @@ sub adminOrderCreate {
 			next if ($ref->{'_'} eq 'INFO');
 			push @OUTPUT, sprintf("%s[%s] ",$ref->{'_'},$ref->{'+'});
 			}
-		&JSONAPI::append_msg_to_response(\%R,"apierr",202,"UNHANDLED ERROR(s): ".join(";",@OUTPUT));
+		&JSONAPI::set_error(\%R,"apierr",202,"UNHANDLED ERROR(s): ".join(";",@OUTPUT));
 		}
-
-	print STDERR Dumper(\%R);
 
 	return(\%R);
 	}
@@ -23799,7 +24082,7 @@ sub adminDebugShippingPromoTaxes {
 			$CARTID = $1; 
 			}
 		print STDERR "USING CART:$CARTID PRT:$PRT\n";
-		$CART2 = CART2->new_persist($USERNAME,$PRT,$CARTID,'is_fresh'=>0);
+		$CART2 = CART2->new_persist($USERNAME,$PRT,$CARTID,'is_fresh'=>0,'*SESSION'=>$self);
 		if ((not defined $CART2) && (ref($CART2) ne 'CART2')) {
 			&JSONAPI::set_error(\%R, 'youerr', 7233, "Cart:$CARTID Prt:$PRT does not exist");
 			}

@@ -56,7 +56,7 @@ sub amazon_handler {
 		}
 	elsif (not defined $order_id) {	
 		require CART2;
-		my ($order_id) = CART2::next_id($SITE->username(),1);
+		my ($order_id) = CART2::next_id($SITE->username(),0,$amzorderid);
 		$SITE::CART2->in_set('our/orderid',$order_id);
 		$SITE::CART2->in_set('mkt/amazon_orderid',$amzorderid);
 
