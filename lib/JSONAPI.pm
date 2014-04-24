@@ -2813,9 +2813,18 @@ sub hasFlag {
 sub deprecated {
 	my ($self,$R,$version) = @_;
 
-	if ($self->apiversion() >= $version) {
-		&JSONAPI::set_error($R,'apperr',666,"Deprecated");		
-		return(1);
+	if ($version > 0) {
+		if ($self->apiversion() >= $version) {
+			&JSONAPI::set_error($R,'apperr',666,"Deprecated");		
+			return(1);
+			}
+		}
+	else {
+		$version = 0-$version;
+		if ($self->apiversion() <= $version) {
+			&JSONAPI::set_error($R,'apperr',666,"Deprecated - please upgrade to $version");		
+			return(1);
+			}
 		}
 	return(0);
 	}
@@ -8161,7 +8170,7 @@ sub adminProduct {
 			}
 
 		if ($v->{'variations'}) {
-			$R{'@variations'} = $P->pogs();
+			$R{'@variations'} = $P->fetch_pogs();
 			}
 
 		my %PIDINVSUMMARY = ();
@@ -18414,6 +18423,16 @@ http://search.cpan.org/~drtech/Search-Elasticsearch-1.10/lib/Search/Elasticsearc
 <input hint="mode:elastic-*" id="query"> {'text':{ 'profile':'DEFAULT' } };</input>
 <input hint="mode:elastic-*" id="query"> {'text':{ 'profile':['DEFAULT','OTHER'] } }; ## this would succeed, </input>
 
+<input hint="mode:elastic-mlt" id="id">the document id you want to use for the mlt operation</input>
+<input hint="mode:elastic-mlt" id="more_like_this">
+"more_like_this" : {
+        "fields" : ["name.first", "name.last"],
+        "like_text" : "text like this one",
+        "min_term_freq" : 1,
+        "max_query_terms" : 12
+    }
+http://www.elasticsearch.org/guide/en/elasticsearch/reference/current/query-dsl-mlt-query.html
+</input>
 
 <response id="size">100 # number of results</response>
 <response id="sort">['_score','base_price','prod_name']</response>
@@ -18499,7 +18518,7 @@ sub appPublicSearch {
 		## size            => $no_of_results
 		if (defined $v->{'size'}) {	$params{'size'} = $v->{'size'};	}
 		##  sort            => ['_score',$field_1]
-		if (defined $v->{'sort'}) {	$params{'sort'} = $v->{'sort'};	}
+		if (defined $v->{'sort'}) {	$params{'body'}->{'sort'} = $v->{'sort'};	}
 
 # 		$v->{'scroll'} = '1m';
 		if (defined $v->{'scroll'}) { 	$params{'scroll'} = $v->{'scroll'}; }
@@ -18508,6 +18527,8 @@ sub appPublicSearch {
 
 		if (defined $params{'body'}) {
 			## require body->query or body->filter
+			}
+		elsif ($v->{'mode'} eq 'elastic-mlt') {
 			}
 		else {
 			&JSONAPI::append_msg_to_response(\%R,"apperr",18233,"search mode:$v->{'mode'} requires either query and/or filter parameter.");
@@ -18524,7 +18545,7 @@ sub appPublicSearch {
 					}
 				else {
 					delete $params{'timeout'}; ## count doesn't allow a timeout
-					$params{'ignore'} => [400,404];
+					$params{'ignore'} = [400,404];
 					try { 
 						$R = $es->count( %params ); 
 						} 
@@ -18563,6 +18584,13 @@ sub appPublicSearch {
 					$params{'id'} = $v->{'id'};
 					delete $params{'timeout'};
 					delete $params{'size'};
+					foreach my $k (qw(boost_terms max_doc_freq max_query_terms max_word_length
+						min_doc_freq min_term_freq min_word_length mlt_fields percent_terms_to_match routing
+						search_from search_indices search_query_hint search_scroll search_size search_source
+						search_type search_types stop_words)) {
+						if (defined $v->{$k}) { $params{$k} = $v->{$k}; }
+						}
+
 					eval { $R = $es->mlt(%params) };
 					if ($@) { $R = $@; }
 					}
@@ -18585,6 +18613,9 @@ sub appPublicSearch {
 			elsif ($v->{'mode'} eq 'elastic-search') {
 				# mode:elastic-search
 				$params{'timeout'} = '5s';
+
+				print STDERR 'params: '.Dumper(\%params);
+
 				eval { $R = $es->search(%params) };
 				if ($@) { $R = $@; }
 				}
@@ -19208,6 +19239,7 @@ sub cartPaymentQ {
 
 	my %R = ();
 	my $CART2 = undef;
+	my $webdbref = $self->webdb();
 
 	if ($v->{'_cartid'} eq '') {
 		&JSONAPI::append_msg_to_response(\%R,'apperr',9998,"_cartid parameter is required for apiversion > 201310");			
@@ -19220,90 +19252,6 @@ sub cartPaymentQ {
 	if (&hadError(\%R)) {
 		}
 	elsif (not &JSONAPI::validate_required_parameter(\%R,$v,'cmd',['reset','delete','insert','sync'])) {
-		}
-	elsif ($v->{'cmd'} eq 'sync') {
-		## nothing to do here.
-		}
-	elsif ($v->{'cmd'} eq 'reset') {
-		$R{'paymentQ'} = $CART2->paymentQ('reset');
-		}
-	elsif (not &JSONAPI::validate_required_parameter(\%R,$v,'ID')) {
-		}
-	elsif ($v->{'cmd'} eq 'insert') {
-
-		my $ID = $v->{'ID'};
-
-		if ($self->apiversion()<201314) {
-			## no error checking.
-			}
-		elsif (not &JSONAPI::validate_required_parameter(\%R,$v,'TN')) {
-			}
-		elsif ($v->{'TN'} eq 'CREDIT') {
-			## credit cards require some special parameters
-			if (not &JSONAPI::validate_required_parameter(\%R,$v,'CC')) {
-				}
-			elsif (not &JSONAPI::validate_required_parameter(\%R,$v,'YY')) {
-				}
-			elsif (not &JSONAPI::validate_required_parameter(\%R,$v,'MM')) {
-				}
-			}
-			
-		my $thisRow = undef;
-		if (not &JSONAPI::hadError(\%R)) {
-			$R{'paymentQ'} = $CART2->paymentQ( 'insert', %{$v} );
-
-			## never let developers pass $$ onto the paymentQ (we might *eventually* let admin users do this)
-			if ($v->{'$$'}<=0 && $v->{'$#'}>0) { $v->{'$#'} = $v->{'$$'}; delete $v->{'$$'}; }
-
-			foreach my $row (@{$R{'paymentQ'}}) { 
-				if ($row->{'ID'} eq $ID) { $thisRow = $row; } 
-				}	
-			}
-
-		if (&JSONAPI::hadError(\%R)) {
-			}
-		elsif (not defined $thisRow) {
-			&JSONAPI::set_error(\%R,'iseerr',7835,sprintf("unknown logic failure - row was not be added to paymentQ"));
-			}
-		elsif ($v->{'TN'} eq 'PAYPALEC') {
-			if ($thisRow->{'ERR'}) {
-				&JSONAPI::append_msg_to_response(\%R,'apierr',3599,$thisRow->{'ERR'});
-				}
-			elsif ($thisRow->{'ACK'} eq 'Failure') {
-				if ($thisRow->{'ERR'} eq '') { $thisRow->{'ERR'} = sprintf("Paypal error[%d] %s",$thisRow->{'L_ERRORCODE0'},$thisRow->{'L_LONGMESSAGE0'}); }
-				if ($thisRow->{'ERR'} eq '') { $thisRow->{'ERR'} = "Paypal ACK=Failure but no ERR message set"; }
-				&JSONAPI::append_msg_to_response(\%R,'apierr',3598,$thisRow->{'ERR'});
-				}
-			elsif ($thisRow->{'ACK'} eq 'Success') {
-				&JSONAPI::append_msg_to_response(\%R,'success',0);
-				}
-			else {
-				&JSONAPI::append_msg_to_response(\%R,'iseerr',3592,sprintf('Unhandled internal ACK status:%s',$thisRow->{'ACK'}));
-				}
-			}
-		else {
-			## other payment type!
-			}
-
-		}
-	elsif ($v->{'cmd'} eq 'delete') {
-		# print STDERR "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!\n";
-		my $ID = $v->{'ID'};
-		my $thisRow = undef;
-
-		$R{'paymentQ'} = $CART2->paymentQ('sync');
-		foreach my $row (@{$R{'paymentQ'}}) { 
-			# print STDERR "ROW: ".Dumper($ID,$row);
-			if ($row->{'ID'} eq $ID) { $thisRow = $row; } 
-			}
-
-		if (not defined $thisRow) {
-			&JSONAPI::set_error(\%R,'apperr',7836,sprintf("logic failure - row did not exist in paymentQ"));
-			}
-		else {
-			$R{'paymentQ'} = $CART2->paymentQ('delete','ID'=>$ID);
-			}
-		$CART2->in_set('want/payby',undef);
 		}
 	else {
 		$self->paymentQCMD(\%R,$v->{'cmd'},$v);
@@ -20311,6 +20259,13 @@ sub appBuyerCreate {
 		if (($v->{'_vendor'}) && ($self->apiversion()<201402)) { 
 			$script = $v->{'_vendor'}; 
 			}
+		if (($v->{'vendor'}) && ($self->apiversion()<201402)) { 
+			## i think this is the right one.
+			$script = $v->{'vendor'}; 
+			}
+		if ((not defined $v->{'_script'}) && ($v->{'vendor'} || $v->{'_vendor'}) && ($self->apiversion()>201402) ) { 
+			&JSONAPI::append_msg_to_response($R,'apperr',74229,'_script parameter is required (historically called /vendor/)');
+			}
 
 		my ($cfg) = $self->loadPlatformJSON('appBuyerCreate',$script,$v,$R);
 		$R->{'%VARS'} = {};
@@ -20366,7 +20321,7 @@ sub appBuyerCreate {
 			}
 		elsif (not &JSONAPI::validate_required_parameter($R,$v,'email')) {
 			}
-		elsif (&JSONAPI::customer_exists($self->username(),$v->{'email'},$self->prt())) {
+		elsif (&CUSTOMER::customer_exists($self->username(),$v->{'email'},$self->prt())) {
 			## 665 is ALWAYS 'customer always exists'
 			&JSONAPI::append_msg_to_response($R,'youerr',665,'Customer already exists.');
 			}
@@ -24147,10 +24102,13 @@ sub adminDebugShippingPromoTaxes {
 	if (&JSONAPI::hadError(\%R)) {
 		}
 	elsif ($v->{'_cmd'} eq 'adminDebugPromotion') {
+
       if ($CART2->is_order()) {
          $lm->pooshmsg("WARN|+Appears we have an order, converting back into a cart");
          delete $CART2->{'ODBID'};
          }
+
+		$CART2->is_debug(0xFF);
 		$CART2->msgs($lm);
       # $CART2->is_debug($DEBUG);
       push @{$CART2->{'@CHANGES'}}, [ 'DEBUG' ];
@@ -24166,7 +24124,7 @@ sub adminDebugShippingPromoTaxes {
 		}
 	elsif ($v->{'_cmd'} eq 'adminDebugShipping') {
 
-		$lm = $CART2->msgs($lm);
+ 		$lm = $CART2->msgs($lm);
 		$lm->pooshmsg("INFO|+Requesting shipmethods (setting debug to 0xFF)");
 		$CART2->is_debug(0xFF);
 		$CART2->shipmethods('flush'=>1);
@@ -24193,6 +24151,8 @@ sub adminDebugShippingPromoTaxes {
 			push @RESULTS, $shipmethod;
 			}
 		$R{'@RESULTS'} = \@RESULTS;
+
+		## open F, ">/tmp/msgs"; print F Dumper(\%R); close F;
 		}
 	elsif ($v->{'_cmd'} eq 'adminDebugTaxes') {
 		my ($webdbref) = my $webdb = $self->webdb();
@@ -24282,27 +24242,14 @@ sub adminConfigDetail {
 		}
 
 
-	if ($v->{'notifications'}) {
-		if (not defined $webdbref->{'%NOTIFICATIONS'}) { $webdb->{"%NOTIFICATIONS"} = {}; }
+	if ( not $v->{'notifications'}) {
+		}
+	elsif ($self->deprecated(\%R,-201402) ) {
+		}
+	elsif ($v->{'notifications'}) {
 		my @EVENTS = ();
-
-		my @DEFAULTS = (
-			'ENQUIRY','ERROR','ALERT','APIERR','CUSTOMER.ORDER.CANCEL','INV.NAVCAT.SHOW','INV.NAVCAT.HIDE','INV.NAVCAT.FAIL',
-			);
-		foreach my $default (@DEFAULTS) {
-			if (not defined $webdbref->{'%NOTIFICATIONS'}->{$default}) {		
-				$webdbref->{'%NOTIFICATIONS'}->{$default} = [ 'verb=task' ];
-				}
-			}
-
-		foreach my $EVENT (sort keys %{$webdbref->{'%NOTIFICATIONS'}}) {
-			foreach my $ROWSTR (@{$webdbref->{'%NOTIFICATIONS'}->{$EVENT}}) {
-				my $row = &ZTOOLKIT::parseparams($ROWSTR);
-				$row->{'event'} = $EVENT;
-				push @EVENTS, $row;
-				}
-			}
-		$R{'@NOTIFICATIONS'} = \@EVENTS;
+		require NOTIFICATIONS;
+		$R{'@NOTIFICATIONS'} = NOTIFICATIONS::list($webdbref);
 		}
 
 
@@ -26686,10 +26633,10 @@ sub adminConfigMacro {
 						}
 
 					$ref{'rules'} = ($params->{'rules'})?1:0;
-					$ref{'active'} = ($params->{'enable'})?1:0;
+					$ref{'enable'} = $ref{'active'} = ($params->{'enable'})?1:0;
 
 					$ref{'region'} = $params->{'region'};
-					my $HANDLER = $ref{'handler'};
+					my $HANDLER = $ref{'handler'};			## NOTE: loaded by the provider (this is *not* passed by client)
 		
 					$ref{'name'} = $params->{'name'};
 					$ref{'name'} =~ s/^[\s]+(.*?)$/$1/g;
@@ -26709,6 +26656,9 @@ sub adminConfigMacro {
 						}
 					elsif ($ref{'handler'} eq 'PRICE') {
 						$ref{'min_price'} = $params->{'min_price'};
+						}
+					elsif ($ref{'handler'} eq 'FREE') {
+						$ref{'total'} = sprintf("%.2f",$params->{'total'});
 						}
 
 					&ZWEBSITE::ship_add_method($webdb,\%ref);
@@ -27474,6 +27424,8 @@ sub appResource {
 			#	$ref = PRODUCT::FLEXEDIT::get_GTOOLS_Form_grp($1); 
 			#	}
 			}
+		}
+	elsif ($FILENAME =~ /^sog-([0-Z][0-Z])\.(json|yaml|xml)/) {
 		}
 	else {
 		&JSONAPI::set_error(\%R,'apperr',18803,"invalid file '$FILENAME' requested.");
@@ -28861,8 +28813,9 @@ sub adminCSVImport {
 <input id="token"></input>
 <output id="@OBJECTS">
 [
-{ type="product", pid="" },
-{ type="navcat", pid="" }
+{ type:"product", pid:"" },
+{ type:"product", pid:"", noindex:"1", xyz:"abc" },
+{ type:"navcat", pid:"" }
 ]
 </output>
 </API>
@@ -28922,7 +28875,9 @@ sub appSEO {
 				}
 			}
 		foreach my $pid (&ZOOVY::fetchproduct_list_by_merchant($USERNAME)) {
-			push @OBJECTS, { 'type'=>'pid', 'id'=>$pid };
+			my ($P) = PRODUCT->new($USERNAME,$pid);
+			my %TAGS = ( 'type'=>'pid', 'id'=>$pid, %{$P->seo_tags()} );
+			push @OBJECTS, \%TAGS;
 			}
 		
 		$R{'@OBJECTS'} = \@OBJECTS;
