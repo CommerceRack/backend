@@ -70,8 +70,6 @@ sub buildChooser {
 
 	my $IMAGEpath = '';
 	if ($FORMAT eq 'LAYOUT') { $IMAGEpath = &ZOOVY::resolve_userpath($USERNAME).'/TOXML'; }
-	if ($FORMAT eq 'WIZARD') { $IMAGEpath = &ZOOVY::resolve_userpath($USERNAME).'/TOXML'; }
-	if ($FORMAT eq 'EMAIL') { $IMAGEpath = &ZOOVY::resolve_userpath($USERNAME).'/TOXML'; }
 	if ($FORMAT eq 'PAGE') { $IMAGEpath = &ZOOVY::resolve_userpath($USERNAME).'/TOXML'; }
 	if ($FORMAT eq 'PRODUCT') { $IMAGEpath = &ZOOVY::resolve_userpath($USERNAME).'/TOXML'; }
 	
@@ -321,13 +319,6 @@ detailDialog =  jQuery('#$DIVID').dialog({ autoOpen: true, closeOnEscape: true, 
 		push @icons, { txt=>'Thumbnails', img=>'thumbnails.gif' };
 		push @icons, { txt=>'Images', link=>'', img=>'image.gif' };
 		}
-	elsif ($FORMAT eq 'WIZARD') {
-		push @icons, { txt=>'Standard Fields', img=>'standard.gif' };
-		push @icons, { txt=>'Navigation Header', img=>'header.gif' };		
-		push @icons, { txt=>'Detail Description', img=>'detaildesc.gif' };
-		push @icons, { txt=>'Requires Flash', img=>'flash.gif' };		
-		push @icons, { txt=>'2+ Images', link=>'', img=>'image.gif' };
-		}
 	elsif ($FORMAT eq 'WRAPPER') {
 		push @icons, { txt=>'Logo', link=>'', img=>'logo.gif' };
 		push @icons, { txt=>'Search', link=>'', img=>'search.gif' };
@@ -335,8 +326,6 @@ detailDialog =  jQuery('#$DIVID').dialog({ autoOpen: true, closeOnEscape: true, 
 		push @icons, { txt=>'Text Area', link=>'', img=>'text.gif' };
 		push @icons, { txt=>'Text Box', link=>'', img=>'textbox.gif' };
 		push @icons, { txt=>'Image', link=>'', img=>'image.gif' };
-		}
-	elsif ($FORMAT eq 'EMAIL') {
 		}
 	push @icons, { txt=>'Wiki', link=>'', img=>'wiki.gif' };
 	push @icons, { txt=>'Web 2.0/AJAX', link=>'', img=>'web20.gif' };

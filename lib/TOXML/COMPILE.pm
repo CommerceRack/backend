@@ -198,9 +198,7 @@ sub fromXML {
 	# print Dumper($toxml);
 	($toxml) = TOXML->new($FORMAT,$ID,REF=>$toxml,%options);	
 
-	if ($FORMAT eq 'ZEMAIL') { $FORMAT = 'EMAIL'; }
-
-	if (($FORMAT eq 'WRAPPER') || ($FORMAT eq 'EMAIL')) {
+	if ($FORMAT eq 'WRAPPER') {
 		require TOXML::CSS;
 		my ($configel) = $toxml->findElements('CONFIG');
 

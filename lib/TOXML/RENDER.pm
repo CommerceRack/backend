@@ -1245,14 +1245,7 @@ sub RENDER_BANNER {
 	#	$iniref->{'HEIGHT'}, $iniref->{'BGCOLOR'}, 0, 0, $SITE->{'+cache'});
 	# $UREF->{'IMGURL'} = $SITE->URLENGINE()->image_url($UREF->{'IMG'}, $iniref->{'WIDTH'}, $iniref->{'HEIGHT'}, $iniref->{'BGCOLOR'});
 	my $PROTOHOST = '';
-
-	if (($toxml->getFormat() eq 'EMAIL') || ($SITE->_is_newsletter())) {
-		$PROTOHOST = sprintf("https://%s",&ZOOVY::resolve_media_host($USERNAME));
-		}
-	elsif ($toxml->getFormat() eq 'WIZARD') {
-		$PROTOHOST = sprintf("http://%s",&ZOOVY::resolve_media_host($USERNAME));
-		}
-	$UREF->{'IMGURL'} = $PROTOHOST.&ZOOVY::image_path($USERNAME,$UREF->{'IMG'}, W=>$iniref->{'WIDTH'}, H=>$iniref->{'HEIGHT'}, B=>$iniref->{'BGCOLOR'}, cache=>$SITE->cache_ts(), M=>$iniref->{'MINIMAL'});
+	$UREF->{'IMGURL'} = &ZOOVY::image_path($USERNAME,$UREF->{'IMG'}, W=>$iniref->{'WIDTH'}, H=>$iniref->{'HEIGHT'}, B=>$iniref->{'BGCOLOR'}, cache=>$SITE->cache_ts(), M=>$iniref->{'MINIMAL'});
 
 	$UREF->{'LINKURL'} = $UREF->{'LINK'};
 	## shortcut for handling %SESSION% and %CART% in links
@@ -3258,9 +3251,6 @@ sub SITE_LOGO {
 		if (not defined $toxml) {
 			$PROTOHOST = sprintf("https://%s",&ZOOVY::resolve_media_host($USERNAME));
 			}
-		elsif (($toxml->format() eq 'WIZARD') || ($toxml->format() eq 'NEWSLETTER') || ($toxml->format() eq 'EMAIL') || $SITE->_is_newsletter()) {
-			$PROTOHOST = sprintf("https://%s",&ZOOVY::resolve_media_host($USERNAME));
-			}
 		$imgtag_src = "$PROTOHOST/media/img/$USERNAME/$flags/$logo_image$ext";	# LOGO
 		} ## end else
 			
@@ -3486,7 +3476,7 @@ sub RENDER_CONFIG {
 	my $format = '';
 	if (defined $toxml) { $format = $toxml->getFormat(); }
 	# print STDERR "FORMAT: $format\n";
-	if (($format eq 'WRAPPER') || ($format eq 'EMAIL')) {
+	if ($format eq 'WRAPPER') {
 		foreach my $k (keys %{$iniref}) { $SITE::CONFIG->{$k} = $iniref->{$k}; }
 
 		if (defined $iniref->{'CSS'}) {
@@ -3819,7 +3809,7 @@ sub render_head {
 		$headskip = int($iniref->{'HEADSKIP'});
 		}
 	elsif (defined $toxml) {
-		## FORMAT WILL BE: LAYOUT, WIZARD, WRAPPER, DEFINITION, EMAIL
+		## FORMAT WILL BE: LAYOUT, WRAPPER 
 		if ($toxml->getFormat() ne 'WRAPPER') { $headskip = 0xFF-1; } # hmm?!?! 0xFF-1
 		}
 		
@@ -4550,7 +4540,7 @@ sub RENDER_IMAGE {
 	my $USE_JS_ZOOM = '';
 	if ($zoom) {
 		## HTML Wizards shouldn't use the javascript:zoom feature, so we implicitly set the link_url to the orig image
-		if ((not defined $toxml) || ($toxml->format() eq 'WIZARD') || ($toxml->format() eq 'EMAIL') || ($SITE->_is_newsletter())) {
+		if (not defined $toxml) {
 			## absolute path
 			$link_url = sprintf("http://%s/media/img/%s/-/%s",&ZOOVY::resolve_media_host($SITE->username()),$SITE->username(),$image);
 			}
@@ -4617,7 +4607,7 @@ sub RENDER_IMAGE {
 		#my $src = &IMGLIB::Lite::url_to_image($USERNAME, $image, $actual_width, $actual_height, $bg, 0, 0, $SITE->{'+cache'});
 		# my $src = $SITE->URLENGINE()->image_url($image, $actual_width, $actual_height,$bg);
 		my $src = &ZOOVY::image_path($USERNAME, $image, W=>$actual_width, H=>$actual_height, B=>$bg);
-		if ((not defined $toxml) || ($toxml->format() eq 'EMAIL') || ($toxml->format() eq 'WIZARD') || ($SITE->_is_newsletter())) {
+		if (not defined $toxml) {
 			$src = sprintf("https://%s%s",&ZOOVY::resolve_media_host($USERNAME),$src);
 			}
 
@@ -4636,12 +4626,6 @@ sub RENDER_IMAGE {
 		$out = qq~<a ~.((defined $iniref->{'URL_SAVETO'})?'':'target="_blank" ').qq~ href="$link_url">$out</a>~;  
 		}
 	elsif ($zoom) { 
-		# $image = &IMGLIB::Lite::url_to_orig($SITE->username(), $image);
-		# $out = sprintf("/media/img/%s/-/%s",$USERNAME,$image);
-		#my $src = &ZOOVY::image_path($USERNAME, $image, W=>0, H=>0);
-		#if ((defined $toxml) && ($toxml->format() eq 'EMAIL') || ($toxml->format() eq 'WIZARD')) {
-		#	$src = sprintf("https://%s%s",&ZOOVY::resolve_media_host($USERNAME),$src);
-		#	}
 		$out = qq~<a href="javascript:zoom('$link_url')">$out</a>~; 
 		}
 

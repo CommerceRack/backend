@@ -121,13 +121,7 @@ sub DESTROY {
 
 sub docId { my ($self) = @_; return($self->{'_ID'}); }
 sub docid { my ($self) = @_; return($self->{'_ID'}); }
-sub getFormat { 
-	if ($_[0]->{'_FORMAT'} eq 'ZEMAIL') {
-		## we always use EMAIL rather than ZEMAIL these days.
-		$_[0]->{'_FORMAT'} = 'EMAIL'; 
-		}
-	return($_[0]->{'_FORMAT'}); 
-	}
+sub getFormat { return($_[0]->{'_FORMAT'}); 	}
 
 
 
@@ -235,7 +229,6 @@ sub new {
 		warn 'new called without docid being set on type['.$DOCID.']'; 
 		}
 	elsif ($PERSONAL) {
-		if ($FORMAT eq 'EMAIL') { $FORMAT = 'ZEMAIL'; }
 
 		$filepath = &ZOOVY::resolve_userpath($self->{'_USERNAME'}).'/TOXML/'.$FORMAT.'+'.lc($DOCID);
 		$cachefile = &ZOOVY::cachefile($self->{'_USERNAME'},'TOXML+'.$FORMAT.'+'.lc($DOCID).'.bin');
@@ -285,9 +278,6 @@ sub new {
 	elsif (($FORMAT eq 'LAYOUT') ) {
 		## NOTE: for user types, they all have the same SUBTYPE of '*'
 		$filepath = "/httpd/static/layouts/$DOCID/main"; 
-		}
-	elsif (($FORMAT eq 'EMAIL') || ($FORMAT eq 'ZEMAIL')) {
-		$filepath = "/httpd/static/emails/$DOCID/main";
 		}
 	else {
 		warn "Requested unknown TOXML format $FORMAT\n";
@@ -441,9 +431,6 @@ sub save {
 		if (not defined $options{'ACTION'}) {
 			$options{'ACTION'} = 'SAVE';
 			}
-
-		require TOXML::ANNOTATE;
-		TOXML::ANNOTATE::add_note($self->{'_USERNAME'},$self->getFormat(),$self->docId(),$options{'LUSER'},$options{'ACTION'},%options);
 		}
 
 	return($self->filehandler('SAVE')); 

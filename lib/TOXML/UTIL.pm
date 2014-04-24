@@ -290,27 +290,6 @@ sub listDocs {
 		}
 
 
-#	if (($options{'DETAIL'} & 2)==0) {
-#		## which columns to return
-#		my $detailpstmt = 'STARS,DOCID,SUBTYPE,FORMAT,DIGEST,UPDATED_GMT,TITLE,MID'; 	# default columns
-#		if (int($options{'DETAIL'})==1) { $detailpstmt = '*'; }
-#
-#		my $pstmt = "select $detailpstmt from TOXML where MID in (0,$MID) ";
-#		if (not defined $options{'DEPRECATED'}) { $pstmt .= " and CREATED_GMT>0 "; }
-#		if ($FORMAT ne '') {  $pstmt .= " and FORMAT=".$dbh->quote($FORMAT); }
-#		if (defined $options{'SUBTYPE'}) { $pstmt .= " and SUBTYPE=".$dbh->quote($options{'SUBTYPE'}); }
-#		
-#		print STDERR $pstmt."\n";
-#		my $sth = $dbh->prepare($pstmt);
-#		$sth->execute();
-#		while ( my $hashref = $sth->fetchrow_hashref() ) {
-#			$RANKS{ $hashref->{'DOCID'} } = $hashref->{'STARS'};
-#			delete $hashref->{'DEFINITION_SECRET_KEY'};
-#			push @AR, $hashref;
-#			}
-#		$sth->finish();
-#		}
-
 	if ($USERNAME ne '') {
 		my $userpath = &ZOOVY::resolve_userpath($USERNAME).'/TOXML';
 		opendir TDIR, "$userpath";
@@ -351,35 +330,6 @@ sub listDocs {
 		}
 
 
-#	if ($USERNAME ne '') {
-#		## make sure we have user favorites
-#		my $dbh = &DBINFO::db_user_connect($USERNAME);
-#		my $pstmt = "select DOCID from TOXML_RANKS where MID=".$MID." and FORMAT=".$dbh->quote($FORMAT)." order by DOCID";
-#		my $sth = $dbh->prepare($pstmt);
-#		$sth->execute();
-#		my %REMEMBER = ();
-#		while ( my ($DOCID) = $sth->fetchrow() ) {
-#			$REMEMBER{$DOCID}++;
-#			if (defined $RANKS{$DOCID}) {
-#				## we already have this, and it's ranked.
-#				$RANKS{$DOCID} = 10;
-#				}
-#			else {
-#				push @AR, { DOCID=>$DOCID, FORMAT=>$FORMAT, TITLE=>$DOCID };
-#				$RANKS{$DOCID} = '10.5';
-#				}
-#			if ($DOCID eq $options{'SELECTED'}) {
-#				$RANKS{$DOCID} = 20;
-#				}
-#			}
-#		$sth->finish();
-#		&DBINFO::db_user_close();
-#
-#		foreach my $ref (@AR) {
-#			if ($REMEMBER{$ref->{'DOCID'}}) { $ref->{'REMEMBER'}++; }
-#			}
-#		}
-
 	if (($options{'DETAIL'}&1)==1) {
 		my $x = scalar(@AR);
 		for (my $i =0;$i<$x;$i++) {
@@ -400,7 +350,7 @@ sub listDocs {
 		}
 
 
-#	## sort the items based on popularity
+	## sort the items based on popularity
 	if ($options{'SORT'}==1) {
 		## step1: convert our current @AR into %H (key = DOCID, value = ref)
 		my %H = ();
@@ -412,10 +362,6 @@ sub listDocs {
 		undef %H;
 		}
 
-
-	open F, ">/tmp/foo";
-	use Data::Dumper; print F Dumper(\@AR);
-	close F;
 
 	return(\@AR);
 	}
