@@ -74,12 +74,11 @@ require PROJECT;
 
 %GTOOLSUI::PATHS = (
 	'/biz/vstore/toxml/index.cgi'=>[ '/httpd/htdocs/biz/vstore/toxml', \&GTOOLSUI::toxml ],
-  	'/biz/vstore/advwebsite/index.cgi'=>[ '/httpd/htdocs/biz/vstore/advwebsite', \&GTOOLSUI::advwebsite, ],
-  	'/biz/vstore/checkout/index.cgi'=>[ '/httpd/htdocs/biz/vstore/advwebsite', \&GTOOLSUI::advwebsite, ],
+  	'/biz/vstore/checkout/index.cgi'=>[ '/httpd/htdocs/biz/vstore/checkout', \&GTOOLSUI::checkout, ],
+  	'/biz/vstore/checkout/index.cgi'=>[ '/httpd/htdocs/biz/vstore/checkout', \&GTOOLSUI::checkout, ],
   	'/biz/vstore/builder/index.cgi'=>[ '/httpd/htdocs/biz/vstore/builder', \&GTOOLSUI::builder, ],
   	'/biz/vstore/builder/details.cgi'=>[ '/httpd/htdocs/biz/vstore/builder', \&GTOOLSUI::builder_details, ],
   	'/biz/vstore/builder/themes/index.cgi'=>[ '/httpd/htdocs/biz/vstore/builder/themes', \&GTOOLSUI::builder_themes, ],
-#  '/biz/vstore/builder/htmlpop.cgi'=>\&GTOOLSUI::htmlpop,
  	'/biz/vstore/billing/index.cgi'=>[ '/httpd/htdocs/biz/vstore/billing', \&GTOOLSUI::billing, ],
   	'/biz/vstore/analytics/index.cgi'=>[ '/httpd/htdocs/biz/vstore/analytics', \&GTOOLSUI::analytics, ],
   	'/biz/vstore/plugins/index.cgi'=>[ '/httpd/htdocs/biz/vstore/plugins', \&GTOOLSUI::analytics, ],
@@ -147,7 +146,8 @@ sub transmogrify {
 					&JSONAPI::set_error(\%R,'iseerr',1985,sprintf("GTOOLSUI::$path could not open \"$BASEDIR/templates/$file\""));
 					$file = ''; 
 					}
-				
+
+				print STDERR "FILE IS: $file\n";				
 				if ($file) {
 					open F, "<$file";
 					$/ = undef; 
@@ -3137,7 +3137,7 @@ sub toxml {
 ##
 ##
 
-sub advwebsite {
+sub checkout {
 	my ($JSONAPI,$cgiv) = @_;
 
 	$cgiv = $cgiv;
@@ -3280,7 +3280,7 @@ sub advwebsite {
 		}
 	
 	
-	if ( ($VERB eq 'CC-MESSAGES') || ($VERB eq 'CHK-MESSAGES') || ($VERB eq 'SYS-MESSAGES') || ($VERB eq 'PAY-MESSAGES') || ($VERB eq 'PAGE-MESSAGES')) {
+	if ( ($VERB eq 'CC-MESSAGES') || ($VERB eq 'SYS-MESSAGES') || ($VERB eq 'PAGE-MESSAGES')) {
 		require SITE::MSGS;
 		my ($SM) = SITE::MSGS->new($USERNAME,RAW=>1,PRT=>$PRT);
 	
@@ -3569,15 +3569,18 @@ sub advwebsite {
 		$GTOOLSUI::TAG{'<!-- CHECKOUT_OP7 -->'} = ($webdbref->{'checkout'} eq 'op7')?'checked':'';
 		$GTOOLSUI::TAG{'<!-- CHECKOUT_OP8 -->'} = ($webdbref->{'checkout'} eq 'op8')?'checked':'';
 		$GTOOLSUI::TAG{'<!-- CHECKOUT_OP9 -->'} = ($webdbref->{'checkout'} eq 'op9')?'checked':'';
-		$GTOOLSUI::TAG{'<!-- CHECKOUT_20130111A -->'} = ($webdbref->{'checkout'} eq 'checkout-20130111a')?'checked':'';
-		$GTOOLSUI::TAG{'<!-- CHECKOUT_20130111P -->'} = ($webdbref->{'checkout'} eq 'checkout-20130111p')?'checked':'';
-		$GTOOLSUI::TAG{'<!-- CHECKOUT_20130111R -->'} = ($webdbref->{'checkout'} eq 'checkout-20130111r')?'checked':'';
-		$GTOOLSUI::TAG{'<!-- CHECKOUT_20130131A -->'} = ($webdbref->{'checkout'} eq 'checkout-20130131a')?'checked':'';
-		$GTOOLSUI::TAG{'<!-- CHECKOUT_20130131P -->'} = ($webdbref->{'checkout'} eq 'checkout-20130131p')?'checked':'';
-		$GTOOLSUI::TAG{'<!-- CHECKOUT_20130131R -->'} = ($webdbref->{'checkout'} eq 'checkout-20130131r')?'checked':'';
+
 		$GTOOLSUI::TAG{'<!-- CHECKOUT_201314A -->'} = ($webdbref->{'checkout'} eq 'checkout-201314a')?'checked':'';
 		$GTOOLSUI::TAG{'<!-- CHECKOUT_201314P -->'} = ($webdbref->{'checkout'} eq 'checkout-201314p')?'checked':'';
 		$GTOOLSUI::TAG{'<!-- CHECKOUT_201314R -->'} = ($webdbref->{'checkout'} eq 'checkout-201314r')?'checked':'';
+
+		$GTOOLSUI::TAG{'<!-- CHECKOUT_201342A -->'} = ($webdbref->{'checkout'} eq 'checkout-201342a')?'checked':'';
+		$GTOOLSUI::TAG{'<!-- CHECKOUT_201342P -->'} = ($webdbref->{'checkout'} eq 'checkout-201342p')?'checked':'';
+		$GTOOLSUI::TAG{'<!-- CHECKOUT_201342R -->'} = ($webdbref->{'checkout'} eq 'checkout-201342r')?'checked':'';
+
+		$GTOOLSUI::TAG{'<!-- CHECKOUT_201403A -->'} = ($webdbref->{'checkout'} eq 'checkout-201403a')?'checked':'';
+		$GTOOLSUI::TAG{'<!-- CHECKOUT_201403P -->'} = ($webdbref->{'checkout'} eq 'checkout-201403p')?'checked':'';
+		$GTOOLSUI::TAG{'<!-- CHECKOUT_201403R -->'} = ($webdbref->{'checkout'} eq 'checkout-201403r')?'checked':'';
 	
 		my $chkout_phone = $webdbref->{'chkout_phone'};
 		if (!defined($chkout_phone)) { $chkout_phone = 'REQUIRED'; }
@@ -3613,7 +3616,7 @@ sub advwebsite {
 		$GTOOLSUI::TAG{'<!-- CHKOUT_ROI_DISPLAY -->'} = ($webdbref->{'chkout_roi_display'})?'checked':'';
 	
 		my $DOMAIN = $LU->domain();
-		$template_file = 'checkout-zoovy.shtml';
+		$template_file = 'checkout.shtml';
 		$GTOOLSUI::TAG{'<!-- DOMAIN -->'} = $DOMAIN;
 		$GTOOLSUI::TAG{'<!-- CHECKOUTLINK -->'} = sprintf("http://www.$DOMAIN/checkout");
 		$HELP = '#50305';
@@ -3628,11 +3631,8 @@ sub advwebsite {
 	my @TABS = ();
 	push @TABS, { selected=>($VERB eq 'GENERAL')?1:0, name=>'Checkout Config', link=>'/biz/vstore/checkout/index.cgi', target=>'_top' };
 	push @TABS, { selected=>($VERB eq 'CUSTOMERADMIN')?1:0, name=>'Customer Admin Config', link=>'/biz/vstore/checkout/index.cgi?MODE=CUSTOMERADMIN', target=>'_top' };
-	#	push @TABS, {  selected=>($VERB eq 'CHK-MESSAGES')?1:0, name=>'Checkout Msgs', link=>'/biz/vstore/checkout/index.cgi?MODE=CHK-MESSAGES', target=>'_top' };
 	push @TABS, {  selected=>($VERB eq 'SYS-MESSAGES')?1:0, name=>'System Msgs', link=>'/biz/vstore/checkout/index.cgi?MODE=SYS-MESSAGES', target=>'_top' };
-	#	push @TABS, {  selected=>($VERB eq 'PAY-MESSAGES')?1:0, name=>'Payment Msgs', link=>'/biz/vstore/checkout/index.cgi?MODE=PAY-MESSAGES', target=>'_top' };
 	push @TABS, {  selected=>($VERB eq 'PAGE-MESSAGES')?1:0, name=>'Special Page Msgs', link=>'/biz/vstore/checkout/index.cgi?MODE=PAGE-MESSAGES', target=>'_top' };
-		# push @TABS, {  selected=>($VERB eq 'CC-MESSAGES')?1:0, name=>'CallCenter Msgs', link=>'/biz/vstore/checkout/index.cgi?MODE=CC-MESSAGES', target=>'_top' };
 	push @TABS, {  selected=>($VERB eq 'NEW-MESSAGE')?1:0, name=>'Create Message', link=>'/biz/vstore/checkout/index.cgi?MODE=NEW-MESSAGE', target=>'_top' };
 	
 	return(

@@ -1768,7 +1768,6 @@ sub configJS {
 			'amazonCheckoutEnable'=>sprintf("%d",$webdbref->{'amzpay_env'}),
 			'paypalCheckoutApiUser'=>sprintf("%s",$webdbref->{'paypal_email'}),
 
-			"chkout_phone" => $webdbref->{'chkout_phone'},
 			"chkout_order_notes" => $webdbref->{"chkout_order_notes"}, #  //form field id is chkout.order_notes
 			'customer_management'=>$webdbref->{'customer_management'},
 			'preference_request_login'=>(
@@ -22015,7 +22014,7 @@ sub adminPrivateSearch {
 		## size            => $no_of_results
 		if (defined $v->{'size'}) {	$params{'size'} = $v->{'size'};	}
 		##  sort            => ['_score',$field_1]
-		if (defined $v->{'sort'}) {	$params{'sort'} = $v->{'sort'};	}
+		if (defined $v->{'sort'}) {	$params{'body'}->{'sort'} = $v->{'sort'};	}
 
 # 		$v->{'scroll'} = '1m';
 		if (defined $v->{'scroll'}) { 	$params{'scroll'} = $v->{'scroll'}; }
