@@ -113,7 +113,7 @@ sub import {
 		}
 	else {
 		print STDERR Dumper(\%RULES);
-		&ZSHIP::RULES::savebin($bj->username(),$bj->prt(),\%RULES);
+		&ZSHIP::RULES::savebin($webdbref,\%RULES);
 		$bj->slog("updated rules");		
 		}
 

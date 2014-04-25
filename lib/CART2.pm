@@ -1609,7 +1609,7 @@ sub __SYNC__ {
 				my ($skucount, $char) = (0, 0, 0, 0);
 
 				my $RULESET = uc('COUPON-'.$ID);
-				my @rules = &ZSHIP::RULES::fetch_rules($self->username(),$self->prt(), $RULESET);
+				my @rules = &ZSHIP::RULES::fetch_rules($self->webdbref(), $RULESET);
 
 				my $FINISH = 0; ## Gets set to 1 if we stop rule processing
 				my $rulemaxcount = scalar(@rules);

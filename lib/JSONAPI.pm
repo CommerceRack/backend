@@ -26215,15 +26215,15 @@ sub adminConfigMacro {
 				elsif ($cmd eq 'COUPON/RULESTABLE-DELETE') {
 					$LU->log("SETUP.PROMO","Deleted Promotion for $RULESETID","SAVE");
 					my $ID = my $THIS = $params->{'ID'};
-				   &ZSHIP::RULES::delete_rule($USERNAME,$PRT, $RULESETID,$THIS);
+				   &ZSHIP::RULES::delete_rule($webdb, $RULESETID,$THIS);
 					}
 				elsif ($cmd eq 'COUPON/RULESTABLE-MOVEUP') {
 					my $ID = my $THIS = $params->{'ID'};
-				 	&ZSHIP::RULES::swap_rule($USERNAME,$PRT, $RULESETID,$THIS,$THIS-1);
+				 	&ZSHIP::RULES::swap_rule($webdb, $RULESETID,$THIS,$THIS-1);
 					}
 				elsif ($cmd eq 'COUPON/RULESTABLE-MOVEDOWN') {
 					my $ID = my $THIS = $params->{'ID'};
-					&ZSHIP::RULES::swap_rule($USERNAME,$PRT,$RULESETID,$THIS,$THIS+1);
+					&ZSHIP::RULES::swap_rule($webdb,$RULESETID,$THIS,$THIS+1);
 					}
 				elsif (($cmd eq 'COUPON/RULESTABLE-INSERT') || ($cmd eq 'COUPON/RULESTABLE-UPDATE')) {
 					my %hash = ();
@@ -26241,15 +26241,15 @@ sub adminConfigMacro {
 					$hash{'MATCHVALUE'} = $params->{'matchvalue'};
 
 					if ($cmd eq 'COUPON/RULESTABLE-INSERT') {
-						&ZSHIP::RULES::append_rule($USERNAME,$PRT, $RULESETID,\%hash);  
+						&ZSHIP::RULES::append_rule($webdb, $RULESETID,\%hash);  
 						}
 					elsif ($cmd eq 'COUPON/RULESTABLE-UPDATE') {
 						my $ID = my $THIS = $params->{'ID'};
-						&ZSHIP::RULES::update_rule($USERNAME,$PRT, $RULESETID,$ID,\%hash);  
+						&ZSHIP::RULES::update_rule($webdb, $RULESETID,$ID,\%hash);  
 						}
 					}
 				elsif ($cmd eq 'COUPON/RULESTABLE-EMPTY') {
-					&ZSHIP::RULES::empty_rules($USERNAME,$PRT,$RULESETID);					
+					&ZSHIP::RULES::empty_rules($webdb,$RULESETID);					
 					}
 				
 				}
@@ -26835,7 +26835,7 @@ sub adminConfigMacro {
 					}
 				
 				if ($VERB eq 'EMPTY') {
-					&ZSHIP::RULES::empty_rules($USERNAME,$PRT,$RULESETID);
+					&ZSHIP::RULES::empty_rules($webdb,$RULESETID);
 					push @MSGS, "SUCCESS|+Emptied rules for $RULESETID";
 					}
 				elsif (($VERB eq 'INSERT') || ($VERB eq 'UPDATE')) {
@@ -26853,14 +26853,14 @@ sub adminConfigMacro {
 						$LU->log("SETUP.SHIPPING.RULES","Added Rule for $RULESETID","SAVE");
 						$rule{'CREATED'} = &ZTOOLKIT::mysql_from_unixtime(time());
 						$rule{'MODIFIED'} = &ZTOOLKIT::mysql_from_unixtime(time());
-						&ZSHIP::RULES::append_rule($USERNAME,$PRT,$RULESETID,\%rule); 
+						&ZSHIP::RULES::append_rule($webdb,$RULESETID,\%rule); 
 						}
 					elsif ($VERB eq 'UPDATE') {
 						my @rules = &ZSHIP::RULES::export_rules($webdb,$RULESETID);
 						my $ID = &ZSHIP::RULES::resolve_guid_index(\@rules,$params->{'guid'}); 
 						$rule{'MODIFIED'} = &ZTOOLKIT::mysql_from_unixtime(time());
 						$LU->log("SETUP.SHIPPING.RULES","Updated Rule Content for $RULESETID","SAVE");
-						&ZSHIP::RULES::update_rule($USERNAME,$PRT,$RULESETID,$ID,\%rule);  
+						&ZSHIP::RULES::update_rule($webdb,$RULESETID,$ID,\%rule);  
 						}
 					else {
 						push @MSGS, "ERROR|+Unknown INTERNAL VERB:$VERB";
@@ -26871,7 +26871,7 @@ sub adminConfigMacro {
 					my @rules = &ZSHIP::RULES::export_rules($webdb,$RULESETID);
 					my $ID = &ZSHIP::RULES::resolve_guid_index(\@rules,$params->{'guid'}); 
 					if ($ID>-1) {
-						&ZSHIP::RULES::delete_rule($USERNAME,$PRT,$RULESETID,$ID);
+						&ZSHIP::RULES::delete_rule($webdb,$RULESETID,$ID);
 						}
 					else {
 						push @MSGS, "ERROR|+Could not locate rule-guid:$params->{'guid'}"; 

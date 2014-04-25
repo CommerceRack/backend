@@ -299,14 +299,10 @@ sub resolve_guid_index {
 ##
 ##
 sub loadbin {
-	my ($USERNAME, $PRT, $cache) = @_;
-
-	if (not defined $cache) { $cache = 0; }
-	my $webdbref = &ZWEBSITE::fetch_website_dbref($USERNAME,$PRT,$cache);
+	my ($webdbref, $cache) = @_;
 	if (not defined $webdbref->{'%SHIPRULES'}) {
 		$webdbref->{'%SHIPRULES'} = {};
 		} 
-
 	return($webdbref->{'%SHIPRULES'});
 	}
 
@@ -316,15 +312,10 @@ sub loadbin {
 ##
 ##
 sub savebin {
-	my ($USERNAME, $PRT, $ref) = @_;
+	my ($webdbref, $ref) = @_;
 
 	## partitions greater than zero don't use shiprules.bin
-	my $webdbref = &ZWEBSITE::fetch_website_dbref($USERNAME,$PRT);
 	$webdbref->{'%SHIPRULES'} = $ref;
-
-	&ZWEBSITE::save_website_dbref($USERNAME,$webdbref,$PRT);
-	&ZOOVY::touched($USERNAME,1);
-
 	return(0);
 	}
 
@@ -376,7 +367,7 @@ sub do_ship_rules {
 		}
 
 	my ($k, $counter) = ();
-	my @rules = &fetch_rules($USERNAME, $PRT, "SHIP-$METHOD", $CART2->cache_ts());
+	my @rules = &fetch_rules($CART2->webdbref(), "SHIP-$METHOD", $CART2->cache_ts());
 
 	my $FINISH = 0;			# gets set to 1 if we stop rule processing
 	my $rulemaxcount = scalar(@rules);
@@ -644,9 +635,9 @@ sub filter_to_regex {
 ##			NAME is a text field that describes the rule (note: spaces -> underscores)
 ######################
 sub fetch_rules {
-	my ($USERNAME, $PRT, $METHOD, $cache) = @_;
+	my ($webdbref, $METHOD, $cache) = @_;
 
-	my $rules = &loadbin($USERNAME,$PRT, $cache);
+	my $rules = &loadbin($webdbref, $cache);
 
 	my @ar = ();
 	if (defined($rules) && defined($rules->{$METHOD}) && (ref($rules->{$METHOD}) eq 'ARRAY')) {
@@ -663,8 +654,8 @@ sub fetch_rules {
 ## empties a rule table
 ## 
 sub empty_rules {
-	my ($USERNAME, $PRT, $METHOD, $cache) = @_;
-	my $rules = &loadbin($USERNAME,$PRT, $cache);
+	my ($webdbref, $METHOD, $cache) = @_;
+	my $rules = &loadbin($webdbref, $cache);
 	my @ar = ();
 	if (defined($rules) && defined($rules->{$METHOD}) && (ref($rules->{$METHOD}) eq 'ARRAY')) {
 		delete $rules->{$METHOD};
@@ -682,11 +673,11 @@ sub empty_rules {
 ##    returns: 0 on success, 1 on failure.
 ######################
 sub delete_rule {
-	my ($USERNAME, $PRT, $METHOD, $ID) = @_;
+	my ($webdbref, $METHOD, $ID) = @_;
 
 #	print STDERR "Deleting $USERNAME $METHOD $ID\n";
 
-	my $ref = &loadbin($USERNAME,$PRT);
+	my $ref = &loadbin($webdbref);
 #	print STDERR "before delete the count was ".scalar(@{$ref->{$METHOD}})."\n";
 	if (defined $ref->{$METHOD})  {
 		splice @{$ref->{$METHOD}}, $ID, 1;
@@ -695,7 +686,7 @@ sub delete_rule {
 		die "Cannot delete $METHOD which does not exist.\n";
 		}
 #	print STDERR "after delete the count was ".scalar(@{$ref->{$METHOD}})."\n";
-	&savebin($USERNAME,$PRT,$ref);
+	&savebin($webdbref,$ref);
 	return(0);  
 	}
 
@@ -705,9 +696,9 @@ sub delete_rule {
 ##
 ##
 sub swap_rule {
-  my ($USERNAME,$PRT, $METHOD, $ID1, $ID2) = @_;
+  my ($webdbref, $METHOD, $ID1, $ID2) = @_;
 
-	my $ref = &loadbin($USERNAME,$PRT);
+	my $ref = &loadbin($webdbref);
 #	print STDERR "before delete the count was ".scalar(@{$ref->{$METHOD}})."\n";
 	if (defined $ref->{$METHOD}) 
 		{
@@ -724,7 +715,7 @@ sub swap_rule {
 		die "Cannot shift $ID1 and $ID2 on $METHOD which does not exist.\n";
 		}
 #	print STDERR "after delete the count was ".scalar(@{$ref->{$METHOD}})."\n";
-	&savebin($USERNAME,$PRT,$ref);
+	&savebin($webdbref,$ref);
 	return(0);  
 	}
 
@@ -738,7 +729,7 @@ sub swap_rule {
 ##
 #############################
 sub append_rule {
-	my ($USERNAME, $PRT, $METHOD, $hashref) = @_;
+	my ($webdbref, $METHOD, $hashref) = @_;
 
 #	foreach $k (keys %{$hashref}) { print STDERR "HASH KEY: $k\n"; }
 
@@ -748,7 +739,7 @@ sub append_rule {
 
 	$hashref->{'CODE'} =~ s/[\W]+//gs;
 
-	my $ref = &loadbin($USERNAME,$PRT);
+	my $ref = &loadbin($webdbref);
 	# verify that ref exists
 	if (! defined $ref) {
 		$ref = {};
@@ -765,7 +756,7 @@ sub append_rule {
 	push @{$ref->{$METHOD}}, $hashref;
 #	print STDERR "\$ref->\{$METHOD\} now has ".scalar(@{$ref->{$METHOD}})." elements.\n";
 
-	&savebin($USERNAME,$PRT,$ref);
+	&savebin($webdbref,$ref);
 
 	return(0);
 }
@@ -788,12 +779,12 @@ sub tax_boolean {
 ##
 #############################
 sub update_rule {
-  my ($USERNAME, $PRT, $METHOD, $ID, $hashref) = @_;
+  my ($webdbref, $METHOD, $ID, $hashref) = @_;
 
   	# do a quicky data validity check!
   	$hashref->{'FILTER'} =~ s/[\n| ]//g;
 
-	my $ref = &loadbin($USERNAME,$PRT);
+	my $ref = &loadbin($webdbref);
 	if (defined $ref->{$METHOD}) {
 		## Removed dereferencing style not supported by Perl 5.8 -AK 5/6/03
 		$ref->{$METHOD}[$ID] = $hashref; # Was: @{$ref->{$METHOD}}->[$ID] = $hashref;
@@ -801,7 +792,7 @@ sub update_rule {
 	else {
 		die "Cannot find ID $ID in METHOD $METHOD\n";
 		}
-	&savebin($USERNAME,$PRT, $ref);
+	&savebin($webdbref, $ref);
 	return(0);  
 	}
 
