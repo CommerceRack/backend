@@ -18764,7 +18764,7 @@ sub appProductGet {
 	if ($v->{'withSchedule'}==1) {
 		my $CART2 = undef;
 		if ($v->{'_cartid'} eq '') {
-			&JSONAPI::append_msg_to_response(\%R,'apperr',9998,"_cartid parameter is required for apiversion > 201310");			
+			&JSONAPI::append_msg_to_response(\%R,'apperr',9998,"_cartid parameter is required for $v->{'_cmd'} version > 201310");			
 			}
 		else {
 			$CART2 = $self->cart2( $v->{'_cartid'} );
@@ -19276,7 +19276,7 @@ sub cartPaymentQ {
 	my $webdbref = $self->webdb();
 
 	if ($v->{'_cartid'} eq '') {
-		&JSONAPI::append_msg_to_response(\%R,'apperr',9998,"_cartid parameter is required for apiversion > 201310");			
+		&JSONAPI::append_msg_to_response(\%R,'apperr',9998,"_cartid parameter is required for $v->{'_cmd'} version > 201310");			
 		}
 	else {
 		$CART2 = $self->cart2( $v->{'_cartid'} );
@@ -19346,8 +19346,8 @@ sub cartPromoCodeOrGiftcardOrCouponToCartAdd {
 	my $cartid = $v->{'_cartid'};
 	my $CART2 = undef;
 	if ($v->{'_cartid'} eq '') {
-		push @ERRORS, "9998|apperr|_cartid parameter is required for apiversion > 201310";
-		&JSONAPI::append_msg_to_response(\%R,'apperr',9998,"_cartid parameter is required for apiversion > 201310");			
+		push @ERRORS, "9998|apperr|_cartid parameter is required for $v->{'_cmd'} version > 201310";
+		&JSONAPI::append_msg_to_response(\%R,'apperr',9998,"_cartid parameter is required for $v->{'_cmd'} version > 201310");			
 		}
 	else {
 		$CART2 = $self->cart2( $v->{'_cartid'} );
@@ -21280,7 +21280,7 @@ sub appCheckoutDestinations {
 	my $CART2 = undef;
 
 	if ($v->{'_cartid'} eq '') {
-		&JSONAPI::append_msg_to_response(\%R,'apperr',9998,"_cartid parameter is required for apiversion > 201310");			
+		&JSONAPI::append_msg_to_response(\%R,'apperr',9998,"_cartid parameter is required for $v->{'_cmd'} version > 201310");			
 		}
 	else {
 		$CART2 = $self->cart2( $v->{'_cartid'} );
@@ -21330,7 +21330,7 @@ sub cartPaypalSetExpressCheckout {
 	my $CART2 = undef;
 
 	if ($v->{'_cartid'} eq '') {
-		&JSONAPI::append_msg_to_response(\%R,'apperr',9998,"_cartid parameter is required for apiversion > 201310");			
+		&JSONAPI::append_msg_to_response(\%R,'apperr',9998,"_cartid parameter is required for $v->{'_cmd'} version > 201310");			
 		}
 	else {
 		$CART2 = $self->cart2( $v->{'_cartid'} );
@@ -21560,7 +21560,7 @@ sub cartAmazonPaymentURL {
 
 	my $CART2 = undef;
 	if ($v->{'_cartid'} eq '') {
-		&JSONAPI::append_msg_to_response(\%R,'apperr',9998,"_cartid parameter is required for apiversion > 201310");			
+		&JSONAPI::append_msg_to_response(\%R,'apperr',9998,"_cartid parameter is required for $v->{'_cmd'} version > 201310");			
 		}
 	else {
 		$CART2 = $self->cart2( $v->{'_cartid'} );
@@ -21641,7 +21641,7 @@ sub cartSet {
 
 	my $CART2 = undef;
 	if ($v->{'_cartid'} eq '') {
-		&JSONAPI::append_msg_to_response(\%R,'apperr',9998,"_cartid parameter is required for apiversion > 201310");			
+		&JSONAPI::append_msg_to_response(\%R,'apperr',9998,"_cartid parameter is required for $v->{'_cmd'} version > 201310");			
 		}
 	else {
 		$CART2 = $self->cart2( $v->{'_cartid'} );
@@ -21890,7 +21890,7 @@ sub cartShippingMethods {
 
 	my $CART2 = undef;
 	if ($v->{'_cartid'} eq '') {
-		&JSONAPI::append_msg_to_response(\%R,'apperr',9998,"_cartid parameter is required for apiversion > 201310");			
+		&JSONAPI::append_msg_to_response(\%R,'apperr',9998,"_cartid parameter is required for $v->{'_cmd'} version > 201310");			
 		}
 	else {
 		$CART2 = $self->cart2( $v->{'_cartid'} );
@@ -21951,7 +21951,7 @@ sub cartItemsInventoryVerify {
 
 	my $CART2 = undef;
 	if ($v->{'_cartid'} eq '') {
-		&JSONAPI::append_msg_to_response(\%R,'apperr',9998,"_cartid parameter is required for apiversion > 201310");			
+		&JSONAPI::append_msg_to_response(\%R,'apperr',9998,"_cartid parameter is required for $v->{'_cmd'} version > 201310");			
 		}
 	else {
 		$CART2 = $self->cart2( $v->{'_cartid'} );
@@ -22375,7 +22375,7 @@ sub cartOrder {
 	my ($CARTID,$OID) = (undef,undef);
 
 	if ($v->{'_cartid'} eq '') {
-		&JSONAPI::set_error(\%R,'apperr',9998,"_cartid parameter is required for apiversion > 201310");			
+		&JSONAPI::set_error(\%R,'apperr',9998,"_cartid parameter is required for $v->{'_cmd'} version > 201310");			
 		}
 	elsif ($v->{'_cartid'} =~ /^(.*?)\$\$(.*?)$/) {
 		## reallylongcartid$$orderid
