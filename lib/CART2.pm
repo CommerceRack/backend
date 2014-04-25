@@ -511,6 +511,7 @@ sub version {
 	'cart/ip_address'=>{ es=>'ip_address', compat=>'our/ip_address', order1=>'ip_address', cart1=>'ipaddress' },
 	'cart/multivarsite'=> { public=>1, compat=>'our/multivarsite', order1=>'multivarsite', cart1=>'multivarsite' },
 	'cart/previous_cartid'=> { compat=>'this/previous_cart_id' },
+	'cart/next_cartid'=> { compat=>'this/previous_cart_id' },
 	'cart/shipping_id' => { compat=>'this/shipping_id', order1=>'shp_id' },
 	'cart/paypalec_result'=>{ public=>0, compat=>'our/paypalec_result', cart1=>'chkout.paypalec' },	# a packit of PV=|PT=|PS=|PC=|PI=|PZ=
 	'cart/paypal_token'=> { public=>0, compat=>'our/paypal_token', cart1=>'chkout.paypal_token' }, # the token returned to us by paypal for ec
@@ -3721,44 +3722,14 @@ sub as_legacy {
 sub reset_session {
    my ($self,$CAUSE) = @_;
 
-	# print STDERR "** NEEDS LOVE *** RESET: '$CAUSE'\n";
-	if (not defined $CAUSE) {
-		## this is the current ip address, which is usually set in our env (but could also be a debug statement)
-		$CAUSE = $ENV{'REMOTE_ADDR'};
-		}
-
-	if (not defined $CAUSE) {
-		my ($package,$file,$line,$sub,$args) = caller(1);
-		$CAUSE = "$file::$sub::$line";
-		&ZOOVY::confess($self->username(),
-			"called reset session without passing IP Address ($package,$file,$line,$sub,$args)\n",
-			justkidding=>1);
-		}
-
 	## make sure all users (when this function is run) who don't have cookies - 
 	##		and/or don't pass referrer have to login once per hour.
-	if ($self->{'updated'}<(time()-3600)) {
-		delete $self->{'login'};
-		}
 
 	my $remap = 0;
-
-	if ((defined $self->{'chkout.order_id'}) && ($self->{'chkout.order_id'} ne '')) {
-		## if we've got an order_id so this cart has already been checked out.
-		$remap++;
-		}
-	elsif ($CAUSE eq 'jquery:appCartCreate') { 
-		## an explicit request to remap
-		$remap++; 
-		}	
-
-	if ($remap) {}
-	elsif (not $self->is_persist()) {}    # never mind..
-	elsif ($self->in_get('cart/ip_address') eq $CAUSE) {
-		## don't remap the cart, because the ip's are the same (so they are probably the same person)
-		}
+	if (not $self->is_persist()) {}    # never mind..
 	else { $remap++; }
 
+	print STDERR "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! REMAP: $remap CAUSE:$CAUSE !!!!!!!!!!!!!!!!!!!!!!!!!!!!!\n";
 
  	if (($remap) && ($CAUSE ne 'CART_EMPTY')) {
 		## ALWAYS clear important cart variables in a remap situation.
@@ -3773,34 +3744,24 @@ sub reset_session {
 			}
 		}
 
-	if ($self->{'zjsid'} ne '') {
-		## why is this here? -- looks like to prevent accidental cart reset. 
-		warn "ZJSID *PROBABLY* should not have allowed CARTID reassign request (probably out to to be ignored) -- fix me if i'm broke\n";
-		}
-
 	if ($remap) {
-		my ($redis) = &ZOOVY::getRedis($self->username());
-		if (defined $redis) {
-			my $REDIS_ID = &CART2::redis_cartid($self->username(),$self->prt(),$self->cartid());
-			$redis->del($REDIS_ID);
-			## print STDERR "REDIS ID: $REDIS_ID\n";
-			}
 		}
 
 	if ($remap) {
 		## remap the cart.
-		# $self->reassign();
-		# $self->{'id'} = &CART::generate_cart_id();
-
+		$self->__SET__('cart/created_ts',time());
 		$self->__SET__('cart/previous_cartid', sprintf("%s|%s",$self->cartid(), $self->__GET__('cart/previous_cartid')) );
-		$self->{'UUID'} = &CART2::generate_cart_id();
-		$self->{'DBID'} = 0;
+		$self->__SET__('cart/cartid',$self->{'UUID'} = &CART2::generate_cart_id());
+		$self->{'CDBID'} = 0;	
+		$self->cart_save();
 
-#		open F, ">>/tmp/cart.remap";
-#		print F "$CAUSE:$self->{'ipaddress'}:".$self->username().":$self->{'id'}:".time().":$ENV{'HTTP_USER_AGENT'}:$ENV{'REQUEST_URI'}\n";
-#		close F;
+		my ($redis) = &ZOOVY::getRedis($self->username());
+		if (defined $redis) {
+			my $REDIS_ID = &CART2::redis_cartid($self->username(),$self->prt(),$self->cartid());
+			$redis->del($REDIS_ID);
+			print STDERR "!!!!!!!!!!! DELETE REDIS ID: $REDIS_ID !!!!!!!\n";
+			}		
       }
-
    }
 
 
@@ -4210,7 +4171,7 @@ sub cart_save {
 		warn "forced cart save (hope that's what you wanted)\n";
 		}
 	elsif ($self->is_readonly()) {
-		warn Carp::cluck("attempted to save a readonly cart\n");
+		warn Carp::cluck("attempted to save a readonly cart READONLY:[$self->{'__READONLY__'}]\n");
 		}
 	elsif ($self->is_memory()) { 
 		warn "attempted to save a memory cart (note: this is perfectly fine as an order)\n";
@@ -4465,6 +4426,9 @@ sub empty {
 	delete $self->{'%bill'};
 	$self->{'*stuff2'} = STUFF2->new($self->username());
 	delete $self->{'%sum'};
+
+	## nuke the cart
+	$self->in_set("cart/previous_cartid",$self->cartid());
 
 	$self->reset_session("CART_EMPTY");		## hmm, this will almost certainly cause the cart id to flip.
 	delete $self->{'%coupons'}; 		# clear any coupons
@@ -6524,7 +6488,7 @@ sub finalize_order {
 		}
 	else {
 		INVENTORY2->new($USERNAME)->checkout_cart2($self);
-		if ($REDIS_ASYNC_KEY) { $redis->append($REDIS_ASYNC_KEY,"STATUS|Updated inventory.\n"); }
+		if ($REDIS_ASYNC_KEY) { $redis->append($REDIS_ASYNC_KEY,"\nSTATUS|Updated inventory.\n"); }
 		}
 
 	## Save the order and reload it so we know if there's somethign wrong in the checkout there must have been something
@@ -6548,7 +6512,7 @@ sub finalize_order {
 		my ($rcpt) = $BLAST->recipient('CART',$self,{'%ORDER'=>$self->TO_JSON()});
 		my ($msg) = $BLAST->msg($MSGID);
 		$BLAST->send($rcpt,$msg);
-		if ($REDIS_ASYNC_KEY) { $redis->append($REDIS_ASYNC_KEY,"STATUS|Sent order confirmation email.\n"); }
+		if ($REDIS_ASYNC_KEY) { $redis->append($REDIS_ASYNC_KEY,"\nSTATUS|Sent order confirmation email.\n"); }
 		}
 
 	##
@@ -6640,7 +6604,6 @@ sub finalize_order {
 	else {
 		## WE MUST RUN THIS SAVE:		
 		$self->order_save();
-		$self->make_readonly();  ##  THIS ENSURES THAT THE SITE DOESN'T OVERWRITE/CHANGE THE VALUE
 		}
 
 	## &DBINFO::release_lock($udbh,$USERNAME,$self->cartid());
@@ -6672,12 +6635,6 @@ sub finalize_order {
 		}
 	untie %cart2;
 	delete $SIG{'SIGTERM'};
-
-	
-
-	open F, ">/tmp/order.debug";
-	print F Dumper($lm);
-	close F;
 
 	return($lm);
 	}

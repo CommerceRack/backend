@@ -43,7 +43,7 @@ use strict;
 ## 
 $JSONAPI::MAX_CARTS_PER_SESSION = 8;
 
-$JSONAPI::VERSION = "201402";
+$JSONAPI::VERSION = "201403";
 $JSONAPI::VERSION_MINIMUM = 201312;
 @JSONAPI::TRACE = ();
 
@@ -814,21 +814,21 @@ sub paymentQCMD {
 	my $webdbref = $self->webdb();
 
 	$self->{'@PAYMENTQ'} = $self->paymentQ();
+
 	if ($cmd eq 'sync') {
 		## nothing to do here.
 		}
 	elsif ($cmd eq 'reset') {
 		$self->{'@PAYMENTQ'} = [];
 		}
-	elsif (not &JSONAPI::validate_required_parameter($R,$v,'ID')) {
-  		}
 	elsif ($cmd eq 'insert') {
-
-		my $ID = $v->{'ID'};		## this is for a wallet
+		my $ID = $v->{'ID'};		## this is for a wallet (really everything ought to have an ID)
+		if (not defined $ID) { $ID = Digest::MD5::md5_hex($v->{'TN'}."|".$v->{'CC'}."|".$v->{'WI'}); }
+		
 		if ($self->apiversion()<201314) {
 			## no error checking.
 			}
-		elsif ($self->apiversion() < 201402) {
+		elsif ($self->apiversion() < 201403) {
 			## the stricter validation checks here are not appreciated by earlier version.
 			}
 		## wallets don't pass a 'TN'
@@ -970,6 +970,9 @@ sub paymentQCMD {
 
 
 		}
+	elsif (not &JSONAPI::validate_required_parameter($R,$v,'ID')) {
+		## ID is required for DELETE
+  		}
 	elsif ($cmd eq 'delete') {
 		my $ID = $v->{'ID'};
 		my $thisRow = undef;
@@ -988,7 +991,7 @@ sub paymentQCMD {
 		# $CART2->in_set('want/payby',undef);
 		}
 	else {
-		&JSONAPI::set_error($R,'apperr',7834,sprintf("logic failure - invalid cmd parameter"));
+		&JSONAPI::set_error($R,'apperr',7834,sprintf("logic failure - invalid cmd parameter \"$cmd\" "));
 		}
 	$self->{'paymentQ'} = $self->paymentQ();
 
@@ -1135,13 +1138,16 @@ sub adminControlPanel {
 			}
 		}
 	elsif ($v->{'_cmd'} eq 'adminControlPanelQuery') {
-		my %WHITELIST = (
-			'/dev/shm/kevorkian'=>1
-			);
+		#my %WHITELIST = (
+		#	'/dev/shm/kevorkian'=>1
+		#	);
+		#if ($WHITELIST{$v->{'file'}}) {
+		#	$R{'contents'} = File::Slurp::read_file("/dev/shm/kevorkian");
+		#	}
 
-		if ($WHITELIST{$v->{'file'}}) {
-			$R{'contents'} = File::Slurp::read_file("/dev/shm/kevorkian");
-			}
+		#http://mmonit.com/monit/documentation/monit.html#program_status_testing
+		$R{'contents'} = wget('http://127.0.0.1:2812');
+
 		}
 	return(\%R);
 	}
@@ -1670,7 +1676,7 @@ sub parse_macros {
 	my $count = 0;
 	foreach my $line (@{$LINES}) {
 		my ($cmd,$uristr) = split(/\?/,$line,2);
-		my %params = {};
+		my %params = ();
 
 		## NOTE: we can't use &ZTOOLKIT::parseparams here because it doesn't handle +'s properly!
 		foreach my $keyvalue (split /\&/, $uristr) {
@@ -2621,6 +2627,7 @@ sub sessionSave {
 			}
 
 		foreach my $k (keys %{$self->{'%CARTS'}}) {
+			next if ($k eq '');
 			$DATA{sprintf("#CART:%s",$k)}++;
 			}
 
@@ -3441,8 +3448,12 @@ sub handle {
 		close Fx;
 		}
 
-
-	$self->sessionSave();
+	if ($self->is_spooler()) {
+		## no running sessionSave (this will try and save the cart)
+		}
+	else {
+		$self->sessionSave();
+		}
 
 	return(\%R,\@CMDLINES);
 	}
@@ -8402,7 +8413,6 @@ sub adminProduct {
 			print STDERR $pstmt."\n";
 			push @HEAD, { 'id'=>'ID' };
 			push @HEAD, { 'id'=>'UUID' };
-			push @HEAD, { 'id'=>'MID' };
 			push @HEAD, { 'id'=>'PID' };
 			push @HEAD, { 'id'=>'SKU' };
 			push @HEAD, { 'id'=>'WMS_GEO' };
@@ -8439,6 +8449,31 @@ sub adminProduct {
 			push @HEAD, { 'id'=>'VENDOR' };
 			push @HEAD, { 'id'=>'VENDOR_ORDER_DBID' };
 			push @HEAD, { 'id'=>'VENDOR_SKU' };
+
+			$pstmt = "select * from INVENTORY_DETAIL where MID=$MID and PID=$qtPID order by ID desc";
+			my $sth = $udbh->prepare($pstmt);
+			$sth->execute();
+			while ( my $dbref = $sth->fetchrow_hashref() ) {
+				my @ROW = ();
+				foreach my $head (@HEAD) { push @ROW, $dbref->{ $head->{'id'} }; 	}
+				push @ROWS, \@ROW;
+				}
+			$sth->finish();
+			}
+		elsif ($FILENAME eq '@INVENTORY_TRANSACTIONS') {
+			#my $TB = &INVENTORY::resolve_tb($USERNAME,$MID,'INVENTORY');
+			my $qtPID = $udbh->quote($PID);
+			my $pstmt = "select * from INVENTORY_LOG where MID=$MID /* $USERNAME */ and PRODUCT=$qtPID order by TS desc";
+			print STDERR $pstmt."\n";
+			push @HEAD, { 'id'=>'ID' };
+			push @HEAD, { 'id'=>'TS' };
+			push @HEAD, { 'id'=>'UUID' };
+			push @HEAD, { 'id'=>'PID' };
+			push @HEAD, { 'id'=>'SKU' };
+			push @HEAD, { 'id'=>'CMD' };
+			push @HEAD, { 'id'=>'QTY' };
+			push @HEAD, { 'id'=>'LUSER' };
+			push @HEAD, { 'id'=>'PARAMS' };
 
 			$pstmt = "select * from INVENTORY_DETAIL where MID=$MID and PID=$qtPID order by ID desc";
 			my $sth = $udbh->prepare($pstmt);
@@ -22346,6 +22381,10 @@ sub cartOrder {
 		## reallylongcartid$$orderid
 		($CARTID,$OID) = ($1,$2);
 		$CART2 = CART2->new_from_oid($self->username(),$OID,'create'=>0);
+
+		## NOTE: this line is bad, because we're dealing with an ORDER
+		## $CART2->make_readonly();		
+
 		if (not defined $CART2) {
 			}
 		elsif ($CART2->cartid() ne $CARTID) {
@@ -22365,7 +22404,6 @@ sub cartOrder {
 	my $REDIS_ASYNC_KEY = sprintf("FINALIZE.%s.CART.%s",$self->username(), $CARTID );
 	print STDERR "REDIS_ASYNC_KEY: $REDIS_ASYNC_KEY\n";
 
-
 	## SITE::URL is required for SITE::EMAIL ->sendmail
 	my $webdbref = $self->webdb();
 	if (&JSONAPI::hadError(\%R)) {
@@ -22376,7 +22414,7 @@ sub cartOrder {
 			}
 		elsif ($CART2->is_pobox()>0) {
 			# only check pobox address on shipping (not billing)
-			&JSONAPI::set_error(9996,'youerr','Shipping to PO boxes not allowed by business rules.');
+			&JSONAPI::set_error(\%R,'youerr',9996,'Shipping to PO boxes not allowed by business rules.');
 			}
 
 		if ($webdbref->{'banned'} ne '') {
@@ -22392,15 +22430,18 @@ sub cartOrder {
 				elsif (($type eq 'ZIP') && ($CART2->in_get('bill/postal') =~ /^$match$/)) { $banned++; }
 				}
 			if ($banned) {
-				&JSONAPI::set_error(9996,'youerr','Order blocked by store settings - cannot process (this is not an error).');
+				&JSONAPI::set_error(\%R,'youerr',9995,'Order blocked by store settings - cannot process (this is not an error).');
 				}
 			}
 		}
 
 
+	print STDERR 'v: '.Dumper($v);
+
+
 	if (&JSONAPI::hadError(\%R)) {
 		}
-	elsif ((defined $v->{'@PAYMENTS'}) && (ref($self->{'@PAYMENTS'}) eq 'ARRAY')) {
+	elsif ((defined $v->{'@PAYMENTS'}) && (ref($v->{'@PAYMENTS'}) eq 'ARRAY')) {
 		## we're setting payments passed into the cart
 		#@PAYMENTS : [
 		#  'insert?ID=xyz&TN=credit',
@@ -22408,12 +22449,27 @@ sub cartOrder {
 		# ]
 		my @CMDS = ();
 		&JSONAPI::parse_macros($self,$v->{'@PAYMENTS'},\@CMDS);
+
+		print STDERR '@CMDS: '.Dumper(\@CMDS)."\n";
 		foreach my $CMDSET (@CMDS) {
 			my ($VERB, $pref) = @{$CMDSET};
+			$VERB = lc($VERB);
 			$self->paymentQCMD(\%R,$VERB,$pref);
 			}
 		$CART2->{'@PAYMENTQ'} = $self->paymentQ();
+		delete $v->{'@PAYMENTS'};
 		}
+
+
+	if (&JSONAPI::hadError(\%R)) {
+		}
+	elsif ($v->{'_cmd'} eq 'cartOrderCreate') {
+		if (scalar(@{$self->paymentQ()})==0) {
+			&JSONAPI::set_error(\%R,'yourerr',9994,'No payments, cannot process order');
+			}
+		}
+
+	print STDERR "RESPONSE: ".Dumper($CART2->{'@PAYMENTQ'},\%R);
 
 	##
 	## request processing starts here
@@ -22431,14 +22487,20 @@ sub cartOrder {
 		my ($POLLED_COUNT) = 0;
 		my ($FINISHED) = 0;
 		foreach my $line (split(/[\n]+/,$redis->get($REDIS_ASYNC_KEY))) {
+			print STDERR "$REDIS_ASYNC_KEY: $line\n";
 			my %MSG = ();
 			($MSG{'_'},$MSG{'+'}) = split(/\|/,$line,2);
 
 			if ($MSG{'_'} eq 'POLLED') { $POLLED_COUNT++; }
 			next if ($MSG{'_'} eq 'POLLED');
+			if ($MSG{'_'} =~ /^SPOOLER\*(.*?)$/) {
+				## we'll pass out SPOOLER*SUCCESS or SPOOLER*FAILURE messages and treat them as if we had done them
+				$LM->pooshmsg("$1|$MSG{'+'}");
+				}
 
+			if ($MSG{'_'} eq 'SPOOLER*FINISHED') { $R{'finished'} = int($MSG{'+'}); }
 			if ($MSG{'_'} eq 'FINISHED') { $R{'finished'} = int($MSG{'+'}); }
-			# my ($msgref,$status) = LISTING::MSGS::msg_to_disposition($line);
+
 			if (substr($MSG{'+'},0,1) eq '+') { $MSG{'+'} = substr($MSG{'+'},1); }
 			push @{$R{'@MSGS'}}, \%MSG;
 			}
@@ -22451,7 +22513,14 @@ sub cartOrder {
 			$LM->pooshmsg("SUCCESS|+Finished $OID");
 			$redis->append($REDIS_ASYNC_KEY,sprintf("\nWIN|cart2 exists, polls[%d].",$POLLED_COUNT));
 			}
-		elsif ($POLLED_COUNT>10) {
+		elsif ($LM->had(['ERROR'])) {
+			$R{'payment_status'} = '911';
+			$R{'orderid'} = $OID;
+			$R{'finished'} = time();
+			$LM->pooshmsg("FAILURE|+Detected spooler error");
+			$redis->append($REDIS_ASYNC_KEY,sprintf("\nERROR|max polling [%d] was reached.",$POLLED_COUNT));
+			}
+		elsif ($POLLED_COUNT>500) {
 			## a failsafe to stop polling.
 			$R{'payment_status'} = '911';
 			$R{'orderid'} = $OID;
@@ -22464,9 +22533,17 @@ sub cartOrder {
 
 		$R{'status-cartid'} = $v->{'_cartid'};		## jt needs this to make his code easy.
 
-		print STDERR 'CARTORDERSTATUS: '.Dumper(\%R)."\n";
+		#if ((not &JSONAPI::hadError(\%R)) && (defined $CART2) && ($CART2->cartid() ne '')) {
+		#	## this will prevent it from saving within this session! (very important)
+		#	$CART2->make_readonly();		
+		#	delete $self->{'%CARTS'}->{ $CART2->cartid() };
+		#	}
+		print STDERR 'CARTORDERSTATUS: '.Dumper(\%R,$LM)."\n";
 		}
 	elsif (($v->{'async'}) && (not $self->is_spooler())) {
+		##
+		## ASYNC CHECKOUT (WILL QUEUE TO SPOOLER)
+		##
 		$R{'async'} = $v->{'async'};
 		$CART2->in_set('want/payby','PAYMENTQ');
 		my %SERIAL = ();
@@ -22481,16 +22558,18 @@ sub cartOrder {
 		$SERIAL{'ASYNC'} = $v->{'async'};
 		$SERIAL{'REDIS_ASYNC_KEY'} = $REDIS_ASYNC_KEY;
 		$SERIAL{'json:@PAYMENTQ'} = JSON::XS->new->ascii->pretty->allow_nonref->encode($self->paymentQ());
+		print STDERR "json:PAYMENTQ: ".$SERIAL{'json:@PAYMENTQ'}."\n";
 
-		my $EREFID = $CART2->in_get('want/erefid');
+		my $EREFID = '';
 		if ((not defined $EREFID) || ($EREFID eq '')) { $EREFID = $CART2->in_get('mkt/erefid'); }
-		if (not defined $EREFID) { $EREFID = $CART2->cartid(); }
+		if ((not defined $EREFID) || ($EREFID eq '')) { $EREFID = $CART2->in_get('want/erefid'); }
+		if ((not defined $EREFID) || ($EREFID eq '')) { $EREFID = $CART2->cartid(); }
 
 		$R{'previous-cartid'} = $CARTID;
 		my ($OID) = &CART2::next_id($self->username(),0,$EREFID);
 		$CART2->in_set('our/orderid',$OID);	
 		$R{'orderid'} = $OID;
-		$R{'status-cartid'} = sprintf("%s\$\$%s",$CARTID,$OID);
+		$R{'status-cartid'} = sprintf("%s\$\$%s",$CARTID,$OID);	## this is the key that tells JT everything is gonna be fine.
 		
 		$v->{'*CART2'} = $CART2;
 		$SERIAL{'body'} = JSON::XS->new->ascii->pretty->allow_nonref->convert_blessed->encode($v);
@@ -22521,17 +22600,48 @@ sub cartOrder {
 			$redis->append($REDIS_ASYNC_KEY,sprintf("\n***DID-NOT-SPOOL***"));
 			}
 
+		## we need this to save here.
+		#if (not &JSONAPI::hadError(\%R)) {
+		#	$CART2->make_readonly();		## this will prevent it from saving within this session! (very important)
+		#	delete $self->{'%CARTS'}->{$CARTID};
+		#	}
+
 		$R{'finished'} = 0;
 		}
 	elsif ($self->is_spooler()) {
-		## spooler checkout!
+		##
+		## SPOOLER PROCESSING
+		##
+
+		print STDERR 'paymentQ: '.Dumper($self->paymentQ());
+
+		if ($OID eq '') { $OID = $CART2->in_get('our/orderid'); }
+		$redis->append($REDIS_ASYNC_KEY,sprintf("\nSPOOLER*START|%s.%s.%s",time(),$OID,$CART2->is_readonly()));
 		$CART2->in_set('want/payby','PAYMENTQ');
+
+		##
+		## TODO: we should add some reasonable checking for duplicate orderid's here
+		## 
+		my $CARTID = $CART2->cartid();
 		($LM) = $CART2->finalize_order( 
 			'*LM'=>$LM, 
+			'our_orderid'=>$OID,
 			'app'=>sprintf("SPOOLER %s",$self->apiversion()), 
 			'domain'=>$self->domain(),
 			'R_A_K'=>$REDIS_ASYNC_KEY,
+			'skip_oid_creation'=>($OID?1:0),
 			);		
+		foreach my $msg (@{$LM->msgs()}) {
+			my ($ref,$status) = LISTING::MSGS::msg_to_disposition($msg);
+			next if ($ref->{'_'} eq 'INFO');
+			$redis->append($REDIS_ASYNC_KEY,sprintf("\nSPOOLER*%s|%s",$ref->{'_'},$ref->{'+'}));
+			}
+
+		$redis->append($REDIS_ASYNC_KEY,sprintf("\nSPOOLER*FINISHED|%s",time()));
+		delete $self->{'%CARTS'}->{$CARTID};
+
+		$CART2->reset_session("CHECKOUT");
+		## END SPOOLER PROCESSING
 		}
 	elsif ($self->apiversion()>201402) {	
 		&JSONAPI::set_error(\%R,'apperr',9293,'versions 201403 and later require async=1 flag');
@@ -22613,7 +22723,7 @@ sub cartOrder {
 			$R{'payment_status_detail'} = $BLAST->macros()->{'%PAYINSTRUCTIONS%'} || "%PAYINSTRUCTIONS% macro";
 			$R{'payment_status_detail'} = $TLC->render_html($R{'payment_status_detail'}, { '%ORDER'=>$CART2->jsonify() });
 
-			$R{'order'} = $CART2->make_public()->jsonify();
+			$R{'order'} = $CART2->make_readonly()->make_public()->jsonify();
 			}
 		}
 	elsif ($v->{'async'}) {
@@ -23737,13 +23847,11 @@ sub adminDebugProduct {
 
 	## INVENTORY DEBUG LOG
 	
-	my $LIMIT = 20;
 	if (1) {
 		my @INVENTORY_LOG = ();
 		$R{'@INVENTORY_LOG'} = \@INVENTORY_LOG; 
-		if ($USERNAME eq 'toynk') { $LIMIT = 100; }
-		my ($LOGTB) = &INVENTORY2::resolve_tb($USERNAME,$MID,'INVENTORY_LOG');
-		my $pstmt = "select * from $LOGTB where MID=$MID and PID=".$udbh->quote($PID)." order by ID desc limit 0,$LIMIT";
+		my $LIMIT = 100;
+		my $pstmt = "select * from INVENTORY_LOG where MID=$MID and PID=".$udbh->quote($PID)." order by ID desc limit 0,$LIMIT";
 		print STDERR $pstmt."\n";
 		my $sth = $udbh->prepare($pstmt);
 		$sth->execute();
@@ -23753,16 +23861,16 @@ sub adminDebugProduct {
 		$sth->finish();
 
    	## prepend finalization pending records.
-		my @INVENTORY_UPDATES = ();
-   	$pstmt = "select LUSER,TIMESTAMP,TYPE,PRODUCT,SKU,QUANTITY,APPID,ORDERID from INVENTORY_UPDATES where MID=$MID /* $USERNAME */ and PRODUCT=".$udbh->quote($PID)." order by ID desc";
-   	print STDERR $pstmt."\n";
-   	$sth = $udbh->prepare($pstmt);
-   	$sth->execute();
-   	while ( my $hashref = $sth->fetchrow_hashref() ) {
-			push @INVENTORY_UPDATES, $hashref;
-	   	}
-	   $sth->finish();
-		$R{'@INVENTORY_UPDATES'} = \@INVENTORY_UPDATES;
+		#my @INVENTORY_UPDATES = ();
+   	#$pstmt = "select LUSER,TIMESTAMP,TYPE,PRODUCT,SKU,QUANTITY,APPID,ORDERID from INVENTORY_UPDATES where MID=$MID /* $USERNAME */ and PRODUCT=".$udbh->quote($PID)." order by ID desc";
+   	#print STDERR $pstmt."\n";
+   	#$sth = $udbh->prepare($pstmt);
+   	#$sth->execute();
+   	#while ( my $hashref = $sth->fetchrow_hashref() ) {
+		#	push @INVENTORY_UPDATES, $hashref;
+	   #	}
+	   #$sth->finish();
+		#$R{'@INVENTORY_UPDATES'} = \@INVENTORY_UPDATES;
 	   }
 
 	if (1) {

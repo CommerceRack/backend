@@ -85,25 +85,6 @@ sub new {
 	}
 
 
-##
-## returns the appropriate product table for a particular user.
-##
-sub resolve_tb {
-   my ($USERNAME,$MID,$TB) = @_;
-
-	if ($TB eq '') { die("Table Name is required!"); }
-	if (&ZOOVY::myrelease($USERNAME)>201338) { return($TB); }
-
-   if (not defined $MID) { $MID = &ZOOVY::resolve_mid($USERNAME); }
-   if (defined $MID) {
-      ## if we pass an MID then use that to resolve the table.
-      if ($MID%10000>0) { $MID = $MID -($MID % 10000); }
-      return($TB.'_'.$MID);
-      }
-
-   }
-
-
 
 
 
@@ -1096,6 +1077,8 @@ sub invcmd {
 	## print STDERR Carp::cluck("$CMD");
 	push @{$MSGS}, "DEBUG|+CMD:$CMD";
 
+	
+
 	##
 	## START GENERAL DETAIL COMMANDS
 	##
@@ -1363,7 +1346,20 @@ sub invcmd {
 		push @{$MSGS}, "ERROR|+Unknown CMD:$CMD";
 		}
 
-	my ($LOGTB) = &INVENTORY2::resolve_tb($self->username(),$self->mid(),'INVENTORY_LOG');
+	my %logvars = ();
+	$logvars{'MID'} = $self->mid();
+	$logvars{'SKU'} = sprintf("%s",$options{'SKU'});
+	$logvars{'PID'} = sprintf("%s",$options{'PID'});
+	$logvars{'QTY'} = sprintf("%s",$options{'QTY'});
+	$logvars{'UUID'} = sprintf("%s",$options{'UUID'});
+	$logvars{'LUSER'} = sprintf("%s",$options{'LUSER'});
+	$logvars{'PARAMS'} = &ZTOOLKIT::buildparams(\%options,1);
+	$logvars{'CMD'} = $CMD;
+	$logvars{'*TS'} = 'now()';
+
+	my ($pstmt) = &DBINFO::insert($udbh,'INVENTORY_LOG',\%logvars,'verb'=>'insert','sql'=>1);
+	print STDERR "$pstmt\n";
+	$udbh->do($pstmt);
 	&DBINFO::db_user_close();
 
 	return($MSGS);

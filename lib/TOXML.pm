@@ -11,6 +11,13 @@ require ZOOVY;
 require DBINFO;
 
 
+sub TO_JSON {
+	my ($self) = @_;
+	my %REF = ();
+	foreach my $k (keys %{$self}) { $REF{$k} = $self->{$k}; }
+	return(\%REF);
+	}
+
 ##
 
 ##
@@ -440,40 +447,6 @@ sub save {
 ##
 ## a useful little function for updating the master file after we change elements or whatever.
 ##
-sub MaSTerSaVE {
-	my ($self) = @_;
-
-	delete $self->{'_USERNAME'};
-	delete $self->{'_MID'};
-	if ($self->{'_SYSTEM'} != 1) { die("not a system file"); }
-
-	my $DOCID = $self->{'_ID'};
-
-	my $xmlfile = '';
-	my $binfile = '';
-	if ($self->{'_FORMAT'} eq 'LAYOUT') {
-		# /httpd/static/layouts/$FILE.bin and $FILE.xml	
-		$binfile = "/httpd/static/layouts/$DOCID/main.bin";
-		$xmlfile = "/httpd/static/layouts/$DOCID/main.xml";
-		}
-	elsif ($self->{'_FORMAT'} eq 'WRAPPER') {
-		# /httpd/static/layouts/$FILE.bin and $FILE.xml	
-		$self->compile();
-		$binfile = "/httpd/static/wrappers/$DOCID/main.bin";
-		$xmlfile = "/httpd/static/wrappers/$DOCID/main.xml";
-		}
-
-	if ($xmlfile ne '') { 
-		print STDERR "TOXML->MaSTerSaVE Wrote: $xmlfile\n";
-		open F, ">$xmlfile"; print F $self->as_xml();  close F; chmod 0666, $xmlfile; chown $ZOOVY::EUID,$ZOOVY::EGID, $xmlfile; 
-		}
-
-	if ($binfile ne '') { 
-		print STDERR "TOXML->MaSTerSaVE Wrote: $binfile\n";
-		Storable::nstore $self, $binfile; 
-		chmod 0666, $binfile; chown $ZOOVY::EUID,$ZOOVY::EGID, $binfile; 
-		}
-	}
 
 ##
 ##	ACTION:

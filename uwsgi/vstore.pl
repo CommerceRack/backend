@@ -955,13 +955,14 @@ sub legacyResponseHandler {
 			}		
 		}
 
+	if ($SITE->pageid() ne '') {
+		## we're not going to serve a ""normal"" page
+		}
+	else {
+		## normal/standard page
 
-
-
-
-	if ($SITE->pageid() eq '') {
 		########################################
-		# GET THE CART
+		# ALRIGHT, WE NEED A CART
 		## The basic idea behind this is a new ID is assigned on every hit to the site
 		## until the cart has been touched...  &CART::validate_cart fails if the cart
 		## doesn't exist.  This way a search engine can come back on an indexed URL-encoded
@@ -972,6 +973,7 @@ sub legacyResponseHandler {
 		## modifying the cart, like META or click-trails.
 		$SITE::CART2 = undef;
 		my $cart_id = undef;		# temporary cart_id variable (note: we now ignore $ENV{'cart_id'})
+		## $SITE::DEBUG++;
 		$SITE::DEBUG && warn("========== STARTING CART ELECTION ==================");
 	
 		## always check the cookie first.
@@ -1041,7 +1043,7 @@ sub legacyResponseHandler {
 
 			if ($TRUST_REFER) {			
 				## Get the cart ID from the URL first if we're in the checkout (cross domain)
-		      $SITE::CART2 = CART2->new_persist($SITE->username(),$SITE->prt(),$cart_id);
+		      $SITE::CART2 = CART2->new_persist($SITE->username(),$SITE->prt(),$cart_id,'create'=>0);
   				if (not $SITE::CART2->exists()) { 
 					$SITE::CART2 = undef; 
 					$SITE::DEBUG && warn "!!!! oh crap cart->exists() failed on cart_id";
@@ -1061,7 +1063,7 @@ sub legacyResponseHandler {
 			}
 		elsif (($SITE->_is_secure()) && ($cart_id ne '')) {
 			## on secure pages -- cookies NEVER WIN!
-			$SITE::CART2 = CART2->new_persist($SITE->username(),$SITE->prt(),$cart_id);
+			$SITE::CART2 = CART2->new_persist($SITE->username(),$SITE->prt(),$cart_id,'create'=>0);
 			$SITE->cart2($SITE::CART2); ## LINK
 			if (not $SITE::CART2->exists()) { $SITE::CART2 = undef; }
 			$SITE::DEBUG && warn('Getting CART_ID from URL (environment variable)');
@@ -1075,7 +1077,7 @@ sub legacyResponseHandler {
 			}
 		elsif ((defined $SESSION_DATA{'id'}) && ($SESSION_DATA{'id'} ne '')) {
 			$SITE::DEBUG && warn "trying to use my session!";
-			$SITE::CART2 = CART2->new_persist($SITE->username(),$SITE->prt(),$SESSION_DATA{'id'});
+			$SITE::CART2 = CART2->new_persist($SITE->username(),$SITE->prt(),$SESSION_DATA{'id'},'create'=>0);
 			$SITE->cart2($SITE::CART2); ## LINK
 
 			if (not defined $SITE::CART2) {
@@ -1098,7 +1100,7 @@ sub legacyResponseHandler {
 			}
 		elsif ((defined $cart_id) && ($cart_id ne '')) {
 			## Get the cart ID from the URL first if we're in the checkout
-			$SITE::CART2 = CART2->new_persist($SITE->username(),$SITE->prt(),$cart_id);
+			$SITE::CART2 = CART2->new_persist($SITE->username(),$SITE->prt(),$cart_id,'create'=>0);
 			if (not $SITE::CART2->exists()) { 
 				$SITE::CART2 = undef; 	# this will give us a new cart.
 				}
@@ -1120,7 +1122,7 @@ sub legacyResponseHandler {
 			## Get the cart ID by generating a new one!
 			$SITE::DEBUG && warn('Generating new CART_ID');
 			my ($CARTID) = CART2::generate_cart_id();
-			$SITE::CART2 = CART2->new_persist($SITE->username(),$SITE->prt(),$CARTID,'ip'=>$SITE->ip_address(),'is_fresh'=>1);
+			$SITE::CART2 = CART2->new_persist($SITE->username(),$SITE->prt(),$CARTID,'ip'=>$SITE->ip_address(),'is_fresh'=>1,'create'=>1);
 			$SITE->cart2($SITE::CART2); ## LINK
 			}
 		else {
