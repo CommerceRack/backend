@@ -31,6 +31,10 @@ while [ $TOTALMEM -gt 0 ] ; do
 	swapon $SWAPFILE
 done
 
+mkdir "/dev/shm/spooler";
+chmod 777 "/dev/shm/spooler";
+
+
 
 ## 
 echo "nameserver 8.8.8.8" > /etc/resolv.conf

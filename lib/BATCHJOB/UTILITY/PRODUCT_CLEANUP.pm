@@ -33,9 +33,10 @@ sub work {
 	my $NAVCATS_CHANGED = 0;
 
 	my $gref = &ZWEBSITE::fetch_globalref($USERNAME);
-	if (($gref->{'inv_rexceed_action'} & 1)	|| ($gref->{'inv_outofstock_action'} & 1)) {
-		$REMOVE_FROM_WEBSITE_IF_OUT_OF_STOCK++;
-		}
+	$REMOVE_FROM_WEBSITE_IF_OUT_OF_STOCK++;
+	#if (($gref->{'inv_rexceed_action'} & 1)	|| ($gref->{'inv_outofstock_action'} & 1)) {
+	#	$REMOVE_FROM_WEBSITE_IF_OUT_OF_STOCK++;
+	#	}
 
 	my $NAVCATS_CHANGED = 0;
 	my @NAVCATS = ();
@@ -115,7 +116,10 @@ sub work {
 				$P->save();
 				}
 
-			if (not $REMOVE_FROM_WEBSITE_IF_OUT_OF_STOCK) {
+			if ($INVENTORY{$PID}) {
+				print "KEEPING: $PID\n";
+				}
+			elsif (not $REMOVE_FROM_WEBSITE_IF_OUT_OF_STOCK) {
 				## leave it alone.
 				}
 			elsif (($REMOVE_FROM_WEBSITE_IF_OUT_OF_STOCK) && ($INVENTORY{$PID}<=0)) {
