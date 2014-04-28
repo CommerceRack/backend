@@ -11,8 +11,7 @@ CREATE TABLE `INVENTORY_LOG` (
   `UUID` varchar(20) default '' not null,
   `LUSER` varchar(20) NOT NULL DEFAULT '',
   `TS`	datetime default 0 not null,
-  `PARAMS` text default '' not null,
+  `PARAMS` text default '' not null, PRIMARY KEY (`ID`), KEY `PID` (`MID`,`PID`,`TS`)
+  ) ENGINE=MyISAM AUTO_INCREMENT=0 DEFAULT CHARSET=latin1;
 
-  PRIMARY KEY (`ID`),
-  KEY `PID` (`MID`,`PID`,`TS`)
-) ENGINE=MyISAM AUTO_INCREMENT=0 DEFAULT CHARSET=latin1;
+commit;

@@ -24153,11 +24153,15 @@ sub adminDebugShippingPromoTaxes {
 
 	if ($SRC eq 'ORDER') {
 		## LOAD FROM ORDER
-		my $orderid = $v->{'ORDER'};
-		print STDERR "DEBUGGER USING ORDER: $v->{'ORDER'}\n";
+		my $orderid = $v->{'ORDERID'};
 		$CART2 = CART2->new_from_oid($USERNAME,$orderid);
-		$CART2->msgs($lm);
-		$CART2->is_debug($TRACE);
+		if ((not defined $CART2) || (ref($CART2) ne 'CART2')) {
+			&JSONAPI::set_error(\%R, 'warning', 7231, "order \"$orderid\" not valid" . Dumper($v));
+			}
+		else {
+			$CART2->msgs($lm);
+			$CART2->is_debug($TRACE);
+			}
 		}
 	elsif ($SRC eq 'DEST') {
 		## CREATE A CART
