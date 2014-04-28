@@ -18799,6 +18799,10 @@ sub appProductGet {
 			## NOTE: at some point we're going to want to summarize %SKU
 			}
 
+		if ($v->{'withSKU'}==1) {
+			$R{'%SKU'} = $P->list_skus('verify'=>0);
+			}
+
 		if ($v->{'withVariations'}==1) {
 			if ($self->apiversion()<201324) {
 				require TOXML::RENDER;

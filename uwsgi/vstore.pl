@@ -147,7 +147,8 @@ my $app = sub {
 		## This handles a POST
 		my $params = $req->parameters();
 		foreach my $k ($params->keys()) {
-			my ($x) = $params->get($k);
+			#my ($x) = $params->get($k);		## this munges data with ; in it!
+			my ($x) = $req->param($k);
 
 			if (utf8::is_utf8($x) eq '') {
 				## NOTE: this is specifically intended to correct situations where some clients post to us

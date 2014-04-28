@@ -299,12 +299,11 @@ sub handler {
 	if (defined $v->{'giftcardcode'}) {
 		## first thing we need to do is figure out
 		$lm->pooshmsg("INFO|+Looks like we might have a giftcard");
-		#my @errors = ();
-		#$SITE::CART2->add_giftcard($v->{'giftcardcode'},\@errors);
-		$lm->pooshmsg("ERROR|+Please add giftcards during checkout.");
-		#foreach my $err (@errors) { 
-		#	$lm->pooshmsg("ERROR|+$err"); 
-		#	}
+		my @errors = ();
+		$SITE::CART2->add_giftcard($v->{'giftcardcode'},\@errors);
+		foreach my $err (@errors) { 
+			$lm->pooshmsg("ERROR|+$err"); 
+			}
 		}
 
 #	if (defined $v->{'giftcardcode'}) {
@@ -345,6 +344,9 @@ sub handler {
 			foreach my $sku (keys %{$update}) {	
 				# push @warnings, "SKU: $sku";
 
+				my $item = $SITE::CART2->stuff2()->item('stid'=>$sku);
+				next if ($item->{'softcart'});
+
 				my $warning = $sku.'|'.$update->{$sku};
 				# Message: "Changed quantity of $sku from $before{$sku} to $update->{$sku} $reason";
 				## Message: "Item $sku not added to cart $reason : out of stock message"; 
@@ -353,7 +355,6 @@ sub handler {
 					);
 				push @warnings, $warning;
 
-				my $item = $SITE::CART2->stuff2()->item('stid'=>$sku);
 				$SITE::CART2->stuff2()->update_item_quantity( 'stid'=>$sku, $update->{$sku}, '*LM'=>$lm);
 				}
 

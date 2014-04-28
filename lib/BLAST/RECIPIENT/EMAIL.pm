@@ -47,10 +47,9 @@ sub send {
 	my $SUBJECT = $msg->subject();
 	$SUBJECT =~ s/<.*?>//gs;	# html stripping!
 
-	open F, ">>/tmp/emails";
-	print F Dumper($BODY);
-	close F;
-
+#	open F, ">>/tmp/emails";
+#	print F Dumper($BODY);
+#	close F;
 #	print STDERR "BODY: $BODY\n";
 
 	my %EMAIL = ();
@@ -102,7 +101,7 @@ sub send {
 			'from_email_campaign'=>''
 			);
 
-		$BCC .= ',brianh@zoovy.com';
+		## $BCC .= ',brianh@zoovy.com';
 
 		my $msg = MIME::Lite->new(
 			'X-Mailer'=>sprintf("CommerceRack %s [%s]",$JSONAPI::VERSION,$msg->msgid()),

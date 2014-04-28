@@ -162,15 +162,15 @@ sub recipient {
 			}
 		}
 
-	open F, ">/tmp/msgclass";
-	print F Dumper($TYPE,$REF,$METAREF);
-
+#	open F, ">/tmp/msgclass";
+#	print F Dumper($TYPE,$REF,$METAREF);
+#
 	my $class = "BLAST::RECIPIENT::$TYPE";
 	my ($recipient) = $class->new($self, $REF, $METAREF);
 	
-	print F "----------------------\n";
-	print F Dumper($recipient);
-	close F;
+#	print F "----------------------\n";
+#	print F Dumper($recipient);
+#	close F;
 
 	return($recipient);
 	}

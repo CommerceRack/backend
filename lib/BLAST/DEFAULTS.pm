@@ -198,7 +198,11 @@ apply --img --media=$var --width=75 --height=75 --bgcolor='#ffffff' --replace;" 
 	</td>
 	<td>
 	<div data-tlc="bind $var '.sku'; format --prepend='Sku: '; if (is $var --notblank) {{apply --append;}};"></div>
-	<b data-tlc="bind $var '.prod_name'; if (is $var --notblank) {{apply --append;}};"></b>
+	<b data-tlc="
+		bind $var '.description';
+		if (is $var --blank) {{ bind $var '.prod_name'; }};
+		if (is $var --notblank) {{apply --append;}};
+		"></b>
 	<div data-tlc="bind $var '.mktid'; if (is $var --blank) {{ apply --tag --remove;}};">
 		<!-- ** note: this will be removed when .mktid is blank -->
 		<div data-tlc="bind $mkt '.mkt'; if (is $mkt --eq='EBAY') {{ bind $var '.mktid'; format --prepend='eBay: '; }} else {{ apply --tag --remove; }}; "></div>
@@ -474,7 +478,11 @@ if ( is $paymentscount --gt=1 ) {{
 		}};
 	}};
 
+bind $payments '.%ORDER.@PAYMENTS';
+
 foreach $payment in $payments {{
+	/* DEBUG: stringify $payment; apply --append; */
+
 	export '%payment' --dataset=$payment;
 	bind $voided '.%payment.voided';	
 	bind $puuid '.%payment.puuid';
@@ -482,7 +490,8 @@ foreach $payment in $payments {{
 	bind $ps '.%payment.ps';
 	set $pss $ps;
 	format $pss --truncate=1;
-	
+
+
 	/* Depending on the type of payment method of the order, return pay instructions for that particular payment type. */
 	set $paytemplateids '';
 	format $paytemplateids --append='payment_' --append=$tender --append='_' --append=$ps; 	/* payment_tender_### */
@@ -516,19 +525,27 @@ foreach $payment in $payments {{
 		format $paytemplateids --append=',' --append='payment_' --append=$tender --append='_error'; 
 		format $paytemplateids --append=',' --append='payment_error';
 		}};
+
 		
-	if (is $voided) {{ set $paytemplateids ''; }};	/* voided */
-	if (is $puuid) {{ set $paytemplateids ''; }};	/* chained payment */
+	format $paytemplateids --lowercase;
+
+	if (is $voided --gt=1) {{ set $paytemplateids ''; }};	/* voided */
+	if (is $puuid --notblank) {{ set $paytemplateids ''; }};	/* chained payment */
+
 	if (is $paytemplateids --notblank) {{
-		set $paytemplatearray $paytemplateids --split='\|';
+		set $paytemplatearray $paytemplateids --split=',';
+		/* DEBUG: stringify $paytemplatearray; apply --append; */
 		set $selectedtemplateid '';
 		foreach $paytemplateid in $paytemplatearray {{
+			
+			/* DEBUG: apply --append=$paytemplateid; */
 			if (is $selectedtemplateid --blank) {{
-				if (is $paytemplateid --templateidexists) {{
+				if (is $paytemplateid --templateidexist=$paytemplateid) {{
 					set $selectedtemplateid $paytemplateid;
 					}};
 				}};
 			}};
+
 
 		if (is $selectedtemplateid --notblank) {{
 			
@@ -545,11 +562,13 @@ foreach $payment in $payments {{
 					}};				
 				}};
 			
-			transmogrify --templateid=$selecteditemplateid --dataset=$dataset;
+			/* DEBUG: apply --append=' SELECTED[' --append=$selectedtemplateid --append=']'; */
+			transmogrify --templateid=$selectedtemplateid --dataset=$dataset;
 			apply --append;
 			}};
 		}};
 	}};
+
 
 
 /* REVIEW STATUS */
@@ -584,30 +603,38 @@ if (is $paiddate --gt=0) {{
 "></div>
 
 <template id='payment_buy_success'>
-<!-- payment_buy_success  --><p align="left">
-We have received and processed the payment for the amount of: $%GRANDTOTAL%
+<!-- payment_buy_success  -->
+<p align="left">
+We have received and processed the payment for the amount of: <span data-tlc="bind $var '.%ORDER.sum.order_total'; format --currency; apply --append;"></span>
 The Buy.com Transaction ID (if available) is: <span data-tlc="bind $txn '.txn'; apply --append;"></span>
 </p>
 </template>
 
 <template id='payment_cash_pending'>
-<!-- Displayed when cash payment is waiting (usually this is only for point of sale) Checkout cash pending --><div align="left">
-<p>You have chosen to pay by cash.  Please do not send cash by mail.
-This payment should be made in person at our location:</p>
-<b>%MYADDRESS%</b>
-<p><i>we are not responsible for lost or stolen payments.</i></p>
+<!-- Displayed when cash payment is waiting (usually this is only for point of sale) Checkout cash pending -->
+<div align="left">
+	<p>You have chosen to pay by cash.  Please do not send cash by mail.
+	This payment should be made in person at our location:
+	</p>
+	<b><span data-tlc="bind $var '.%PRT.MAILADDR'; render --cr2br; apply --append;"></span></b>
+	<p><i>we are not responsible for lost or stolen payments.</i></p>
 </div>
 </template>
 
 <template id='payment_cash_success'>
-<!-- Displayed when cash payment has been received (usually this is for point of sale). Checkout cash success --><div align="left">
+<!-- Displayed when cash payment has been received (usually this is for point of sale). Checkout cash success -->
+<div align="left">
 <p>Your cash payment is appreciated.</p>
+</div>
 </template>
 
 <template id='payment_check_pending'>
-<!-- Pending Company Check Payment Message (EMAIL)  --><p>You must make the check for the amount $%GRANDTOTAL% payable to %PAYABLETO%.</p>
-
-<p>To speed processing of the order, please print "Order Number %ORDERID%" in the memo of the check.</p>
+<!-- Pending Company Check Payment Message (EMAIL)  -->
+<p>You must make the check for the amount 
+	<span data-tlc="bind $var '.%ORDER.sum.order_total'; format --currency; apply --append;"></span> payable to 
+	<span data-tlc="bind $var '.%PRT.COMPANY'; apply --append;"></span>.
+</p>
+<p>To speed processing of the order, please print "Order Number <span data-tlc="bind $var '.%ORDER.our.orderid'; apply --append;"></span>" in the memo of the check.</p>
 
 <p>If payment is not received within 2 weeks, your order will be automatically cancelled.</p>
 Please send the payment to the mailing address located on our website.
@@ -623,27 +650,28 @@ Please send the payment to the mailing address located on our website.
 
 <template id='payment_chkod_pending'>
 <!-- Pending Check OD Payment Message (EMAIL)  -->
-The check you will present upon delivery must be payable to %PAYABLETO%
-made for the amount $%GRANDTOTAL%.
+The check you will present upon delivery must be payable to <span data-tlc="bind $var '.%PRT.COMPANY'; apply --append;"></span>
+made for the amount <span data-tlc="bind $var '.%ORDER.sum.order_total'; format --currency; apply --append;"></span>.
 
-To speed processing of the order, please print "Order Number %ORDERID%"
+To speed processing of the order, please print "Order Number <span data-tlc="bind $var '.%ORDER.our.orderid'; apply --append;"></span>"
 in the memo of the check.
 </template>
 
 <template id='payment_chkod_success'>
 <!-- Checkout Check on Delivery message Displayed to customers who have selected Check on Delivery. -->
-<p align="left">You have chosen to pay by personal or company check on delivery.  
-You must have the check for the amount <b>$%GRANDTOTAL%</b> ready when your delivery arrives, 
-please contact us if you have any questions.
-In the memo of the check please put "Order %ORDERID%".</p>
+<p align="left">
+	You have chosen to pay by personal or company check on delivery.  
+	You must have the check for the amount <b><span data-tlc="bind $var '.%ORDER.sum.order_total'; format --currency; apply --append;"></span></b> ready when your delivery arrives, 
+	please contact us if you have any questions.
+	In the memo of the check please put "Order <span data-tlc="bind $var '.%ORDER.our.orderid'; apply --append;"></span>".</p>
 </template>
 
 <template id='payment_cod_pending'>
 <!-- Pending COD Payment Message (EMAIL)  -->
 The cashier check or money order you will present upon delivery must be
-payable to %PAYABLETO% for the amount $%GRANDTOTAL%.
+payable to <span data-tlc="bind $var '.%PRT.COMPANY'; apply --append;"></span> for the amount <span data-tlc="bind $var '.%ORDER.sum.order_total'; format --currency; apply --append;"></span>.
 
-To speed processing of the order, please print "Order Number %ORDERID%" in
+To speed processing of the order, please print "Order Number <span data-tlc="bind $var '.%ORDER.our.orderid'; apply --append;"></span>" in
 the memo of the cashier check or money order.
 
 </template>
@@ -651,20 +679,20 @@ the memo of the cashier check or money order.
 <template id='payment_cod_success'>
 <!-- Checkout COD message Displayed to customers who have selected COD. -->
 <p align="left">You have chosen to pay by cashier's check or money order on delivery. 
-You must have the cashier's check or money order for the amount <b>$%GRANDTOTAL%</b> ready when your delivery arrives, 
-payable to <b>%PAYABLETO%</b>.  In the memo of the cashier's check or money order please put "Order %ORDERID%".</p>
+You must have the cashier's check or money order for the amount <b><span data-tlc="bind $var '.%ORDER.sum.order_total'; format --currency; apply --append;"></span></b> ready when your delivery arrives, 
+payable to <b><span data-tlc="bind $var '.%PRT.COMPANY'; apply --append;"></span></b>.  In the memo of the cashier's check or money order please put "Order <span data-tlc="bind $var '.%ORDER.our.orderid'; apply --append;"></span>".</p>
 </template>
 
 <template id='payment_credit_denied'>
 <!-- Denied Credit Card  payment  -->
-<p>Your Credit Card payment has been denied.  If you do not have a customer account, please contact %MYEMAIL% for assistance.  
+<p>Your Credit Card payment has been denied.  
+If you do not have a customer account, please contact <span data-tlc="bind $var '.%PRT.EMAIL'; apply --append;"></span> for assistance.  
 If you have an account, please login to your account to correct your payment</p>
 </template>
 
 <template id='payment_credit_failure'>
 <!-- Credit card failed charge. Checkout credit charge failed (2xx and 3xx result codes) -->
 <p align="left">There was a problem processing your order.  Please contact us by email or phone.</p>
-<p align="left">%REASON%</p>
 </template>
 
 <template id='payment_credit_pending'>
@@ -691,8 +719,7 @@ If you have an account, please login to your account to correct your payment</p>
 <template id='payment_ebay_success'>
 <!-- payment_ebay_success  -->
 <p align="left">
-We have received and processed the payment for your eBay order for the amount of: $%GRANDTOTAL%
-The eBay/Paypal Transaction ID (if available) is: %PAYMENT_TXN%
+We have received and processed the payment for your eBay order for the amount of: <span data-tlc="bind $var '.%ORDER.sum.order_total'; format --currency; apply --append;"></span>
 </p>
 </template>
 
@@ -716,17 +743,6 @@ The eBay/Paypal Transaction ID (if available) is: %PAYMENT_TXN%
 <p align="left">Thank you for your payment!</p>
 </template>
 
-<template id='payment_google_denied'>
-<!-- Denied Google Checkout Payment Message (EMAIL)  -->
-<p>Your Google Checkout payment has been denied.  Please click the link below to correct your payment:</p>
-<a href="%PAYMENT_FIXNOWURL%">%PAYMENT_FIXNOWURL%</a>
-</template>
-
-<template id='payment_google_pending'>
-<!-- Pending Google Checkout Payment Message (EMAIL)  -->
-<p>You have chosen to pay via Google Checkout.  Your payment is considered Pending and funds have not been released at this time<p>
-</template>
-
 <template id='payment_layaway_pending'>
 <!-- Pending Layaway Payment Message (EMAIL)  -->
 <p>You have chosen to pay via Layaway.  Your payment is considered Pending and funds have not been released at this time<p>
@@ -744,8 +760,8 @@ The eBay/Paypal Transaction ID (if available) is: %PAYMENT_TXN%
 
 <template id='payment_mo_pending'>
 <!-- Pending Cashiers Check Payment Message (EMAIL)  -->
-<p>You should prepare a cashiers check or money order for the amount $%GRANDTOTAL% payable to %PAYABLETO%.</p>
-<p>To speed processing of the order, please print "Order Number %ORDERID%" in the memo of the check.</p>
+<p>You should prepare a cashiers check or money order for the amount <span data-tlc="bind $var '.%ORDER.sum.order_total'; format --currency; apply --append;"></span> payable to <span data-tlc="bind $var '.%PRT.COMPANY'; apply --append;"></span>.</p>
+<p>To speed processing of the order, please print "Order Number <span data-tlc="bind $var '.%ORDER.our.orderid'; apply --append;"></span>" in the memo of the check.</p>
 <p>If payment is not received within 2 weeks, your order will be automatically cancelled.</p>
 <div>
 Please send the payment to the mailing address located on our website.
@@ -761,12 +777,6 @@ Please send the payment to the mailing address located on our website.
 <template id='payment_other_pending'>
 <!-- Other Pending Payment Message (EMAIL)  -->
 <p>Thank you for your order.</p>
-</template>
-
-<template id='payment_paypalec_denied'>
-<!-- Denied Paypal Express Checkout payment  -->
-<p>The PayPal Express Checkout payment has been denied.  Please click the link below to correct your payment:</p>
-<a href="%PAYMENT_FIXNOWURL%">%PAYMENT_FIXNOWURL%</a>
 </template>
 
 <template id='payment_paypalec_pending'>
@@ -803,9 +813,9 @@ If there is an issue we will contact you.</p>
 
 <template id='payment_wire_pending'>
 <!-- Pending Wire Transfer Message  -->
-<p>You send a wire transfer for the amount $%GRANDTOTAL%.
+<p>You send a wire transfer for the amount <span data-tlc="bind $var '.%ORDER.sum.order_total'; format --currency; apply --append;"></span>.
 Our account number is: [[PLEASE CONTACT US FOR ROUTING / ACCOUNT NUMBER]]
-<p>To speed processing of the order, please print "Order Number %ORDERID%" in the memo of the transfer.</p>
+<p>To speed processing of the order, please print "Order Number <span data-tlc="bind $var '.%ORDER.our.orderid'; apply --append;"></span>" in the memo of the transfer.</p>
 <p>If payment is not received within 2 weeks, your order will be automatically cancelled.</p>
 </template>
 
@@ -1063,7 +1073,7 @@ foreach my $k (keys %BLAST::DEFAULTS::DEPRECATED) {
 	</td>
 
 	<td style="text-align:right" valign="top" width="50%">
-	<h3>Invoice: %ORDERID%</h3>
+	<h3>Invoice: <span data-tlc="bind $var '.%ORDER.our.orderid'; apply --append;"></span></h3>
 	<!-- output the order status, maps to the same status the order is within in order manager.  -->
 	<h4 data-tlc="bind $var '.%ORDER.flow.pool'; if (is $var --notblank;) {{format --prepend='Order Status: '; apply --append;}};"></h4>
 	<!-- output the payment method -->
@@ -1156,8 +1166,8 @@ foreach my $k (keys %BLAST::DEFAULTS::DEPRECATED) {
 	<div>%HELPEMAIL%</div>
 	</td>
 	<td valign="middle" width="50%">
-	<h2>Order Number: %ORDERID%</h2>
-	<div class="barcode">%ORDERID%</div>
+	<h2>Order Number: <span data-tlc="bind $var '.%ORDER.our.orderid'; apply --append;"></span></h2>
+	<div class="barcode"><span data-tlc="bind $var '.%ORDER.our.orderid'; apply --append;"></span></div>
 	</td>
 </tr>
 <tr>

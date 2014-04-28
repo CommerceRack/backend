@@ -557,12 +557,14 @@ sub core_transmogrify {
 	my $html = undef;
 	my $var = undef;
 
+	my $debug = 0;
 	for my $arg (@{$command->{args}}) {
 		if ($arg->{'type'} eq 'variable') { 
 			$dataset = $self->{vars}->{ $arg->{'value'} };
 			}
 		elsif ($arg->{'key'} eq 'templateid') {
 			my $id = $self->lookup_value($arg->{value});
+			$debug = $id;
 			$html = $self->_templates()->{ $id };
 			}
 		elsif ($arg->{'key'} eq 'template') {
@@ -580,6 +582,10 @@ sub core_transmogrify {
 
 	($result) = $self->render_html( $html, $dataset );
 
+	#open F, ">>/tmp/transmog";
+	#print F Dumper($debug,$result,$html)."\n\n\n";
+	#close F;
+
 	$self->_cwt($_cwt_);
 	$self->_data($_data_);
 	$self->_dom($_dom_);
@@ -590,7 +596,7 @@ sub core_transmogrify {
 	}
 
 ##
-## export --key'%something' --value=$value
+##	export '%payment' --dataset=$somevar;
 ##
 sub core_export {
 	my ($self, $command) = @_;
@@ -599,23 +605,33 @@ sub core_export {
 	
 	my $var = undef;
 	for my $arg (@{$command->{args}}) {
-		if ($arg->{'type'} eq 'variable') { 
+
+		if (($arg->{'key'} eq '') && ($arg->{'type'} eq 'variable')) { 
+			## unnamed parameter is the path (came from a variable)
 			$path = $self->{vars}->{ $arg->{'value'} };
 			}
-		elsif ($arg->{'type'} eq 'key') {
-			$path = $self->lookup_value($arg->{'value'});
+		elsif (($arg->{'key'} eq '') && ($arg->{'type'} eq 'scalar')) { 
+			## path can be scalar 
+			$path = $arg->{'value'};
 			}
-		elsif ($arg->{'type'} eq 'dataset') {
+		elsif ($arg->{'key'} eq 'dataset') {
 			$dataset = $self->lookup_value($arg->{'value'});
 			}
+		#elsif ($arg->{'key'} eq 'key') {
+		#	$path = $self->lookup_value($arg->{'value'});
+		#	}
 		}
 
 	my $result = undef;
-	if ($var) { $self->{vars}->{$var} = $result; }
-	if ($path) { 
-		my $jpath = JSON::Path->new( '$'.$path );
-		$result = $jpath->value($dataset || $self->_data());
-		}
+	$result = $self->_data()->{$path} = $dataset;
+	## PATH: is not a jsonpath
+	#if ($path) { 
+	#	my $jpath = JSON::Path->new( '$'.$path );
+	#	$result = $jpath->value($dataset || $self->_data());
+	#	}
+	#open F, ">>/tmp/export";
+	#print F Dumper($dataset,$command,$path,$result)."\n\n\n\n\n\n";
+	#close F;
 
 	return($result);
 	}
@@ -704,6 +720,8 @@ sub core_is {
 			if ($arg->{'key'} eq 'ne') { $result = (! $result); }
 			}
 		elsif ($arg->{'key'} eq 'templateidexist') {
+			$val2 = $val;
+			if (defined $arg->{'value'}) { $val2 = $self->lookup_value($arg->{'value'}); }
 			$val2 = $self->lookup_value($arg->{'value'}); 
 			$result = (defined $self->{'%TEMPLATES'}->{$val2})?1:0;
 			}
@@ -886,6 +904,12 @@ sub core_format {
 				}
 			elsif ($arg->{'key'} eq 'length') {
 				$result = length( $self->lookup_value($arg->{value}) );
+				}
+			elsif ($arg->{'key'} eq 'lowercase') {
+				$result = lc($self->lookup_value($arg->{value}));
+				}
+			elsif ($arg->{'key'} eq 'uppercase') {
+				$result = uc($self->lookup_value($arg->{value}));
 				}
 			#elsif ($arg->{'key'} eq 'path') {	
 			#	my $path = $self->lookup_value($arg->{value});	
