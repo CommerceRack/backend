@@ -1346,6 +1346,13 @@ sub invcmd {
 		push @{$MSGS}, "ERROR|+Unknown CMD:$CMD";
 		}
 
+	if (($options{'PID'} eq '') && ($options{'SKU'} ne '')) {
+		($options{'PID'}) = PRODUCT::stid_to_pid($options{'SKU'});
+		}
+	elsif (($options{'SKU'} eq '') && ($options{'PID'} ne '')) {
+		($options{'SKU'}) = '*';
+		}
+
 	my %logvars = ();
 	$logvars{'MID'} = $self->mid();
 	$logvars{'SKU'} = sprintf("%s",$options{'SKU'});
