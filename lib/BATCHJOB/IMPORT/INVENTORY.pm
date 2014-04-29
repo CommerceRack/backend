@@ -86,8 +86,11 @@ sub parseinventory {
 
 		my $pos = 0; # $pos keeps track of which field in the @DATA array we are on.
 		foreach my $destfield (@{$fieldsref}) {	
+
 			$destfield =~ s/^[\s]+//g; 	# strip spaces.
 			$destfield =~ s/[\s]+$//g;
+
+
 			if ($DATA[$pos] eq '') { 
 				# Skip blank fields
 				}
@@ -130,10 +133,12 @@ sub parseinventory {
 					}
 				elsif (($destfield eq '%SUPPLIER_SKU') && ($DATA[$pos] ne '')) {
 					my $SUPPLIER_ID = $optionsref->{'SUPPLIER_ID'} || $optionsref->{'SUPPLIER'};
-					
+
+					$INVCMD{'SUPPLIER_SKU'} = $DATA[$pos];
 					if ($INVCMD{'SKU'} eq '') {
 						($INVCMD{'SKU'}) = &PRODUCT::BATCH::resolve_sku($USERNAME,'SUPPLIER_SKU',$DATA[$pos],'SUPPLIER'=>$SUPPLIER_ID);
 						}
+
 					}
 				## it would be nice to do supplier lookup here as well.
 				elsif ( ($destfield eq '%QTY')  && $DATA[$pos] ne '') { 
