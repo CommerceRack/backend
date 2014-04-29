@@ -144,6 +144,10 @@ my $app = sub {
    if (defined $HTTP_RESPONSE) {
       ## we're already done! (probably an error)
       }
+	elsif ($path =~ /^\/jsonapi\/call\/([a-zA-Z]+)\.json/) {
+		## future jsonapi/call/appResource?filename=elastic_public.json
+		
+		}
    elsif ($path =~ /^\/jsonapi\/plugin\/([a-z0-9]+)\.(xml|json|txt)$/) {
       ## we handle options *very* differntly for jsonapi/upload requests so we'll do that later.
 		my $module = uc($1);

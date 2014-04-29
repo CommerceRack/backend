@@ -8463,7 +8463,7 @@ sub adminProduct {
 		elsif ($FILENAME eq '@INVENTORY_TRANSACTIONS') {
 			#my $TB = &INVENTORY::resolve_tb($USERNAME,$MID,'INVENTORY');
 			my $qtPID = $udbh->quote($PID);
-			my $pstmt = "select * from INVENTORY_LOG where MID=$MID /* $USERNAME */ and PRODUCT=$qtPID order by TS desc";
+			my $pstmt = "select * from INVENTORY_LOG where MID=$MID /* $USERNAME */ and PID=$qtPID order by TS desc";
 			print STDERR $pstmt."\n";
 			push @HEAD, { 'id'=>'ID' };
 			push @HEAD, { 'id'=>'TS' };
@@ -8475,7 +8475,6 @@ sub adminProduct {
 			push @HEAD, { 'id'=>'LUSER' };
 			push @HEAD, { 'id'=>'PARAMS' };
 
-			$pstmt = "select * from INVENTORY_DETAIL where MID=$MID and PID=$qtPID order by ID desc";
 			my $sth = $udbh->prepare($pstmt);
 			$sth->execute();
 			while ( my $dbref = $sth->fetchrow_hashref() ) {
@@ -24153,15 +24152,11 @@ sub adminDebugShippingPromoTaxes {
 
 	if ($SRC eq 'ORDER') {
 		## LOAD FROM ORDER
-		my $orderid = $v->{'ORDERID'};
+		my $orderid = $v->{'ORDER'};
+		print STDERR "DEBUGGER USING ORDER: $v->{'ORDER'}\n";
 		$CART2 = CART2->new_from_oid($USERNAME,$orderid);
-		if ((not defined $CART2) || (ref($CART2) ne 'CART2')) {
-			&JSONAPI::set_error(\%R, 'warning', 7231, "order \"$orderid\" not valid" . Dumper($v));
-			}
-		else {
-			$CART2->msgs($lm);
-			$CART2->is_debug($TRACE);
-			}
+		$CART2->msgs($lm);
+		$CART2->is_debug($TRACE);
 		}
 	elsif ($SRC eq 'DEST') {
 		## CREATE A CART
@@ -27425,6 +27420,13 @@ sub appResource {
 			if (not $ref->{$id}->{'popular'}) { delete $ref->{$id}; }
 			}
 		}
+	elsif ($FILENAME =~ /^elastic_public\.(.*?)$/) { 
+		require PRODUCT::FLEXEDIT;
+		my ($elastic_product_fields) = PRODUCT::FLEXEDIT::elastic_fields($self->username());
+		$ref = {
+			'@products'=>$elastic_product_fields
+			};
+		}
 	elsif ($FILENAME =~ /^payment_status\.(.*?)$/) { 
 		require ZPAY;
 		$ref = [];
@@ -27477,8 +27479,6 @@ sub appResource {
 		require ZOOVY;
 		$ref = \@ZOOVY::RETURN_STAGES;
 		}
-#	elsif ($FILENAME eq /^warehouse.(.*?)$/) {
-#		}
 	elsif ($FILENAME =~ /^recentnews\.(.*?)$/) {
 		$EXT = $1;
 		require HTTP::Tiny;

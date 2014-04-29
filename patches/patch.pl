@@ -93,6 +93,9 @@ foreach my $USERNAME (@{$CFG->users()}) {
 			next;
 			}
 		}
+	print "------------------------------------------------------------------------\n";
+	print "$USERNAME\n";
+	print "------------------------------------------------------------------------\n";
 
 	my ($udbh) = &DBINFO::db_user_connect($USERNAME);
 	
