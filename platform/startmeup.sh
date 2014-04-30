@@ -81,11 +81,10 @@ echo "nameserver 8.8.8.8" > /etc/resolv.conf
   rm -Rf /httpd/logs
   ln -sv /local/httpd/logs /httpd/logs
   chown nobody.nobody /local/httpd/logs
-
-  cd /usr/local/elasticsearch/bin/service
- ./elasticsearch start
+  
+  /etc/init.d/elasticsearch start
     
-  /etc/init.d/mysql start
+ # /etc/init.d/mysql start
   sleep 10;	## give mysql some time to start
   
   for USER in `/httpd/platform/cfgecho.pl type:user` ; do    

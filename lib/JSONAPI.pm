@@ -813,6 +813,16 @@ sub paymentQCMD {
 	if (not defined $v) { $v = {}; }	# certain commands like 'sync' need no parameters.
 	my $webdbref = $self->webdb();
 
+	## CART2 is required for PAYPALEC
+	my $CART2 = undef;
+	if ($v->{'_cartid'}) {
+		my $cartid = sprintf("%s",$v->{'_cartid'});
+		$CART2 = $self->cart2($cartid);
+		if (not defined $CART2) {
+			&JSONAPI::set_error($R,'apierr','91217',"cart could not be loaded");
+			}
+		}		
+
 	$self->{'@PAYMENTQ'} = $self->paymentQ();
 
 	if ($cmd eq 'sync') {
@@ -827,6 +837,23 @@ sub paymentQCMD {
 		
 		if ($self->apiversion()<201314) {
 			## no error checking.
+			}
+		elsif ($v->{'TN'} eq 'PAYPALEC') {
+			my ($result) = &ZPAY::PAYPALEC::GetExpressCheckoutDetails($CART2,$v->{'PT'},$v->{'PI'},$v);
+			if ($result->{'ERR'}) {
+				&JSONAPI::append_msg_to_response($R,'apierr',3599,$result->{'ERR'});
+				}
+			elsif ($result->{'ACK'} eq 'Failure') {
+				if ($result->{'ERR'} eq '') { $result->{'ERR'} = sprintf("Paypal error[%d] %s",$result->{'L_ERRORCODE0'},$result->{'L_LONGMESSAGE0'}); }
+				if ($result->{'ERR'} eq '') { $result->{'ERR'} = "Paypal ACK=Failure but no ERR message set"; }
+				&JSONAPI::append_msg_to_response($R,'apierr',3598,$result->{'ERR'});
+				}
+			elsif ($result->{'ACK'} eq 'Success') {
+				&JSONAPI::append_msg_to_response($R,'success',0);
+				}
+			else {
+				&JSONAPI::append_msg_to_response($R,'iseerr',3592,sprintf('Unhandled internal ACK status:%s',$result->{'ACK'}));
+				}
 			}
 		elsif ($self->apiversion() < 201403) {
 			## the stricter validation checks here are not appreciated by earlier version.
@@ -919,27 +946,11 @@ sub paymentQCMD {
 			#		}
 			#	}
 			}
-		elsif ($v->{'TN'} eq 'PAYPALEC') {
+		#elsif ($v->{'TN'} eq 'PAYPALEC') {
 		#	if ($v->{'PT'} eq '') {
 		#		&JSONAPI::set_error($R,'apperr',50540,'Paypal Payment Token is invalid');
 		#		}
 		#	}
-		#elsif ($v->{'TN'} eq 'PAYPALEC') {
-		#	if ($thisRow->{'ERR'}) {
-		#		&JSONAPI::append_msg_to_response($R,'apierr',3599,$thisRow->{'ERR'});
-		#		}
-		#	elsif ($thisRow->{'ACK'} eq 'Failure') {
-		#		if ($thisRow->{'ERR'} eq '') { $thisRow->{'ERR'} = sprintf("Paypal error[%d] %s",$thisRow->{'L_ERRORCODE0'},$thisRow->{'L_LONGMESSAGE0'}); }
-		#		if ($thisRow->{'ERR'} eq '') { $thisRow->{'ERR'} = "Paypal ACK=Failure but no ERR message set"; }
-		#		&JSONAPI::append_msg_to_response($R,'apierr',3598,$thisRow->{'ERR'});
-		#		}
-		#	elsif ($thisRow->{'ACK'} eq 'Success') {
-		#		&JSONAPI::append_msg_to_response($R,'success',0);
-		#		}
-		#	else {
-		#		&JSONAPI::append_msg_to_response($R,'iseerr',3592,sprintf('Unhandled internal ACK status:%s',$thisRow->{'ACK'}));
-		#		}
-			}
 		else {
 			## other payment type!
 			}
@@ -2563,7 +2574,7 @@ sub sessionInit {
 					$self->{'%CARTS'}->{ $CART2->cartid() } = $CART2;
 					}
 				}
-			elsif ($k =~ /^#GIFTCARD:(.*?)$/o) {
+			elsif ($k =~ /^#(GIFTCARD|PAYPALEC)\:(.*?)$/o) {
 				my ($payment) = &ZTOOLKIT::parseparams($ref->{$k});
 				## it would be nice to refresh giftcards here.
 				# my ($cardinfo) = GIFTCARD::lookup($self->username(),'CODE'=>$ref->{'#GIFTCARD'});
@@ -2634,8 +2645,14 @@ sub sessionSave {
 
 		foreach my $payment (@{$self->paymentQ()}) {
 			## store any giftcard's that were added.
-			if ($payment->{'TN'} eq 'GIFTCARD') {
+			if ($payment->{'TN'} eq 'PAYPALEC') {
+				$DATA{sprintf("#PAYPALEC:%s",$payment->{'PI'})} = &ZTOOLKIT::buildparams($payment,1);
+				}
+			elsif ($payment->{'TN'} eq 'GIFTCARD') {
 				$DATA{sprintf("#GIFTCARD:%s",$payment->{'GI'})} = &ZTOOLKIT::buildparams($payment,1);
+				}
+			else {
+				warn sprintf("session Discarding payment %s\n",$payment->{'TN'});
 				}
 			}
 
@@ -19298,7 +19315,7 @@ sub cartPaymentQ {
 		$self->paymentQCMD( \%R, 'sync' );
 		$CART2->{'@PAYMENTQ'} = $self->paymentQ();
 		}
-	#print STDERR "cartPaymentQ Dump: ".Dumper($CART2->{'@PAYMENTQ'})."\n";
+	# print STDERR "cartPaymentQ Dump: ".Dumper($self->paymentQ())."\n";
 
 	if (not &JSONAPI::hadError(\%R)) {
 		&JSONAPI::append_msg_to_response(\%R,'success',0);		

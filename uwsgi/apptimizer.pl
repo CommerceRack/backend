@@ -19,10 +19,13 @@ use IO::Scalar;
 use JavaScript::Minifier;
 use CSS::Minifier::XS;
 use HTML::TreeBuilder;
+use MIME::Types;
+use HTTP::Tiny;
 
 use lib "/httpd/modules";
 use DOMAIN::QUERY;
 use ZOOVY;
+use APPTIMIZER;
 
 ##
 ##
@@ -33,7 +36,6 @@ sub slurp {
 	chomp($BUF);
 	return($BUF);
 	}
-
 
 
 
@@ -186,6 +188,7 @@ my $app = sub {
 	$CONFIG{'release'} = $CONFIG{'release'} || $ZOOVY::RELEASE;
 	$CONFIG{'copyright'} = $CONFIG{'copyright'} || "Do not copy without permission."; 
 
+	$CONFIG{'json#compress'} = $CONFIG{'json#compress'} || 1;
 	$CONFIG{'js#compress'} = $CONFIG{'js#compress'} || 1;
 	$CONFIG{'css#compress'} = $CONFIG{'css#compress'} || 1;
 
@@ -375,14 +378,26 @@ my $app = sub {
 				$BODY = $COPY;
 				}
 			}
-		elsif (($CONFIG{'html#compress'}) && ($FILENAME =~ /\.html$/)) {
+		elsif (($CONFIG{'json#compress'}) && ($FILENAME =~ /\.json$/)) {
+			if ($FILENAME =~ /-min\.js$/) {
+				## already minified.
+				}
+			else {
+			#	my $COPY = '';
+			#	my $SH = new IO::Scalar \$COPY;
+			#	JavaScript::Minifier::minify(input => $BODY, outfile => $SH, copyright=>$CONFIG{'copyright'});
+			#	$BODY = $COPY;
+				}
+			}
+		elsif (($CONFIG{'html#compress'}) && ($FILENAME =~ /^\/index\.html$/)) {
 			## NOT AVAILABLE YET
-	#		my $tree = HTML::TreeBuilder->new(no_space_compacting=>0,ignore_unknown=>1,store_comments=>0); # empty tree
-	#		$tree->parse_content($BODY);
-#
-#		   my $el = $tree->elementify();
-#			optimizeHTML($el,\%CONFIG);
-				
+			my ($BASEDIR) = "$NFSROOT";
+			my $tree = HTML::TreeBuilder->new(no_space_compacting=>0,ignore_unknown=>0,store_declarations=>1,store_comments=>0); # empty tree
+			$tree->parse_content($BODY);
+
+		   my $el = $tree->elementify();
+			&APPTIMIZER::optimizeHTML($BASEDIR,$el,\%CONFIG);
+			$BODY = $el->as_HTML();
 			}
 		elsif (($CONFIG{'css#compress'}) && ($FILENAME =~ /\.css$/)) {
 			## open F, ">/tmp/compress"; print F $BODY; close F;
