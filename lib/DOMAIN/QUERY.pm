@@ -197,7 +197,7 @@ sub rebuild_cache {
 			$HKEY{"USERNAME"} = $USERNAME;	
 			$HKEY{"PRT"} = $PRT;
 			if ($HOSTTYPE eq 'APPTIMIZER') {
-				$HKEY{'PROJECT'} = $HOST->{'PROJECT'};
+				$HKEY{'PROJECT'} = sprintf("%s",$HOST->{'PROJECT'});
 				}
 			elsif ($HOSTTYPE eq 'VSTORE-APP') {
 				$HKEY{"HOSTTYPE"} = "VSTORE-APP";
@@ -217,7 +217,12 @@ sub rebuild_cache {
 			my $HOSTDOMAIN = lc(sprintf("%s.%s",$HOSTNAME,$DOMAIN));
 			foreach my $key (sort keys %HKEY) {		
 				next if (substr($key,0,1) eq '_');
-				$redis->hset(lc("domain+$HOSTDOMAIN"),$key,$HKEY{$key});
+				if (defined $HKEY{$key}) {
+					$redis->hset(lc("domain+$HOSTDOMAIN"),$key,$HKEY{$key});
+					}
+				else {
+					warn "REDIS key domain+$HOSTDOMAIN hkey:$key is undefined (and not saved)\n";
+					}
 				}
 
 			my $CHKOUT = &ZWEBSITE::domain_to_checkout_domain($HOSTDOMAIN);

@@ -73,8 +73,7 @@ if (is $img --blank) {{
 	}};
 "></span>|,
 
-	'%HEADER%'=>q|<head>
-<!-- 
+	'%HEADER%'=>q|<!-- 
 // DEFAULT HEADER - customize me!
 // Tips:
 // * avoid referencing external files unless they are secure

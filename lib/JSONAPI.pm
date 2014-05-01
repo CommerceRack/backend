@@ -2986,6 +2986,7 @@ sub add_macro_msg {
 ##
 sub set_error {
 	my ($R,$errtype,$errid,$errmsg) = @_;
+
 	$R->{'errtype'} = $errtype; 
 	$R->{'errid'} = $errid;
 	$R->{'errmsg'} = $errmsg;
@@ -15501,7 +15502,6 @@ sub adminDomain {
 	require DOMAIN;
 	require DOMAIN;
 	require DOMAIN::TOOLS;
-	require DOMAIN::POOL;
 
 	my ($udbh) = &DBINFO::db_user_connect($self->username());
 
@@ -15696,24 +15696,27 @@ sub adminDomain {
 			&JSONAPI::set_error(\%R,'apperr',3921,"Domain name is required for all types except 'RESERVE'");
 			}
 		elsif ($DOMAINNAME =~ /^www\./) {
-			&JSONAPI::set_error(%R,'apperr',3921,"The leading www. is part of the hostname, not the domain name. Please remove the www. and try again.");
+			&JSONAPI::set_error(\%R,'apperr',3921,"The leading www. is part of the hostname, not the domain name. Please remove the www. and try again.");
 			}
 			elsif ($DOMAINNAME =~ /^app\./) {
-			&JSONAPI::set_error(%R,'apperr',3921,"The leading app. is part of the hostname, not the domain name. Please remove the www. and try again.");
+			&JSONAPI::set_error(\%R,'apperr',3921,"The leading app. is part of the hostname, not the domain name. Please remove the www. and try again.");
 			}
 		elsif ($DOMAINNAME =~ /^m\./) {
-			&JSONAPI::set_error(%R,'apperr',3921,"The leading m. is part of the hostname, not the domain name. Please remove the www. and try again.");
+			&JSONAPI::set_error(\%R,'apperr',3921,"The leading m. is part of the hostname, not the domain name. Please remove the www. and try again.");
 			}
 		elsif ($DOMAINNAME !~ /\./) {
-			&JSONAPI::set_error(%R,'apperr',3921,"Domain names must have at least one . in them");
+			&JSONAPI::set_error(\%R,'apperr',3921,"Domain names must have at least one . in them");
 			}
 		elsif (length($DOMAINNAME)>50) {
-			&JSONAPI::set_error(%R,'apperr',3921,"Domain name may not exceed 50 characters total");
+			&JSONAPI::set_error(\%R,'apperr',3921,"Domain name may not exceed 50 characters total");
+			}
+		elsif (($CMDS[0]->[0] eq 'DOMAIN-DELEGATE') || ($CMDS[0]->[0] eq 'DOMAIN-CREATE')) {
+			## $D will be initialized by the first parameter.
 			}
 		else {
 			($D) = DOMAIN->new($self->username(),$DOMAINNAME);
 			if (not $D) {
-				&JSONAPI::set_error(%R,'apperr',3921,"Domain $DOMAINNAME is not currently setup in your account, please register,transfer,delegate it first.");
+				&JSONAPI::set_error(\%R,'apperr',3921,"Domain $DOMAINNAME is not currently setup in your account, please register,transfer,delegate it first.");
 				}
 			}
 
@@ -15726,10 +15729,17 @@ sub adminDomain {
 				push @MSGS, "WARN|+Command skipped due to error";
 				}
 			elsif ($VERB eq 'DOMAIN-RESERVE') {
-				($DOMAINNAME) = &DOMAIN::POOL::reserve($self->username(),$self->prt());
-				if ($DOMAINNAME) {
+				#($DOMAINNAME) = &DOMAIN::POOL::reserve($self->username(),$self->prt());
+				require PLUGIN::FREEDNS;
+				my $R = PLUGIN::FREEDNS::register($self->username());
+				if (($R->{'err'}==0) && ($R->{'domain'})) {
+					$DOMAINNAME = $R->{'domain'};
+					($D) = DOMAIN->create($self->username(),$DOMAINNAME);
+					$D->save();
 					push @MSGS, "SUCCESS|+Reserved domain: $DOMAINNAME";
-					($D) = DOMAIN->new($self->username(),$DOMAINNAME);
+					}
+				elsif ($R->{'err'}>0) {
+					push @MSGS, sprintf("PLUGIN::FREEDNS issue[%d] %s",$R->{'err'},$R->{'msg'});
 					}
 				else {
 					push @MSGS, "ERROR|Could not reserve a domain, unspecified error - please open a support ticket.";
@@ -15738,7 +15748,7 @@ sub adminDomain {
 			elsif ($VERB eq 'DOMAIN-TRANSFER') {
 				push @MSGS, "ERROR|+DOMAIN-TRANSFER functionality no longer available.";
 				#if (DOMAIN::REGISTER::DomainAvailable($DOMAINNAME)) {
-				#	&JSONAPI::set_error(%R,'apperr',3921,"Sorry, but domain $DOMAINNAME is not registered [cannot be transferred], use REGISTER instead");
+				#	&JSONAPI::set_error(\%R,'apperr',3921,"Sorry, but domain $DOMAINNAME is not registered [cannot be transferred], use REGISTER instead");
 				#	}
 				#elsif (&DOMAIN::REGISTER::BelongsToRsp($DOMAINNAME)) {
 				#	## already belongs to us
@@ -15747,7 +15757,7 @@ sub adminDomain {
 				#	#push @MSGS, "SUCCESS|+Performed simulated transfer for domain:$DOMAINNAME";
 				#	}
 				#elsif (DOMAIN::REGISTER::is_locked($DOMAINNAME)) {
-				#	&JSONAPI::set_error(%R,'apperr',3921,"Domain is currently locked and cannot be transferred, please ask your current register to unlock it.");
+				#	&JSONAPI::set_error(\%R,'apperr',3921,"Domain is currently locked and cannot be transferred, please ask your current register to unlock it.");
 				#	}
 				#else {
 				#	push @MSGS, "ERROR|+We are no longer allowing non-registered domains to be transferred, please use delegate instead";
@@ -15776,7 +15786,8 @@ sub adminDomain {
 				#	($D) = DOMAIN->create($self->username(),$DOMAINNAME,%{$RESULT});
 				#	}
 				}
-			elsif ($VERB eq 'DOMAIN-DELEGATE') {		
+			elsif (($VERB eq 'DOMAIN-DELEGATE') || ($VERB eq 'DOMAIN-CREATE')) {		
+				## DOMAIN-DELEGATE was unclear and was deprecated as of 201404
 				my $lm = LISTING::MSGS->new($self->username(),logfile=>'domains.log');
 				my %RESULT = ();
 				$RESULT{'REG_STATUS'} = 'External Registrar';
@@ -18841,9 +18852,12 @@ sub appProductGet {
 			#		}
 			#	$R{'@variations'} = $pogsref;				
 			#	}
-			else {
+			elsif ($self->apiversion()<201403) {
 				## everything since 201324 should just use the native pogs format
-				$R{'@variations'} = $P->pogs();
+				$R{'@variations'} = $P->pogs(); ## <-- this uses cache and does not resolve sogs
+				}
+			else {
+				$R{'@variations'} = $P->fetch_pogs();
 				}
 			}
 
@@ -22395,7 +22409,7 @@ sub cartOrder {
 	my ($CARTID,$OID) = (undef,undef);
 
 	if ($v->{'_cartid'} eq '') {
-		&JSONAPI::set_error(\%R,'apperr',9998,"_cartid parameter is required for $v->{'_cmd'} version > 201310");			
+		&JSONAPI::set_error(\%R,9998,'apperr',"_cartid parameter is required for $v->{'_cmd'} version > 201310");			
 		}
 	elsif ($v->{'_cartid'} =~ /^(.*?)\$\$(.*?)$/) {
 		## reallylongcartid$$orderid
