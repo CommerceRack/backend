@@ -149,6 +149,11 @@ sub elastic_fields {
 				 'type' => 'textbox'
 			  },
 			  {
+				 'index' => 'preference',
+				 'id' => 'es:boost',
+				 'type' => 'textbox'
+			  },
+			  {
 				 'index' => 'profile',
 				 'id' => 'zoovy:profile',
 				 'type' => 'profile'
@@ -1486,7 +1491,9 @@ sub is_valid {
 'ebay:storecat2' => { 'grp'=>'ebay.listing', 'ns'=>'product', 'type'=>'ebay/storecat',ns=>'product',hint=>"eBay Store Category Two"},
 'ebay:subtitle' =>  { 'grp'=>'ebay.listing', 'ns'=>'product', 'maxlength' => 55, 'type' => 'textbox', 'title' => 'eBay SubTitle' },
 'ebay:title' =>  { 'properties'=>1, 'grp'=>'ebay.listing', 'ns'=>'product', 'maxlength' => 80, 'type' => 'textbox', 'title' => 'eBay Title', 'minlength' => 1 },
-'ebay:ts' =>  { 'src' => '2bhip:A12', 'type' => 'checkbox' },
+'ebay:ts' =>  { 'type' => 'checkbox' },
+
+'es:boost' => { 'type' => 'integer', ns=>'product', hint=>'elastic search boost' },
  
 'etilize:category' =>  { 'src' => 'patti:41U3074', 'type' => 'legacy' },
 'etilize:mfgpartno' =>  { 'src' => 'patti:41U3074', 'type' => 'legacy' },
