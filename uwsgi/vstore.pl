@@ -1102,7 +1102,7 @@ sub legacyResponseHandler {
 		elsif ((defined $cart_id) && ($cart_id ne '')) {
 			## Get the cart ID from the URL first if we're in the checkout
 			$SITE::CART2 = CART2->new_persist($SITE->username(),$SITE->prt(),$cart_id,'create'=>0);
-			if (not $SITE::CART2->exists()) { 
+			if ((not defined $SITE::CART2) || (not $SITE::CART2->exists())) { 
 				$SITE::CART2 = undef; 	# this will give us a new cart.
 				}
 			elsif ($SITE->client_is() ne '') {

@@ -40,6 +40,9 @@ sub jsonapi {
 	my $VARS = $self->vars();
 	my $HTTP_RESPONSE = 200;
 
+
+	my ($USERNAME) = $self->username();
+
 	my ($SHIPUSER,$SHIPPASS) = ();
    if ($env->{HTTP_AUTHORIZATION} =~ /^Basic (.*)$/i) {
 		($SHIPUSER, $SHIPPASS) = split /:/, (MIME::Base64::decode($1) || ":"), 2;
@@ -49,7 +52,7 @@ sub jsonapi {
 	my $ERROR = undef;
 
 	my ($gref) = &ZWEBSITE::fetch_globalref($self->username());
-	$SHIPCFG = $gref->{'%plugins'}->{'shipstation.com'} || {};
+	my $SHIPCFG = $gref->{'%plugins'}->{'shipstation.com'} || {};
 
 	if (not $SHIPCFG->{'enable'}) {
 		$ERROR = [ 96, 'Shipworks Not enabled' ];
