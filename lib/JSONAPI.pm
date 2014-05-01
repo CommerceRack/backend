@@ -17085,8 +17085,8 @@ sub whereAmI {
 
 	my $cartid = $v->{'_cartid'};
 
-#	require Geo::IP;
-#	my $gi = Geo::IP->open("/usr/local/share/GeoIP/GeoLiteCity.dat", Geo::IP::GEOIP_STANDARD());
+	require Geo::IP;
+	my $gi = Geo::IP->open("/usr/local/share/GeoIP/GeoLiteCity.dat", Geo::IP::GEOIP_STANDARD());
 	
 	my $IP = $ENV{'REMOTE_ADDR'};
 	if ($IP =~ /^192\.168\./) { $IP = '66.240.244.217'; }	# our external ip
