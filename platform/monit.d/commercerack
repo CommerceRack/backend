@@ -1,0 +1,113 @@
+##
+## http://mmonit.com/monit/documentation/monit.html#program_status_testing
+## http://mmonit.com/monit/documentation/monit.html
+## 
+
+check directory uwsgi-spooler PATH /dev/shm/spooler
+	start program = "/bin/mkdir -m 0777 /dev/shm/spooler"
+
+#CHECK PROCESS nginx with PIDFILE /var/run/nginx.pid 
+#	Start program = "/etc/init.d/nginx start" as uid "root" and gid "root" with timeout 60 seconds 
+#		Start program = "/etc/init.d/nginx stop" as uid "root" and gid "root"
+
+##
+## Nginx
+##
+check process nginx with pidfile /var/run/nginx.pid
+  start program = "/etc/init.d/nginx start"
+  stop program  = "/etc/init.d/nginx stop"
+  group nginx
+
+##
+## uwsgi
+##
+check fifo uwsgi path /var/run/uwsgi-master
+	start program = "/etc/init.d/uwsgi start"
+	stop program = "/etc/init.d/uwsgi stop"
+	group root
+
+## Postfix
+check process postfix with pidfile /var/spool/postfix/pid/master.pid
+   group mail
+   start program = "/etc/init.d/postfix start"
+   stop  program = "/etc/init.d/postfix stop"
+   if failed port 25 protocol smtp then restart
+   if 5 restarts within 5 cycles then timeout
+   depends on postfix_rc
+
+ check file postfix_rc with path /etc/init.d/postfix
+   group mail
+   if failed checksum then unmonitor
+   if failed permission 755 then unmonitor
+   if failed uid root then unmonitor
+   if failed gid root then unmonitor
+
+##
+## Cron
+##
+check process cron with pidfile /var/run/crond.pid
+   group system
+   start program = "/etc/init.d/crond start"
+   stop  program = "/etc/init.d/crond stop"
+   if 5 restarts within 5 cycles then timeout
+   depends on cron_rc
+
+check file cron_rc with path /etc/init.d/crond
+   group system
+   if failed checksum then unmonitor
+   if failed permission 755 then unmonitor
+   if failed uid root then unmonitor
+   if failed gid root then unmonitor
+
+##
+## utilization
+##
+check system localhost
+	if memory usage > 85% then alert
+	if cpu usage (user) > 80% for 3 cycles then alert
+	if cpu usage (system) > 80% for 3 cycles then alert
+
+##
+## diskspace
+##
+check filesystem rootfs with path /
+	if space usage > 90% then alert
+
+check filesystem ephemeral with path /mnt/ephemeral
+	if space usage > 90% then alert
+
+check filesystem users with path /users
+	if space usage > 70% then alert
+
+
+## ElasticSearch
+check host elastic_health_check with address 0.0.0.0
+   if failed url http://0.0.0.0:9200/_cluster/health for 2 cycles then alert
+
+##
+## Mysql
+##
+check process mysql with pidfile /var/run/mysql/mysql.pid
+   group database
+   start program = "/etc/init.d/mysql start"
+   stop program = "/etc/init.d/mysql stop"
+#   if failed host 127.0.0.1 port 3306 protocol mysql then restart
+#   if 5 restarts within 5 cycles then timeout
+#   depends on mysql_bin
+#   depends on mysql_rc
+
+ check file mysql_bin with path /usr/sbin/mysqld
+   group database
+   if failed checksum then unmonitor
+   if failed permission 755 then unmonitor
+   if failed uid root then unmonitor
+   if failed gid root then unmonitor
+
+ check file mysql_rc with path /etc/init.d/mysql
+   group database
+   if failed checksum then unmonitor
+   if failed permission 755 then unmonitor
+   if failed uid root then unmonitor
+   if failed gid root then unmonitor
+
+

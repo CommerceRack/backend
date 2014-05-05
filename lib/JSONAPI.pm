@@ -17105,8 +17105,8 @@ sub whereAmI {
 	my $IP = $ENV{'REMOTE_ADDR'};
 	if ($IP =~ /^192\.168\./) { $IP = '66.240.244.217'; }	# our external ip
 
-#	my $record = $gi->record_by_addr($IP);
-	my $record = undef;
+	my $record = $gi->record_by_addr($IP);
+	# my $record = undef;
 
 	if (defined $record) {
 		$R{'country'} = $record->country_code;

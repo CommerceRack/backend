@@ -389,7 +389,7 @@ my $app = sub {
 			#	$BODY = $COPY;
 				}
 			}
-		elsif (($CONFIG{'html#compress'}) && ($FILENAME =~ /^\/index\.html$/)) {
+		elsif (($CONFIG{'html#compress'}) && ($FILENAME =~ /\.html$/)) {
 			## NOT AVAILABLE YET
 			my ($BASEDIR) = "$NFSROOT";
 			my $tree = HTML::TreeBuilder->new(no_space_compacting=>0,ignore_unknown=>0,store_declarations=>1,store_comments=>0); # empty tree
@@ -397,7 +397,7 @@ my $app = sub {
 
 		   my $el = $tree->elementify();
 			&APPTIMIZER::optimizeHTML($BASEDIR,$el,\%CONFIG);
-			$BODY = $el->as_HTML();
+			$BODY = "<!DOCTYPE html>\n".$el->as_HTML();
 			}
 		elsif (($CONFIG{'css#compress'}) && ($FILENAME =~ /\.css$/)) {
 			## open F, ">/tmp/compress"; print F $BODY; close F;
