@@ -71,6 +71,9 @@ my $app = sub {
 		$HTTP_RESPONSE = 200;
 		## open F, ">/tmp/webapi-hello"; use Data::Dumper; print F Dumper($req,$BODY); close F;
 		}
+	else {
+		$HTTP_RESPONSE = 404;
+		}
 
 	my @HEADERS = ();
 	foreach my $k (keys %HEADERS) {

@@ -141,6 +141,10 @@ sub jsonapi {
 			if ($O2->in_get('customer/cid')>0) {
 				$writer->dataElement('CustomerCode', $O2->in_get('customer/cid') );
 				}
+			else {
+				## it appears shipstations *requires* a customercode 
+				$writer->dataElement('CustomerCode', $O2->in_get('bill/email') );
+				}
 
 			$writer->startTag('BillTo');
 				# $writer->dataElement('FullName','');
