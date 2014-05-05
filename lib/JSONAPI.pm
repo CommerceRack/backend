@@ -9398,10 +9398,13 @@ sub adminBlastMacro {
 		$params{'BODY'} =  $v->{'BODY'};
 		$params{'*CREATED_TS'} = 'now()';
 		$params{'LUSER'} = $self->luser();
-		my $VERB = ($v->{'_cmd'} eq 'adminBlastMacroCreate')?'insert':'update';
-		my $pstmt =	&DBINFO::insert($udbh,'BLAST_MACROS',\%params,debug=>2,key=>['MID','MACROID'],sql=>1,verb=>$VERB);
+		my $pstmt = sprintf("select count(*) from BLAST_MACROS where MID=%d and PRT=%d and MACROID=%s",$params{'MID'},$params{'PRT'},$udbh->quote($params{'MACROID'}));
 		print STDERR "$pstmt\n";
-		$udbh->do($pstmt);
+		my ($exists) = $udbh->selectrow_array($pstmt); 
+
+		my $pstmt =	&DBINFO::insert($udbh,'BLAST_MACROS',\%params,debug=>2,key=>['MID','MACROID','PRT'],sql=>1,verb=>($exists)?'update':'insert');
+		print STDERR "$pstmt\n";
+		JSONAPI::dbh_do(\%R,$udbh,$pstmt);
 		}
 	elsif ($v->{'_cmd'} eq 'adminBlastMacroRemove') {
 		my $pstmt = "delete from BLAST_MACROS where MID=$MID and MACROID=".$udbh->quote($v->{'MACROID'});
