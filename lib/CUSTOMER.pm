@@ -72,6 +72,20 @@ $CUSTOMER::DEBUG = 0;
 ##
 
 
+## 
+%CUSTOMER::BUYER_CMDS = ( 
+	'TAG-ADD'=>1, 
+	'TAG-CLEAR'=>1,
+	'PASSWORD-SET'=>1,
+	'PASSWORD-RECOVER'=>1,
+	'HINTRESET'=>1,
+	'TICKET-ADD'=>1,
+	'WALLETCREATE'=>1,
+	'WALLETDEFAULT'=>1,
+	'WALLETREMOVE'=>1,
+	);
+
+
 sub TO_JSON {
 	my ($self) = @_;
 	
@@ -84,10 +98,27 @@ sub TO_JSON {
 			$clone{$k} = Clone::clone($self->{$k});
 			}
 		}
- 
+
+	$clone{'@TAGS'} = $self->tags(); 
 	return(\%clone);
 	}
 
+
+
+##
+##
+##
+sub tags {
+	my ($self) = @_;
+
+	my $NEWSLETTERS = int($self->{'INFO'}->{'NEWSLETTER'});
+	my @TAGS = ();
+	for my $x (0..31) {
+		if (($NEWSLETTERS & (1<<$x))>0) { push @TAGS, sprintf("USER#SUB%d",$x+1); }
+		}
+
+	return(\@TAGS);
+	}
 
 
 ##
@@ -123,7 +154,23 @@ sub run_macro_cmds {
 		my $result = undef;
 		$self->sync_action("MACRO/$cmd");
 
-		if ($cmd eq 'PASSWORD-SET') {
+		print STDERR "CMD:$cmd\n";
+		if ( ($params{'is_buyer'}) && (not defined $CUSTOMER::BUYER_CMDS{$cmd}) ) {
+			$lm->pooshmsg("ERROR|+$cmd not not a buyer whitelisted called");
+			}
+		elsif (($cmd eq 'TAG-ADD') || ($cmd eq 'TAG-CLEAR')) {
+			my ($TAG) = $pref->{'TAG'};
+			if ($TAG =~ /^USER#SUB([\d]+)$/) {
+				my $d = int($1) - 1; $d = (1 << $d);
+				print STDERR "***** $cmd  $self->{'INFO'}->{'NEWSLETTER'} $d\n";
+				if ($cmd eq 'TAG-ADD') { $self->{'INFO'}->{'NEWSLETTER'} |= $d; }
+				if ($cmd eq 'TAG-CLEAR') { $self->{'INFO'}->{'NEWSLETTER'} = int($self->{'INFO'}->{'NEWSLETTER'} ^ ($self->{'INFO'}->{'NEWSLETTER'} & $d)); }
+				}
+			else {
+				## user defined tags go here.
+				}	
+			}
+		elsif ($cmd eq 'PASSWORD-SET') {
 			if (defined $LU) { $LU->log("MANAGE.CUSTOMER.PASSWORD-SET",sprintf("Password was reset for customer %d",$self->cid()),"INFO"); }
 			$R->{$cmd}->{'password'} = $self->initpassword(set=>$pref->{'password'});
 			}
@@ -131,13 +178,44 @@ sub run_macro_cmds {
 			if (defined $LU) { $LU->log("MANAGE.CUSTOMER.PASSWORD-RECOVER",sprintf("Password recover for customer %d",$self->cid()),"INFO"); }
 			$R->{$cmd}->{'password'} = $self->generate_recovery();
 			}
-		elsif ($cmd eq 'GIFTCARD-CREATE') {
-			$pref->{'CID'} = $self->cid();
-			&GIFTCARD::createCard( $self->username(), $self->prt(), $pref->{'BALANCE'}, %{$pref});
-			}
 		elsif ($cmd eq 'HINTRESET') {
 			$self->set_attrib('INFO.HINT_ANSWER','');
 			$self->set_attrib('INFO.HINT_NUM',0);
+			}
+		elsif (($cmd eq 'ADDTICKET') || ($cmd eq 'TICKET-ADD')) {
+			require CUSTOMER::TICKET;
+			my ($CT) = CUSTOMER::TICKET->new($self->username(),0,
+					new=>1,PRT=>$self->prt(),CID=>$self->cid(),
+					SUBJECT=>$pref->{'title'},
+					NOTE=>$pref->{'note'},
+				);
+			}
+		elsif ($cmd eq 'WALLETCREATE') {
+			my %params = ();
+			$params{'CC'} = $pref->{'CC'};
+			$params{'YY'} = $pref->{'YY'};
+			$params{'MM'} = $pref->{'MM'};
+			my ($ID,$ERROR) = $self->wallet_store(\%params);
+			if ($ID == 0) {
+				$lm->pooshmsg("ERROR|+Wallet $ERROR");
+				}
+			else {
+				$lm->pooshmsg("SUCCESS|+Wallet $ID");
+				}
+			}
+		elsif ($cmd eq 'WALLETDEFAULT') {
+			$self->wallet_update(int($pref->{'SECUREID'}),'default'=>1);
+			}
+		elsif ($cmd eq 'WALLETREMOVE') {
+			$self->wallet_nuke(int($pref->{'SECUREID'}));
+			}
+		##
+		## end of buyer allowed calls.
+		##
+
+		elsif ($cmd eq 'GIFTCARD-CREATE') {
+			$pref->{'CID'} = $self->cid();
+			&GIFTCARD::createCard( $self->username(), $self->prt(), $pref->{'BALANCE'}, %{$pref});
 			}
 		elsif ($cmd eq 'SETORIGIN') {
 			$self->set_attrib('INFO.ORIGIN',int($pref->{'origin'}));
@@ -154,14 +232,6 @@ sub run_macro_cmds {
 		elsif ($cmd eq 'ADDTODO') {
 			require TODO;
 			&TODO::easylog($self->username(),class=>"INFO",title=>$pref->{'title'},detail=>$pref->{'note'},priority=>2,link=>"cid:$CID");
-			}
-		elsif ($cmd eq 'ADDTICKET') {
-			require CUSTOMER::TICKET;
-			my ($CT) = CUSTOMER::TICKET->new($self->username(),0,
-					new=>1,PRT=>$self->prt(),CID=>$self->cid(),
-					SUBJECT=>$pref->{'title'},
-					NOTE=>$pref->{'note'},
-				);
 			}
 		elsif ($cmd eq 'SET') {
 			my %update = ();
@@ -296,25 +366,6 @@ sub run_macro_cmds {
 			}
 		elsif ($cmd eq 'NOTEREMOVE') {
 			$self->nuke_note( $pref->{'NOTEID'} );
-			}
-		elsif ($cmd eq 'WALLETCREATE') {
-			my %params = ();
-			$params{'CC'} = $pref->{'CC'};
-			$params{'YY'} = $pref->{'YY'};
-			$params{'MM'} = $pref->{'MM'};
-			my ($ID,$ERROR) = $self->wallet_store(\%params);
-			if ($ID == 0) {
-				$lm->pooshmsg("ERROR|+Wallet $ERROR");
-				}
-			else {
-				$lm->pooshmsg("SUCCESS|+Wallet $ID");
-				}
-			}
-		elsif ($cmd eq 'WALLETDEFAULT') {
-			$self->wallet_update(int($pref->{'SECUREID'}),'default'=>1);
-			}
-		elsif ($cmd eq 'WALLETREMOVE') {
-			$self->wallet_nuke(int($pref->{'SECUREID'}));
 			}
 		elsif ($cmd eq 'REWARDUPDATE') {
 			$self->update_reward_balance($pref->{'i'},$pref->{'reason'});

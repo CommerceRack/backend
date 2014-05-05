@@ -755,9 +755,11 @@ use strict;
 	'appBuyerPasswordRecover'=>[  \&JSONAPI::appBuyerPasswordRecover,  {}, 'customer', ],
 	'appBuyerExists'=>[ \&JSONAPI::appBuyerExists,  {}, 'customer', ],
 	'buyerNotificationAdd'=>[ \&JSONAPI::buyerNotificationAdd,  { 'buyer'=>1 }, 'customer', ],
-	'buyerAddressList'=>[ \&JSONAPI::buyerAddressList,  { 'buyer'=>1 }, 'customer', ],
-	'buyerAddressAddUpdate'=>[ \&JSONAPI::buyerAddressAddUpdate,  { 'buyer'=>1 }, 'customer', ],
-	'buyerAddressDelete'=>[ \&JSONAPI::buyerAddressDelete,  { 'buyer'=>1 }, 'customer', ],
+	'buyerDetail'=>				[ \&JSONAPI::buyerInfo,  { 'buyer'=>1 }, 'customer', ],
+	'buyerUpdate'=>				[ \&JSONAPI::buyerInfo,  { 'buyer'=>1 }, 'customer', ],
+	'buyerAddressList'=>			[ \&JSONAPI::buyerInfo,  { 'buyer'=>1 }, 'customer', ],
+	'buyerAddressAddUpdate'=>	[ \&JSONAPI::buyerInfo,  { 'buyer'=>1 }, 'customer', ],
+	'buyerAddressDelete'=>		[ \&JSONAPI::buyerInfo,  { 'buyer'=>1 }, 'customer', ],
 	# 'buyerOrganizationApply'=>[ \&JSONAPI::appOrganizationCreate, {}, 'customer' ],
 
 	## BuyerOrder
@@ -839,6 +841,7 @@ sub paymentQCMD {
 			## no error checking.
 			}
 		elsif ($v->{'TN'} eq 'PAYPALEC') {
+			require ZPAY::PAYPALEC;
 			my ($result) = &ZPAY::PAYPALEC::GetExpressCheckoutDetails($CART2,$v->{'PT'},$v->{'PI'},$v);
 			if ($result->{'ERR'}) {
 				&JSONAPI::append_msg_to_response($R,'apierr',3599,$result->{'ERR'});
@@ -19790,33 +19793,6 @@ Returns:
 </CODE>
 </API>
 
-=cut
-
-sub buyerAddressList {
-	my ($self,$v) = @_;
-	my %R = ();
-	
-	if (not $self->isLoggedIn(\%R,$v)) {
-		## handles it's own errors
-		}
-	else {
-
-		$CUSTOMER::ADDRESS::JSON_EXPORT_FORMAT = $self->apiversion();		## used for CUSTOMER::ADDRESS::TO_JSON
-		$R{'@bill'} = $self->customer()->fetch_addresses('BILL');
-		$R{'@ship'} = $self->customer()->fetch_addresses('SHIP');
-		
-		}
-
-	return(\%R);
-	}
-
-
-#################################################################################
-##
-##
-##
-
-=pod
 
 <API id="buyerAddressAddUpdate">
 <purpose></purpose>
@@ -19853,86 +19829,6 @@ NOTE: (country) or (countrycode)
 </notes>
 </API>
 
-=cut
-
-sub buyerAddressAddUpdate {
-	my ($self,$v) = @_;
-	my %R = ();
-
-	require CUSTOMER::ADDRESS;
-	my %addr = ();
-
-	$v->{'type'} = uc($v->{'type'});
-
-	if ($v->{'type'} eq 'BILL') {
-		foreach my $k (keys %{$v}) {
-			my $field = $k;
-			my $prefix = 'bill/';	## either bill/ (current) or bill_ (legacy)
-			if ($field =~ /^bill\/(.*?)$/) { $prefix = 'bill/'; $field = $1; }
-			if ($self->apiversion()<201338) {
-				if ($field =~ /^bill_(.*?)$/) { $prefix = 'bill_'; $field = $1; }
-				}
-         if ($CUSTOMER::ADDRESS::VALID_FIELDS{ $field }) {
-				$addr{"$field"} = $v->{$k};
-				}
-			}
-		}
-
-	if ($v->{'type'} eq 'SHIP') {
-		foreach my $k (keys %{$v}) {
-			my $field = $k;
-			my $prefix = 'ship/';
-			if ($field =~ /^ship\/(.*?)$/) { $prefix = 'ship/'; $field = $1; }
-			if ($self->apiversion()<201338) {
-				if ($field =~ /^ship_(.*?)$/) { $prefix = 'ship_'; $field = $1; }
-				}
-         if ($CUSTOMER::ADDRESS::VALID_FIELDS{ $field }) {
-				$addr{"$field"} = $v->{$k};
-				}
-			}
-		}
-
-
-	my $SHORTCUT = uc((defined $v->{'shortcut'})?$v->{'shortcut'}:'DEFAULT');
-	if ($SHORTCUT eq '') { $SHORTCUT = 'DEFAULT'; }
-	$SHORTCUT =~ s/[^A-Z0-9]//gs;
-
-	## contractually guaranteed to be set!
-	# my ($C) = $self->customer();
-	my ($C) = $self->customer();
-	if (ref($C) ne 'CUSTOMER') {
-		&JSONAPI::append_msg_to_response(\%R,"iseerr",18349,"customer object was not available or valid.");	
-		}
-	elsif (not &validate_required_parameter(\%R,$v,'type',['BILL','SHIP'])) {
-		}
-	else {
-		my $TYPE = uc($v->{'type'});
-		my ($addr) = CUSTOMER::ADDRESS->new($C,$TYPE,\%addr);
-		if (not defined $addr) {
-			&JSONAPI::append_msg_to_response(\%R,"iseerr",18350,"address object could not be instantiated");	
-			}
-		else {
-			$C->add_address($addr,'SHORTCUT'=>$SHORTCUT);
-			&JSONAPI::append_msg_to_response(\%R,"success",0,"shortcut $SHORTCUT added");	
-			}		
-		}
-
-	if (not &JSONAPI::hadError(\%R)) {
-		# print STDERR "SAVING\n";
-		$C->save();
-		}
-
-	return(\%R);
-	}
-
-
-#################################################################################
-##
-##
-##
-
-=pod
-
 <API id="buyerAddressDelete">
 <purpose></purpose>
 <concept>buyer</concept>
@@ -19944,36 +19840,161 @@ shortcut:DEFAULT
 </CODE>
 </API>
 
+<API id="buyerDetail">
+<purpose></purpose>
+<concept>buyer</concept>
+</API>
+
+<API id="buyerUpdate">
+<purpose></purpose>
+<concept>buyer</concept>
+<input id="@updates"></input>
+Returns:
+</API>
+
 =cut
 
-sub buyerAddressDelete {
+
+sub buyerInfo {
 	my ($self,$v) = @_;
 	my %R = ();
 
-	$v->{'type'} = uc($v->{'type'});
-	my $SHORTCUT = uc((defined $v->{'shortcut'})?$v->{'shortcut'}:'');
-	$SHORTCUT =~ s/[^A-Z0-9]//gs;
-
-	## contractually guaranteed to be set!
-	my ($C) = $self->customer();
-	if (ref($C) ne 'CUSTOMER') {
-		&JSONAPI::append_msg_to_response(\%R,"iseerr",18349,"customer object was not available or valid.");	
-		}
-	elsif (not &validate_required_parameter(\%R,$v,'type',['BILL','SHIP'])) {
-		}
-	elsif ($SHORTCUT eq '') {
-		&JSONAPI::append_msg_to_response(\%R,"apperr",18348,"shortcut is required to delete an address.");	
+	my ($C) = undef;	
+	if (not $self->isLoggedIn(\%R,$v)) {
+		## handles it's own errors
 		}
 	else {
-		my $TYPE = uc($v->{'type'});
-		$C->nuke_addr($TYPE,$SHORTCUT);
-		&JSONAPI::append_msg_to_response(\%R,"success",0,"address shortcut $SHORTCUT deleted");	
+		## contractually guaranteed to be set!
+		($C) = $self->customer();
+		if (ref($C) ne 'CUSTOMER') {
+			&JSONAPI::append_msg_to_response(\%R,"iseerr",18349,"customer object was not available or valid.");	
+			}
+		}
+
+	if (&JSONAPI::hadError(\%R)) {
+		}
+	elsif ($v->{'_cmd'} eq 'buyerAddressList') {
+		$CUSTOMER::ADDRESS::JSON_EXPORT_FORMAT = $self->apiversion();		## used for CUSTOMER::ADDRESS::TO_JSON
+		$R{'@bill'} = $self->customer()->fetch_addresses('BILL');
+		$R{'@ship'} = $self->customer()->fetch_addresses('SHIP');
+		}
+	elsif ($v->{'_cmd'} eq 'buyerDetail') {
+		$R{'%info'} = $self->customer()->TO_JSON();
+		}
+	elsif ($v->{'_cmd'} eq 'buyerUpdate') {
+		## need to build this.		
+
+		my @CMDS = ();
+		if (not defined $v->{'@updates'}) {
+			&JSONAPI::append_msg_to_response(\%R,'apperr',9002,'Could not find any @updates');
+			}
+		elsif (ref($v->{'@updates'}) eq 'ARRAY') {
+			my $count = 0;
+			foreach my $line (@{$v->{'@updates'}}) {
+				my $CMDSETS = &CART2::parse_macro_script($line);
+				foreach my $cmdset (@{$CMDSETS}) {
+					$cmdset->[1]->{'luser'} = $self->luser();
+					$cmdset->[2] = $line;
+					$cmdset->[3] = $count++;
+					push @CMDS, $cmdset;
+					}
+				}
+			}
+		$C->run_macro_cmds(\@CMDS,'is_buyer'=>1,'%R'=>\%R);
+
+		}
+	elsif ($v->{'_cmd'} eq 'buyerAddressDelete') {
+
+		$v->{'type'} = uc($v->{'type'});
+		my $SHORTCUT = uc((defined $v->{'shortcut'})?$v->{'shortcut'}:'');
+		$SHORTCUT =~ s/[^A-Z0-9]//gs;
+
+		if (not &validate_required_parameter(\%R,$v,'type',['BILL','SHIP'])) {
+			}
+		elsif ($v->{'_cmd'} ne 'buyerAddressDelete') {	
+			}
+		elsif ($SHORTCUT eq '') {
+			&JSONAPI::append_msg_to_response(\%R,"apperr",18348,"shortcut is required to delete an address.");	
+			}
+		else {
+			my $TYPE = uc($v->{'type'});
+			$C->nuke_addr($TYPE,$SHORTCUT);
+			&JSONAPI::append_msg_to_response(\%R,"success",0,"address shortcut $SHORTCUT deleted");	
+			}	
+
+		}
+	elsif ($v->{'_cmd'} eq 'buyerAddressAddUpdate') {
+		require CUSTOMER::ADDRESS;
+		my %addr = ();
+		$v->{'type'} = uc($v->{'type'});
+
+		if (not &validate_required_parameter(\%R,$v,'type',['BILL','SHIP'])) {
+			}
+		elsif ($v->{'type'} eq 'BILL') {
+			foreach my $k (keys %{$v}) {
+				my $field = $k;
+				my $prefix = 'bill/';	## either bill/ (current) or bill_ (legacy)
+				if ($field =~ /^bill\/(.*?)$/) { $prefix = 'bill/'; $field = $1; }
+				if ($self->apiversion()<201338) {
+					if ($field =~ /^bill_(.*?)$/) { $prefix = 'bill_'; $field = $1; }
+					}
+  	       if ($CUSTOMER::ADDRESS::VALID_FIELDS{ $field }) {
+					$addr{"$field"} = $v->{$k};
+					}
+				}
+			}
+		elsif ($v->{'type'} eq 'SHIP') {
+			foreach my $k (keys %{$v}) {
+				my $field = $k;
+				my $prefix = 'ship/';
+				if ($field =~ /^ship\/(.*?)$/) { $prefix = 'ship/'; $field = $1; }
+				if ($self->apiversion()<201338) {
+					if ($field =~ /^ship_(.*?)$/) { $prefix = 'ship_'; $field = $1; }
+					}
+  	       if ($CUSTOMER::ADDRESS::VALID_FIELDS{ $field }) {
+					$addr{"$field"} = $v->{$k};
+					}
+				}
+			}
+
+		my $SHORTCUT = uc((defined $v->{'shortcut'})?$v->{'shortcut'}:'DEFAULT');
+		if ($SHORTCUT eq '') { $SHORTCUT = 'DEFAULT'; }
+		$SHORTCUT =~ s/[^A-Z0-9]//gs;
+	
+		## contractually guaranteed to be set!
+		# my ($C) = $self->customer();
+		my ($C) = $self->customer();
+		if (ref($C) ne 'CUSTOMER') {
+			&JSONAPI::append_msg_to_response(\%R,"iseerr",18349,"customer object was not available or valid.");	
+			}
+		elsif (not &validate_required_parameter(\%R,$v,'type',['BILL','SHIP'])) {
+			}
+		else {
+			my $TYPE = uc($v->{'type'});
+			my ($addr) = CUSTOMER::ADDRESS->new($C,$TYPE,\%addr);
+			if (not defined $addr) {
+				&JSONAPI::append_msg_to_response(\%R,"iseerr",18350,"address object could not be instantiated");	
+				}
+			else {
+				$C->add_address($addr,'SHORTCUT'=>$SHORTCUT);
+				&JSONAPI::append_msg_to_response(\%R,"success",0,"shortcut $SHORTCUT added");	
+				}		
+			}
+	
+		if (not &JSONAPI::hadError(\%R)) {
+			$C->save();
+			}
+
 		}
 
 	return(\%R);
 	}
 
 
+#################################################################################
+##
+##
+##
 
 
 
