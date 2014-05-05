@@ -12508,6 +12508,11 @@ sub elastic_index {
 			foreach my $k ('uuid','txn','amt','auth') {
 				$store{$k} = sprintf("%s",$payment->{$k});
 				}
+
+			if (defined $store{'C4'}) {}
+			elsif (defined $store{'CM'}) { $store{'C4'} = substr($store{'CM'},-4); }
+			elsif (defined $store{'CC'}) { $store{'CC'} = substr($store{'CC'},-4); }
+
 			push @ES_PAYLOADS, 
 				{
 				type              => "order/payment",
@@ -12552,11 +12557,13 @@ sub elastic_index {
 			);
 		}
 
+
 	my $bulk = Elasticsearch::Bulk->new('es'=>$es,'index'=>lc("$USERNAME.private"));
 	if (defined $bulk) {
 		## ES requires we specify a command ex: 'index'
 		# my @ES_BULK_ACTIONS = ();
 		foreach my $payload (@ES_PAYLOADS) {
+			## print Dumper($payload)."\n";
 			$bulk->index($payload);	
 			# push @ES_BULK_ACTIONS, { 'index'=>$payload };
 			}

@@ -313,31 +313,29 @@ sub validate_authtoken {
 
 	my ($memd) = &ZOOVY::getMemd($USERNAME);
 	if (my $ACL = $memd->get("SESSION+$AUTHTOKEN")) {
-		#warn "got memache\n";
+		## warn "got memache\n";
 		return($ACL);
 		}
-	else {
-		## doesn't exist in memcache, check the database (and add to MEMCACHE on success)
-		my ($udbh) = &DBINFO::db_user_connect($USERNAME);
-		my ($MID) = &ZOOVY::resolve_mid($USERNAME);
-		my $pstmt = "select LUSERNAME,ACL from OAUTH_SESSIONS where MID=$MID and AUTHTOKEN=".$udbh->quote($AUTHTOKEN);
-		## print STDERR "/* $LUSERNAME */ $pstmt\n";
-		my ($dbLUSER,$dbACL) = $udbh->selectrow_array($pstmt);
-		&DBINFO::db_user_close();
 
-		if (uc($dbLUSER) eq uc($LUSERNAME)) {
-			#warn "set memcache\n";
-			$memd->set("SESSION+$AUTHTOKEN",$dbACL);
-			return($ACL);
-			}
-		else {
-			#warn "failed db lookup\n";
-			return(undef);
-			}
+	## doesn't exist in memcache, check the database (and add to MEMCACHE on success)
+	my ($udbh) = &DBINFO::db_user_connect($USERNAME);
+	my ($MID) = &ZOOVY::resolve_mid($USERNAME);
+	my $pstmt = "select LUSERNAME,ACL from OAUTH_SESSIONS where MID=$MID and AUTHTOKEN=".$udbh->quote($AUTHTOKEN);
+	## print STDERR "/* $LUSERNAME */ $pstmt\n";
+	my ($dbLUSER,$dbACL) = $udbh->selectrow_array($pstmt);
+	&DBINFO::db_user_close();
+
+	if (uc($dbLUSER) eq uc($LUSERNAME)) {
+		#warn "set memcache\n";
+		$memd->set("SESSION+$AUTHTOKEN",$dbACL);
+		return($dbACL);
+		}
+	else {
+		#warn "failed db lookup\n";
+		return(undef);
 		}
 
 	## this line should NEVER be reached!
-	return( undef );
 	}
 
 

@@ -8493,12 +8493,17 @@ sub adminProduct {
 			push @HEAD, { 'id'=>'SKU' };
 			push @HEAD, { 'id'=>'CMD' };
 			push @HEAD, { 'id'=>'QTY' };
+
+			push @HEAD, { 'id'=>'~ORDERID' };
 			push @HEAD, { 'id'=>'LUSER' };
 			push @HEAD, { 'id'=>'PARAMS' };
 
 			my $sth = $udbh->prepare($pstmt);
 			$sth->execute();
 			while ( my $dbref = $sth->fetchrow_hashref() ) {
+				my $kv = &ZTOOLKIT::parseparams($dbref->{'PARAMS'});
+				foreach my $k (keys %{$kv}) { $dbref->{"~$k"}->{$v}; }
+
 				my @ROW = ();
 				foreach my $head (@HEAD) { push @ROW, $dbref->{ $head->{'id'} }; 	}
 				push @ROWS, \@ROW;
