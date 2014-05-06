@@ -82,6 +82,7 @@ my $pstmt = "update SYNDICATION set LOCK_ID=$lockid,LOCK_GMT=$ts where ".
 				" and DSTCODE=".$udbh->quote($params{'dst'});
 if ($params{'dbid'}) { $pstmt .= " and ID=".int($params{'dbid'}); }
 if ($params{'profile'}) { $pstmt .= " and PROFILE=".$udbh->quote($params{'profile'}); }
+if ($params{'prt'}) { $pstmt .= " and DOMAIN=".$udbh->quote(sprintf("#%d",int($params{'prt'}))); }
 
 ## hmm.. 
 
@@ -121,8 +122,6 @@ foreach my $set (@SETS) {
 	## TODO: need to compare queued (if set to interval and to last_queued_gmt)
 	##
 
-	
-
 	my $TYPE = $params{'type'};
 	my $TMPLOGFILE = "/tmp/syndication-$USERNAME-$DOMAIN-$$-$DSTCODE-$TYPE.log";
 	my ($lm) = LISTING::MSGS->new($USERNAME,logfile=>$TMPLOGFILE);
@@ -135,8 +134,8 @@ foreach my $set (@SETS) {
 		}
 
 	$USERNAME = lc($USERNAME);
-	print ">>> USERNAME: $USERNAME DSTCODE: $DSTCODE DOMAIN: $DOMAIN TYPE:$TYPE (ID:$ID)\n";
-	$lm->poosh("START","USERNAME: $USERNAME DSTCODE: $DSTCODE DOMAIN: $DOMAIN TYPE:$TYPE (ID:$ID)");
+	print ">>> USERNAME:$USERNAME DSTCODE:$DSTCODE DOMAIN:$DOMAIN TYPE:$TYPE (ID:$ID)\n";
+	$lm->poosh("START","USERNAME:$USERNAME DSTCODE:$DSTCODE DOMAIN:$DOMAIN TYPE:$TYPE (ID:$ID)");
 
 	my ($err) = undef;
 	if (defined $err) {
@@ -146,38 +145,17 @@ foreach my $set (@SETS) {
 		## skip non-defined providers.
 		}
 
-	if ($DSTCODE eq 'IOF') {
-		## turned back on 2011-01-19
-		#$lm->poosh("FAIL-FATAL","IOFFER never supported/no longer maintained");
-		}
-
 	my ($so) = SYNDICATION->new($USERNAME,$DSTCODE,'*MSGS'=>$lm,'type'=>$params{'type'},'DEBUG'=>$params{'DEBUG'},'ID'=>$ID,'DOMAIN'=>$DOMAIN);
 	if (not defined $so) {
 		$lm->poosh("FAIL-FATAL","Syndication Provider $DSTCODE could not be loaded");
 		}
 
+
 	my ($gref) = undef;
 	if ($lm->can_proceed()) {
 		$gref = &ZWEBSITE::fetch_globalref($USERNAME);
-		my ($FLAGS) = ",$gref->{'cached_flags'},";
-		if ($FLAGS eq '') { 
-			$lm->poosh("STOP","No flags found for user:$USERNAME");
-			}
-		elsif ($so->{'MID'}==-1) { 
+		if ($so->{'MID'}==-1) { 
 			$lm->poosh("STOP","No MID for USERNAME:$USERNAME");
-			}
-		elsif ($FLAGS =~ /,CANCEL,/) {
-			$lm->poosh("STOP","Cancel flag found for USERNAME:$USERNAME");
-			}
-		elsif ($FLAGS !~ /,BASIC,/) {
-			$lm->poosh("STOP","No BASIC Flag for USERNAME:$USERNAME");
-			}
-		elsif (($DSTCODE eq 'AMZ') && ($FLAGS !~ /,AMZ,/)) {
-			## we can't nuke this, because it might be CBA
-			$lm->poosh("STOP","DSTCODE:AMZ requires AMZ bundle/flag");
-			}
-		elsif ($DSTCODE eq 'YST') {
-			$lm->poosh("STOP","Yahoo Stores was discontinued by Yahoo");
 			}
 		elsif (not &ZOOVY::check_free_memory('is_safe')) {
 			$lm->poosh("SKIP","Not enough free memory");

@@ -1450,9 +1450,14 @@ sub new {
 	$sth->finish();
 	&DBINFO::db_user_close();
 
+	if ($self->{'DOMAIN'} =~ /^#([\d]+)$/) {
+		$options{'PRT'} = $self->{'PRT'} = int($1);
+		}
+
 	if ($storetype eq 'PRT') {
 		$self->{'DOMAIN'} = sprintf('#%d',$options{'PRT'});
 		}
+
 
 	if (defined $options{'*MSGS'}) {
 		$self->{'*MSGS'} = $options{'*MSGS'};
@@ -1675,7 +1680,7 @@ sub appendtxlog {
 	my $MID = &ZOOVY::resolve_mid($USERNAME);
 	my $qtTXLINE = $udbh->quote($line);
 	
-	my $pstmt = "update SYNDICATION set TXLOG=concat($qtTXLINE,TXLOG) where DSTCODE=".$udbh->quote($self->dstcode())." and MID=$MID /* $USERNAME */ and DOMAIN=".$udbh->quote($self->domain())." and PRT=".$udbh->quote($self->prt());
+	my $pstmt = "update SYNDICATION set TXLOG=concat($qtTXLINE,TXLOG) where DSTCODE=".$udbh->quote($self->dstcode())." and MID=$MID /* $USERNAME */ and ID=".int($self->dbid());
 	print STDERR "/* addtxlog */ $pstmt\n";
 	$udbh->do($pstmt);
 	&DBINFO::db_user_close();
