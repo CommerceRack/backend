@@ -1999,7 +1999,7 @@ sub psgiinit {
 		if (defined $options{'*SITE'}) 	{ 
 			$self->{'*SITE'} 	= $options{'*SITE'}; 
 			}
-		$self->{'_PROJECTID'} = $SITE->projectid();
+		## $self->{'_PROJECTID'} = $SITE->projectid();
 		}
 
 	##
@@ -2012,8 +2012,12 @@ sub psgiinit {
 	my ($HOSTDOMAIN) =  $URI->host();
 	my ($DNSINFO) = &DOMAIN::QUERY::lookup($HOSTDOMAIN);
 	if (defined $DNSINFO) {
+		$self->{'USERNAME'} = $DNSINFO->{'USERNAME'};
+		$self->{'PRT'} = $DNSINFO->{'PRT'};
+		$self->{'MID'} = &ZOOVY::resolve_mid($self->{'USERNAME'});
 		$self->{'SDOMAIN'} = $DNSINFO->{'DOMAIN'};
 		$self->{'_PROJECTID'} = $DNSINFO->{'PROJECT'};
+		$self->{'_HOSTDOMAIN'} = $HOSTDOMAIN;
 		## print STDERR "$self->{'_PROJECTID'} = $DNSINFO->{'PROJECT'}\n"; die();
 		}
 	
@@ -23360,6 +23364,7 @@ sub appPageGet {
 		}
 	elsif (($self->clientid() ne 'admin') && ($self->apiversion() >= 201317)) {
 		my $PROJECTDIR = $self->projectdir($self->projectid());
+		## NOTE: this absolutely worked on 5/7/2014 - always have the developer confirm the domain they are sending to.
 
 		if (not $self->projectid()) {
 			## usually this means somebody is referencing the wrong domain (ex: vstore)
@@ -23370,7 +23375,7 @@ sub appPageGet {
 			}
 		elsif (-f "$PROJECTDIR/platform/pages.json") {
 			my $PATH = $v->{'PATH'};
-			print STDERR "LOADFILE:$v->{'PATH'}\n";
+			print STDERR "LOADFILE:$PROJECTDIR/platform/pages.json [$v->{'PATH'}] for $self->{'_HOSTDOMAIN'}\n";
 			my $PAGES = undef;
 			require JSON::Syck;
 			eval { $PAGES = JSON::Syck::LoadFile("$PROJECTDIR/platform/pages.json"); };
@@ -23381,11 +23386,7 @@ sub appPageGet {
 				my $ref = $PAGES->{$PATH};
 				if (not defined $ref) { $ref = {}; }
 				$p = PAGE->new($self->username(),$PATH,PRT=>$self->prt(),DATAREF=>$ref,DOMAIN=>$self->sdomain());
-
-				print STDERR Dumper($p);
-
 				$R{'%debug'} = $ref;
-
 				}
 			}
 		else {
