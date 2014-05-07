@@ -177,6 +177,7 @@ use strict;
 
 
 
+
 %JSONAPI::CMDS = (
 	## LEGACY ##
 
@@ -793,6 +794,8 @@ use strict;
 	## Merchandising
 	## 'getMerchandising' =>[  \&JSONAPI::getMerchandising,  {}, 'merchandising', ],	
 	);
+
+
 
 
 
@@ -2872,6 +2875,12 @@ sub projectdir {
 
 
 
+
+sub wasCached {
+	my ($R) = @_;
+	if (defined $R->{'_cacheid'}) { return(1); }
+	return(0);
+	}
 
 ##
 ## internal function so code reads easier
@@ -18565,8 +18574,30 @@ sub appPublicSearch {
 		if ($v->{'mode'} eq 'elastic-native') { $v->{'mode'} = 'elastic-search'; }
 		}
 
+	$Data::Dumper::Sortkeys = 1;
+	my $cache_str = '';
+	my %vars = ();
+	foreach my $k (sort keys %{$v}) { next if (substr($k,0,1) eq '_'); $vars{$k} = $v->{$k}; }
 
-	if ($v->{'mode'} eq 'elastic-searchbuilder') {
+	my ($memd) = &ZOOVY::getMemd($self->username());
+
+	my $ES1_MEMCACHE_KEY = sprintf("ES1*%s",Digest::MD5::md5_hex(Dumper(\%vars)));
+	my ($incr) = $memd->get($ES1_MEMCACHE_KEY);
+	if ($incr eq '') { $memd->set($ES1_MEMCACHE_KEY,0); $incr = 0; }
+
+	my $ES_MEMCACHE_KEY = sprintf("ES*%s",Digest::MD5::md5_hex(Dumper(\%vars)));
+	if (my $json = $memd->get($ES_MEMCACHE_KEY)) {
+		my ($ref) = JSON::XS->new()->decode($json);
+		%R = %{$ref};
+		$R{'_cacheid'} = $ES_MEMCACHE_KEY;
+		}
+	print STDERR "ES_MEMCACHE_KEY: $ES_MEMCACHE_KEY ($incr)\n";
+	$Data::Dumper::Sortkeys = 0;
+
+	if (&JSONAPI::wasCached(\%R)) {
+		
+		}
+	elsif ($v->{'mode'} eq 'elastic-searchbuilder') {
 		## removed by elasticsearch
 		$self->deprecated(\%R,0);
 		}
@@ -18741,6 +18772,11 @@ sub appPublicSearch {
 	else {
 		## NOTE: this line should NEVER be reached!
 		&JSONAPI::append_msg_to_response(\%R,"iseerr",18234,"search mode, not supported.");
+		}
+
+	if (not &JSONAPI::wasCached(\%R)) {
+		$memd->set($ES_MEMCACHE_KEY,JSON::XS->new()->encode(\%R));
+		$memd->incr($ES1_MEMCACHE_KEY,1);
 		}
 
 	return(\%R);
