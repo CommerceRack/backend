@@ -2783,6 +2783,7 @@ sub dbh_do {
 	if ($dbh->err()) {
 		my ($mod,undef,$line) = caller(0);
 		if (not defined $msg) { $msg = sprintf("DB Error %s in %s line #%d", $dbh->errstr(), $mod,$line ); }
+		print STDERR "DB ERROR:$msg\n";
 		&JSONAPI::set_error($R,'iseerr',154,$msg);
 		if (defined $pstmt) { $R->{'_sql'} = $pstmt; }
 		}
@@ -13820,6 +13821,8 @@ sub adminFAQ {
 				$VERB = ($1 eq 'UPDATE')?'update':'insert';
 				my %cols = (MID=>$MID,USERNAME=>$USERNAME,PRT=>$PRT);
 				foreach my $k ('TITLE','PRIORITY') { $cols{$k} = $params->{$k}; }
+				$cols{'PRIORITY'} = int($cols{'PRIORITY'});
+				$cols{'TITLE'} = sprintf("%s",$cols{'TITLE'});
 				if ($VERB eq 'insert') { $cols{'ID'} = 0; }
 				if ($VERB eq 'update') { $cols{'ID'} = $params->{'TOPIC_ID'}; }
 				my ($pstmt) = DBINFO::insert($udbh,'FAQ_TOPICS',\%cols,sql=>1,verb=>$VERB,key=>['ID','MID','PRT']);				

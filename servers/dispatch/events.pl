@@ -795,14 +795,8 @@ sub e_PID {
 				}
 			elsif (($MKT_STATUS{$id}==2) &&($INTREF->{'dst'} eq 'EBF')) {
 				## IS ONLY: ADDED EBAY FIXED PRICE (SYNDICATION)
-			push @SQ_VERBS, [ $PID, 'EBF', 'INSERT' ];
+				push @SQ_VERBS, [ $PID, 'EBF', 'INSERT' ];
 				}
-			#elsif (($MKT_STATUS{$id}==2) && ($INTREF->{'dst'} eq 'EBA')) {
-			#	## WAS ONLY: REMOVED EBAY AUCTION PRICE
-			#	}
-			#elsif (($MKT_STATUS{$id}==1) && ($INTREF->{'dst'} eq 'EBA')) {
-			#	## IS ONLY: ADDED EBAY AUCTION PRICE
-			#	}
 			elsif (($MKT_STATUS{$id}==2) && ($INTREF->{'dst'} eq 'BUY')) {
 				## WAS ONLY: REMOVE BUY.COM
 				}
