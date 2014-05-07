@@ -29132,7 +29132,7 @@ sub appSEO {
 		my $inwriter = new XML::Writer(OUTPUT => \$indexxml, DATA_MODE => 1, DATA_INDENT => 4, ENCODING => 'utf-8');
 		$inwriter->xmlDecl("UTF-8");	
 		$inwriter->startTag("sitemapindex", "xmlns"=>"http://www.google.com/schemas/sitemap/0.84");
-		$inwriter->comment(sprintf("Token:%s Generated:%s",$gmtdatetime,$v->{'token'}));
+		$inwriter->comment(sprintf("Token:%s Generated:%s",$v->{'token'},$gmtdatetime));
 
 		my $batches = &ZTOOLKIT::batchify(\@DATA,2500);
 		my $i = 0;
