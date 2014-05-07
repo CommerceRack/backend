@@ -266,6 +266,10 @@ my $app = sub {
 
 	my $USE_CACHE = 1;
 	if (not $CONFIG{'cache'}) { $USE_CACHE = 0; }
+	if ($req->parameters()->get('seoRequest')) { 
+		$USE_CACHE = 0; 
+		$CONFIG{'html#compress'} = 0;
+		}
 
 	if (defined $HTTP_RESPONSE) {
 		## already handled .. probably by _escaped_fragment_

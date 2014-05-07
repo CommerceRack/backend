@@ -29132,6 +29132,7 @@ sub appSEO {
 		my $inwriter = new XML::Writer(OUTPUT => \$indexxml, DATA_MODE => 1, DATA_INDENT => 4, ENCODING => 'utf-8');
 		$inwriter->xmlDecl("UTF-8");	
 		$inwriter->startTag("sitemapindex", "xmlns"=>"http://www.google.com/schemas/sitemap/0.84");
+		$inwriter->comment(sprintf("Token:%s Generated:%s",$gmtdatetime,$v->{'token'}));
 
 		my $batches = &ZTOOLKIT::batchify(\@DATA,2500);
 		my $i = 0;
@@ -29172,9 +29173,12 @@ sub appSEO {
 		print $out $indexxml;
 		$out->close();
 
-		$pstmt = "delete from SEO_PAGES where MID=$MID and DOMAIN=$qtHOSTDOMAIN and GUID!=$qtGUID";
-		print STDERR $pstmt."\n";
-		$udbh->do($pstmt);
+		$v->{'debug'} = 0;
+		if (not $v->{'debug'}) {
+			$pstmt = "delete from SEO_PAGES where MID=$MID and DOMAIN=$qtHOSTDOMAIN and GUID!=$qtGUID";
+			print STDERR $pstmt."\n";
+			$udbh->do($pstmt);
+			}
 		}
 	&DBINFO::db_user_close();
 
