@@ -1584,7 +1584,7 @@ sub loadPlatformJSON {
 				&JSONAPI::append_msg_to_response($R,'apierr',74228,"permissions file specified is corrupt cause: $@");
 				}
 			elsif (ref($cfg) ne 'HASH') {
-				&JSONAPI::append_msg_to_response($R,'apierr',74225,'permissions json did not decode into array');
+				&JSONAPI::append_msg_to_response($R,'apierr',74225,'permissions json did not decode into hash');
 				}
 			elsif (ref($cfg->{'_inputs'}) ne 'ARRAY') {
 				&JSONAPI::append_msg_to_response($R,'apierr',74226,'permissions json did not have required fields ARRAY attribute');
@@ -1654,6 +1654,7 @@ sub loadPlatformJSON {
 
 	## PHASE4: parse security token, set start execution.
 	if (&JSONAPI::hadError($R)) {
+		$cfg = undef;
 		}
 	elsif ((not defined $cfg->{'_start'}) || ($cfg->{'_start'} eq '')) {
 		&JSONAPI::append_msg_to_response($R,'iseerr',74229,"$API-$SCRIPT _start point is not specified or set properly.");		
@@ -20408,9 +20409,11 @@ sub appBuyerCreate {
 			}
 
 		my ($cfg) = $self->loadPlatformJSON('appBuyerCreate',$script,$v,$R);
+		if (not defined $cfg) { $cfg = {}; }
 		$R->{'%VARS'} = {};
 
 		my $START = $cfg->{'_start'} || "appBuyerCreate";
+
 		my @CMDS = ();
 		if (&JSONAPI::hadError($R)) {
 			}
