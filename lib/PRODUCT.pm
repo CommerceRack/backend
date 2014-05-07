@@ -220,21 +220,15 @@ sub elastic_index {
 
 			## reference fields
 			$storeref->{ $ref->{'index'} } = $value;
-				
+
 			## CURRENCY
-			if ($ref->{'type'} ne 'currency') {
-				}
-			elsif ( $storeref->{ $ref->{'index'} } eq '' ) {
-				## don't index currency fields which are blank
-				}
-			else {
+			if ($ref->{'type'} eq 'currency') {
 				## currency field - set to integer
 				$storeref->{$ref->{'index'}} = sprintf("%d",$storeref->{$ref->{'index'}}*100);
-				if ($storeref->{$ref->{'index'}} > (1<<30))  { $storeref->{$ref->{'index'}} = 1<<30; }
+				if ($storeref->{$ref->{'index'}} > (1<<30))  { $storeref->{$ref->{'index'}} = 1<<30; }	## max value?
 				}
-
-			if ($storeref->{$ref->{'index'}} eq '') {
-				## blank string fields (often) cause this to crash!
+			elsif ($storeref->{$ref->{'index'}} eq '') {
+				## blank string fields (often) cause es to crash and do other wonky things, so we'll not use them.
 			 	delete($storeref->{$ref->{'index'}});
 				}
 			elsif ($ref->{'type'} eq 'keywordlist') {
@@ -257,6 +251,9 @@ sub elastic_index {
 					push @ITEMS, $item;
 					}
 				$storeref->{$ref->{'index'}} = \@ITEMS;
+				}
+			else {
+				## some other type
 				}
 			}
 		}

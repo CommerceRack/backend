@@ -467,15 +467,21 @@ sub rebuild_product_index {
 			}
 		elsif ($fref->{'type'} eq 'currency') {
 			## currency is never stored as a floating point
-			$F{'type'} = 'integer';
+			$F{'type'} = 'long';
 			$F{'include_in_all'} = 0;
-			$F{'index'} = 'not_analyzed';
+			$F{'index'} = 'not_analyzed'; 
 			$F{'null_value'} = 0;
+			$F{'ignore_malformed'} = 'true';
+			$F{'store'} = 'true';
+			## $F{'index'} = 'yes';
 			## short,integer,float
 			}
 		elsif (($fref->{'type'} eq 'number') || ($fref->{'type'} eq 'integer')) {
 			$F{'type'} = 'integer';
+			if ($fref->{'type'} eq 'number') { $F{'type'} = 'long'; }
 			$F{'include_in_all'} = 0;
+			## $F{'index'} = 'not_analyzed';
+			$F{'null_value'} = 0;
 			}
 		elsif (($fref->{'type'} eq 'checkbox') || ($fref->{'type'} eq 'boolean')) {
 			$F{'type'} = 'boolean';
