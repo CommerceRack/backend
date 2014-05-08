@@ -22,8 +22,6 @@ sub finish {
 	
 	my $msg = qq~Amazon Job done.<br>~;
 	if ($meta->{'.product'} ne '') {
-		$bj->update('NOTES'=>qq~<a target="_top" href="/biz/product/index.cgi?VERB=EDIT&PID=$meta->{'.product'}">Back to Product $meta->{'.product'}</a>~);
-		}
 	$bj->finish('SUCCESS',$msg);	
 
 	return();

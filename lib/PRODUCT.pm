@@ -744,7 +744,7 @@ sub public_url {
 		my $origin = $options{'origin'} || 'unknown';
 		my $market = $options{'mkt'} || 'xxx';
 		my $pid = $self->pid();
-		return("/#!origin=$origin&product=$pid&marketplace=$market");
+		return("?origin=$origin&product=$pid&marketplace=$market");
 		}
 	elsif ($options{'style'} eq 'vstore') {
 		my $uri_name = $self->fetch('zoovy:prod_name');
@@ -768,10 +768,10 @@ sub public_url {
 		if ($options{'internal'}) {
 			## legacy toxml rendering compatibility with SITE::URLS->product_url 
 			## internal links are appended to url/session/product/ so we don't add the /product (whereas domain requires /)
-			return(sprintf('/%s/%s',$self->pid(),$uri_name));
+			return(sprintf('/%s/%s?meta=%s',$self->pid(),$uri_name,$options{'mkt'}));
 			}
 		else {
-			return(sprintf('/product/%s/%s',$self->pid(),$uri_name));
+			return(sprintf('/product/%s/%s?meta=%s',$self->pid(),$uri_name,$options{'mkt'}));
 			}
 		}
 

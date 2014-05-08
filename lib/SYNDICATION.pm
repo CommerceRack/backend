@@ -195,7 +195,14 @@ sub public_product_link {
 	## create links
 	## product link
 	my $style = $self->get('.linkstyle') || 'vstore';
-	my $link = sprintf("http://www.%s/%s",$self->domain(),substr($P->public_url('origin'=>'cpc','mkt'=>$self->dstcode(),'style'=>$style),1));
+
+	#my %vars = (
+	#	'origin'=>'cpc',
+	#	'mkt'=>$self->dstcode(),
+	#	'meta'=>$meta
+	#	);
+
+	my $link = sprintf("http://www.%s/%s",$self->domain(),$P->public_url('origin'=>'cpc','mkt'=>$self->dstcode(),'style'=>$style));
 
 	## product link with meta data
 	my $analytics_data = '';
@@ -218,13 +225,13 @@ sub public_product_link {
 	#		);
 	#	}
 
-	if (defined $SYNDICATION::PROVIDERS{$self->dstcode()}->{'linkmeta'}) {
-		my $meta = $SYNDICATION::PROVIDERS{$self->dstcode()}->{'linkmeta'};
-		$link .= "?meta=$meta&metacpg=".$P->pid();
-		if ($P->fetch('zoovy:analytics_data') ne '') {
-			$link .= '&'.$P->fetch('zoovy:analytics_data');
-			}
-		}
+	#if (defined $SYNDICATION::PROVIDERS{$self->dstcode()}->{'linkmeta'}) {
+	#	my $meta = $SYNDICATION::PROVIDERS{$self->dstcode()}->{'linkmeta'};
+	#	$link .= "?meta=$meta";
+	#	if ($P->fetch('zoovy:analytics_data') ne '') {
+	#		$link .= '&'.$P->fetch('zoovy:analytics_data');
+	#		}
+	#	}
 
 	return($link);
 	}

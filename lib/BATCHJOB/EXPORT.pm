@@ -108,7 +108,6 @@ sub progress {
 			RECORDS_TOTAL=>$records_total,
 			STATUS=>'RUNNING',
 			STATUS_MSG=>$msg,
-			NOTES=>sprintf("%s",$self->vars()->{'notes'}),
 			);
 		}
 	}

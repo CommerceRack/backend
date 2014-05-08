@@ -22456,6 +22456,7 @@ sub adminPartner {
 <response id="iama"> some string that makes sense to you</response>
 <response id="orderid"> 2011-01-1234</response>
 <response id="payment"> </response>
+<response id="_uuid"></response>
 </API>
 
 <API id="cartOrderStatus">
@@ -22735,6 +22736,7 @@ sub cartOrder {
 		($LM) = $CART2->finalize_order( 
 			'*LM'=>$LM, 
 			'our_orderid'=>$OID,
+			'nonce'=>($v->{'_uuid'} || $$),
 			'app'=>sprintf("SPOOLER %s",$self->apiversion()), 
 			'domain'=>$self->domain(),
 			'R_A_K'=>$REDIS_ASYNC_KEY,

@@ -98,7 +98,7 @@ sub progress {
 			STATUS=>'RUNNING',
 			STATUS_MSG=>$msg,
 			);
-		if (defined $notes) { $OPTIONS{'NOTES'} = $notes; }
+		## if (defined $notes) { $OPTIONS{'NOTES'} = $notes; }
 		$self->update(%OPTIONS);
 		}
 	}

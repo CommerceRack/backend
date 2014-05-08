@@ -6036,10 +6036,15 @@ sub finalize_order {
 	$SIG{'SIGTERM'} = \&CART2::ignore_finalize_term();
 	my ($redis) = &ZOOVY::getRedis($self->username(),0);
 
+	my $NONCE = $params{'nonce'};
+	my $CARTID = $self->uuid();
+	if ((defined $NONCE) && ($NONCE ne '')) { 
+		$CARTID = substr( sprintf("%s#%s",$CARTID,join("",reverse split(//,$NONCE))),0,30); 
+		$self->set('cart/cartid',$CARTID);
+		}
+
 	if ($params{'app'}) {
-		$self->add_history(
-			sprintf("Order App:%s Cart:%s Proc:$$",$params{'app'},($self->is_persist()?$self->uuid():"none") )
-			);
+		$self->add_history(sprintf("Order App:%s Cart:%s Proc:$$",$params{'app'},$CARTID ));
 		}
 	else {
 		warn "finalize_order *really* appreciates receiving an 'app' parameter describing who called it.";
@@ -6100,40 +6105,12 @@ sub finalize_order {
 		##
 		## a recovery situation, we'll load the previous, we can just continue.
 		##
-
-#		my $PREVIOUS_OID = $params{'retry'};
-#		$self->add_history("CHECKOUT RECOVERY / $PREVIOUS_OID");	
-#		my ($O2) = CART2->new_from_oid($USERNAME,$PREVIOUS_OID);
-#		if ((defined $O2) && (ref($O2) eq 'ORDER')) {
-#		## copy all the fields from the current order
-#			$self->make_readonly();
-#			foreach my $k (keys %{$O2}) { $self->{$k} = $O2->{$k}; }
-#			if ($REDIS_ASYNC_KEY) { $redis->append($REDIS_ASYNC_KEY,"RETRY-WIN|$PREVIOUS_OID COPIED\n"); }
-#			}
-#		else {
-#			$self->add_history("Attempting to re-create this order");
-#			$lm->pooshmsg("WARN|+RETRY FAILED - ORDER DOES NOT EXIST");
-#			if ($REDIS_ASYNC_KEY) { $redis->append($REDIS_ASYNC_KEY,"RETRY-FAILED|$PREVIOUS_OID DOES NOT EXIST\n"); }
-#			}
-#		}
-#		elsif (not $lm->can_proceed()) {
-#			## we probably won't be placing an order.
-#			}
-#		elsif ($self->__GET__('our/orderid')) {
-#			## we're good to go, we've already got an order ID.
-#			}
-#		else {
-#			## interesting, we got here.
-#			($PREVIOUS_OID) = &CART2::next_id($self->username(),1,$self->cartid());
-#			$self->__SET__('our/orderid',$PREVIOUS_OID);
-#			$lm->pooshmsg("DEBUG|+LINK $PREVIOUS_OID with $qtCARTID");
-#			}
 		}
 	elsif ( $self->is_persist() ) {
 		##
 		## PERSIST CART - VERIFY THIS ORDERID IS NOT A DUPLICATE TO ONE ALREADY CREATED, and LOCK IT.
 		##	
-		my ($OID) = &CART2::next_id($self->username(),0,$self->cartid());
+		my ($OID) = &CART2::next_id($self->username(),0,$CARTID);
 		$self->__SET__('our/orderid',$OID);
 
 		my ($ORDER_TB) = &DBINFO::resolve_orders_tb($USERNAME,$self->mid());
@@ -9591,6 +9568,7 @@ sub run_macro_cmds {
 				if ($cmd =~ /^ADD/) { $note = $self->__GET__('want/order_notes'); }
 				$note .= $pref->{'note'};
 				$self->__SET__('want/order_notes',$note);
+				$self->add_history("updated public order notes",ts=>$pref->{'ts'},etype=>1+4,luser=>$pref->{'luser'});
 				}
 			}
 		elsif (($cmd eq 'ADDPRIVATE') || ($cmd eq 'ADDPRIVATENOTE') || ($cmd eq 'SETPRIVATENOTE')) {
@@ -9602,6 +9580,7 @@ sub run_macro_cmds {
 				if ($cmd =~ /^ADD/) { $note = $self->__GET__('flow/private_notes'); }
 				$note .= $pref->{'note'};
 				$self->__SET__('flow/private_notes',$note);
+				$self->add_history("updated private order notes",ts=>$pref->{'ts'},etype=>4,luser=>$pref->{'luser'});
 				}
 			}
 		elsif ($cmd eq 'ADDCUSTOMERNOTE') {
@@ -9854,6 +9833,7 @@ sub run_macro_cmds {
 				}
 			}
 		elsif ($cmd eq 'ITEMUPDATE') {
+			$self->add_history("item(s) updated",ts=>$pref->{'ts'},etype=>4,luser=>$pref->{'luser'});
 			my ($item) = $self->stuff2()->item('uuid'=>$pref->{'uuid'});
 
 			if (not defined $item) {
@@ -9941,9 +9921,6 @@ sub run_macro_cmds {
 				}
 		
 			push @{$self->{'@CHANGES'}}, [ 'add_payment' ];
-#			open F, ">>/tmp/dump";
-#			print F 'PHASE2: '.Dumper($payrec,$VERB,$pref,$self)."\n--------------------\n";
-#			close F;
 			}
 		elsif ($cmd eq 'PROCESSPAYMENT') {
 			## this must be passed a VERB and UUID 
