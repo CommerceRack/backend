@@ -3749,15 +3749,16 @@ sub reset_session {
 
 	if ($remap) {
 		## remap the cart.
+		my $WAS_CARTID = $self->cartid();
 		$self->__SET__('cart/created_ts',time());
-		$self->__SET__('cart/previous_cartid', sprintf("%s|%s",$self->cartid(), $self->__GET__('cart/previous_cartid')) );
+		$self->__SET__('cart/previous_cartid', sprintf("%s|%s",$WAS_CARTID, $self->__GET__('cart/previous_cartid')) );
 		$self->__SET__('cart/cartid',$self->{'UUID'} = &CART2::generate_cart_id());
 		$self->{'CDBID'} = 0;	
 		$self->cart_save();
 
 		my ($redis) = &ZOOVY::getRedis($self->username());
 		if (defined $redis) {
-			my $REDIS_ID = &CART2::redis_cartid($self->username(),$self->prt(),$self->cartid());
+			my $REDIS_ID = &CART2::redis_cartid($self->username(),$self->prt(),$WAS_CARTID);
 			$redis->del($REDIS_ID);
 			print STDERR "!!!!!!!!!!! DELETE REDIS ID: $REDIS_ID !!!!!!!\n";
 			}		
@@ -6039,9 +6040,11 @@ sub finalize_order {
 	my $NONCE = $params{'nonce'};
 	my $CARTID = $self->uuid();
 	if ((defined $NONCE) && ($NONCE ne '')) { 
-		$CARTID = substr( sprintf("%s#%s",$CARTID,join("",reverse split(//,$NONCE))),0,30); 
-		$self->set('cart/cartid',$CARTID);
+		my $NONCE = join("",reverse split(//,$NONCE));
+		$CARTID = substr( sprintf("%s#%s",$CARTID,$NONCE) ,0,30 ); 
+		#$self->set('cart/cartid',$CARTID);
 		}
+	print STDERR "NONCE: $NONCE\n";
 
 	if ($params{'app'}) {
 		$self->add_history(sprintf("Order App:%s Cart:%s Proc:$$",$params{'app'},$CARTID ));
@@ -6062,6 +6065,8 @@ sub finalize_order {
 	if (not defined $EREFID) { $EREFID = ''; }
 
 	my $REDIS_ASYNC_KEY = $params{'R_A_K'} || sprintf("FINALIZE.%s.CART.%s",$self->username(),$self->uuid());
+	print STDERR "ASYNC_KEY: $REDIS_ASYNC_KEY NONCE:$NONCE\n";
+	$redis->append($REDIS_ASYNC_KEY,"\nSPOOLER*NONCE|$NONCE");
 
 	my ($udbh) = &DBINFO::db_user_connect($self->username());
 	my $MID = $self->mid();
@@ -6118,6 +6123,7 @@ sub finalize_order {
 		my $qtCARTID = $udbh->quote($self->cartid());
 
 		## There can only be one process (when creating from a website)
+		$redis->append($REDIS_ASYNC_KEY,"\nNONCE|$NONCE");
 		$redis->append($REDIS_ASYNC_KEY,"\nORDERID|$OID");
 		$redis->expire($REDIS_ASYNC_KEY,86400*7);
 
@@ -6143,6 +6149,7 @@ sub finalize_order {
 
 		}
 	else {
+		$redis->append($REDIS_ASYNC_KEY,"\nFINALIZE-FAILURE");
 		$lm->pooshmsg("ISE|+Finalize workflow failure.");
 		}
 
@@ -6606,7 +6613,7 @@ sub finalize_order {
 			}
 		}
 	else {
-		if ($REDIS_ASYNC_KEY) { $redis->append($REDIS_ASYNC_KEY,sprintf("SUCCESS|Order %s has been placed\n",$self->oid())); }
+		if ($REDIS_ASYNC_KEY) { $redis->append($REDIS_ASYNC_KEY,sprintf("\nSUCCESS|Order %s has been placed\n",$self->oid())); }
 		$lm->pooshmsg("SUCCESS|OID:".$self->oid());
 		unlink("$recoveryfile");
 		}

@@ -765,14 +765,19 @@ sub public_url {
 			$uri_name = "$uri_name.html";
 			}
 
+		my $url = '';
 		if ($options{'internal'}) {
 			## legacy toxml rendering compatibility with SITE::URLS->product_url 
 			## internal links are appended to url/session/product/ so we don't add the /product (whereas domain requires /)
-			return(sprintf('/%s/%s?meta=%s',$self->pid(),$uri_name,$options{'mkt'}));
+			$url = sprintf('/%s/%s',$self->pid(),$uri_name);
 			}
 		else {
-			return(sprintf('/product/%s/%s?meta=%s',$self->pid(),$uri_name,$options{'mkt'}));
+			$url = sprintf('/product/%s/%s',$self->pid(),$uri_name);
 			}
+		if (defined $options{'mkt'}) {
+			$url = sprintf("%s?meta=%s",$url,$options{'mkt'});
+			}
+		return($url);
 		}
 
 

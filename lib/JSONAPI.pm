@@ -22722,9 +22722,6 @@ sub cartOrder {
 		##
 		## SPOOLER PROCESSING
 		##
-
-		print STDERR 'paymentQ: '.Dumper($self->paymentQ());
-
 		if ($OID eq '') { $OID = $CART2->in_get('our/orderid'); }
 		$redis->append($REDIS_ASYNC_KEY,sprintf("\nSPOOLER*START|%s.%s.%s",time(),$OID,$CART2->is_readonly()));
 		$CART2->in_set('want/payby','PAYMENTQ');
@@ -22750,7 +22747,6 @@ sub cartOrder {
 
 		$redis->append($REDIS_ASYNC_KEY,sprintf("\nSPOOLER*FINISHED|%s",time()));
 		delete $self->{'%CARTS'}->{$CARTID};
-
 		$CART2->reset_session("CHECKOUT");
 		## END SPOOLER PROCESSING
 		}

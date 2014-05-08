@@ -1045,7 +1045,9 @@ sub legacyResponseHandler {
 			if ($TRUST_REFER) {			
 				## Get the cart ID from the URL first if we're in the checkout (cross domain)
 		      $SITE::CART2 = CART2->new_persist($SITE->username(),$SITE->prt(),$cart_id,'create'=>0);
-  				if (not $SITE::CART2->exists()) { 
+				if (not defined $SITE::CART2) {
+					}
+  				elsif (not $SITE::CART2->exists()) { 
 					$SITE::CART2 = undef; 
 					$SITE::DEBUG && warn "!!!! oh crap cart->exists() failed on cart_id";
 					}
