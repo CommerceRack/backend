@@ -224,7 +224,7 @@ sub elastic_index {
 			## CURRENCY
 			if ($ref->{'type'} eq 'currency') {
 				## currency field - set to integer
-				$storeref->{$ref->{'index'}} = sprintf("%d",$storeref->{$ref->{'index'}}*100);
+				$storeref->{$ref->{'index'}} = int(sprintf("%0f",$storeref->{$ref->{'index'}}*100));
 				if ($storeref->{$ref->{'index'}} > (1<<30))  { $storeref->{$ref->{'index'}} = 1<<30; }	## max value?
 				}
 			elsif ($storeref->{$ref->{'index'}} eq '') {
