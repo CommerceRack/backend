@@ -25,6 +25,7 @@ my $csv = Text::CSV_XS->new({sep_char=>"\t",quote_char=>undef,escape_char=>undef
 ##		verb=tracking
 ##			DEBUGORDER=####-##-#####
 ##		download=1
+##		unlock=1
 ##		REDO=filename 
 ##			RECREATE=2009-01-1234 (will recreate the stuff in the order)
 ##			IGNORE_EREFID=1	(will die before order is created, but will go through the steps to re-create)
@@ -166,148 +167,6 @@ foreach my $set (@USERS) {
 
 exit(1);
 
-
-
-
-##
-##
-##
-#sub productAck {
-#	my ($so, $ftp, %params) = @_;
-#
-#	my $lm = $so->msgs();
-#
-#	my $ERROR = '';
-#	my $USERNAME = $so->username();
-#
-#	## logs into ftp server
-#	$ftp->cwd("/NewSku/Archive") or die "Cannot change working directory ", $ftp->message;
-#
-#	## go through all the stashes and save the errors to the validation log
-#	#if (-f $vfile) {
-#	#	die("vfile: $vfile\n");
-#	#	}
-#	#else {
-#	#	die("no vfile: $vfile\n");
-#	#	}
-#
-#	
-#	## list the files on the ftp server
-#	my $i = 0;
-#	foreach my $file ($ftp->ls("/NewSku/Archive")) {
-#		## skip files we've already downloaded
-#		next if (-f "/tmp/$file");
-#		print "FILE: $file\n";
-#		## skip files that aren't named properly.
-#		next unless ($file =~ /-([\d]+)\.resp$/);
-#		my $yyyymmddhhmmss = $1;
-#		my ($ts) = &ZTOOLKIT::mysql_to_unixtime($yyyymmddhhmmss);
-#		
-#		print "FILE: $file [$ts]\n";	
-#
-#		## download the file into $ios
-#		my ($ios) = IO::String->new();
-#		$ftp->get("/NewSku/Archive/$file",$ios) or die "get failed ", $ftp->message;
-#		my $str = ${$ios->string_ref()};
-#	
-#		open Fx, ">$file";
-#		print Fx $str;
-#		close Fx;
-#
-#		## handle "special" errors (by special I mean "retarded")
-#		print $str."\n";
-#		if ($str =~ /The file could not/) { 
-#			$ERROR = $str;
-#			$lm->pooshmsg("INFO|ts=$ts|+File $file: $ERROR");
-#			open F, ">/tmp/$file"; print F $str; close F;
-#			sleep(1);
-#			}
-#
-#		## if we got a special error, then put helmet on head and go home. 
-#		next if ($ERROR);
-#
-#		my $lc = 0; # line count
-#		my @HEADERS = ();
-#		## iterate through each line of the file. 
-#		foreach my $line (split(/[\n\r]+/,$str)) {
-#			
-#			next if ($line eq '');
-#
-#			$lc++;
-#			my $status = $csv->parse($line);         # parse a CSV string into fields
-#			my @columns = $csv->fields();            # get the parsed fields
-#
-#			if ($lc == 1) {
-#				## yay we found our header row. 
-#				@HEADERS = @columns;
-#				}
-#			else {
-#				## yippie we gots data!
-#				my %DATA = ();
-#				my $i = scalar(@HEADERS); 
-#				while ($i-->0) {
-#					## put the rows 
-#					$DATA{$HEADERS[$i]} = $columns[$i];
-#					}
-#				# print Dumper(\@HEADERS,\%DATA);
-#
-#				my ($stash) = $so->stash_getref($DATA{'ItemId'});
-#				if ($DATA{'Result'} == 1) {
-#					## Success
-#					if (not defined $stash->{'created'}) {
-#						$lm->pooshmsg("INFO|ts=$ts|pid=$DATA{'ItemId'}|+Transferred New Product: $DATA{'ItemId'}");
-#						}
-#					delete $stash->{'err'};
-#					$stash->{'created'} = $ts; 
-#					$so->stash_setref($DATA{'ItemId'},$stash);
-#					}
-#				elsif ($DATA{'Result'} == 0) {
-#					## Fail!
-#					delete $stash->{'created'};
-#					$stash->{'err'} = $DATA{'Message'};
-#					$so->stash_setref($DATA{'ItemId'},$stash);
-#					}
-#				else {
-#					die("Can't handle: ".Dumper(\%DATA));
-#					}
-#				
-#				}
-#			}
-#		
-#
-#
-##		push @ORDERSCSV, [ $file, $str ];
-##		push @FILES_TO_RENAME, $file;
-#		$so->syncStash();
-#		print "FILE: $file\n";
-#		open F, ">/tmp/$file"; print F $str; close F;
-#		sleep(1);
-#
-#		}
-#	
-#	$ftp->quit();
-#
-#	my ($CATSREF) = &PRODUCT::BATCH::fetchcategories($so->username());
-#
-#	my $vfile = sprintf("%s/PRIVATE/%s",&ZOOVY::resolve_userpath($so->username()),$so->get('.validation_log_file'));
-#	foreach my $SKU (@{$so->stashes()}) {
-#		# iterate through the list of skus' which have a stash
-#		print "SKU: $SKU\n";
-#
-#		my $cat = $CATSREF->{$SKU};
-#		my ($ref) = $so->stash_getref($SKU);
-#		if ($ref->{'err'} ne '') {
-#			print "$SKU:$ref->{'err'}\n";
-#			open F, ">>$vfile";
-#			print F "$cat,$SKU,,,BUY-ERR|$ref->{'err'}\r\n";
-#			close F;
-#			}
-#		}
-#
-#	print "DONE WITH PRODUCTACK ($vfile)\n";
-#	}
-#
-#
 
 
 
@@ -1189,7 +1048,8 @@ sub uploadTracking {
 			buf=>$txt,
 			type=>$so->dstcode(),
 			title=>"Tracking Feed File for ".$so->dstcode(),
-			meta=>{'DSTCODE'=>$so->dstcode(),'TYPE'=>$params{'verb'}},
+			file=>sprintf("%s-tracking-%s.csv",$so->dstcode(),ZTOOLKIT::pretty_date(time(),3)),
+			meta=>{'DSTCODE'=>$so->dstcode(),'TYPE'=>$params{'verb'}}
 			);
 		}
 

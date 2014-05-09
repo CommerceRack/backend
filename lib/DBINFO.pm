@@ -133,63 +133,42 @@ sub task_lock {
 
 	$taskid = substr($taskid,0,32);
 	my $appid = &DBINFO::our_appid();
-	my ($udbh) = &DBINFO::db_user_connect($USERNAME);
+	my ($redis) = &ZOOVY::getRedis($USERNAME);
 
-	my $LOCK_LIMIT = '';
-	if (defined $options{'LOCK_LIMIT'}) {
-		$LOCK_LIMIT = $options{'LOCK_LIMIT'};
-		}
-	else	{
-		$LOCK_LIMIT = '3600';
+#	my ($udbh) = &DBINFO::db_user_connect($USERNAME);
+	my $TIMEOUT = int($options{'LOCK_LIMIT'}) || int($options{'TIMEOUT'}) || 3600;
+	my $LOCKID = uc("LOCK+$USERNAME+$taskid");
+
+	if ($redis->exists($LOCKID)) {
+		## invalid lockid
+		if ($redis->ttl($LOCKID)==0) { $redis->del($LOCKID); }
 		}
 
-	if (($VERB eq 'UNLOCK') || ($VERB eq 'PICKLOCK')) {
-		my $pstmt = "/* $VERB */ delete from TASK_LOCKS where USERNAME=".$udbh->quote($USERNAME)." and TASKID=".$udbh->quote($taskid);
-		if ($VERB eq 'UNLOCK') {
-			## this prevents us from accidentally releasing a lock that isn't ours
-			$pstmt .= " and APPID=".$udbh->quote($appid);
-			}
-		print STDERR "$pstmt\n";
-		$udbh->do($pstmt);
+	my $LOCKEDBY_TTL = $redis->ttl($LOCKID);
+	my $LOCKEDBY_APP = $redis->get($LOCKID);
+
+	if ($VERB eq 'UNLOCK') {
+		if ($LOCKEDBY_APP eq $appid) { $redis->del($LOCKID); }
+		}
+
+	if ($VERB eq 'PICKLOCK') { 
+		$VERB = 'LOCK';
+		$redis->del($LOCKID); 
 		}
 
 	my $result = 0;
-	if (($VERB eq 'PICKLOCK') || ($VERB eq 'LOCK')) {
-		my $pstmt = &DBINFO::insert($udbh,'TASK_LOCKS',{
-			'USERNAME'=>$USERNAME,
-			'*CREATED'=>'now()',
-			'TASKID'=>$taskid,
-			'APPID'=>$appid,
-			},sql=>1,'verb'=>'insert');
-		print STDERR "$pstmt\n";
-		$udbh->do($pstmt);
-
-		$pstmt = "select unix_timestamp(now())-unix_timestamp(CREATED) as AGE,APPID from TASK_LOCKS where USERNAME=".$udbh->quote($USERNAME)." and TASKID=".$udbh->quote($taskid);
-		print STDERR "$pstmt\n";
-		my ($age,$ownerappid) = $udbh->selectrow_array($pstmt);
-		if ($ownerappid ne $appid) {
-			warn "already locked..\n";
-			$result = 0;
-			}
-
-		if ($appid eq $ownerappid) {
-			warn "LOCK SUCCESS appid:$appid owner:$ownerappid\n";
-			$result = 1; 
-			}
-		elsif ( $age > $LOCK_LIMIT) {
-			warn "forced release of lock! (too old! [$age])\n";	
-			$pstmt = "/* EXPIRE */ delete from TASK_LOCKS where USERNAME=".$udbh->quote($USERNAME)." and TASKID=".$udbh->quote($taskid);
-			print STDERR "$pstmt\n";
-			$udbh->do($pstmt);
-			$result = &DBINFO::task_lock($USERNAME,$taskid,$VERB,'LOCK_LIMIT'=>$LOCK_LIMIT);
+	if ($VERB eq 'LOCK') {
+		if ($redis->setnx($LOCKID,$appid)) {
+			$redis->expire($LOCKID,$TIMEOUT);
+			warn "LOCK SUCCESS appid:$appid\n";
+			$result = 1;
 			}
 		else {
-			warn "lock failed!\n";
+			warn "already locked.. $LOCKEDBY_APP for $LOCKEDBY_TTL seconds.\n";
+			$result = 0;
 			}
-
 		}
 
-	&DBINFO::db_user_close();
 	return($result);
 	}
 

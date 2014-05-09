@@ -1499,7 +1499,9 @@ sub smart_load {
 		#print STDERR 'SMART LOAD: '.Dumper($DATASRC);
 		# print STDERR "SREF: $SITE->prt()\n";
 		if ($namespace eq 'page') {
-			$RESULT = $SITE->pAGE()->get($tag);
+			if (defined $SITE->pAGE()) {
+				$RESULT = $SITE->pAGE()->get($tag);
+				}
 			}
 		elsif ($namespace eq 'profile') {
 			my $nsref = undef;
