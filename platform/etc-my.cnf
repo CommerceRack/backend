@@ -39,6 +39,8 @@ wait_timeout=60
 back_log=100
 connect-timeout=60
 sql_mode=NO_ENGINE_SUBSTITUTION
+## zfs will crash without this:
+innodb_use_native_aio=0
 
 [mysqld_safe]
 log-error=/var/log/mysqld.log
