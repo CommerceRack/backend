@@ -18623,6 +18623,7 @@ sub appPublicSearch {
 		## $params{'index'} = sprintf("%s.public",lc($self->username()));
 		if (defined $v->{'query'}) { $params{'body'}->{'query'} = $v->{'query'};	}
 		if (defined $v->{'filter'}) {	$params{'body'}->{'filter'} = $v->{'filter'};	}
+		if (defined $v->{'facets'}) {	$params{'body'}->{'facets'} = $v->{'facets'};	}
 
 		## size            => $no_of_results
 		if (defined $v->{'size'}) {	$params{'size'} = $v->{'size'};	}

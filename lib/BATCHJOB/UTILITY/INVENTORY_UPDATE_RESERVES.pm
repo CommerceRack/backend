@@ -67,7 +67,7 @@ sub work {
 #	   }
 #	&DBINFO::db_user_close();
 
-	$bj->progress($rectotal,$rectotal,"Utility offline.");
+	$bj->progress(0,0,"Utility offline.");
 
 	return(undef);
 	}
