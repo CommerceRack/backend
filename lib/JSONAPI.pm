@@ -8258,7 +8258,7 @@ sub adminProduct {
 					foreach my $id (@SCHEDULES) {
 						my %SCHEDULE = ();
 						$ROW{'@schedule_prices'} = [];
-						foreach my $SCHEDULEID (@{WHOLESALE::list_schedules($self->username())}) {
+						foreach my $SCHEDULEID (@SCHEDULES ) {
 							my %ref = ();
 							$ref{'schedule'} = $SCHEDULEID;
 							$ref{'price'} =  $P->skufetch($SKU,sprintf('zoovy:schedule_%s',lc($SCHEDULEID)));
@@ -21411,6 +21411,9 @@ sub appCheckoutDestinations {
 <API id="cartPaypalSetExpressCheckout">
 <purpose></purpose>
 <input id="_cartid"></input>
+<input id="useMobile">0|1 (if true - we'll tell paypal to use the mobile version)</input>
+<input optional="1" id="drt">'device token' - obtain them from the native IOS paypal library (not required, but useful)</input>
+<input optional="1" id="useraction">commit - accoring to Paypal: If the buyer checks out on your website, also set useraction=commit</input>
 <input id="getBuyerAddress"> 0|1 (if true - paypal will ask shopper for address)</input>
 <input id="cancelURL"> ''   (required, but may be blank for legacy checkout)</input>
 <input id="returnURL"> ''	 (required, but may be blank for legacy checkout)</input>
@@ -21483,6 +21486,10 @@ sub cartPaypalSetExpressCheckout {
 		my $mode = ($v->{'getBuyerAddress'}?'cartec':'checkoutec');
 		require ZPAY::PAYPALEC;
 		my ($api) = ZPAY::PAYPALEC::SetExpressCheckout($self->_SITE(),$CART2,$mode,
+			'useMobile'=>($v->{'useMobile'})?1:0,
+			'drt'=>sprintf("%s",$v->{'drt'}),		## drt: is 'device token' for mobile checkout native IOS library
+			## If the buyer checks out on your website, also set useraction=commit:
+			'useraction'=>sprintf("%s",$v->{'useraction'}), 
 			'cancelURL'=>$v->{'cancelURL'},
 			'returnURL'=>$v->{'returnURL'},
 			'useShippingCallbacks'=>$v->{'useShippingCallbacks'},

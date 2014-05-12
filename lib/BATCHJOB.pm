@@ -433,7 +433,7 @@ sub read {
 	$RESPONSE{'records_warn'} = $self->{'RECORDS_WARN'};
 	$RESPONSE{'status_msg'} = $self->{'STATUS_MSG'};
 	$RESPONSE{'status'} = $self->{'STATUS'};
-	## $RESPONSE{'notes'} = $self->{'OUTPUT_NOTES'};
+	$RESPONSE{'BATCH_EXEC'} = $self->{'BATCH_EXEC'};
 
 	return(%RESPONSE);	
 	}

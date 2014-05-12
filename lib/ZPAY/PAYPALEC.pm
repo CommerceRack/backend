@@ -678,6 +678,8 @@ sub SetExpressCheckout {
 		}
 
 	$params{'METHOD'} = 'SetExpressCheckout';
+	$params{'VERSION'} = '109.0';
+
 	if ($webdb->{"cc_instant_capture"} eq 'ALWAYS') {
 		## INSTANT CAPTURE!
 		$params{'PAYMENTACTION'} = 'Authorization';
@@ -686,7 +688,6 @@ sub SetExpressCheckout {
 		## DELAYED CAPTURE!
 		$params{'PAYMENTACTION'} = 'Authorization';
 		}
-
 
 	if ($options{'returnURL'}) {
 		$params{'RETURNURL'} = $options{'returnURL'};
@@ -827,6 +828,10 @@ sub SetExpressCheckout {
 		## turn off callbacks for giftcards.
 		$webdb->{'paypal_api_callbacks'} = 0;
 		}
+	elsif ($options{'useMobile'}) {
+		## turn off callbacks for mobile (not supported)
+		$webdb->{'paypal_api_callbacks'} = 0;
+		}
 
 	## 9/10/11 - it appears that paypal likes contents even if callbacks are off, 
 	my $i = 0;
@@ -845,9 +850,7 @@ sub SetExpressCheckout {
 
 	if (int($webdb->{'paypal_api_callbacks'})==0) {
 		## NO CALLBACKS
-
 		$params{'AMT'} = $params{'SHIPPINGAMT'}+$params{'TAXAMT'}+$params{'INSURANCEAMT'}+$params{'ITEMAMT'}+$params{'SHIPDISCAMT'}+$params{'HANDLINGAMT'};
-
 		}
 	else {
 		## CALLBACKS!
@@ -884,6 +887,16 @@ sub SetExpressCheckout {
 #	print F Dumper(\%p);
 #	close F;
 
+	if ($options{'useMobile'}) {
+		## delete $params{'SHIPDISCAMT'};		## has no impact
+		$params{'LANDINGPAGE'} = 'Login';		## can also be 'Billing'
+		## $params{'LOCALECODE'} = 'US';			## has no impact
+		$params{'CHANNELTYPE'} = 'merchant';
+		$params{'SOLUTIONTYPE'} = 'mark';
+		$params{'PAYMENTACTION'} = 'Sale';		## definitely required for mobile (barf on paypal side without)
+		$params{'VERSION'} = '109.0';
+		}
+
 	##
 	## NOTE: AMT computation must be at the bottom so the totals match up with whatever we selected for shipping.
 	##
@@ -910,7 +923,14 @@ sub SetExpressCheckout {
 	if ($CART2->username() eq 'pricematters') { $params{'CURRENCYCODE'} = 'CAD'; }
 
 	if (not defined $api) {	
+
+
 		$api = &ZPAY::PAYPAL::doRequest(\%params);
+
+		open F, ">/tmp/paypalec.xyz";
+		print F Dumper(\%params,$api);
+		close F;
+
 		}
 
 
@@ -927,17 +947,27 @@ sub SetExpressCheckout {
    else {
       $CART2->in_set('cart/paypal_token',$api->{'TOKEN'});
 
+		my $kvpairs = 'cmd=_express-checkout&token='.$api->{'TOKEN'};
+		## http://www.paypalobjects.com/webstatic/en_US/developer/docs/pdf/PP_MECL_Developer_Guide_and_Reference_iOS_1_0_3.pdf
+		if ($options{'useMobile'}) {
+			## https://developer.paypal.com/docs/classic/express-checkout/integration-guide/ECOnMobileDevices/
+			## note: docs say *both* expresscheckout-mobile and express-checkout-mobile
+			$kvpairs = sprintf('cmd=_express-checkout-mobile&token=%s',$api->{'TOKEN'});
+			if ($options{'drt'}) { $kvpairs = sprintf("%s&useraction=%s",$kvpairs,$options{'drt'}); }
+			if ($options{'useraction'}) { $kvpairs = sprintf("%s&useraction=%s",$kvpairs,$options{'useraction'}); }
+			}
+
       if ($webdb->{'paypal_api_env'}==1) {
          ## staging/sandbox
-         $api->{'URL'} = 'https://www.sandbox.paypal.com/cgi-bin/webscr?cmd=_express-checkout&token='.$api->{'TOKEN'};
+         $api->{'URL'} = "https://www.sandbox.paypal.com/cgi-bin/webscr?$kvpairs";
          }
 		elsif ($webdb->{'paypal_api_env'}==3) {
          ## staging/sandbox
-         $api->{'URL'} = 'https://www.beta-sandbox.paypal.com/cgi-bin/webscr?cmd=_express-checkout&token='.$api->{'TOKEN'};
+         $api->{'URL'} = "https://www.beta-sandbox.paypal.com/cgi-bin/webscr?$kvpairs";
          }
       else {
          ## production
-         $api->{'URL'} = 'https://www.paypal.com/cgi-bin/webscr?cmd=_express-checkout&token='.$api->{'TOKEN'};
+         $api->{'URL'} = "https://www.paypal.com/cgi-bin/webscr?$kvpairs";
          }
       }
 
