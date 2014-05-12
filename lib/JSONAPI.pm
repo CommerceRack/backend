@@ -29187,7 +29187,7 @@ sub appSEO {
 			my $FILENAME = sprintf("sitemap-%s-%d.xml.gz",$hostdomain,++$i);
 
 			$inwriter->startTag("sitemap");
-			$inwriter->dataElement("loc","/$FILENAME");
+			$inwriter->dataElement("loc","http://$hostdomain/$FILENAME");
 			$inwriter->dataElement("lastmod",$gmtdatetime);
 			$inwriter->endTag("sitemap");
 	
@@ -29198,7 +29198,7 @@ sub appSEO {
 			$filewriter->startTag("urlset","xmlns"=>"http://www.google.com/schemas/sitemap/0.84");
 			foreach my $row (@{$set}) {
 				$filewriter->startTag("url");
-				$filewriter->dataElement("loc","/#!$row->[0]");
+				$filewriter->dataElement("loc","http://$hostdomain/#!$row->[0]");
 				$filewriter->dataElement("priority",$row->[1]);
 				$filewriter->endTag();
 				}
