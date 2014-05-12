@@ -888,7 +888,7 @@ sub SetExpressCheckout {
 #	close F;
 
 	if ($options{'useMobile'}) {
-		## delete $params{'SHIPDISCAMT'};		## has no impact
+		delete $params{'SHIPDISCAMT'};			## absolutely breaks mobile checkout
 		$params{'LANDINGPAGE'} = 'Login';		## can also be 'Billing'
 		## $params{'LOCALECODE'} = 'US';			## has no impact
 		$params{'CHANNELTYPE'} = 'merchant';
@@ -926,11 +926,6 @@ sub SetExpressCheckout {
 
 
 		$api = &ZPAY::PAYPAL::doRequest(\%params);
-
-		open F, ">/tmp/paypalec.xyz";
-		print F Dumper(\%params,$api);
-		close F;
-
 		}
 
 
@@ -1396,10 +1391,6 @@ sub addShippingToParams {
 	else {
 		$SHIPPOSSIBILITIES = $CART2->shipmethods('selected_only'=>1,'tbd'=>1);
 		}
-
-#	open F, ">/tmp/possibilities";
-#	print F Dumper($SHIPPOSSIBILITIES,$cart);
-#	close F;
 
 
 	foreach my $shipmethod (@{$SHIPPOSSIBILITIES}) {
