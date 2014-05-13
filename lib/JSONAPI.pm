@@ -13814,9 +13814,12 @@ sub adminFAQ {
 		my $LM = LISTING::MSGS->new();
 
 		foreach my $CMDSET (@CMDS) {
+			next if (&JSONAPI::hadError(\%R));
+
 			my ($VERB,$params) = @{$CMDSET};
 			my @MSGS = ();
 			my $CODE = $v->{'PROFILE'};
+
 
 			if ($VERB =~ /^TOPIC-(UPDATE|CREATE)$/) {
 				$VERB = ($1 eq 'UPDATE')?'update':'insert';
@@ -13845,6 +13848,9 @@ sub adminFAQ {
 			elsif ($VERB eq 'FAQ-DELETE') {
 				my $pstmt = "delete from FAQ_ANSWERS where MID=$MID and PRT=$PRT and ID=".$udbh->quote($params->{'FAQ_ID'});
 				&JSONAPI::dbh_do(\%R,$udbh,$pstmt,$VERB);
+				}
+			else {
+				&JSONAPI::set_error(\%R,'apperr',93203,sprintf("Unrecognized macro command '%s'",$VERB));
 				}
 			}
 		

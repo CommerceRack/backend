@@ -183,29 +183,43 @@ sub sync_inventory {
 		}
 
 	my ($INVSUMMARY) = INVENTORY2->new($USERNAME,"*EBAY")->summary('@PIDS'=>[ $PID ]);
-	my ($CURRENT_INVENTORY_AVAILABLE) = $INVSUMMARY->{$PID};
+#$INVSUMMARY = {
+#          'RB338600113:AC0N' => {
+#                                  'TS' => '1399661109',
+#                                  'PID' => 'RB338600113',
+#                                  'DIRTY' => '0',
+#                                  'MARKETS' => '0',
+#                                  'ONSHELF' => '0',
+#                                  'AVAILABLE' => '-1',
+#                                  'SKU' => 'RB338600113:AC0N'
+#                                },
+#          'RB338600113:AC09' => {
+#                                  'TS' => '1399661109',
+#                                  'PID' => 'RB338600113',
+#                                  'DIRTY' => '0',
+#                                  'MARKETS' => '0',
+#                                  'ONSHELF' => '2',
+#                                  'AVAILABLE' => '2',
+#                                  'SKU' => 'RB338600113:AC09'
+#                                }
+#        };
+
+	my ($SKU_INVENTORY_AVAILABLE) = $INVSUMMARY->{$SKU}->{'AVAILABLE'};
+	my ($PRODUCT_INVENTORY_AVAILABLE) = $INVSUMMARY->{$SKU}->{'AVAILABLE'};
 
 	my $EBAY_FIXED_QTY = $P->fetch('ebay:fixed_qty');
-	if (($EBAY_FIXED_QTY>0) && ($EBAY_FIXED_QTY < $CURRENT_INVENTORY_AVAILABLE)) {
-		$CURRENT_INVENTORY_AVAILABLE = $EBAY_FIXED_QTY;
-		}
-	
-	if ($PROD_MODIFIED_GMT<0) {
-		}
-	elsif ($HAS_OPTIONS) {
+
+	if ($HAS_OPTIONS) {
 		## MAKE SURE WE DONT ACCIDENTALLY REMOVE A PRODUCT JSUT BECAUSE ONE OPTION IS OUT OF STOCK
 		## for products that have options, it isn't as simple as just look up the inventory.
-
-		$CURRENT_INVENTORY_AVAILABLE = 0;	# we just need something so some checks below pass
+		$PRODUCT_INVENTORY_AVAILABLE = 0;	# we just need something so some checks below pass
 		foreach my $SKU (keys %{$INVSUMMARY}) {
-			if ($INVSUMMARY->{$SKU}>0) { $CURRENT_INVENTORY_AVAILABLE += $INVSUMMARY->{$SKU}; }
+			if ($INVSUMMARY->{$SKU}->{'AVAILABLE'}>0) { $PRODUCT_INVENTORY_AVAILABLE += $INVSUMMARY->{$SKU}->{'AVAILABLE'}; }
 			}
 		}
-	#elsif ($USERNAME eq 'kcint') {
-	#	if ($CURRENT_INVENTORY_AVAILABLE>1) {
-	#		$CURRENT_INVENTORY_AVAILABLE = 1;
-	#		}
-	#	}
+	elsif (($EBAY_FIXED_QTY>0) && ($EBAY_FIXED_QTY < $SKU_INVENTORY_AVAILABLE)) {
+		$SKU_INVENTORY_AVAILABLE = $EBAY_FIXED_QTY;
+		}
 	elsif (not defined $INVSUMMARY) {
 		die("fatal user:$USERNAME pid:$PID could not get valid inventory\n");
 		}
@@ -280,7 +294,7 @@ sub sync_inventory {
 			warn "NON STORE/FIXED PRICE LISTING IS NOT COMPATIBLE WITH SYNC_INVENTORY\n";
 			$error |= 2;
 			}
-		elsif ($CURRENT_INVENTORY_AVAILABLE <= 0) {
+		elsif ($PRODUCT_INVENTORY_AVAILABLE <= 0) {
 			## this time should be ended.
 			warn "we should remove this item\n";
 			require LISTING::EVENT;
@@ -430,7 +444,7 @@ sub sync_inventory {
 			$DBREF{'ID'} = $UUID;
 			$DBREF{'PRODTS'} = int($PROD_MODIFIED_GMT);
 
-			$EBREF{'Quantity'} = $CURRENT_INVENTORY_AVAILABLE;
+			$EBREF{'Quantity'} = $SKU_INVENTORY_AVAILABLE;
 			$DBREF{'ITEMS_SOLD'} = 0;
 
 			$EBREF{'StartPrice'} = $CURRENT_PRICE;

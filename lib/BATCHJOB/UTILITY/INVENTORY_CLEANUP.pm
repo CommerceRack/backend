@@ -29,6 +29,45 @@ sub work {
 	my $pstmt = '';
 	my $LM = $bj->lm();
 
+	## go through SKU_LOOKUP and remove any 
+	my ($MID) = &ZOOVY::resolve_mid($USERNAME);
+	my $pstmt = "select ID,SKU,PID from SKU_LOOKUP where MID=$MID";
+	my $sth = $udbh->prepare($pstmt);
+	$sth->execute();
+	my %PIDS = ();
+	while ( my ($ID,$SKU,$PID) = $sth->fetchrow() ) {
+		$PIDS{$PID}->{$SKU} = $ID;
+		}
+	$sth->finish();
+	
+	foreach my $PID (keys %PIDS) {
+		print "PID:$PID\n";
+		my ($P) = PRODUCT->new($USERNAME,$PID);
+		if (defined $P) {
+			foreach my $set (@{$P->list_skus('verify'=>1)}) {
+				my ($SKU,$SKUREF) = @{$set};
+				delete $PIDS{$PID}->{$SKU};			
+				}
+			}
+
+		foreach my $SKU (keys %{$PIDS{$PID}}) {
+			print "NUKE: $PID=>$SKU [$PIDS{$PID}->{$SKU}]\n";
+			my $qtSKU = $udbh->quote($SKU);
+			my $qtPID = $udbh->quote($PID);
+			my $ID = int($PIDS{$PID}->{$SKU});
+			$pstmt = "delete from SKU_LOOKUP where PID=$qtPID and SKU=$qtSKU and ID=$ID";
+			print "$pstmt\n";
+			$udbh->do($pstmt);
+
+			$pstmt = "delete from SYNDICATION_PID_ERRORS where PID=$qtPID";
+			print "$pstmt\n";
+			$udbh->do($pstmt); }
+
+		}
+
+	##
+	## phase2: now work on the invntory detail
+	##
 	$pstmt = "select count(*) from INVENTORY_DETAIL where BASETYPE='MARKET' and ISNULL(MARKET_DST)=1";
 	my ($count) = $udbh->selectrow_array($pstmt);
 	if ($count>0) {

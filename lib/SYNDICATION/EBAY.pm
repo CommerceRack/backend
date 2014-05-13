@@ -281,7 +281,6 @@ sub product {
 			$le->pooshmsg("ERROR|+Product:$SKU failed to create ListingEvent");	
 			}
 		$plm->merge($le);
-		# $le->merge($plm);
 		}
 
 	&DBINFO::db_user_close();
@@ -334,34 +333,29 @@ sub inventory {
 	elsif ($P->has_variations('inv'=>1)) {
 		## has variations, so we need to process each SKU individually.
 		my ($ALLSKUS) = $INV2->summary('@PIDS'=>[ $PID ], 'COMBINE_PIDS'=>0);
+
 		foreach my $SKUSET (@{$P->list_skus()}) {
-			my ($SKU,$SKUREF) = @_;
+			my ($SKU,$SKUREF) = @{$SKUSET};
 
 			my $fixed_qty = $P->skufetch($SKU,'ebay:fixed_qty');
-			my $AVAILABLE = $ALLSKUS->{$SKU};
+			## FIXED_QTY is the max quantity (ceiling) we will ever send to ebay
+			my $AVAILABLE = $ALLSKUS->{$SKU}->{'AVAILABLE'};
 			if (not defined $AVAILABLE) { $AVAILABLE = 0; }
 			
 			my %xml = ();
-			if (int($fixed_qty)==0) {
-				## no, this is not valid. 
-				$lm->pooshmsg("WARN|+Fixed Quantity was not set or zero. Removing.");
-				$xml{'Item.Quantity'} = 0;
-				}
-			else {
-				my ($AVAILABLE) = $INV2->summary('@PIDS'=>[ $PID ], 'COMBINE_PIDS'=>0)->{ $PID }->{'AVAILABLE'};
-				$xml{'Item.Quantity'} = $AVAILABLE; # ($instock-$reserve);
-	
-				if ((defined $fixed_qty) && (int($fixed_qty)>0)) {
-					if ($fixed_qty<$AVAILABLE) {
-						$lm->pooshmsg(sprintf("INFO|+Available [%d] was reduced to Fixed Quantity [%d].",$AVAILABLE,$fixed_qty));
-						$xml{'Item.Quantity'} = $fixed_qty;
-						}
-					}
+			my ($AVAILABLE) = $ALLSKUS->{$SKU}->{'AVAILABLE'};
+			$xml{'Item.Quantity'} = $AVAILABLE; # ($instock-$reserve);
 
-				if ($xml{'Item.Quantity'}<0) {
-					$lm->pooshmsg("WARN|+Negative SKU Inventory: $xml{'Item.Quantity'}");
-					$xml{'Item.Quantity'} = 0;
+			if ((defined $fixed_qty) && (int($fixed_qty)>0)) {
+				if ($fixed_qty<$AVAILABLE) {
+					$lm->pooshmsg(sprintf("INFO|+Available [%d] was reduced to Fixed Quantity [%d].",$AVAILABLE,$fixed_qty));
+					$xml{'Item.Quantity'} = $fixed_qty;
 					}
+				}
+
+			if ($xml{'Item.Quantity'}<0) {
+				$lm->pooshmsg("WARN|+Negative SKU Inventory: $xml{'Item.Quantity'}");
+				$xml{'Item.Quantity'} = 0;
 				}
 
 			$SYNDICATION::EBAY::PRODUCTS_INVENTORY{$PID} += $xml{'Item.Quantity'};
@@ -385,6 +379,7 @@ sub inventory {
 			}
 		else {
 			my ($AVAILABLE) = $INV2->summary('@PIDS'=>[ $PID ], 'COMBINE_PIDS'=>0)->{ $PID }->{'AVAILABLE'};
+
 			$xml{'Item.Quantity'} = $AVAILABLE; # ($instock-$reserve);
 
 			if ((defined $fixed_qty) && (int($fixed_qty)>0)) {
@@ -409,6 +404,9 @@ sub inventory {
 
 
 
+##
+##
+##
 sub footer_inventory {
 	my ($self) = @_;
 
@@ -456,6 +454,14 @@ sub footer_inventory {
 			};		
 		}
 
+#	open F, ">/tmp/ebay.end";
+#	print F Dumper(\@ENDITEM_XMLHASHES);
+#	close F;
+#
+#	open F, ">/tmp/ebay.revise";
+#	print F Dumper(\@REVISE_XMLHASHES);
+#	close F;
+
 	my ($USERNAME) = $so->username();
 	my ($PRT) = $so->prt();
 	my ($MID) = $so->mid();
@@ -477,13 +483,21 @@ sub footer_inventory {
 		($UUID,$result) = $eb2->bdesapi('getJobStatus',{jobId=>$PREVIOUS_JOBID});
 		## we probably need to check to see if we got an expired job, or some crap like that, and if we do, then just suppress it.
 
+		print Dumper($result)."\n";
+
 		if ($UUID eq '') {
 			$lm->pooshmsg("WARN|+Got blank UUID response from getJobStatus:$PREVIOUS_JOBID");
 			}
 		elsif (ref($result) ne 'HASH') {
 			$lm->pooshmsg("WARN|+Got corruptresult response from getJobStatus:$PREVIOUS_JOBID");
 			}
+		elsif ($result->{'ack'}->[0] eq 'Failure') {
+			## $result->{'errorMessage'}->[0]{'error'}->[0]{'message'}
+			## ex: Job Id is invalid
+			$lm->pooshmsg("WARN|+Got ack failure on previous job, but this might not be a bad thing.");
+			}
 		else {
+	
 			my ($jobStatus) = $result->{'jobProfile'}->[0]->{'jobStatus'}->[0];
 			if ($jobStatus eq 'Completed') {
 				my $fileId = $result->{'jobProfile'}->[0]->{'fileReferenceId'}->[0];
