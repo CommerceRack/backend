@@ -1719,18 +1719,6 @@ sub store_pogs {
 
 	my $dataref = $self->{'%data'};
 
-	#my $inv_enable = int($self->fetch('zoovy:inv_enable'));
-	#$inv_enable -= ($inv_enable & 5);
-
-	#if ($self->has_variations('inv')) {
-	#	## has inventory - so enable inv w/options!
-	#	$inv_enable |= 5;
-	#	}
-	#else {
-	#	## no inventory options
-	#	$inv_enable |= 1;
-	#	}
-	#$self->store('zoovy:inv_enable',$inv_enable);
 
 	## make sure everything is upgraded (even if internal versions are mismatched)
 	my @POGS2 = ();

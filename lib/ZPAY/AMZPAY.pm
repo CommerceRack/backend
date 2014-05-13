@@ -16,32 +16,32 @@ require CART2;
 
 # http://static.zoovy.com/merchant/redford/TICKET_321209-Checkout_by_Amazon_Prime_US.pdf
 
-sub simplePayButton {
-	my ($USERNAME,$webdbref) = @_;
-
-return(qq~
-<form action="https://authorize.payments.amazon.com/pba/paypipeline" method="post">
-  <input type="hidden" name="immediateReturn" value="1" >
-  <input type="hidden" name="collectShippingAddress" value="0" >
-  <input type="hidden" name="accessKey" value="11SEM03K88SD016FS1G2" >
-  <input type="hidden" name="referenceId" value="cart-id-goes-here" >
-  <input type="hidden" name="amount" value="USD 100" >
-  <input type="hidden" name="variableMarketplaceFee" value="" >
-  <input type="hidden" name="signature" value="AquSIdGGLNM2kBDiLWmSvBzYBOo=" >
-  <input type="hidden" name="isDonationWidget" value="0" >
-  <input type="hidden" name="fixedMarketplaceFee" value="" >
-  <input type="hidden" name="description" value="description" >
-  <input type="hidden" name="amazonPaymentsAccountId" value="GUMAWHESVISH7E89GIXN87XGAN5EPSDS75PIDF" >
-  <input type="hidden" name="ipnUrl" value="http://webapi.zoovy.com/webapi/amazon/ipn.cgi" >
-  <input type="hidden" name="returnUrl" value="http://username.zoovy.com/amazon/return" >
-  <input type="hidden" name="processImmediate" value="1" >
-  <input type="hidden" name="cobrandingStyle" value="banner" >
-  <input type="hidden" name="abandonUrl" value="http://username.zoovy.com/amazon/cancel" >
-  <input type="image" src="https://authorize.payments.amazon.com/pba/images/SMPayNowWithAmazon.png" border="0">
-</form>
-~);
-
-	}
+#sub simplePayButton {
+#	my ($USERNAME,$webdbref) = @_;
+#
+#return(qq~
+#<form action="https://authorize.payments.amazon.com/pba/paypipeline" method="post">
+#  <input type="hidden" name="immediateReturn" value="1" >
+#  <input type="hidden" name="collectShippingAddress" value="0" >
+#  <input type="hidden" name="accessKey" value="11SEM03K88SD016FS1G2" >
+#  <input type="hidden" name="referenceId" value="cart-id-goes-here" >
+#  <input type="hidden" name="amount" value="USD 100" >
+#  <input type="hidden" name="variableMarketplaceFee" value="" >
+#  <input type="hidden" name="signature" value="AquSIdGGLNM2kBDiLWmSvBzYBOo=" >
+#  <input type="hidden" name="isDonationWidget" value="0" >
+#  <input type="hidden" name="fixedMarketplaceFee" value="" >
+#  <input type="hidden" name="description" value="description" >
+#  <input type="hidden" name="amazonPaymentsAccountId" value="GUMAWHESVISH7E89GIXN87XGAN5EPSDS75PIDF" >
+#  <input type="hidden" name="ipnUrl" value="http://webapi.zoovy.com/webapi/amazon/ipn.cgi" >
+#  <input type="hidden" name="returnUrl" value="http://username.zoovy.com/amazon/return" >
+#  <input type="hidden" name="processImmediate" value="1" >
+#  <input type="hidden" name="cobrandingStyle" value="banner" >
+#  <input type="hidden" name="abandonUrl" value="http://username.zoovy.com/amazon/cancel" >
+#  <input type="image" src="https://authorize.payments.amazon.com/pba/images/SMPayNowWithAmazon.png" border="0">
+#</form>
+#~);
+#
+#	}
 
 sub doRequest {
 	my ($USERNAME,$xml) = @_;
@@ -81,47 +81,6 @@ sub xmlCart {
 	my $itemshipxml = '';
 
 	## shipping now always pulled from Zoovy
-#	if ($webdbref->{'amzpay_shipping'}==0) {
-#		my @shipping = ();
-#		my ($zip) = $CART->fetch_property('data.ship_zip');
-#		if ($zip eq '') { 
-#			$CART->save_property('cgi.zip', $webdbref->{'google_dest_zip'}); 
-#			}
-#		$CART->shipping();
-#		my $handling = 0;
-#		foreach my $fee ('ship.hnd_total','ship.spc_total','ship.ins_total') {
-#			$handling += sprintf("%.2f",$CART->fetch_property($fee));
-#			}
-
-#		my $i = 0;
-#		foreach my $method (@{$cart->shipmethods()
-#			next if ($i++>0); 
-#			my $shipid = lc($method); 
-#			$shipid =~ s/[^a-z0-9]/_/g;
-#			$shipid = "id-$shipid";
-#			$itemshipxml .= "  <ShippingMethodId>$shipid</ShippingMethodId>\n";
-#	
-#			my $price = sprintf("%.2f",$methodsref->{$method} + $handling);
-#			$shippingxml .= "<ShippingMethod>\n";
-#			$shippingxml .= '  '.&tag("ShippingMethodId",$shipid);
-#			$shippingxml .= '  '.&tag("ServiceLevel","Standard");
-#			$shippingxml .= "  <Rate>\n";
-#			## possible values: "Standard"/"Expedited"/"OneDay"/"TwoDay"/
-#			$shippingxml .= "    <ShipmentBased>\n";
-#			$shippingxml .= '    '.&priceTag($price);
-#			$shippingxml .= "    </ShipmentBased>\n";
-#			$shippingxml .= "  </Rate>\n";
-#			$shippingxml .= "  <IncludedRegions>";
-#			## possible values: "USContinental48States"/"USFull50States"/"USAll"/"WorldAll"
-#			$shippingxml .= '  '.&tag("PredefinedRegion","WorldAll");
-#			$shippingxml .= "  </IncludedRegions>";
-#			#$shippingxml .= "<ExcludedRegions>";
-#			#$shippingxml .= "</ExcludedRegions>";
-#			#$shippingxml .= &tag("IsPOBoxSupported","true");
-#			$shippingxml .= "</ShippingMethod>\n";		
-#			}
-#		}
-
 	my $itemsxml = '';
 	my $promotionsxml = '';
 	my $cartpromotionsxml = '';
@@ -154,15 +113,8 @@ sub xmlCart {
 					"</Weight>\n";
 				}
 			$itemsxml .= &tag("Description", $item->{'profile'});
-
 			## uncomment to turn off Tax calc callbacks
-			#$itemsxml .= &tag("TaxTableId", 'default');
 
-#			if ($itemshipxml ne '') {
-#				$itemsxml .= "<ShippingMethodIds>\n";
-#				$itemsxml .= $itemshipxml;
-#				$itemsxml .= "</ShippingMethodIds>\n";
-#				}
 			## possible values: "MERCHANT"/"AMAZON_NA"
 			$itemsxml .= &tag("FulfillmentNetwork","MERCHANT");
 			$itemsxml .= "</Item>\n";
