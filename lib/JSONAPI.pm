@@ -8258,7 +8258,7 @@ sub adminProduct {
 					foreach my $id (@SCHEDULES) {
 						my %SCHEDULE = ();
 						$ROW{'@schedule_prices'} = [];
-						foreach my $SCHEDULEID (@{WHOLESALE::list_schedules($self->username())}) {
+						foreach my $SCHEDULEID (@SCHEDULES ) {
 							my %ref = ();
 							$ref{'schedule'} = $SCHEDULEID;
 							$ref{'price'} =  $P->skufetch($SKU,sprintf('zoovy:schedule_%s',lc($SCHEDULEID)));
@@ -13814,9 +13814,12 @@ sub adminFAQ {
 		my $LM = LISTING::MSGS->new();
 
 		foreach my $CMDSET (@CMDS) {
+			next if (&JSONAPI::hadError(\%R));
+
 			my ($VERB,$params) = @{$CMDSET};
 			my @MSGS = ();
 			my $CODE = $v->{'PROFILE'};
+
 
 			if ($VERB =~ /^TOPIC-(UPDATE|CREATE)$/) {
 				$VERB = ($1 eq 'UPDATE')?'update':'insert';
@@ -13845,6 +13848,9 @@ sub adminFAQ {
 			elsif ($VERB eq 'FAQ-DELETE') {
 				my $pstmt = "delete from FAQ_ANSWERS where MID=$MID and PRT=$PRT and ID=".$udbh->quote($params->{'FAQ_ID'});
 				&JSONAPI::dbh_do(\%R,$udbh,$pstmt,$VERB);
+				}
+			else {
+				&JSONAPI::set_error(\%R,'apperr',93203,sprintf("Unrecognized macro command '%s'",$VERB));
 				}
 			}
 		
@@ -17128,22 +17134,43 @@ sub whereAmI {
 	my $gi = Geo::IP->open("/usr/local/share/GeoIP/GeoLiteCity.dat", Geo::IP::GEOIP_STANDARD());
 	
 	my $IP = $ENV{'REMOTE_ADDR'};
-	if ($IP =~ /^192\.168\./) { $IP = '66.240.244.217'; }	# our external ip
+	if ($v->{'ipaddress'}) { $IP = $v->{'ipaddress'}; }
 
-	my $record = $gi->record_by_addr($IP);
-	# my $record = undef;
+	if (my $ZIP = $v->{'zip'}) {
+		#$R{'country'} = 'US';
+		#$R{'city'} = 'anyplace';
+		#$R{'region'} = 'CA';
+		my @rows = ();
+		my $csv = Text::CSV_XS->new({binary=>1,auto_diag=>1}); 
+		open my $fh, "</httpd/static/zipcodes-csv-10-Aug-2004/zipcode.csv"; 
+		while (my $row = $csv->getline($fh)) { 
+			if ($row->[0] eq $ZIP) {
+				($R{'zip'}, $R{'country'},$R{'city'},$R{'region'}) = ($row->[0],'US',$row->[1],$row->[2]);
+				last;
+				}
+			}
+		close $fh;
+		}
+	elsif ($IP) {
+		my $record = $gi->record_by_addr($IP);
+		# my $record = undef;
 
-	if (defined $record) {
-		$R{'country'} = $record->country_code;
-		$R{'city'} = $record->city;
-		$R{'zip'} = $record->postal_code;
-		$R{'region'} = $record->region;
-		$R{'region_name'} = $record->region_name;
-		$R{'areacode'} = $record->area_code;
+		if (defined $record) {
+			$R{'country'} = $record->country_code;
+			$R{'city'} = $record->city;
+			$R{'zip'} = $record->postal_code;
+			$R{'region'} = $record->region;
+			$R{'region_name'} = $record->region_name;
+			$R{'areacode'} = $record->area_code;
+			}
+		else {
+			&JSONAPI::append_msg_to_response(\%R,'apierr',7095,"Failure in Geo::IP lookup on IP:$IP");		
+			}
 		}
-	else {
-		&JSONAPI::append_msg_to_response(\%R,'apierr',7095,"Failure in Geo::IP lookup on IP:$IP");		
-		}
+
+		open F, ">/tmp/geoip";
+		print F Dumper($v,\%R);
+		close F;
 	
 	return(\%R);
 	}
@@ -21411,6 +21438,9 @@ sub appCheckoutDestinations {
 <API id="cartPaypalSetExpressCheckout">
 <purpose></purpose>
 <input id="_cartid"></input>
+<input id="useMobile">0|1 (if true - we'll tell paypal to use the mobile version)</input>
+<input optional="1" id="drt">'device token' - obtain them from the native IOS paypal library (not required, but useful)</input>
+<input optional="1" id="useraction">commit - accoring to Paypal: If the buyer checks out on your website, also set useraction=commit</input>
 <input id="getBuyerAddress"> 0|1 (if true - paypal will ask shopper for address)</input>
 <input id="cancelURL"> ''   (required, but may be blank for legacy checkout)</input>
 <input id="returnURL"> ''	 (required, but may be blank for legacy checkout)</input>
@@ -21483,6 +21513,10 @@ sub cartPaypalSetExpressCheckout {
 		my $mode = ($v->{'getBuyerAddress'}?'cartec':'checkoutec');
 		require ZPAY::PAYPALEC;
 		my ($api) = ZPAY::PAYPALEC::SetExpressCheckout($self->_SITE(),$CART2,$mode,
+			'useMobile'=>($v->{'useMobile'})?1:0,
+			'drt'=>sprintf("%s",$v->{'drt'}),		## drt: is 'device token' for mobile checkout native IOS library
+			## If the buyer checks out on your website, also set useraction=commit:
+			'useraction'=>sprintf("%s",$v->{'useraction'}), 
 			'cancelURL'=>$v->{'cancelURL'},
 			'returnURL'=>$v->{'returnURL'},
 			'useShippingCallbacks'=>$v->{'useShippingCallbacks'},
@@ -29180,7 +29214,7 @@ sub appSEO {
 			my $FILENAME = sprintf("sitemap-%s-%d.xml.gz",$hostdomain,++$i);
 
 			$inwriter->startTag("sitemap");
-			$inwriter->dataElement("loc","/$FILENAME");
+			$inwriter->dataElement("loc","http://$hostdomain/$FILENAME");
 			$inwriter->dataElement("lastmod",$gmtdatetime);
 			$inwriter->endTag("sitemap");
 	
@@ -29191,7 +29225,7 @@ sub appSEO {
 			$filewriter->startTag("urlset","xmlns"=>"http://www.google.com/schemas/sitemap/0.84");
 			foreach my $row (@{$set}) {
 				$filewriter->startTag("url");
-				$filewriter->dataElement("loc","/#!$row->[0]");
+				$filewriter->dataElement("loc","http://$hostdomain/#!$row->[0]");
 				$filewriter->dataElement("priority",$row->[1]);
 				$filewriter->endTag();
 				}
