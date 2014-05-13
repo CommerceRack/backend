@@ -29123,11 +29123,23 @@ sub appSEO {
 				push @OBJECTS, { 'type'=>'navcat', 'id'=>$path };
 				}
 			}
-		foreach my $pid (&ZOOVY::fetchproduct_list_by_merchant($USERNAME)) {
-			my ($P) = PRODUCT->new($USERNAME,$pid);
-			my %TAGS = ( 'type'=>'pid', 'id'=>$pid, %{$P->seo_tags()} );
+
+		my %PIDS = ();
+		my ($udbh) = &DBINFO::db_user_connect($USERNAME);
+		my $pstmt = "select PID,OPTIONS from PRODUCTS where MID=$MID";
+		my $sth = $udbh->prepare($pstmt);
+		$sth->execute();
+		while ( my ($PID,$OPTIONS) = $sth->fetchrow() ) {
+			$PIDS{$PID} = $OPTIONS;
+			}
+		$sth->finish();
+
+		foreach my $pid (sort keys %PIDS) {
+			my %TAGS = ( 'type'=>'pid', 'id'=>$pid );
+			if ($PIDS{$pid} & 1024) { $TAGS{'noindex'}++; }
 			push @OBJECTS, \%TAGS;
 			}
+		&DBINFO::db_user_close();
 		
 		$R{'@OBJECTS'} = \@OBJECTS;
 		}

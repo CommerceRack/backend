@@ -2021,17 +2021,20 @@ sub save {
 			}
 		}
 
-	my $OPTIONS |= 1;
-	if (($OPTIONS & 1)==0) {
-		## inventory NOT ENABLED/configured -- this should *NEVER* happen.
-		#$PREF->{'zoovy:inv_enable'} = 1;      #
-		#$PREF->{'zoovy:inv_enable'} |= 8;      # enable the debug bit!
-		if ($self->has_variations('inv')) {
-			# $PREF->{'zoovy:inv_enable'} |= 4;
-			$OPTIONS |= 4;
-        	## has inventoriable options
-   	   }			
+	my $OPTIONS = 1;
+	## 16 is open
+	## 32 is open
+	if ($self->has_variations('inv')) { 
+		$OPTIONS |= 4; 
+		foreach my $skuset (@{$self->list_skus()}) {
+			my ($sku,$skuref) = @{$skuset};
+			if (my $asm = $skuref->{'sku:assembly'}) { $OPTIONS |= 8; }
+			}
 		}
+	if ($self->fetch('pid:prod_asm')) { $OPTIONS |= 64; }
+	## 256 = is_parent
+	## 512 = is_child
+	if ($self->fetch('seo:noindex')) { $OPTIONS |= 1024; }		## no index
 
 	if ((defined $PREF->{'zoovy:grp_siblings'}) && ($PREF->{'zoovy:grp_siblings'} ne '')) {
 		## these field is an automated lookup.. might be cached someday, don't let the user save it.
