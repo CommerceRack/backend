@@ -29126,7 +29126,7 @@ sub appSEO {
 
 		my %PIDS = ();
 		my ($udbh) = &DBINFO::db_user_connect($USERNAME);
-		my $pstmt = "select PID,OPTIONS from PRODUCTS where MID=$MID";
+		my $pstmt = "select PRODUCT,OPTIONS from PRODUCTS where MID=$MID";
 		my $sth = $udbh->prepare($pstmt);
 		$sth->execute();
 		while ( my ($PID,$OPTIONS) = $sth->fetchrow() ) {
