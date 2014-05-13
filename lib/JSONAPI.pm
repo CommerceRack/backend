@@ -15859,12 +15859,20 @@ sub adminDomain {
 				my $HOSTNAME = lc($params->{'HOSTNAME'});
 				$HOSTNAME =~ s/^[\s]+//g;	 # strip leading whitespace
 				$HOSTNAME =~ s/[\s]$+//g;	 # strip trailing whitespace.
-				$HOSTNAME =~ s/^[\d]+//g;	 # sub-domains may not start iwth a number.
-				$HOSTNAME =~ s/[^a-z0-9]+//g;	 # sub-domains may not have dashes, or other funny characters
-				$DOMAINNAME = $HOSTNAME.'.'.$DOMAINNAME;
-				$D->{"$HOSTNAME\_HOST_TYPE"} = $params->{'HOSTTYPE'};
-				$D->host_set($HOSTNAME,%{$params});
-				push @MSGS, "SUCCESS|HOST:$HOSTNAME|+Host '$HOSTNAME' type:$params->{'HOSTTYPE'} was modified.";
+				if ($HOSTNAME =~ /^[\d]+/) {
+					push @MSGS, "ERROR|+Hostnames may not start with a number.";
+					}
+				elsif ($HOSTNAME =~ /[^a-z0-9]/) {
+					push @MSGS, "ERROR|+Hostnames may not contain characters other than a-z and 0-9.";
+					}
+				else {
+					$HOSTNAME =~ s/^[\d]+//g;	 # sub-domains may not start iwth a number.
+					$HOSTNAME =~ s/[^a-z0-9]+//g;	 # sub-domains may not have dashes, or other funny characters
+					$DOMAINNAME = $HOSTNAME.'.'.$DOMAINNAME;
+					$D->{"$HOSTNAME\_HOST_TYPE"} = $params->{'HOSTTYPE'};
+					$D->host_set($HOSTNAME,%{$params});
+					push @MSGS, "SUCCESS|HOST:$HOSTNAME|+Host '$HOSTNAME' type:$params->{'HOSTTYPE'} was modified.";
+					}
  				}
 			elsif ($VERB eq 'DOMAIN-SET-FAVORITE') {
 				$D->set('IS_FAVORITE',int($params->{'IS'}));
