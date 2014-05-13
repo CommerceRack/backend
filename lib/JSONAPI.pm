@@ -17128,22 +17128,43 @@ sub whereAmI {
 	my $gi = Geo::IP->open("/usr/local/share/GeoIP/GeoLiteCity.dat", Geo::IP::GEOIP_STANDARD());
 	
 	my $IP = $ENV{'REMOTE_ADDR'};
-	if ($IP =~ /^192\.168\./) { $IP = '66.240.244.217'; }	# our external ip
+	if ($v->{'ipaddress'}) { $IP = $v->{'ipaddress'}; }
 
-	my $record = $gi->record_by_addr($IP);
-	# my $record = undef;
+	if (my $ZIP = $v->{'zip'}) {
+		#$R{'country'} = 'US';
+		#$R{'city'} = 'anyplace';
+		#$R{'region'} = 'CA';
+		my @rows = ();
+		my $csv = Text::CSV_XS->new({binary=>1,auto_diag=>1}); 
+		open my $fh, "</httpd/static/zipcodes-csv-10-Aug-2004/zipcode.csv"; 
+		while (my $row = $csv->getline($fh)) { 
+			if ($row->[0] eq $ZIP) {
+				($R{'zip'}, $R{'country'},$R{'city'},$R{'region'}) = ($row->[0],'US',$row->[1],$row->[2]);
+				last;
+				}
+			}
+		close $fh;
+		}
+	elsif ($IP) {
+		my $record = $gi->record_by_addr($IP);
+		# my $record = undef;
 
-	if (defined $record) {
-		$R{'country'} = $record->country_code;
-		$R{'city'} = $record->city;
-		$R{'zip'} = $record->postal_code;
-		$R{'region'} = $record->region;
-		$R{'region_name'} = $record->region_name;
-		$R{'areacode'} = $record->area_code;
+		if (defined $record) {
+			$R{'country'} = $record->country_code;
+			$R{'city'} = $record->city;
+			$R{'zip'} = $record->postal_code;
+			$R{'region'} = $record->region;
+			$R{'region_name'} = $record->region_name;
+			$R{'areacode'} = $record->area_code;
+			}
+		else {
+			&JSONAPI::append_msg_to_response(\%R,'apierr',7095,"Failure in Geo::IP lookup on IP:$IP");		
+			}
 		}
-	else {
-		&JSONAPI::append_msg_to_response(\%R,'apierr',7095,"Failure in Geo::IP lookup on IP:$IP");		
-		}
+
+		open F, ">/tmp/geoip";
+		print F Dumper($v,\%R);
+		close F;
 	
 	return(\%R);
 	}

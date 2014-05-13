@@ -1,5 +1,8 @@
 #!/usr/bin/perl
 
+
+use strict;
+
 use Net::uwsgi;
 use Data::Dumper;
 use Fcntl ':flock';
@@ -32,21 +35,36 @@ uwsgi::spooler(
 		my ($redis) = &ZOOVY::getRedis($USERNAME);
 
 		my $R = undef;
-		if ($v->{'_cmd'} eq 'cartOrderCreate') {
-			$v->{'async'} = 0;
-			($R) = $JSAPI->handle($v);
-			}
+		eval {
+			if ($v->{'_cmd'} eq 'cartOrderCreate') {
+				$v->{'async'} = 0;
+				($R) = $JSAPI->handle($v);
+				}
+			};
 		
-		open F, ">/dev/shm/spooler.debug";		
+		if ($@) {
+			($R) = &JSONAPI::set_error($R = {},'iseerr',500,"spooler err: $@");
+			}
+		elsif (not defined $R) {
+			($R) = &JSONAPI::set_error($R = {},'iseerr',501,"spooler err ($R is undefined)");
+			}
+
+		my $DEBUG_FILE = "/dev/shm/spooler.debug";
+		if (&JSONAPI::hadError($R)) {
+			$DEBUG_FILE = sprintf("/dev/shm/spooler.err-%s-%s",$v->{'_cartid'},time());
+			print STDERR 'ERROR: '.Dumper($v,$R)."\n";
+			}
+		open F, ">$DEBUG_FILE";		
 		print F 'ENV: '.Dumper($env)."\n\n";
 		print F "JSAPI: ".Dumper($JSAPI)."\n\n";
 		print F "V: ".Dumper($v)."\n\n";
 		print F "R: ".Dumper($R);
 		close F;
 	
-		if (not &JSONAPI::hadError(\%R)) {
+		if (not &JSONAPI::hadError($R)) {
 			return uwsgi::SPOOL_OK;		
 			}
+
 		return uwsgi::SPOOL_RETRY;
 		}
 	);

@@ -42,7 +42,7 @@ require ZWEBSITE;
 use strict;
 use Data::Dumper;
 
-use lib "/backend/lib/ZPAY/linkpoint/30012_perl"; ## LPERL
+use lib "/backend/lib/ZPAY/linkpoint/"; ## LPERL
 require lpperl;
 
 my $DEBUG = 1; # This just outputs debug information to the apache log file
@@ -245,7 +245,6 @@ sub unified {
 	##
 	my %api = ();
 	if (not defined $RESULT) {
-		require lpperl;
 		my ($lperl) = LPPERL->new();
 		print STDERR "PEMFILE: $PEMFILE\n";
 
