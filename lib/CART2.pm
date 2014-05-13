@@ -4804,7 +4804,17 @@ sub shipmethods {
 	#		}
 	#	$CART2->debug('ship.warn',2,'NEWDEV RULES ENGAGED - STORING SHIP DEBUG IN CART.');
 	#	}
-	
+
+	## LONG TERM WE MIGHT WANT TO PRESERVE ADMIN METHODS
+	#my @ADMIN_SHIPMETHODS = ();
+	#if (defined $self->{'@shipmethods'}) {
+	#	foreach my $shipmethod (@{$self->{'@shipmethods'}}) {
+	#		if ($shipmethod->{'is_admin'}) {
+	#			push @ADMIN_SHIPMETHODS, $shipmethod;
+	#			}
+	#		}
+	#	}
+
 	my $RECALCULATE = 0;
 	#if ((not defined $CART2->{'@shipmethods'}) || (scalar(@{$CART2->{'@shipmethods'}})==0)) {
 	#	if (
@@ -4872,6 +4882,9 @@ sub shipmethods {
 		## it avoids us having to cleanup orders, i know it's redundant -- that's the whole fucking point. bh
 		$self->is_debug() && $CART2->msgs()->pooshmsg("WARN|+RECALCULATE WAS CALLED ON A MARKETPLACE ORDER -- SO IT WAS IGNORED");
 		}
+	elsif ($self->is_staff_order()) {
+		$self->is_debug() && $CART2->msgs()->pooshmsg("WARN|+RECALCULATE WAS CALLED ON A STAFF ORDER -- SO IT WAS IGNORED");
+		}
 	else {
 		my $WEBDBREF = $self->webdb();
 	
@@ -4909,8 +4922,6 @@ sub shipmethods {
 		# my @COUPON_STIDS = ();
 		my %SHIPPING_GROUPS = ();
 		foreach my $item (@{$CART2->stuff2()->items()}) {
-
-
 			##
 			## shipdsn is 'virtual_ship'
 			##		
@@ -9640,23 +9651,31 @@ sub run_macro_cmds {
 			}
 		elsif ($cmd eq 'SETSHIPPING') {
 			$self->add_history("updated shipping configuration",'ts'=>$pref->{'created_ts'},etype=>1,luser=>$pref->{'luser'});
-			if ($::XCOMPAT > 210) {
-				foreach my $k (%{$pref}) {
-					my $fieldref = $CART2::VALID_FIELDS{$k};
-					if (not defined $fieldref) {
-						}
-					elsif ($fieldref->{'group'} eq 'ship') {
-						$self->in_set($k,$pref->{$k});
-						}
+			## $pref->{"is/origin_staff"} = "admin";
+
+			foreach my $k (%{$pref}) {
+				my $fieldref = $CART2::VALID_FIELDS{$k};
+				if (not defined $fieldref) {
+					}
+				elsif ($fieldref->{'group'} eq 'ship') {
+					$self->in_set($k,$pref->{$k});
 					}
 				}
-			else {
-				foreach my $k ('shp_method','shp_total','shp_taxable','shp_carrier','hnd_method','hnd_total','hnd_taxable','ins_method','ins_total','ins_taxable','spc_method','spc_total','spc_taxable') {
-					if (defined $pref->{$k}) {
-						$self->legacy_order_set($k,$pref->{$k});
-						}
-					}				
-				}
+			
+			if (not $self->is_order()) {
+				my %method = ();
+				$method{'is_admin'}++;
+				$method{'carrier'} = $pref->{'sum/shp_carrier'};
+				$method{'name'} = $pref->{'sum/shp_method'};
+				$method{'amount'} = $pref->{'sum/shp_total'};
+				$method{'id'} = Digest::MD5::md5_hex(sprintf("%s-%s-%s",$method{'carrier'},$method{'name'},$method{'amount'}));
+				push @{$self->{'@shipmethods'}}, \%method;
+				$self->in_set('want/shipping_id',$method{'id'});
+				};
+
+			open F, ">/tmp/shipping.set";
+			print F Dumper($self);
+			close F;
 			}
 		elsif ($cmd eq 'SETATTRS') {
 			$self->add_history("updated order properties",'ts'=>$pref->{'created_ts'},'etype'=>1,'luser'=>$pref->{'luser'});
