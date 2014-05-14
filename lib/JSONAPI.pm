@@ -1753,6 +1753,21 @@ sub configJS {
 			}
 		}
 
+	if ($webdbref->{'%hosts'}) {
+		my $hostdomain = sprintf("%s.%s",$SITE->domain_host(), $SITE->domain_only());
+		my $HOSTREF = $webdbref->{'%hosts'}->{ $hostdomain };
+		if (not defined $HOSTREF) { $HOSTREF = {}; }
+		foreach my $plugin (keys %{$HOSTREF}) {
+			if ($HOSTREF->{'enable'}) {
+				my $ref = Storable::dclone($HOSTREF->{$plugin});
+				foreach my $kk (keys %{$ref}) {
+					if (substr($kk,0,1) eq '~') { delete $ref->{$kk}; }
+					}
+				$PLUGINS{ $plugin } = $ref;
+				}
+			}		
+		}
+
 	$NORMAL_URL = lc($NORMAL_URL); 		## note when this is uppercase (is breaks checks for http_app_url before 201342)
 	$SECURE_URL = lc($SECURE_URL);		## if you remove this line, make sure you test app sites loading 
 
@@ -24516,6 +24531,7 @@ sub adminConfigDetail {
 #  { 'plugin':'auth_facebook', 'enable':1|0, 'field1':'value1','field2:value2' },
 #  { 'plugin':'platform_android', 'enable':1|0, 'field1':'value1','field2:value2' },
 #  { 'plugin':'platform_appleios', 'enable':1|0, 'field1':'value1','field2:value2' },
+#	{ 'plugin':'analytics.google.com', '@HOSTS':[ {'host':'my.domain.com','accountid':'UA-1245-1'}, {'host':'other.domain.com','accountid':'UA-1245-2'}]  },
 #]
 # in plugins -- i picture an interface similar to shipping with the following tabs:
 #Authentication
@@ -24526,6 +24542,8 @@ sub adminConfigDetail {
 #Payments [future]
 #Other [future]
 
+		
+
 		my @PLUGINS = ();
 		my $PLUGINS = $gref->{'%plugins'} || {};
 		foreach my $k (keys %{$PLUGINS}) {
@@ -24534,6 +24552,20 @@ sub adminConfigDetail {
 			$ref->{'global'} = 1;
 			$ref->{'enable'} = int($ref->{'enable'});
 			push @PLUGINS, $ref;
+			}
+
+		if ($webdbref->{'%hosts'}) {
+			foreach my $hostdomain (keys %{$webdbref->{'%hosts'}}) {
+				my $hostref = $webdbref->{'%hosts'}->{$hostdomain};
+				foreach my $pluginid (keys %{$hostref}) {		
+					my $pluginref = $hostref->{$pluginid};
+					my %result = %{$pluginref};
+					$result{'host'} = $hostdomain;
+					$result{'plugin'} = $pluginid;
+					$result{'enable'} = int($result{'enable'});
+					push @PLUGINS, \%result;
+					}
+				}
 			}
 
 		if (1) {
@@ -25816,6 +25848,7 @@ sub adminWarehouse {
 <input id="@updates">an array of cmd objects</input>
 <example><![CDATA[
 * PLUGIN/SET?plugin=domain.com
+* PLUGIN/DATATABLE-(INSERT|EMPTY|REMOVE)?plugin=domain.com&id=
 * BLAST/SET?from_email=
 * GLOBAL/WMS?active=1|0
 * GLOBAL/ERP?active=1|0
@@ -25912,21 +25945,56 @@ sub adminConfigMacro {
 			my ($cmd,$params,$line,$linecount) = @{$cmdset};
 			my @MSGS = ();
 			
-			if ($cmd eq 'PLUGIN/SET') {
+			if ($cmd =~ /^PLUGIN\/(SET|SET-GLOBAL|SET-PRT|SET-HOST)$/) {
+				# PLUGIN/SET?
+				# PLUGIN/HOSTTABLE-EMPTY?plugin=analytics.google.com
+				# PLUGIN/HOSTTABLE-UPDATE?plugin=analytics.google.com&host=host.domain.com&accountid=UA-1245-1
+				# PLUGIN/HOSTTABLE-REMOVE?plugin=analytics.google.com&host=host.domain.com
 				my $PLUGIN = lc($params->{'plugin'});
+				my $REF = undef;
+
+				if ($cmd eq 'PLUGIN/SET') {
+					$cmd = ($params->{'global'})?'SET-GLOBAL':'SET-PRT';
+					}
 
 				if ($PLUGIN eq '') {
 					push @MSGS, "ERROR|+No plugin name specified";
 					}
-				elsif ($params->{'global'}) {
+				elsif ($cmd eq 'PLUGIN/SET-GLOBAL') {
 					if (not defined $gref) { $gref = $self->globalref(); }
 					if (not defined $gref->{'%plugins'}) { $gref->{'%plugins'} = {}; }
-					$gref->{'%plugins'}->{ $PLUGIN } = $params;
-					delete $params->{'plugin'};
+					$REF = $gref->{'%plugins'}->{ $PLUGIN };
 					}
-				else {
-					$webdb->{"%plugin.$PLUGIN"} = $params;
+				elsif ($cmd eq 'PLUGIN/SET-PRT') {
+					if (not defined $webdb->{"%plugin.$PLUGIN"}) { $webdb->{"%plugin.$PLUGIN"} = {}; }
+					$REF = $webdb->{"%plugin.$PLUGIN"};
+					#if (not defined $webdb->{"%plugins"}) { $webdb->{"%plugins"} = {}; }
+					#if (not defined $webdb->{"%plugins"}->{"$PLUGIN"}) { $webdb->{"%plugins"}->{"$PLUGIN"} = {}; }
+					#$REF = $webdb->{"%plugins"}->{"$PLUGIN"};
+					}
+				elsif ($cmd eq 'PLUGIN/SET-HOST') {
+					my $host = lc($params->{'host'});
+					if (not defined $webdb->{"%hosts"}) { $webdb->{"%hosts"} = {}; }
+					if (not defined $webdb->{"%hosts"}->{"$host"}) { $webdb->{"%hosts"}->{"$host"} = {}; }
+					if (not defined $webdb->{"%hosts"}->{"$host"}->{"$PLUGIN"}) { $webdb->{"%plugins"}->{"$host"}->{"$PLUGIN"} = {}; }
+					$REF = $webdb->{"%hosts"}->{"$host"}->{"$PLUGIN"};
+					}
+
+				if (not defined $REF) {
+					}
+				elsif ($cmd =~ /^PLUGIN\/SET-(GLOBAL|PRT|HOST)$/) {
+					delete $params->{'host'};
 					delete $params->{'plugin'};
+
+					my %NUKEME = keys %{$REF};	
+					foreach my $k (keys %{$params}) { 
+						next if ($params->{'plugin'}); ## redundant
+						next if ($params->{'host'}); ## redundant
+						$REF->{$k} = $params->{$k};
+						delete $NUKEME{$k};
+						}
+					## remove any fields that were NOT included in a set.
+					foreach my $k (keys %NUKEME) { delete $REF->{$k}; }
 					}
 				}
 			elsif ($cmd eq 'BLAST/SET') {
