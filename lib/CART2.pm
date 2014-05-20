@@ -2548,11 +2548,15 @@ sub __SYNC__ {
 		##
 		}
 
-	if (scalar($self->paymentQ())>0) {
+	if (scalar(@{$self->paymentQ()})>0) {
 		##
 		## now - reorient the @PAYMENTQ so any giftcards are first
 		##
-		if (scalar(@{$self->paymentQ()})==1) {
+		if (scalar(@{$self->paymentQ()})==0) {
+			## not sure how/where this would happen. this line should *NEVER* be reached
+			die();
+			}
+		elsif (scalar(@{$self->paymentQ()})==1) {
 			$self->in_set('want/payby', $self->paymentQ()->[0]->{'TN'});
 			}
 		else {
@@ -3574,39 +3578,32 @@ sub in_set {
 			$changes++;
 			}
 		}
-	else {
-		# print STDERR "==========>$node/$field [$val]\n";
-
-		if ($self->{"%$node"}->{$field} eq $val) {
-			## no change
-			# print STDERR "XX0\n";
+	elsif ($self->{"%$node"}->{$field} eq $val) {
+		## no change
+		}
+	elsif ((defined $FIELDREF) && ($FIELDREF->{'setifnb'})) {
+		## FIELD PROPERTY setifnb (set if not blank) is a useful way to only set a field be set once. 
+		my $setifnbpath = $FIELDREF->{'setifnb'};
+	   my ($setifnbnode) = substr($setifnbpath,0,index($setifnbpath,'/'));
+	   my ($setifnbfield) = substr($setifnbpath,index($setifnbpath,'/')+1);
+		if ((not defined $self->{"%$setifnbnode"}->{$setifnbfield}) || ($self->{"%$setifnbnode"}->{$setifnbfield} eq '')) {
+			push @{$self->{'@CHANGES'}}, [ "$setifnbpath", $self->{"%$setifnbnode"}->{$field}, $val ];
+			$self->{"%$setifnbnode"}->{$setifnbfield} = $val;
 			}
-		elsif ((defined $FIELDREF) && ($FIELDREF->{'setifnb'})) {
-			#print STDERR "XX1\n";
-			## FIELD PROPERTY setifnb (set if not blank) is a useful way to only set a field be set once. 
-			my $setifnbpath = $FIELDREF->{'setifnb'};
-		   my ($setifnbnode) = substr($setifnbpath,0,index($setifnbpath,'/'));
-		   my ($setifnbfield) = substr($setifnbpath,index($setifnbpath,'/')+1);
-			#print STDERR 'XXXXX FIELDREF: '.Dumper($FIELDREF,$setifnbpath, $setifnbnode, $setifnbfield, $self->{"%$setifnbnode"}->{$setifnbfield});
-			if ((not defined $self->{"%$setifnbnode"}->{$setifnbfield}) || ($self->{"%$setifnbnode"}->{$setifnbfield} eq '')) {
-				push @{$self->{'@CHANGES'}}, [ "$setifnbpath", $self->{"%$setifnbnode"}->{$field}, $val ];
-				$self->{"%$setifnbnode"}->{$setifnbfield} = $val;
-				# print STDERR "XXXXX XYZYZ $setifnbnode $setifnbfield = $val\n";
-				}
-			
-			if ($setifnbpath ne $path) {
-				## we still (always) set path -- unless the setifnb was referencing ourselves.
-				push @{$self->{'@CHANGES'}}, [ "$node/$field", $self->{"%$node"}->{$field}, $val ];
-				$self->{"%$node"}->{$field} = $val;		
-				$changes++;			
-				}
-			}		
-		else {
+		
+		if ($setifnbpath ne $path) {
+			## we still (always) set path -- unless the setifnb was referencing ourselves.
 			push @{$self->{'@CHANGES'}}, [ "$node/$field", $self->{"%$node"}->{$field}, $val ];
 			$self->{"%$node"}->{$field} = $val;		
-			$changes++;
+			$changes++;			
 			}
+		}		
+	else {
+		push @{$self->{'@CHANGES'}}, [ "$node/$field", $self->{"%$node"}->{$field}, $val ];
+		$self->{"%$node"}->{$field} = $val;		
+		$changes++;
 		}
+
 	return($changes); 
 	}	
 
@@ -5847,173 +5844,6 @@ sub init_mkts {
 	}
 
 
-
-## pay_vars is a hashref of CC,YY,MM,etc.
-## note this creates a copy of payment, this ensures we don't/can't
-##
-## this purpose of this function is to simply create a payq based on user selections
-##		within 'will/payby' and %payment data (and possibly a few other fields like '
-##
-## pay_vars contains XX fields like CC, YY, MM, etc. that get copied onto the @PAYMENTQ so they
-##		can be processed (and discarded) .. in any case @PAYMENTQ will never be saved to the database
-##		specifically because it *might* have values like CV in it -- if it is saved to a database it's
-##		a memhash.. but in general we avoid passing CV
-##
-#sub add_auto_payby {
-#	my ($self, $pay_vars) = @_;
-#
-#	my $AUTO_PAYQ_LINE = undef;
-#
-#	if (not defined $pay_vars) { Carp::croak("Undefined pay_vars"); }
-#
-#	if ($self->__GET__('will/payby') =~ /^WALLET\:([\d]+)$/) {
-#		## payment method on file.
-#		my ($SECUREID) = int($1);
-#		$pay_vars = $self->customer()->wallet_retrieve($SECUREID);	
-#		### $self->add_history("DEBUG: ".&ZTOOLKIT::buildparams($pay_vars));
-#
-#		if (defined $pay_vars) {
-#			$pay_vars->{'ID'} = "WALLET:$SECUREID";
-#			$pay_vars->{'IP'} = $self->__GET__('cart/ip_address');
-#			}
-#
-#		if ($SECUREID == 0) {
-#			$self->add_history("Attempted to access WALLET:0 (not valid)",etype=>2);
-#			}
-#		elsif (not defined $pay_vars) {
-#			$self->add_history("Empty/Corrupt WALLET:$SECUREID",etype=>2);
-#			}
-#		elsif (defined $pay_vars->{'CC'}) {
-#			## CREDIT CARD ON FILE
-#			$self->__SET__('want/payby','CREDIT');
-#			$self->add_history("Verified WALLET:$SECUREID TYPE=CREDIT",etype=>2);	
-#			}
-#		elsif (defined $pay_vars->{'EA'}) {
-#			## ELECTRONIC CHECK ON FILE
-#			$self->__SET__('want/payby','ECHECK');
-#			$self->add_history("Verified WALLET:$SECUREID TYPE=ECHECK",etype=>2);
-#			}
-#		else {
-#			$self->add_history(sprintf("Unknown WALLET PAYMENT %s", $self->__GET__('will/payby')),etype=>2);
-#			$pay_vars = undef;
-#			}
-#
-#		if (defined $pay_vars) {
-#			$AUTO_PAYQ_LINE = { 'TN'=>'WALLET', %{$pay_vars} };
-#			}
-#		}
-#	elsif ($self->__GET__('will/payby') eq 'PAYPALEC') {
-#		my $ppecref;
-#		if ($self->__GET__('cart/paypalec_result') ne '') {
-#			$ppecref = &ZPAY::unpackit($self->__GET__('cart/paypalec_result'));	
-#			}
-#		else {
-#			$self->add_history("PAYPALEC HAD BLANK cart/paypalec_result");
-#			}
-#		$AUTO_PAYQ_LINE = { 'TN'=>'PAYPALEC', %{$ppecref} };
-#		}
-#	## NOTE: google checkout now passes '@payments' directly 4/4/11
-#	elsif ($self->__GET__('will/payby') eq 'CREDIT') {
-#		#$ordhash{'payment_cc_status'} = 2;  # 2 (pending) status because it hasn't been charged yet
-#		#$ordhash{'card_number'}		 = $cart{'chkout.cc_number'};
-#		#$ordhash{'card_exp_month'}	 = $cart{'chkout.cc_exp_month'};
-#		#$ordhash{'card_exp_year'}	  = $cart{'chkout.cc_exp_year'};
-#		#$ordhash{'cvvcid_number'}	  = $cart{'chkout.cc_cvvcid'};
-#		if ((defined $pay_vars->{'YY'}) && (length($pay_vars->{'YY'})==4)) {
-#			## new one page checkout uses four digit year, but checkout uses two digit.
-#			$pay_vars->{'YY'} = substr($pay_vars->{'YY'},2,2);
-#			}
-#		$AUTO_PAYQ_LINE = { 'TN'=>'CREDIT', %{$pay_vars} };
-#		}
-#	#elsif ($self->__GET__('will/payby') eq 'PAYPAL') {
-#	#	# $ordhash{'paypal_acct'} = $cart{'data.bill_email'};
-#	#	($payrec) = $o->add_payment('PAYPAL',$balance_due,
-#	#		'note'=>'Customer needs follow link to Paypal.com to pay for order',
-#	#		'ps'=>'106',
-#	#		);
-#	#	$o->add_history("PAYPAL LEGACY CART was selected as payment method. Use Paypal EC for better compatibility",etype=>2);
-#	#	$AUTO_PAYQ_LINE = { 'TN'=>'CREDIT' };
-#	#	}
-#	#elsif ($self->__GET__('will/payby') eq 'AMZSPAY') {
-#	#	# $ordhash{'paypal_acct'} = $cart{'data.bill_email'};
-#	#	($payrec) = $o->add_payment('AMZSPAY',$balance_due,
-#	#		'note'=>'Customer needs follow link to Amazon.com to pay for order',
-#	#		'ps'=>'106',
-#	#		);
-#	#	$o->add_history("Amazon Simple Pay (not Checkout by Amazon) was selected as payment method.",etype=>2);
-#	#	}
-#	elsif ($self->__GET__('will/payby') eq 'PO') {
-#		# $ordhash{'po_number'} = $cart{'chkout.po_number'};
-#		$AUTO_PAYQ_LINE = { 'TN'=>'PO', 'PO'=>$self->__GET__('chkout.po_number') };			
-#		}
-#	elsif (
-#		($self->__GET__('will/payby') eq 'CALL') || 
-#		($self->__GET__('will/payby') eq 'CHKOD') || 
-#		($self->__GET__('will/payby') eq 'PICKUP') || 
-#		($self->__GET__('will/payby') eq 'CHECK') || 
-#		($self->__GET__('will/payby') eq 'COD') || 
-#		($self->__GET__('will/payby') eq 'CASH') ||
-#		($self->__GET__('will/payby') eq 'MO') ||
-#		($self->__GET__('will/payby') eq 'WIRE') ||
-#		($self->__GET__('will/payby') eq 'BIDPAY') ||
-#		($self->__GET__('will/payby') eq 'CUSTOM')
-#		) {
-#		$AUTO_PAYQ_LINE = { 'TN'=> $self->__GET__('will/payby') };
-#		}
-#	else {
-#		warn "NON-WHITELISTED PAYMENT TENDER: ".$self->__GET__('will/payby')."\n";
-#		$AUTO_PAYQ_LINE = { 'TN'=> $self->__GET__('will/payby') };
-#		}
-#
-#	$AUTO_PAYQ_LINE->{'auto'} = 1;
-#	push @{$self->{'@PAYMENTQ'}}, $AUTO_PAYQ_LINE;
-#
-#	## make sure we let the system know we ought to sync. (**VERY IMPORTANT**)
-#	push @{$self->{'@CHANGES'}}, [ 'auto_payq_line_added' ];
-#
-#	return();
-#	}
-#
-
-##
-##	should compute the balance_due here 
-##		BUT it should also take into account @PAYMENTS .. although I don't have to do that right now.
-##		
-##
-#sub balance_payments {
-#	my ($self) = @_;
-#
-#	#my $balance_due_i = &ZOOVY::f2int($self->__GET__('sum/balance_due_total')*100);
-#	
-#
-##	my $balance_due_i = &ZOOVY::f2int($self->in_get('sum/order_total')*100); 
-##	if (not defined $self->{'@PAYMENTS'}) { $self->{'@PAYMENTS'} = []; }
-##	foreach my $payment (@{$self->{'@PAYMENTS'}}) {
-##		# next if (ref($payment) ne 'HASH');
-##		if (not defined $payment->{'amt'}) { $payment->{'amt'} = 0; }
-##		if ((substr($payment->{'ps'},0,1) eq '0') || (substr($payment->{'ps'},0,1) eq '4')) {
-##			$balance_due_i -= $payment->{'amt'};
-##			}
-##		}
-#	
-#	#if (not defined $balance_due_i) {
-#	#	$balance_due_i = 0;
-#	#	$self->add_history("we had an issue determining balance due inside payment_vars_to_payments");
-#	#	}
-#
-#
-#	# print STDERR 'BALANCE_DUE'.Dumper($balance_due_i)."\n"; die();
-#
-#		
-#
-#
-#	return($balance_due_i);
-#	}
-
-
-
-
-#############################################################################################
 ##
 ## the purpose of CHECKOUT is to take
 ##
