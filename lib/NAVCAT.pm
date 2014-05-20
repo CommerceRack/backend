@@ -737,7 +737,7 @@ sub paths {
 			if (length($p) < $rootpathlen) { $p = undef; }		# a quicker check, since if $p is shorter, we can't show it!
 			elsif (substr($p,0,$rootpathlen) ne $rootpath) { $p = undef; } 
 			}
-
+	
 		next if (not defined $p);
 		push @keys, $p;
 		}	
@@ -746,6 +746,26 @@ sub paths {
 	}
 
 
+##
+## validate the path (that all parents exist)
+##
+sub validate_path {
+	my ($self, $path) = @_;
+
+	my @pieces = split(/\./,$path);
+	my $okay = 1;
+	while (scalar(@pieces)>1) {
+		my $safe = join(".",@pieces);
+		print "SAFE: $safe\n";
+		if (not $self->{$safe}) {
+			$okay = 0;		## category does not exist;
+			last;
+			}
+		pop @pieces; 
+		} 
+
+ 	return($okay);
+	}
 
 
 ##

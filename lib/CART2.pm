@@ -6050,12 +6050,12 @@ sub finalize_order {
 
 	my $NONCE = $params{'nonce'};
 	my $CARTID = $self->uuid();
-	if ((defined $NONCE) && ($NONCE ne '')) { 
-		my $NONCE = join("",reverse split(//,$NONCE));
-		$CARTID = substr( sprintf("%s#%s",$CARTID,$NONCE) ,0,30 ); 
-		#$self->set('cart/cartid',$CARTID);
-		}
-	print STDERR "NONCE: $NONCE\n";
+	#if ((defined $NONCE) && ($NONCE ne '')) { 
+	#	my $NONCE = join("",reverse split(//,$NONCE));
+	#	$CARTID = substr( sprintf("%s#%s",$CARTID,$NONCE) ,0,30 ); 
+	#	#$self->set('cart/cartid',$CARTID);
+	#	}
+	#print STDERR "NONCE: $NONCE\n";
 
 	if ($params{'app'}) {
 		$self->add_history(sprintf("Order App:%s Cart:%s Proc:$$",$params{'app'},$CARTID ));

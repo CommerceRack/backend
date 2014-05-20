@@ -29189,11 +29189,13 @@ sub appSEO {
 	elsif ($v->{'_cmd'} eq 'appSEOFetch') {
 		my @OBJECTS = ();
 		my $NC = NAVCAT->new($USERNAME,PRT=>$self->prt());	
-		foreach my $path ($NC->paths("/")) {
+		foreach my $path ($NC->paths()) {
 			next if ($path eq '');
 			next if (substr($path,0,1) eq '*');
 			if (substr($path,0,1) eq '$') {
 				push @OBJECTS, { 'type'=>'list', 'id'=>$path };
+				}
+			elsif (not $NC->validate_path($path)) {
 				}
 			elsif (substr($path,0,1) eq '.') {
 				push @OBJECTS, { 'type'=>'navcat', 'id'=>$path };

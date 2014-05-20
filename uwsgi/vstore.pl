@@ -687,12 +687,13 @@ Disallow: /
 		$DNSINFO = $SITE->dnsinfo();
 		my $SDOMAIN = $SITE->sdomain();
 
-		require UTILITY::SITEMAP;
+		require BATCHJOB::UTILITY::SITEMAP;
 		my ($USERNAME) = $SITE->username();
-		my $staticfile = &UTILITY::SITEMAP::sitemap_file($USERNAME, $DNSINFO->{'DOMAIN'}, $SENDER);
+		my $staticfile = &BATCHJOB::UTILITY::SITEMAP::sitemap_file($USERNAME, $DNSINFO->{'DOMAIN'}, $SENDER);
 
+		print STDERR "SITEMAP FILE: $staticfile\n";
 		if (-f $staticfile) {
-			$SITE::HANDLER = [ 'FILE', { 'FILE'=>$staticfile, 'Content-Type'=>'text/html' } ];
+			$SITE::HANDLER = [ 'FILE', { 'FILE'=>$staticfile, 'Content-Type'=>'text/xml' } ];
 			}
 		else {
 			$XML = qq~<!-- $SDOMAIN does not have a static sitemap file $staticfile -->
@@ -715,7 +716,12 @@ Disallow: /
 	elsif ($SITE::HANDLER->[0] eq 'FILE') {
 		## our transHandler must decline to handle so Apache can pick it up and finish it!
 		## just something so we don't get to declined
-		## return(Apache2::Const::OK);		
+		## return(Apache2::Const::OK);
+		if (-f $SITE::HANDLER->[1]->{'FILE'}) {
+			($BODY) = join("",File::Slurp::read_file($SITE::HANDLER->[1]->{'FILE'}));
+			$SITE::HANDLER->[0] = 'DONE';
+			}
+
 		}
 
 	if (defined $HTTP_RESPONSE) {
