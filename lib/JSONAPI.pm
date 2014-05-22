@@ -1949,7 +1949,7 @@ sub psgiinit {
 		## we're being init'd for config.js, nothing to see here.
 		}
 	elsif ($options{'ws'}) {
-		## websockets, no version check
+		## websockets, no version check (already initialized)
 		}
 	elsif ($VERSION > 0) {
 		## shit happened.
@@ -2099,6 +2099,10 @@ sub psgiinit {
 		if (lc($self->{'USERID'}) eq lc($self->{'USERNAME'})) {
 			$self->{'LUSER'} = 'admin';
 			}
+		elsif (substr($self->{'USERID'},0,1) eq '@') {
+			## @plugin.domain.com
+			$self->{'LUSER'} = $self->{'USERID'};
+			}
 		elsif (index($self->{'USERID'},'@')>0) {
 			($self->{'LUSER'},my $null) = split(/\@/,$self->{'USERID'});
 			}
@@ -2114,7 +2118,6 @@ sub psgiinit {
 
 		$DEVICEID = $v->{'_deviceid'} || $HEADERS->header('x-deviceid'); 	## initialized by device/stored locally
 		$self->{'DEVICEID'} = $DEVICEID;
-
 		$AUTHTOKEN = $v->{'_authtoken'} || $HEADERS->header('x-authtoken'); 	## returned by authUserLogin
 		}
 	
@@ -2155,7 +2158,7 @@ sub psgiinit {
 		## we're being init'd for config.js, nothing to see here.
 		}
 	elsif (defined $R) {
-			}
+		}
 	elsif ($self->username() eq '') {
 		&JSONAPI::set_error($R = {}, 'apperr', 5, sprintf("Authentication issue - USERID not valid"));
 		}
@@ -2168,6 +2171,72 @@ sub psgiinit {
 
 		if ($self->luser() eq '') {
 			&JSONAPI::set_error($R = {}, 'apperr', 8, sprintf("Authentication issue - LUSER not valid"));
+			}
+		elsif ((substr($self->luser(),0,1) eq '@') && ($self->luser() =~ /^@(.*?)$/)) {
+			## @plugin.domain.com
+			## AUTHTOKEN FORMAT:
+			## PLAINTEXT:XYZ
+			my $PRIVATE = undef;
+			my $ROLES = undef;
+
+			my $pluginid = $1;
+
+			if (not defined $PRIVATE) {
+				my $webdbref = $self->webdbref();
+				if (not defined $webdbref->{"%plugin.$pluginid"}) { $webdbref->{"%plugin.$pluginid"} = {}; }
+				if ($webdbref->{"%plugin.$pluginid"}->{'enable'}) {
+					## enabled, partition
+					$PRIVATE = $webdbref->{"%plugin.$pluginid"}->{"~private"};
+					$ROLES = $webdbref->{"%plugin.$pluginid"}->{"~roles"};
+					}
+				}
+	
+			if (not defined $PRIVATE) {
+				my $gref = $self->globalref();
+				if (not defined $gref->{'%plugins'}) { $gref->{'%plugins'} = {}; }
+				if ($gref->{'%plugins'}->{"$pluginid"}->{'enable'}) {
+					## enabled, global setting
+					$PRIVATE = $gref->{'%plugins'}->{"$pluginid"}->{"~private"};
+					$ROLES = $gref->{'%plugins'}->{"$pluginid"}->{"~roles"};
+					}
+				}
+	
+			my $SUCCESS = 0;		
+			if (not defined $PRIVATE) {
+				&JSONAPI::set_error($R = {}, 'apperr', 8080, sprintf("Sorry plugin '%s' is not enabled or does not exist.",$pluginid));
+				}
+			elsif ($PRIVATE eq '') {
+				&JSONAPI::set_error($R = {}, 'apperr', 8079, sprintf("Sorry plugin '%s' has a blank private key",$pluginid));
+				}
+			elsif ((defined $ROLES) && ($ROLES eq '')) {
+				&JSONAPI::set_error($R = {}, 'apperr', 8081, sprintf("Sorry plugin '%s' has no ROLES defined (can't use this API)",$pluginid));
+				}
+			elsif ($AUTHTOKEN =~ /^PLAINTEXT:(.*?)$/) {
+				if ($PRIVATE eq $1) { $SUCCESS++; }
+				}
+			elsif ($AUTHTOKEN =~ /^MD5NONCE:(.*?)$/) {	
+				&JSONAPI::set_error($R = {}, 'apperr', 8083, sprintf("not supported")); 
+				}
+			elsif ($AUTHTOKEN =~ /^SHA1NONCE:(.*?)$/) {
+				&JSONAPI::set_error($R = {}, 'apperr', 8083, sprintf("not supported")); 
+				}
+			else {
+				&JSONAPI::set_error($R = {}, 'apperr', 8083, sprintf("not supported")); 
+				}
+
+			if (&JSONAPI::hadError($R)) {
+				}
+			elsif ($SUCCESS) {
+				$self->{'_IS_ADMIN'}++;
+				$self->{'_AUTHTOKEN'} = $AUTHTOKEN;
+				$self->{'_DEVICEID'} = $DEVICEID;
+				$ROLES = uc($ROLES);
+				$self->{'*LU'} = LUSER->new_trusted($self->username(),$self->luser(),$self->prt(),$ROLES);	
+				print STDERR 'LU ROLES'.Dumper($ROLES,$self->{'*LU'});
+				}
+			else {
+				&JSONAPI::set_error($R = {}, 'apperr', 8082, sprintf("AUTHTOKEN '%s' does not match PRIVATE",$AUTHTOKEN)); 
+				}
 			}
 		elsif (my $ACL = &OAUTH::validate_authtoken($self->username(),$self->luser(),$self->clientid(),$DEVICEID,$AUTHTOKEN)) {
 			$self->{'_IS_ADMIN'}++;
@@ -24520,11 +24589,8 @@ sub adminConfigDetail {
 		}
 
 
-
-
 	if ($v->{'plugins'}) {
-		##
-
+##
 #returns @PLUGINS
 #[
 #  { 'plugin':'auth_google', 'enable':1|0, 'field1':'value1','field2:value2' },
@@ -24541,8 +24607,7 @@ sub adminConfigDetail {
 #Native Platforms
 #Payments [future]
 #Other [future]
-
-		
+##
 
 		my @PLUGINS = ();
 		my $PLUGINS = $gref->{'%plugins'} || {};
@@ -24556,6 +24621,7 @@ sub adminConfigDetail {
 
 		if ($webdbref->{'%hosts'}) {
 			foreach my $hostdomain (keys %{$webdbref->{'%hosts'}}) {
+				## next if ($hostdomain =~ $self->sdomain());
 				my $hostref = $webdbref->{'%hosts'}->{$hostdomain};
 				foreach my $pluginid (keys %{$hostref}) {		
 					my $pluginref = $hostref->{$pluginid};
@@ -24568,49 +24634,14 @@ sub adminConfigDetail {
 				}
 			}
 
-		if (1) {
-			my ($ref) = $webdbref->{'%plugin.auth_google'};
+		foreach my $pluginkey (keys %{$webdbref}) {
+			next unless ($pluginkey =~ /^\%plugin\.(.*?)$/);
+			my $pluginid = $1;
+			my ($ref) = $webdbref->{$pluginkey};
 			if (not defined $ref) { $ref = {}; }
-			$ref->{'plugin'} = 'auth_google';
+			$ref->{'plugin'} = $pluginid;
 			$ref->{'enable'} = int($ref->{'enable'});
-			## 
-			push @PLUGINS, $ref;
-			}
-
-		if (1) {
-			my ($ref) = $webdbref->{'%plugin.auth_facebook'};
-			if (not defined $ref) { $ref = {}; }
-			$ref->{'plugin'} = 'auth_facebook';
-			$ref->{'enable'} = int($ref->{'enable'});
-			## appid appsecret
-			push @PLUGINS, $ref;
-			}
-
-		if (1) {
-			my ($ref) = $webdbref->{'%plugin.client_android'};
-			if (not defined $ref) { $ref = {}; }
-			$ref->{'plugin'} = 'platform_android';
-			$ref->{'enable'} = int($ref->{'enable'});
-			## apikey
-			push @PLUGINS, $ref;
-			}
-
-		if (1) {
-			my ($ref) = $webdbref->{'%plugin.client_appleios'};
-			if (not defined $ref) { $ref = {}; }
-			$ref->{'plugin'} = 'platform_appleios';
-			$ref->{'enable'} = int($ref->{'enable'});
-			## cert, key, password
-			push @PLUGINS, $ref;
-			}
-
-		if (1) {
-			my ($ref) = $webdbref->{'%plugin.esp_awsses'};
-			if (not defined $ref) { $ref = {}; }
-			$ref->{'plugin'} = 'esp_awsses';
-			$ref->{'enable'} = int($ref->{'enable'});
-			## cert, key, password
-			push @PLUGINS, $ref;
+			push @PLUGINS, $ref;				
 			}
 
 		$R{'@PLUGINS'} = \@PLUGINS;
@@ -25945,7 +25976,7 @@ sub adminConfigMacro {
 			my ($cmd,$params,$line,$linecount) = @{$cmdset};
 			my @MSGS = ();
 			
-			if ($cmd =~ /^PLUGIN\/(SET|SET-GLOBAL|SET-PRT|SET-HOST)$/) {
+			if ($cmd =~ /^PLUGIN\/(SET|SET-GLOBAL|SET-PRT|SET-PARTITION|SET-HOST)$/) {
 				# PLUGIN/SET?
 				# PLUGIN/HOSTTABLE-EMPTY?plugin=analytics.google.com
 				# PLUGIN/HOSTTABLE-UPDATE?plugin=analytics.google.com&host=host.domain.com&accountid=UA-1245-1
@@ -25954,7 +25985,7 @@ sub adminConfigMacro {
 				my $REF = undef;
 
 				if ($cmd eq 'PLUGIN/SET') {
-					$cmd = ($params->{'global'})?'SET-GLOBAL':'SET-PRT';
+					$cmd = ($params->{'global'})?'PLUGIN/SET-GLOBAL':'PLUGIN/SET-PRT';
 					}
 
 				if ($PLUGIN eq '') {
@@ -25965,7 +25996,7 @@ sub adminConfigMacro {
 					if (not defined $gref->{'%plugins'}) { $gref->{'%plugins'} = {}; }
 					$REF = $gref->{'%plugins'}->{ $PLUGIN };
 					}
-				elsif ($cmd eq 'PLUGIN/SET-PRT') {
+				elsif (($cmd eq 'PLUGIN/SET-PRT') || ($cmd eq 'PLUGIN/SET-PARTITION')) {
 					if (not defined $webdb->{"%plugin.$PLUGIN"}) { $webdb->{"%plugin.$PLUGIN"} = {}; }
 					$REF = $webdb->{"%plugin.$PLUGIN"};
 					#if (not defined $webdb->{"%plugins"}) { $webdb->{"%plugins"} = {}; }
@@ -25976,7 +26007,7 @@ sub adminConfigMacro {
 					my $host = lc($params->{'host'});
 					if (not defined $webdb->{"%hosts"}) { $webdb->{"%hosts"} = {}; }
 					if (not defined $webdb->{"%hosts"}->{"$host"}) { $webdb->{"%hosts"}->{"$host"} = {}; }
-					if (not defined $webdb->{"%hosts"}->{"$host"}->{"$PLUGIN"}) { $webdb->{"%plugins"}->{"$host"}->{"$PLUGIN"} = {}; }
+					if (not defined $webdb->{"%hosts"}->{"$host"}->{"$PLUGIN"}) { $webdb->{"%hosts"}->{"$host"}->{"$PLUGIN"} = {}; }
 					$REF = $webdb->{"%hosts"}->{"$host"}->{"$PLUGIN"};
 					}
 

@@ -364,7 +364,7 @@ sub new_authtoken {
 
 
 sub new_trusted {
-	my ($class,$USERNAME,$SUBUSER,$PRT) = @_;
+	my ($class,$USERNAME,$SUBUSER,$PRT, $ROLES) = @_;
 
 	$SUBUSER = uc($SUBUSER);
 	$USERNAME =~ s/[\W]+//gs;  #sanitize username
@@ -376,6 +376,12 @@ sub new_trusted {
 	my $pstmt = '';
 	if ($MID<=0) {
 		$ERROR = "User: $USERNAME not found";
+		}
+	elsif ($ROLES) {	
+		$self = {};
+		$self->{'UID'} = 0;
+		$self->{'ROLES'} = $ROLES;
+		$self->{'DATA'} = '';
 		}
 	else {
 		my ($udbh) = &DBINFO::db_user_connect($USERNAME);

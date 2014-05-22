@@ -87,9 +87,10 @@ my $app = sub {
 			}
 		}
 
-		
 
-
+	##
+	##
+	##		
 	my $AGE = (86400*45);
 	my $DNSINFO = undef;
 	my $URI = $req->uri();
@@ -153,9 +154,6 @@ my $app = sub {
 		my $module = uc($1);
 		my $output = $2;
 
-
-
-		## require "PLUGIN::$module";	
 		if ($module eq 'SHIPWORKS') {
 			require PLUGIN::SHIPWORKS;		
 			my ($plugin) = PLUGIN::SHIPWORKS->new($DNSINFO,$v);
@@ -167,6 +165,9 @@ my $app = sub {
 			($HTTP_RESPONSE, $HEADERS, $BODY) = $plugin->jsonapi($path,$req,$HEADERS,$env);
 			# using OO interface
 			}
+		##
+		## ADD YOUR OWN CUSTOM MODULE/EXPORT HERE
+		##
 		else {
 			$HTTP_RESPONSE = 500;
 			$BODY = qq~Unknown plugin: $module~;
