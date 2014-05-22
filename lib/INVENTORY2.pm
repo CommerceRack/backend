@@ -743,6 +743,9 @@ sub pagedetail {
 	elsif ($options{'+'} eq 'WMS') {
 		$pstmt = "$pstmt,WMS_GEO,WMS_ZONE,WMS_POS";
 		}
+	elsif ($options{'+'} eq 'SUPPLIER') {
+		$pstmt = "$pstmt,PREFERENCE,SUPPLIER_ID";
+		}
 	elsif ($options{'+'} eq 'ORDER') {	
 		$pstmt = "select * ";
 		}
