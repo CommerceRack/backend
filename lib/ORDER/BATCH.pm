@@ -435,7 +435,8 @@ sub list_orders {
 	my %status = ();		# a hash keyed by order id with status as value
 	my %created = (); 	# a hash keyed by order id with created (in db format) as the value
 
-	my %options = (POOL=>$POOL, TS=>$TIMESTAMP_GMT, LIMIT=>$LIMIT, DETAIL=>9);
+	my %options = (POOL=>$POOL, TS=>$TIMESTAMP_GMT,  LIMIT=>$LIMIT, DETAIL=>9);
+	$options{'CREATED_GMT'} = ($TIMESTAMP_GMT-(86400*180));
 	if ((defined $KEY) && ($KEY ne '')) {
 		$options{$KEY} = $VALUE;
 		}

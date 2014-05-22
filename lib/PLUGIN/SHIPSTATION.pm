@@ -1,5 +1,9 @@
 package PLUGIN::SHIPSTATION;
 
+use utf8 qw();
+use Encode qw();
+use HTML::Entities qw();
+
 use strict;
 use Data::Dumper;
 use XML::Writer;
@@ -102,14 +106,17 @@ sub jsonapi {
 
 		if ($VARS->{'page'}==1) {
 			my ($tsref,$statref,$ctimeref) = &ORDER::BATCH::list_orders($self->username(),'',$TS,$FILTER_KEY,$FILTER_VALUE);
-			foreach my $orderid (keys %{$tsref}) {
+			foreach my $orderid (sort keys %{$tsref}) {
 				$redis->sadd($REDIS_KEY,$orderid);
 				}
 			$redis->expire($REDIS_KEY,43200);
 			}
 
 		my $count = $redis->scard($REDIS_KEY);
+		#my $writer = new XML::Writer(OUTPUT => \$BODY, DATA_MODE => 1, DATA_INDENT => 4, ENCODING => 'us-ascii');
 		my $writer = new XML::Writer(OUTPUT => \$BODY, DATA_MODE => 1, DATA_INDENT => 4, ENCODING => 'utf-8');
+		my $writer = new XML::Writer(OUTPUT => \$BODY, DATA_MODE => 1, DATA_INDENT => 4);
+		$writer->xmlDecl("UTF-8");
 		$writer->startTag('Orders','pages'=>$count);
 
 		my ($orderid) = $redis->spop($REDIS_KEY);
@@ -148,7 +155,9 @@ sub jsonapi {
 
 			$writer->startTag('BillTo');
 				# $writer->dataElement('FullName','');
-				$writer->cdataElement('Name', sprintf("%s, %s", $O2->in_get('bill/lastname'), $O2->in_get('bill/firstname') ));
+				my $name = sprintf("%s, %s", $O2->in_get('bill/lastname'), $O2->in_get('bill/firstname') );
+
+				$writer->cdataElement('Name', HTML::Entities::encode_entities($name));
 				$writer->cdataElement('Company',$O2->in_get('bill/company'));
 				$writer->cdataElement('Phone',$O2->in_get('bill/phone'));
 				$writer->cdataElement('Email',$O2->in_get('bill/email'));
@@ -156,17 +165,17 @@ sub jsonapi {
 			
 			$writer->startTag('ShipTo');
 				# $writer->dataElement('FullName','');
-				$writer->cdataElement('Name', sprintf("%s, %s", $O2->in_get('ship/lastname'), $O2->in_get('ship/firstname') ));
-				$writer->cdataElement('Company',$O2->in_get('ship/company'));
-				$writer->cdataElement('Address1',$O2->in_get('ship/address1'));
+				$writer->cdataElement('Name', HTML::Entities::encode_entities(sprintf("%s, %s", $O2->in_get('ship/lastname'), $O2->in_get('ship/firstname') )));
+				$writer->cdataElement('Company',HTML::Entities::encode_entities($O2->in_get('ship/company')));
+				$writer->cdataElement('Address1',HTML::Entities::encode_entities($O2->in_get('ship/address1')));
 				$writer->cdataElement('Address2',$O2->in_get('ship/address2'));
 				# $writer->dataElement('Street3',$O2->in_get(''));
-				$writer->cdataElement('City',$O2->in_get('ship/city'));
-				$writer->cdataElement('State',$O2->in_get('ship/region'));
-				$writer->cdataElement('PostalCode',$O2->in_get('ship/postal'));
-				$writer->cdataElement('Country',$O2->in_get('ship/countrycode'));
+				$writer->cdataElement('City',HTML::Entities::encode_entities($O2->in_get('ship/city')));
+				$writer->cdataElement('State',HTML::Entities::encode_entities($O2->in_get('ship/region')));
+				$writer->cdataElement('PostalCode',HTML::Entities::encode_entities($O2->in_get('ship/postal')));
+				$writer->cdataElement('Country',HTML::Entities::encode_entities($O2->in_get('ship/countrycode')));
 				#$writer->dataElement('Residential',$O2->in_get(''));
-				$writer->cdataElement('Phone',$O2->in_get('ship/phone'));
+				$writer->cdataElement('Phone',HTML::Entities::encode_entities($O2->in_get('ship/phone')));
 				#$writer->dataElement('Fax',$O2->in_get(''));
 				#$writer->dataElement('Email',$O2->in_get(''));
 				#$writer->dataElement('Website',$O2->in_get(''));
@@ -230,6 +239,8 @@ sub jsonapi {
 		## this has zero orders
 		}
 
+
+	open F, ">/tmp/shipstation.xml"; print F $BODY; close F;
 
 	return($HTTP_RESPONSE,$HEADERS,$BODY);
 	}

@@ -88,7 +88,8 @@ sub work {
 
 	if ($meta->{'BASETYPE'}) {
 		$options{'BASETYPE'} = $meta->{'BASETYPE'};
-		$meta->{'headers'} = 'SIMPLE';
+		$meta->{'headers'} =  $meta->{'BASETYPE'};		## always use the BASETYPE 'headers' by default
+		$meta->{'title'} = sprintf("Inventory Detail Report: %s",$options{'BASETYPE'});
 		}
 
 	if ((defined $meta->{'product_selectors'}) && ($meta->{'product_selectors'} ne '')) {
@@ -165,6 +166,7 @@ sub work {
 		push @HEAD, { 'id'=>'UUID', 'name'=>'UUID', type=>'CHR' };
 		push @HEAD, { 'id'=>'PID', 'name'=>'PID', type=>'CHR' };
 		push @HEAD, { 'id'=>'SKU', 'name'=>'SKU', type=>'CHR' };
+		push @HEAD, { 'id'=>'QTY', 'name'=>'QTY', type=>'CHR' };
 		push @HEAD, { 'id'=>'PREFERENCE', 'name'=>'PREFERENCE', type=>'CHR' };
 		push @HEAD, { 'id'=>'SUPPLIER_ID', 'name'=>'SUPPLIER_ID', 'type'=>'CHR' };
 		push @HEAD, { 'id'=>'NOTE', 'name'=>'NOTE', 'type'=>'NOTE' };
@@ -174,6 +176,7 @@ sub work {
 		push @HEAD, { 'id'=>'UUID', 'name'=>'UUID', type=>'CHR' };
 		push @HEAD, { 'id'=>'PID', 'name'=>'PID', type=>'CHR' };
 		push @HEAD, { 'id'=>'SKU', 'name'=>'SKU', type=>'CHR' };
+		push @HEAD, { 'id'=>'QTY', 'name'=>'QTY', type=>'CHR' };
 		push @HEAD, { 'id'=>'BASETYPE', 'name'=>'BASETYPE', type=>'CHR' };
 		push @HEAD, { 'id'=>'OUR_ORDERID', 'name'=>'OUR_ORDERID', type=>'CHR' };
 		push @HEAD, { 'id'=>'PICK_BATCHID', 'name'=>'PICK_BATCHID', type=>'CHR' };
