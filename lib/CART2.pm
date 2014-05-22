@@ -8996,6 +8996,12 @@ sub is_origin {
 	return($matches);
 	}
 
+
+sub is_shipped {
+	my ($self) = @_;
+	return( int($self->__GET__('flow/shipped_ts')) );
+	}
+
 ##
 ##
 ##
