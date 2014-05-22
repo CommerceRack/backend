@@ -25976,7 +25976,7 @@ sub adminConfigMacro {
 			my ($cmd,$params,$line,$linecount) = @{$cmdset};
 			my @MSGS = ();
 			
-			if ($cmd =~ /^PLUGIN\/(SET|SET-GLOBAL|SET-PRT|SET-PARTITION|SET-HOST)$/) {
+			if ($cmd =~ /^PLUGIN\/(SET|SET-GLOBAL|SET-PRT|SET-PARTITION|SET-HOST|REMOVE-HOST)$/) {
 				# PLUGIN/SET?
 				# PLUGIN/HOSTTABLE-EMPTY?plugin=analytics.google.com
 				# PLUGIN/HOSTTABLE-UPDATE?plugin=analytics.google.com&host=host.domain.com&accountid=UA-1245-1
@@ -26009,6 +26009,12 @@ sub adminConfigMacro {
 					if (not defined $webdb->{"%hosts"}->{"$host"}) { $webdb->{"%hosts"}->{"$host"} = {}; }
 					if (not defined $webdb->{"%hosts"}->{"$host"}->{"$PLUGIN"}) { $webdb->{"%hosts"}->{"$host"}->{"$PLUGIN"} = {}; }
 					$REF = $webdb->{"%hosts"}->{"$host"}->{"$PLUGIN"};
+					}
+				elsif ($cmd eq 'PLUGIN/REMOVE-HOST') {
+					my $host = lc($params->{'host'});
+					if (not defined $webdb->{"%hosts"}) { $webdb->{"%hosts"} = {}; }
+					if (not defined $webdb->{"%hosts"}->{"$host"}) { $webdb->{"%hosts"}->{"$host"} = {}; }
+					delete $webdb->{"%hosts"}->{"$host"}->{"$PLUGIN"};
 					}
 
 				if (not defined $REF) {
