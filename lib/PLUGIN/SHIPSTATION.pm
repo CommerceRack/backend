@@ -115,7 +115,7 @@ sub jsonapi {
 		my $count = $redis->scard($REDIS_KEY);
 		#my $writer = new XML::Writer(OUTPUT => \$BODY, DATA_MODE => 1, DATA_INDENT => 4, ENCODING => 'us-ascii');
 		my $writer = new XML::Writer(OUTPUT => \$BODY, DATA_MODE => 1, DATA_INDENT => 4, ENCODING => 'utf-8');
-		my $writer = new XML::Writer(OUTPUT => \$BODY, DATA_MODE => 1, DATA_INDENT => 4);
+		## my $writer = new XML::Writer(OUTPUT => \$BODY, DATA_MODE => 1, DATA_INDENT => 4);
 		$writer->xmlDecl("UTF-8");
 		$writer->startTag('Orders','pages'=>$count);
 
@@ -128,7 +128,23 @@ sub jsonapi {
 			$writer->cdataElement('OrderID',$OID);
 			$writer->cdataElement('OrderNumber',$OID);
 			$writer->cdataElement('OrderDate', Date::Format::time2str("%m/%d/%Y %H:%M %p",$O2->in_get('our/order_ts')));
-			$writer->cdataElement('OrderStatus', $O2->in_get('flow/pool') );
+
+			##
+			## SHIPSTATION only has 4 possible status's for orders:
+			## 	UNPAID, PAID, SHIPPED, CANCELLED
+			##
+			my $STATUS = 'UNPAID';
+			if ($O2->in_get('flow/pool') eq 'DELETED') {
+				$STATUS = 'CANCELLED';
+				}
+			elsif ($O2->is_shipped()) {
+				$STATUS = 'SHIPPED'; 
+				}
+			elsif ($O2->is_paidinfull()) {
+				$STATUS = 'PAID'; 
+				}
+
+			$writer->cdataElement('OrderStatus', $STATUS );
 			$writer->dataElement('LastModified', Date::Format::time2str("%m/%d/%Y %H:%M %p",$O2->in_get('flow/modified_ts')));
 			$writer->cdataElement('ShippingMethod', $O2->in_get('sum/shp_method'));
 			$writer->cdataElement('PaymentMethod', $O2->in_get('flow/payment_method'));
@@ -190,7 +206,7 @@ sub jsonapi {
 					$writer->cdataElement('SKU',$item->{'sku'});
 					$writer->cdataElement('Name',$item->{'description'});
 #					$writer->cdataElement('ImageUrl',&ZOOVY::image_path($self->username(),$item->{'image'}));	# The URL to the full product image.
-					$writer->dataElement('Weight',$item->{'weight'});
+					$writer->dataElement('Weight',int($item->{'weight'}));
 					$writer->dataElement('WeightUnits','Ounces');
 					$writer->dataElement('Quantity',$item->{'qty'});
 					$writer->dataElement('UnitPrice',$item->{'price'});
