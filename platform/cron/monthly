@@ -1,10 +1,10 @@
 #!/bin/bash
 
-/httpd/scripts/cron/diskspace.pl
+/backend/scripts/cron/diskspace.pl
 
-for USER in `/httpd/platform/cfgecho.pl type:user` ; do
+for USER in `/backend/platform/cfgecho.pl type:user` ; do
 	echo $USER
-	/usr/local/mysql/bin/mysql $USER < /httpd/scripts/cron/optimize-database.sql
+	/usr/bin/mysql $USER < /backend/scripts/cron/optimize-database.sql
 done
 
 	

@@ -7838,16 +7838,18 @@ sub adminProduct {
 
 					}
 				elsif ($VERB eq 'EVENT-REDISPATCH') {
-					$params->{'LEID'} = int($params->{'LEID'});
-					my ($le) = LISTING::EVENT->new(USERNAME=>$USERNAME,LEID=>$params->{'LEID'});
-					if (not defined $le) {
-						push @MSGS, "ERROR|+Unable to instantiate LISTING::EVENT for LEID=$params->{'LEID'}";
-						}
-					else {
-						$le->dispatch($udbh,$P);
-						}
-					# use Data::Dumper; $ERROR = '<pre>'.Dumper({le=>$le,RESULT=>$RESULT,METAREF=>$METAREF}).'</pre>';
-					my ($result) = $le->whatsup();
+					## removed in 201406
+					push @MSGS, "ERROR|+Listing Events cannot be redispatched (they have been removed)";
+					#$params->{'LEID'} = int($params->{'LEID'});
+					#my ($le) = LISTING::EVENT->new(USERNAME=>$USERNAME,LEID=>$params->{'LEID'});
+					#if (not defined $le) {
+					#	push @MSGS, "ERROR|+Unable to instantiate LISTING::EVENT for LEID=$params->{'LEID'}";
+					#	}
+					#else {
+					#	$le->dispatch($udbh,$P);
+					#	}
+					## use Data::Dumper; $ERROR = '<pre>'.Dumper({le=>$le,RESULT=>$RESULT,METAREF=>$METAREF}).'</pre>';
+					#my ($result) = $le->whatsup();
 					}
 				elsif ($VERB =~ /^NAVCAT-(CLEARALL|INSERT|DELETE)$/) {
 					if (not defined $NC) { $NC = NAVCAT->new($USERNAME,PRT=>$PRT); }
@@ -18674,6 +18676,7 @@ sub appPublicSearch {
 		if (defined $v->{'query'}) { $params{'body'}->{'query'} = $v->{'query'};	}
 		if (defined $v->{'filter'}) {	$params{'body'}->{'filter'} = $v->{'filter'};	}
 		if (defined $v->{'facets'}) {	$params{'body'}->{'facets'} = $v->{'facets'};	}
+		if (defined $v->{'aggregations'}) {	$params{'body'}->{'aggregations'} = $v->{'aggregations'};	}
 
 		## size            => $no_of_results
 		if (defined $v->{'size'}) {	$params{'size'} = $v->{'size'};	}
@@ -18774,7 +18777,7 @@ sub appPublicSearch {
 				# mode:elastic-search
 				$params{'timeout'} = '5s';
 
-				print STDERR 'params: '.Dumper(\%params);
+				## print STDERR 'params: '.Dumper(\%params);
 
 				eval { $R = $es->search(%params) };
 				if ($@) { $R = $@; }
@@ -18784,7 +18787,7 @@ sub appPublicSearch {
 				## &JSONAPI::append_msg_to_response(\%R,"apperr",18234,"unknown mode");
 				}
 
-			open F, ">/dev/shm/elastic"; print F Dumper($v,\%params,$R); close F;
+			## open F, ">/dev/shm/elastic"; print F Dumper($v,\%params,$R); close F;
 
 		   #if ($R) {
 			#	&JSONAPI::append_msg_to_response(\%R,"iseerr",18239,"elastic ise: $@");	
