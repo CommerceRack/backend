@@ -7792,20 +7792,27 @@ sub adminProduct {
 					my $KEY = sprintf('zoovy:schedule_%s',lc($SCHEDULE));
 					$P->skustore($SKU,$KEY,$PRICE);
 					}
-				elsif (($VERB eq 'SET-SCHEDULE') || ($VERB eq 'SET-SCHEDULE-PROPERTIES')) {
+				elsif ($VERB eq 'SET-SCHEDULE-PROPERTIES') {
 					## as of 201342 it's SET-SCHEDULE-PROPERTIES
-					my $SCHEDULEID = $params->{'schedule'};
-					if ($SCHEDULEID eq '*') {
+					my $SCHEDULE = $params->{'schedule'};
+
+					if ($params->{'price'}) {
+						my $PRICE = $params->{'price'};
+						my $KEY = sprintf('zoovy:schedule_%s',lc($SCHEDULE));
+						$P->store($KEY,$PRICE);	
+						}
+	
+					if ($SCHEDULE eq '*') {
 						$P->store('zoovy:qty_price', $params->{'qtyprice'});
 						}
-					#elsif ($SCHEDULEID =~ /^[MQ]P/) {
+					#elsif ($SCHEDULE =~ /^[MQ]P/) {
 					else {
-						$P->store(sprintf('zoovy:qtymin_%s',lc($SCHEDULEID)), $params->{'qtymin'});
-						$P->store(sprintf('zoovy:qtyinc_%s',lc($SCHEDULEID)), $params->{'qtyinc'});
-						$P->store(sprintf('zoovy:qtyprice_%s',lc($SCHEDULEID)), $params->{'qtyprice'});
+						$P->store(sprintf('zoovy:qtymin_%s',lc($SCHEDULE)), $params->{'qtymin'});
+						$P->store(sprintf('zoovy:qtyinc_%s',lc($SCHEDULE)), $params->{'qtyinc'});
+						$P->store(sprintf('zoovy:qtyprice_%s',lc($SCHEDULE)), $params->{'qtyprice'});
 						}
 					#else {
-					#	$P->store(sprintf('zoovy:qtyprice_%s',lc($SCHEDULEID)), $params->{'qtyprice'});
+					#	$P->store(sprintf('zoovy:qtyprice_%s',lc($SCHEDULE)), $params->{'qtyprice'});
 					#	}
 					}
 				elsif (($VERB eq 'CLONE') || ($VERB eq 'RENAME')) {
