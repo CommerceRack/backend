@@ -9287,9 +9287,11 @@ sub adminTask {
 	if ($v->{'_cmd'} eq 'adminTaskList') {
 
 		my @RESULT = ();
+		my $LIMIT = int($v->{'limit'}) || 9999;
 		foreach my $TASKREF (@{$T->list()}) {
 			## filter by class e.g. class=>'SETUP'
 			next if ((defined $v->{'class'}) && ($v->{'class'} ne $TASKREF->{'CLASS'}));
+			next if ($LIMIT-- < 0);
 			my %TASK = ();
 			foreach my $k (keys %{$TASKREF}) {
 				$TASK{lc($k)} = $TASKREF->{$k};
@@ -19184,6 +19186,7 @@ sub appReviewAdd {
 		delete $v->{'ID'};	# protected
 		delete $v->{'APPROVED_GMT'}; # protected
 		$v->{'IPADDRESS'} = $self->ipaddress();
+
 		require PRODUCT::REVIEWS;
 		my ($ERROR) = PRODUCT::REVIEWS::add_review($self->username(),$v->{'pid'},$v);
 		if ($ERROR) {
