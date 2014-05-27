@@ -6083,6 +6083,24 @@ sub adminImageUploadMagick {
 	##
 	if (&JSONAPI::hadError(\%R)) {
 		}
+	elsif ($filename && $ext && ($ext eq 'zip')) {
+		## 
+		my $SH = new IO::String($DATA);
+		my ($zip) = Archive::Zip->new();
+		$zip->readFromFileHandle($SH);
+		my @names = $zip->memberNames();
+		my $file_count = 0;
+		my @FILES = ();
+		foreach my $m (@names) {
+			my $contents = $zip->contents($m);
+			## NOTE: dont do binmode:utf8, if there is utf8 in the file then raw will handle it properly
+			my ($iref) = &MEDIA::store($self->username(),"$PWD/$m",$contents);
+			if ($iref->{'err'}>0) {
+				&JSONAPI::set_error(\%R,'iseerr',(23000+$iref->{'err'}),sprintf("MEDIA ERROR %s",$iref->{'errmsg'}));
+				}
+			}
+				
+		}
 	elsif ($filename && $ext) {
 		# Quick sanity
 		# print STDERR "storing $USERNAME - $PWD/$filename.$ext\n";
@@ -9974,8 +9992,6 @@ sub adminDSAgent {
 	my ($self,$v) = @_;
 
 	my %R = ();
-
-	require PROJECT;
 	require WATCHER;
 
 	my $USERNAME = $self->username();
@@ -12745,8 +12761,6 @@ sub adminAffiliate {
 
 	my %R = ();
 
-	require PROJECT;
-
 	my $USERNAME = $self->username();
 	my $LU = $self->LU();
 	my $MID = $self->mid();
@@ -12929,9 +12943,6 @@ sub adminGiftcard {
 	my ($self,$v) = @_;
 
 	my %R = ();
-
-	require Archive::Zip;
-	require PROJECT;
 
 	my $USERNAME = $self->username();
 	my $LU = $self->LU();
@@ -13582,8 +13593,6 @@ sub adminProject {
 	my ($self,$v) = @_;
 
 	my %R = ();
-	require Archive::Zip;
-	require PROJECT;
 
 	my $USERNAME = $self->username();
 	my $LU = $self->LU();
