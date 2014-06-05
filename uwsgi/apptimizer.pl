@@ -222,7 +222,10 @@ my $app = sub {
 		## $ESCAPED_FRAGMENTS = &ZTOOLKIT::parseparams($req->parameters()->get('_escaped_fragment_'));
 		my ($MID) = &ZOOVY::resolve_mid($USERNAME);
 		my ($udbh) = &DBINFO::db_user_connect($USERNAME);
-		my $pstmt = "select unix_timestamp(CREATED_TS),BODY from SEO_PAGES where MID=$MID and DOMAIN=".$udbh->quote($HOSTDOMAIN)." and ESCAPED_FRAGMENT=".$udbh->quote($req->parameters()->get('_escaped_fragment_'));
+		my $FRAGMENT = $req->parameters()->get('_escaped_fragment_');
+		use URI::Escape;
+		## $FRAGMENT = URI::Escape::uri_escape($FRAGMENT); 
+		my $pstmt = "select unix_timestamp(CREATED_TS),BODY from SEO_PAGES where MID=$MID and DOMAIN=".$udbh->quote($HOSTDOMAIN)." and UNESCAPED_FRAGMENT=".$udbh->quote($FRAGMENT);
 		print STDERR "$pstmt\n";
 		(my $TS,$BODY) = $udbh->selectrow_array($pstmt);
 		## open F, ">/tmp/escape"; print F "$pstmt\n"; print F Dumper($ESCAPED_FRAGMENTS,$BODY); close F;
@@ -237,13 +240,13 @@ my $app = sub {
 		else {
 			$HTTP_RESPONSE = 404;
 			
-			$BODY = sprintf("<html>\nInvalid escaped fragment: %s\n",$req->parameters()->get('_escaped_fragment_'));
+			$BODY = sprintf("<html>\nInvalid escaped fragment: %s\n",$FRAGMENT);
 			my $pstmt = "select ESCAPED_FRAGMENT from SEO_PAGES where MID=$MID and DOMAIN=".$udbh->quote($HOSTDOMAIN)." limit 0,250";
 			my $sth = $udbh->prepare($pstmt);
 			$sth->execute();
 			$BODY .= "<ul>";
 			while ( my ($FRAGMENT) = $sth->fetchrow() ) {
-				$BODY .= "<li> <a href=\"/?_escaped_fragment_=$FRAGMENT\">$FRAGMENT</a>\n";
+				$BODY .= "<li> <a href=\"/index.html#!$FRAGMENT\">$FRAGMENT</a>\n";
 				}
 			$BODY .= "</ul></html>";
 			$sth->finish();

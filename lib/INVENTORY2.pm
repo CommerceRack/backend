@@ -1711,7 +1711,13 @@ sub summarize {
 			}
 			
 
-		my ($pstmt) = &DBINFO::insert($udbh,$L_TB,\%dbvars,key=>['MID','SKU'],sql=>1,'verb'=>'update');
+		##
+		my $pstmt = "select count(*) from $L_TB where MID=? and SKU=?";
+		my ($exists) = $udbh->selectrow_array($pstmt, {},$dbvars{'MID'},$dbvars{'SKU'});
+		my $VERB = ($exists)?'update':'insert';
+
+
+		my ($pstmt) = &DBINFO::insert($udbh,$L_TB,\%dbvars,key=>['MID','SKU'],sql=>1,'verb'=>$VERB);
 		push @SQL, $pstmt;
 
 		$SKUREF->{'%QTY'}->{'AVAILABLE'} = $dbvars{'INV_AVAILABLE'};

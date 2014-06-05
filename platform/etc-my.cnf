@@ -28,6 +28,7 @@ query_cache_size = 8M
 innodb_file_per_table=1
 innodb_log_group_home_dir=/local/mysql/logs		## note: we might want to make this a high ios disk for better performance
 myisam_repair_threads=10
+innodb_use_native_aio=0 
 
 user=mysql
 max_connections=500

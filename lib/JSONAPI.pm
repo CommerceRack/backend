@@ -6168,7 +6168,7 @@ sub adminSupplier {
 		## okay we've got a vendor id, let's make sure it looks good.
 		$VENDORID = uc($v->{'VENDORID'});
 		if ($VENDORID eq '') { &JSONAPI::set_error(\%R,'apperr',4900,'Vendor ID cannot be blank'); }
-		if ($VENDORID !~ /^([0-9A-Z]+)$/) { &JSONAPI::set_error(\%R,'apperr',4900,"Vendor ID is invalid."); }
+		if ($VENDORID !~ /^([0-9A-Z\-]+)$/) { &JSONAPI::set_error(\%R,'apperr',4900,"Vendor ID is invalid."); }
 		if ($VENDORID eq 'GIFTCARD') { &JSONAPI::set_error(\%R,'apperr',4900,"The Code 'GIFTCARD' is reserved."); }
 		if (not &JSONAPI::hadError(\%R)) {
 			($S) = SUPPLIER->new($USERNAME,$VENDORID);
@@ -20540,121 +20540,7 @@ sub appBuyerCreate {
 				}
 			}
 		}
-#	elsif (($v->{'permissions'}) && ($self->apiversion()<=201318)) {
-#		## GKWORLD -- PRE201318 -- can be removed at 201320
-#		## 1. look /platform
-#		my $file = undef;
-#		my $PROJECTDIR = undef;
-#		if (not $v->{'project'}) {
-#			&JSONAPI::append_msg_to_response(\%R,'apperr',74221,'project not specified');
-#			}
-#		else {
-#			$PROJECTDIR = $self->projectdir($v->{'project'});
-#			if (! -d $PROJECTDIR) {
-#				&JSONAPI::append_msg_to_response(\%R,'apierr',74222,'project directory does not seem to exist');
-#				}
-#			}
-#
-#		if (&JSONAPI::hadError(\%R)) {
-#			## shit happened
-#			}
-#		elsif ($v->{'permissions'} =~ /^platform\/([A-Za-z0-9\-]+)\.json$/) {
-#			$file = $1;
-#			print STDERR "FILEX: $1\n";
-#			if (! -f "$PROJECTDIR/platform/$file.json") {
-#				&JSONAPI::append_msg_to_response(\%R,'apierr',74223,'permissions file does not seem to exist');
-#				}
-#			}
-#		else {
-#			&JSONAPI::append_msg_to_response(\%R,'apperr',74224,'permissions file must be alphanumeric and be in the platform directory and end with .json');
-#			}
-#
-#		## 2. load file
-#		my $cfg = undef;		
-#		if (not &JSONAPI::hadError(\%R)) {
-#			require WHOLESALE::SIGNUP;
-#			## my ($cfg) = WHOLESALE::SIGNUP::load_config($self->username(),int($self->prt()));
-#			my $json = '';
-#			print STDERR "FILE: $PROJECTDIR/platform/$file.json\n";
-#			open F, "<$PROJECTDIR/platform/$file.json";
-#			while (<F>) {
-#				next if (substr($_,0,2) eq '//');
-#				$json .= $_;
-#				} 
-#			close F;
-#			eval { $cfg = WHOLESALE::SIGNUP::json_to_ref($json); };
-#			if ($@) {
-#				&JSONAPI::append_msg_to_response(\%R,'apierr',74228,"permissions file specified is corrupt cause: $@");
-#				}
-#			elsif (ref($cfg) ne 'HASH') {
-#				&JSONAPI::append_msg_to_response(\%R,'apierr',74225,'permissions json did not decode into array');
-#				}
-#			elsif (ref($cfg->{'fields'}) ne 'ARRAY') {
-#				&JSONAPI::append_msg_to_response(\%R,'apierr',74226,'permissions json did not have required fields ARRAY attribute');
-#				} 
-#			}
-#
-#		## 3. execute file
-#		my $fieldsandvalues = undef;
-#		if (not &JSONAPI::hadError(\%R)) {
-#			## all the save magic happens here!
-#			$fieldsandvalues = WHOLESALE::SIGNUP::ref_to_vars($cfg->{'fields'},$v);
-#			foreach my $f (@{$fieldsandvalues}) {
-#				if ($f->{'err'}) { 
-#					&JSONAPI::append_msg_to_response(\%R,'youerr',74227,"$f->{'label'} ($f->{'err'})");
-#					}
-#				}
-#			}
-#
-#		if (not JSONAPI::hadError(\%R)) {
-#			my ($err) = &WHOLESALE::SIGNUP::save_form($self->username(),int($self->prt()),$cfg,$fieldsandvalues);
-#			if ($err) {
-#				&JSONAPI::append_msg_to_response(\%R,'youerr',74229,"$err");
-#				}
-#			else {
-#				&JSONAPI::append_msg_to_response(\%R,'success',0);
-#				}
-#			}		
-#		}
-#	elsif (($v->{'form'} eq 'wholesale') && ($self->apiversion()<=201314)) {
-#		##
-#		## LEGACY: REPLICATES OLD "WHOLESALE" FUNCTIONALITY -- NO LONGER SUPPORTED AFTER 201314
-#		##
-#		require WHOLESALE::SIGNUP;
-#		my ($cfg) = WHOLESALE::SIGNUP::load_config($self->username(),int($self->prt()));
-#		my $fields = WHOLESALE::SIGNUP::json_to_ref($cfg->{'json'});
-#		
-#		if (not $cfg->{'enabled'}) {
-#			&JSONAPI::append_msg_to_response(\%R,'apperr',74211,'form not enabled');
-#			}
-#
-#		if (not &JSONAPI::hadError(\%R)) {
-#			## all the save magic happens here!
-#			my $fieldsandvalues = WHOLESALE::SIGNUP::ref_to_vars($fields,$v);
-#
-#			# use Data::Dumper; print STDERR 'WHOLESALE: '.Dumper($fieldsandvalues);
-#
-#			my $err = undef;
-#			foreach my $f (@{$fieldsandvalues}) {
-#				next if $err;
-#				if ($f->{'err'}) { $err = "$f->{'label'} ($f->{'err'})"; }
-#				}
-#
-#			if (not defined $err) {
-#				($err) = &WHOLESALE::SIGNUP::save_form($self->username(),int($self->prt()),$cfg,$fieldsandvalues);
-#				}
-#
-#			if ($err) {
-#				&JSONAPI::append_msg_to_response(\%R,'youerr',74219,"$err");
-#				}
-#			else {
-#				&JSONAPI::append_msg_to_response(\%R,'success',0);
-#				}
-#			}
-#		}
-#	else {
-#		&JSONAPI::append_msg_to_response(\%R,'apperr',74210,'permissions parameter is required');
-##		}
+
 	return($R);
 	}
 
