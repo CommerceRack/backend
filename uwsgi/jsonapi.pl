@@ -189,6 +189,10 @@ my $app = sub {
 		}
 	## NOTE: be careful with the path as it may contain shit like /s=/
 	## /jquery/config.js /jsonapi/config.js
+	elsif ($path =~ /^\/jsonapi\/v\-201[45][\d][\d]+\/(.*?)$/o) {
+		## jsonapi/v-201405/api.api.api
+		$path = '/jsonapi/';
+		}
 	elsif ($path =~ /^\/(jquery|jsonapi)\/config\.js$/) {
 		$JSAPI = JSONAPI->new('__config.js__');
 
@@ -234,8 +238,7 @@ my $app = sub {
 		}
 	elsif ($path =~ /jsonapi\/upload/) {
 		## FILE UPLOAD
-
-		print STDERR "FILE UPLOAD CODE STARTED\n";
+		print STDERR "LEGACY FILE UPLOAD CODE STARTED\n";
 		print STDERR 'HEADERS ;'.Dumper($req->headers());
 
 		require PLUGIN::FILEUPLOAD;
@@ -391,9 +394,11 @@ my $app = sub {
 				$BODY = "Method not allowed";
 				}
 			}
-
-		## print STDERR 'FINAL '.Dumper($HTTP_RESPONSE,$HEADERS);
 		}
+
+	##
+	##
+	##
 
 	## everything else is assumed to be an API request
 	my $R = undef;
