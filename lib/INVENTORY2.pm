@@ -570,9 +570,7 @@ sub process_order {
 			$OPTS{'NOTE'} = $item->{'%options'}->{'#C##'}->{'data'};
 			$OPTS{'CREATED_BY'} = $O2->oid();
 			$OPTS{'EXPIRES_GMT'} = '0';
-			#$OPTS{'RECIPIENT_FULLNAME'} = 'Brian Tester';
 			$OPTS{'RECIPIENT_FULLNAME'} = $item->{'%options'}->{'#A##'}->{'data'};
-			#$OPTS{'RECIPIENT_EMAIL'} = 'test@zoovy.com';
 			$OPTS{'RECIPIENT_EMAIL'} = $item->{'%options'}->{'#B##'}->{'data'};
 			$OPTS{'RECIPIENT_EMAIL'} =~ s/[\s]+//g;
 
@@ -592,6 +590,7 @@ sub process_order {
 	
 			my $GCOBJ = undef;
 			my $qty = $item->{'qty'};
+			print STDERR "QTY: $qty\n";
 			while ($qty > 0) {
 				require GIFTCARD;
 				my $issueamt = $item->{'cost'};
@@ -601,6 +600,7 @@ sub process_order {
 				$OPTS{'SRC_GUID'} = sprintf("%s.%d.%s",$O2->oid(),$qty,$item->{'uuid'});
 	
 				my ($code) = GIFTCARD::createCard($USERNAME,$O2->prt(),$issueamt,%OPTS);
+				print "CODE: $code\n";
 				$O2->add_history(sprintf("Created GIFTCARD#$qty $code for customer %s (%d)",$OPTS{'RECIPIENT_EMAIL'},$CID));
 				$qty--;
 				if ($qty == 0) {
@@ -611,9 +611,10 @@ sub process_order {
 			if ($CID>0) {
 				## where do they get sent to the recipient?
 				require BLAST;
+				my ($GCREF) = &GIFTCARD::lookup($O2->username(),PRT=>$O2->prt(),CODE=>$GCOBJ->{'code'});
 				my ($BLAST) = BLAST->new( $O2->username(), $O2->prt());
-				my ($rcpt) = $BLAST->recipient('CUSTOMER',$CID,{'%GIFTCARD'=>$GCOBJ});
-				my ($msg) = $BLAST->msg('AUTO','CUSTOMER.GIFTCARD.RECEIVED');
+				my ($rcpt) = $BLAST->recipient('CUSTOMER',$CID,{'%GIFTCARD'=>$GCREF});
+				my ($msg) = $BLAST->msg('CUSTOMER.GIFTCARD.RECEIVED');
 				$BLAST->send( $rcpt, $msg );
 				}
 			$INV2->orderinvcmd($O2,$UUID,'PICK/ITEM-DONE','PICK_ROUTE'=>'PARTNER','VENDOR'=>'GIFTCARD');

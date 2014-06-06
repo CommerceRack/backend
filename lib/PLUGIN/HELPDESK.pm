@@ -20,30 +20,11 @@ use ZMQ::Constants qw(ZMQ_REQ ZMQ_DONTWAIT ZMQ_RCVTIMEO ZMQ_SNDTIMEO ZMQ_NOBLOCK
 
 
 
-sub test {
-	my $VAR1 = 'tcp://admin.zoovy.com:5555';
-	my %CMD = (
-            'disposition' => 'open',
-            '_cartid' => undef,
-            '_prt' => '0',
-            '_cmd' => 'adminTicketList',
-            '_domain' => 'domain.com',
-            '_is_pipelined' => 1,
-            '_v' => 201401,
-            '_admin' => undef,
-            '_tag' => undef,
-            'limit' => '50',
-            '_user' => 'sporks'
-          );
-
-	my ($PUBLIC_KEY) = ZTOOLKIT::SECUREKEY::rsa_key($CMD{'_user'},"commercerack.com.pub");
-	my $rsa_pub = Crypt::OpenSSL::RSA->new_public_key($PUBLIC_KEY);
-	$CMD{'_signature'} = MIME::Base64::encode($rsa_pub->encrypt(time()));
-
-	print Dumper(send_cmds($VAR1,[ \%CMD ]));
-	}
-
-
+#
+# TO TEST:
+# perl -e 'use lib "/httpd/modules"; use JSONAPI; my ($JSAPI) = JSONAPI->new(); $JSAPI->{"USERNAME"}="sporks"; use PLUGIN::HELPDESK; use Data::Dumper; 
+# print Dumper(PLUGIN::HELPDESK::execute($JSAPI,{"_cmd"=>"recentNews"}));'
+#
 
 ##
 ##

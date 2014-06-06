@@ -105,8 +105,10 @@ sub jsonapi {
 		my $redis = &ZOOVY::getRedis($self->username());
 
 		if ($VARS->{'page'}==1) {
-			my ($tsref,$statref,$ctimeref) = &ORDER::BATCH::list_orders($self->username(),'',$TS,$FILTER_KEY,$FILTER_VALUE);
-			foreach my $orderid (sort keys %{$tsref}) {
+			my $res = &ORDER::BATCH::report($USERNAME, 'CREATED_GMT'=>$TS, 'DETAIL'=>1, $FILTER_KEY=>$FILTER_VALUE);
+			## my ($tsref,$statref,$ctimeref) = &ORDER::BATCH::list_orders($self->username(),'',$TS,$FILTER_KEY,$FILTER_VALUE);
+			foreach my $set (@{$res}) {
+				my $orderid = $set->{'ORDERID'};
 				$redis->sadd($REDIS_KEY,$orderid);
 				}
 			$redis->expire($REDIS_KEY,43200);

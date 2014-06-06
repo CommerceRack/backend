@@ -1005,12 +1005,20 @@ apply --replace;
 <thead>
 </thead>
 <tbody data-tlc="
-bind $giftcards '.%CUSTOMER.@GIFTCARDS'; foreach $giftcard in $giftcards {{	transmogrify --templateid='giftcardrow' --dataset=$giftcard;	apply --append;	}};">
+bind $giftcard '.%GIFTCARD'; 
+if (is $giftcard --notblank) {{
+	transmogrify --templateid='giftcardrow' --dataset=$giftcard; apply --append;
+	}};
+bind $giftcards '.%CUSTOMER.@GIFTCARDS'; 
+foreach $giftcard in $giftcards {{	transmogrify --templateid='giftcardrow' --dataset=$giftcard;	apply --append; }};">
 <template id="giftcardrow">
 	<tr>
 		<td data-tlc="bind $code '.CODE'; apply --append;"></td>
 		<td data-tlc="bind $code '.BALANCE'; format --currency; apply --append;"></td>
-		<td data-tlc="bind $expires '.EXPIRES_GMT'; datetime $expires --epoch --out='mdy'; apply --append;"></td>
+		<td data-tlc="
+bind $expires '.EXPIRES_GMT'; 
+if (is $expires --eq=0) {{ apply --append='No-Expiration'; }} else {{ datetime $expires --epoch --out='mdy'; apply --append; }};
+"></td>
 		<td data-tlc="bind $expires '.NOTE'; apply --append;"></td>
 	</tr>
 </template>

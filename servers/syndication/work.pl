@@ -29,7 +29,7 @@ use URI::Escape;
 ##
 ##		DEBUG=1  - force a run (even if it's not necessary)
 ##		DEBUG=2  - do not actually submit file.
-##		tracepid = product(s) comma or pipe separated. debug this product id. (usually used with DEBUG +2)
+##		TRACEPID = product(s) comma or pipe separated. debug this product id. (usually used with DEBUG +2)
 ##
 ## ./work.pl user=2bhip dst=GOO profile=DEFAULT DEBUG=1 TRACEPID=DR37-RL2002
 
@@ -194,6 +194,12 @@ foreach my $set (@SETS) {
 	elsif ($FEEDTYPE eq 'INVENTORY') {
 		$so->runnow('type'=>'inventory',%params);
 		}
+	elsif ($FEEDTYPE eq 'ORDERS') {
+		warn "this is not how we do orders (but maybe someday)\n";
+		}
+	elsif ($FEEDTYPE eq 'TRACKING') {
+		warn "this is not how we do orders (but maybe someday)\n";
+		}
 	else {
 		$lm->poosh("ISE","UNKNOWN FEEDTYPE: $FEEDTYPE");
 		}
@@ -243,13 +249,14 @@ foreach my $set (@SETS) {
 		$DB_UPDATE{'LOCK_GMT'} = 0;
 		$DB_UPDATE{'LASTSAVE_GMT'} = 0;
 		$DB_UPDATE{'LOCK_ID'} = 0;
-		$DB_UPDATE{'*CONSECUTIVE_FAILURES'} = 'CONSECUTIVE_FAILURES+1';
+
 		if ($FEEDTYPE ne '') {		
 			$DB_UPDATE{"*${FEEDTYPE}_LASTRUN_GMT"} = "unix_timestamp(now())";
 			}
 
 		if (not $lm->has_win()) {
 			## NOTE: a *PAUSE* will cause an error dump, which might not be what we want.
+			$DB_UPDATE{'*CONSECUTIVE_FAILURES'} = 'CONSECUTIVE_FAILURES+1';
 			my $FILE = "/tmp/syndication-error-$DSTCODE-$USERNAME-$DOMAIN";
 			print "NOT A WIN !!! So dumping \$lm error log: $FILE\n";
 			open F, ">$FILE";

@@ -1985,11 +1985,11 @@ sub legacyResponseHandler {
 
 					if ($checkout_layout eq 'legacy') { $checkout_layout = 'passive'; }
 
-					if ($checkout_layout eq 'active') {  $checkout_layout = 'checkout-201403a'; }
-					if ($checkout_layout eq 'passive') {  $checkout_layout = 'checkout-201403p'; }
-					if ($checkout_layout eq 'required') {  $checkout_layout = 'checkout-201403r'; }
+					if ($checkout_layout eq 'active') {  $checkout_layout = 'checkout-201405a'; }
+					if ($checkout_layout eq 'passive') {  $checkout_layout = 'checkout-201405p'; }
+					if ($checkout_layout eq 'required') {  $checkout_layout = 'checkout-201405r'; }
 
-					if (! -d "/httpd/static/layouts/$checkout_layout") { $checkout_layout = 'checkout-201342p'; }
+					if (! -d "/httpd/static/layouts/$checkout_layout") { $checkout_layout = 'checkout-201405p'; }
 
 					## if they requested an override, use that.
 					if ($SITE::v->{'fl'} ne '') { $checkout_layout = $SITE::v->{'fl'}; }

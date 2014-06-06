@@ -27636,19 +27636,30 @@ sub appResource {
 		}
 	elsif ($FILENAME =~ /^recentnews\.(.*?)$/) {
 		$EXT = $1;
-		require HTTP::Tiny;
-		require HTTP::Tiny;
-		my $URL = "http://s3-us-west-1.amazonaws.com/commercerack-configs/resources/recentnews.json";
-		my $response = HTTP::Tiny->new()->get($URL);
-		if (not $response->{success}) {
-			&JSONAPI::set_error(\%R,'apierr',18804,sprintf("%s %s %s",$URL,$response->{status},$response->{reason}));
+		#require HTTP::Tiny;
+		#require HTTP::Tiny;
+		#my $URL = "http://s3-us-west-1.amazonaws.com/commercerack-configs/resources/recentnews.json";
+		#my $response = HTTP::Tiny->new()->get($URL);
+		#if (not $response->{success}) {
+		#	&JSONAPI::set_error(\%R,'apierr',18804,sprintf("%s %s %s",$URL,$response->{status},$response->{reason}));
+		#	}
+		#elsif ($response->{'content'} !~ /^\[\{/) {
+		#	&JSONAPI::set_error(\%R,'apierr',18805,sprintf("%s contained invalid json (%d bytes).",$URL,length($response->{'content'})));
+		#	}
+		#else {
+		#	$ref = JSON::XS::decode_json($response->{'content'});
+		#	}
+
+		my ($result) = PLUGIN::HELPDESK::execute($self,{"_cmd"=>"recentNews"});
+		if ($result->{'@NEWS'}) { 
+			$ref = $result->{'@NEWS'}; 
 			}
-		elsif ($response->{'content'} !~ /^\[\{/) {
-			&JSONAPI::set_error(\%R,'apierr',18805,sprintf("%s contained invalid json (%d bytes).",$URL,length($response->{'content'})));
+		elsif (&JSONAPI::hadError($result)) {
+			%R = %{$result};
 			}
 		else {
-			$ref = JSON::XS::decode_json($response->{'content'});
-			}
+			&JSONAPI::set_error(\%R,'apierr',18805,"Unknown internal error getting recentNews");
+			} 
 		}
 	elsif ($FILENAME =~ /^quickstats\/(.*?)\.(.*?)$/) {
 		require KPIBI;		

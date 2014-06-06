@@ -2630,6 +2630,9 @@ the trace product(s).  But it's all good, so you got nothing to worry about.");
 
 				if (not $plm->can_proceed()) {
 					}
+#				elsif ($so->dstcode() eq 'EBF') {
+#					## we shouldn't send children for ebay (ebay's whole grouping/variation construct is wonky)
+#					}
 				elsif ($P->grp_type() eq 'PARENT') {
 					## add group children (this has been put 'here' so grp children options can be expanded in expandPOGs)
 					## group parents, only syndicate the children

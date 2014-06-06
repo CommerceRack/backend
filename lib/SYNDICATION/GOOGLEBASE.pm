@@ -382,14 +382,7 @@ will be set to the size/color/material/pattern of the SKU only used for OPTIONS.
 
 				## not used, yet
 				## find variation:$val_goo
-				#print "FOUND CAT: $cat\n";
-				#if ($prodref->{'variation:'.$val.'_goo'} ne '') {
-					## merchants can set variation specific values, namely Google Variation Keyword
-					## ie variation:A0_goo => Color, vs at SOG level
-				#	$cat = $prodref->{'variation:'.$val.'_goo'};
-				#	}
-				
-				
+
 				## no need to go on if we dont have Google Variation Keyword
 				if ($cat ne '') {
 					foreach my $row (@{$pog->{'@options'}}) {
