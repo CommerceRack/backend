@@ -25782,7 +25782,7 @@ sub adminWarehouse {
 
 =pod
 
-<API id="appConfigMacro">
+<API id="adminConfigMacro">
 <purpose>to create/update/delete/modify (via macro) a configuration object</purpose>
 <input id="@updates">an array of cmd objects</input>
 <example><![CDATA[
