@@ -1,7 +1,18 @@
 ##
+## symlink to /etc/monit.d/commercerack
+##
 ## http://mmonit.com/monit/documentation/monit.html#program_status_testing
 ## http://mmonit.com/monit/documentation/monit.html
 ## 
+
+set alert dnsadmin+alert@zoovy.com with reminder on 10 cycles
+set mailserver 127.0.0.1
+set mail-format {
+   from: monit@$HOST;
+   subject: $HOST.$SERVICE $EVENT at $DATE
+   message: Monit $ACTION $HOST.$SERVICE at $DATE: $DESCRIPTION.
+}
+
 
 check directory uwsgi-spooler PATH /dev/shm/spooler
 	start program = "/bin/mkdir -m 0777 /dev/shm/spooler"
@@ -63,9 +74,11 @@ check file cron_rc with path /etc/init.d/crond
 ## utilization
 ##
 check system localhost
-	if memory usage > 85% then alert
-	if cpu usage (user) > 80% for 3 cycles then alert
-	if cpu usage (system) > 80% for 3 cycles then alert
+	if memory usage > 90% for 10 cycles then alert
+	if memory usage > 95% for 20 cycles then exec "/usr/bin/killall -1 uwsgi"
+	if memory usage > 98% then alert
+	if cpu usage (user) > 85% for 10 cycles then alert
+	if cpu usage (system) > 85% for 10 cycles then alert
 
 ##
 ## diskspace
@@ -76,8 +89,9 @@ check filesystem rootfs with path /
 check filesystem ephemeral with path /mnt/ephemeral
 	if space usage > 90% then alert
 
-check filesystem users with path /users
-	if space usage > 70% then alert
+## users filesystems are handled in /etc/monit.d/zfs
+#check filesystem users with path /users
+#	if space usage > 70% then alert
 
 
 ## ElasticSearch
@@ -110,4 +124,24 @@ check process mysql with pidfile /var/run/mysql/mysql.pid
    if failed uid root then unmonitor
    if failed gid root then unmonitor
 
+##
+## Redis
+##
+check process redis with pidfile /var/run/redis.pid
+  start program = "/etc/init.d/redis start"
+  stop program = "/etc/init.d/redis stop"
+  if failed port 6379 with timeout 3 seconds then alert
+
+##
+## Health logs - scan logs for 502 errors in the last minute
+##
+#check program check502 with path /httpd/platform/monit-scripts/check502.sh
+#  with timeout 60 seconds
+#  every 5 cycles
+#  if status != 0 then alert
+
+##
+## http/ping hosts
+##
+## FUTURE!
 

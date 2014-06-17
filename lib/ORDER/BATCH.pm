@@ -293,7 +293,7 @@ sub report {
 	if (defined $options{'SHIP_FULLNAME'}) { $pstmt .= " /* WANTED TO USE BILL_FULLNAME LIKE */ "; }
 	# if ((defined $KEY) && ($KEY ne '')) { $pstmt .= " and $KEY=".$odbh->quote($VALUE); }
 	if ((defined $options{'TS'}) && ($options{'TS'}>0)) { 
-		push @USE_INDEX, 'MID';
+		push @USE_INDEX, 'IN_MODIFIED';
 		$pstmt .= " and MODIFIED_GMT>=".$odbh->quote(int($options{'TS'})); 
 		}
 	if ((defined $options{'CREATED_GMT'}) && ($options{'CREATED_GMT'}>0)) { $pstmt .= " and CREATED_GMT>=".$odbh->quote(int($options{'CREATED_GMT'})); }

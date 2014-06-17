@@ -622,6 +622,9 @@ Disallow: /c=*/*
 User-agent: msnbot
 Crawl-delay: 1
 
+User-agent: spotbot\@indix.com
+Disallow: /
+
 User-agent: 008
 Disallow: /
 
@@ -1074,7 +1077,7 @@ sub legacyResponseHandler {
 			## on secure pages -- cookies NEVER WIN!
 			$SITE::CART2 = CART2->new_persist($SITE->username(),$SITE->prt(),$cart_id,'create'=>0);
 			$SITE->cart2($SITE::CART2); ## LINK
-			if (not $SITE::CART2->exists()) { $SITE::CART2 = undef; }
+			if (($SITE::CART2) && (not $SITE::CART2->exists())) { $SITE::CART2 = undef; }
 			$SITE::DEBUG && warn('Getting CART_ID from URL (environment variable)');
 			}
 

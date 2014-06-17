@@ -105,8 +105,14 @@ sub jsonapi {
 		my $redis = &ZOOVY::getRedis($self->username());
 
 		if ($VARS->{'page'}==1) {
-			my $res = &ORDER::BATCH::report($USERNAME, 'CREATED_GMT'=>$TS, 'DETAIL'=>1, $FILTER_KEY=>$FILTER_VALUE);
+			my $res = &ORDER::BATCH::report($USERNAME, 'TS'=>$TS, 'DETAIL'=>1, $FILTER_KEY=>$FILTER_VALUE);
 			## my ($tsref,$statref,$ctimeref) = &ORDER::BATCH::list_orders($self->username(),'',$TS,$FILTER_KEY,$FILTER_VALUE);
+
+			#use Data::Dumper;
+			#open F, ">/tmp/shipstation.orders";
+			#print F Dumper($res);
+			#close F;
+
 			foreach my $set (@{$res}) {
 				my $orderid = $set->{'ORDERID'};
 				$redis->sadd($REDIS_KEY,$orderid);
@@ -254,6 +260,11 @@ sub jsonapi {
 
 		$writer->endTag('Orders');
 		$writer->end();
+
+		#open F, ">/tmp/shipstation.order.$orderid";
+		#print F $BODY;
+		#close F;
+
 		## this has zero orders
 		}
 

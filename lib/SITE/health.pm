@@ -32,19 +32,20 @@ sub responseHandler {
 
 
 	my @LINES = ();	
-	my ($dev,$ino,$mode,$nlink,$uid,$gid,$rdev,$size,$atime,$mtime,$ctime,$blksize,$blocks) = stat("/dev/shm/kevorkian");
-	if ($mtime < time()-300) { 
-		## if the /dev/shm/kevorkian file is too old, we should force a status of UNHEALTHY
-		push @LINES, "WARNING"; 
-		push @LINES, ""; 
-		push @LINES, "seems that /dev/shm/kevorkian last updated ".(time()-$mtime)." seconds ago!"; 
-		push @LINES, ""; 
-		}
+	#my ($dev,$ino,$mode,$nlink,$uid,$gid,$rdev,$size,$atime,$mtime,$ctime,$blksize,$blocks) = stat("/dev/shma/kevorkian");
+	#if ($mtime < time()-300) { 
+	#	## if the /dev/shm/kevorkian file is too old, we should force a status of UNHEALTHY
+	##	push @LINES, "WARNING"; 
+	#	push @LINES, ""; 
+	#	push @LINES, "seems that /dev/shm/kevorkian last updated ".(time()-$mtime)." seconds ago!"; 
+	#	push @LINES, ""; 
+	#	}
 
-	open F, "</dev/shm/kevorkian";
-	while (<F>) { chomp($_); push @LINES, $_; }
-	close F;
-	my ($STATE) = shift(@LINES);
+	#open F, "</dev/shm/kevorkian";
+	#while (<F>) { chomp($_); push @LINES, $_; }
+	#close F;
+	#my ($STATE) = shift(@LINES);
+	my ($STATE) = ('OK');
 
 	my $NAGIOS_STATE = 3;
 	#0	OK	UP

@@ -25902,6 +25902,7 @@ sub adminConfigMacro {
 				elsif ($cmd eq 'PLUGIN/SET-GLOBAL') {
 					if (not defined $gref) { $gref = $self->globalref(); }
 					if (not defined $gref->{'%plugins'}) { $gref->{'%plugins'} = {}; }
+					if (not defined $gref->{'%plugins'}->{ $PLUGIN }) { $gref->{'%plugins'}->{ $PLUGIN } = {}; }
 					$REF = $gref->{'%plugins'}->{ $PLUGIN };
 					}
 				elsif (($cmd eq 'PLUGIN/SET-PRT') || ($cmd eq 'PLUGIN/SET-PARTITION')) {
@@ -27650,6 +27651,7 @@ sub appResource {
 		#	$ref = JSON::XS::decode_json($response->{'content'});
 		#	}
 
+		require PLUGIN::HELPDESK;
 		my ($result) = PLUGIN::HELPDESK::execute($self,{"_cmd"=>"recentNews"});
 		if ($result->{'@NEWS'}) { 
 			$ref = $result->{'@NEWS'}; 
@@ -29164,15 +29166,11 @@ sub appSEO {
 		my $sth = $udbh->prepare($pstmt);
 		$sth->execute();
 		while ( my ($PID,$OPTIONS) = $sth->fetchrow() ) {
-			$PIDS{$PID} = $OPTIONS;
-			}
-		$sth->finish();
-
-		foreach my $pid (sort keys %PIDS) {
-			my %TAGS = ( 'type'=>'pid', 'id'=>$pid );
-			if ($PIDS{$pid} & 1024) { $TAGS{'noindex'}++; }
+			my %TAGS = ( 'type'=>'pid', 'id'=>$PID );
+			if (($OPTIONS & 1024)>0) { $TAGS{'noindex'}++; }
 			push @OBJECTS, \%TAGS;
 			}
+		$sth->finish();
 		&DBINFO::db_user_close();
 		
 		$R{'@OBJECTS'} = \@OBJECTS;
