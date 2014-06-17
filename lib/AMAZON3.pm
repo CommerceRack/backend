@@ -133,7 +133,7 @@ sub create_pricexml {
 
 	my $xmlar = $options{'@xml'};
 	if (not defined $xmlar) {
-		die("imagexmlar is required parameter \@xml=>[]");
+		die("pricexmlar is required parameter \@xml=>[]");
 		}
 
 	my $USERNAME = $userref->{'USERNAME'};
@@ -143,11 +143,14 @@ sub create_pricexml {
 	## don't send if price isn't set
 	# my $pref = $P->dataref();
 
-	if ((int($userref->{'*SO'}->get('.feedpermissions'))&2)==0) {
+	if (not defined $userref->{'*SO'}) {
+		$lm->pooshmsg("WARN|+Price feed - No syndication object");
+		}
+	elsif ((int($userref->{'*SO'}->get('.feedpermissions'))&2)==0) {
 		$lm->pooshmsg("STOP|+Prices feed not enabled");
 		}
 
-	my $SCHEDULE = $userref->{'*SO'}->get('.schedule');
+	my $SCHEDULE = $options{'schedule'} || $userref->{'*SO'}->get('.schedule');
 	my $PRICE = undef;
 
 	if (scalar($P->grp_children())>0) {
