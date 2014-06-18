@@ -110,7 +110,7 @@ sub jsonapi {
 		## service is the pretty name of the shipping method used.
 		my $trackid = $VARS->{'tracking_number'};
 
-		require ZSHIP::SHIPCODES;
+		require ZSHIP;
 		if ($carrier eq 'FedEx') { $carrier = 'FEDEX'; }
 		elsif ($carrier eq 'USPS') { $carrier = 'USPS'; }
 		elsif ($carrier eq 'UPS') { $carrier = 'UPS'; }
@@ -126,6 +126,11 @@ sub jsonapi {
 		if ((defined $O2) && (ref($O2) eq 'CART2')) {
 			$O2->set_tracking( $carrier, $trackid, '', 0 );
 			$O2->add_history(sprintf("Shipstation added tracking %s - %s", $carrier, $trackid));
+
+			if ($SHIPCFG->{'notify_complete'}) {
+				$O2->in_set('flow/pool','COMPLETED');
+				}
+
 			$O2->order_save();
 			}
 			
