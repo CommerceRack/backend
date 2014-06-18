@@ -99,6 +99,38 @@ sub jsonapi {
 	# if ($FILTER_KEY) { $REDIS_KEY = sprintf("SHIPSTATION.%s.%s",$FILTER_KEY,$FILTER_VALUE); }
 
 	my $ACTION = $VARS->{'action'};
+
+	if ($ACTION eq 'shipnotify') {
+		# https://www.yourstore.com/shipstationxml.php?action=shipnotify&order_number=123456&carrier=USPS&service=USPS+Priority+Mail&tracking_number=9511343223432432432 
+		my $orderid = $VARS->{'order_number'};
+		my $carrier = $VARS->{'carrier'};
+		#Carrier will be one of the following values: USPS, UPS, FedEx, DHL, DHLGlobalMail, UPSMI, BrokersWorldWide, FedExInternationalMailService, CanadaPost, 
+		#FedExCanada, OnTrac, Newgistics, IFSLOGIX, Other
+		my $service = $VARS->{'service'};
+		## service is the pretty name of the shipping method used.
+		my $trackid = $VARS->{'tracking_number'};
+
+		require ZSHIP::SHIPCODES;
+		if ($carrier eq 'FedEx') { $carrier = 'FEDEX'; }
+		elsif ($carrier eq 'USPS') { $carrier = 'USPS'; }
+		elsif ($carrier eq 'UPS') { $carrier = 'UPS'; }
+		elsif ($carrier eq 'UPSMI') { $carrier = 'UPMI'; }
+		elsif ($carrier eq 'Newgistics') { $carrier = 'NEWG'; }
+		elsif ($carrier eq 'OnTrac') { $carrier = 'ONTR'; }
+		elsif ($carrier eq 'DHLGlobalMail') { $carrier = 'DHLG'; }
+		elsif (not defined $ZSHIP::SHIPCODES{"$carrier"}) {
+			$carrier = 'OTHER';
+			}
+
+		my ($O2) = CART2->new_from_oid($self->username(),$orderid);
+		if ((defined $O2) && (ref($O2) eq 'CART2')) {
+			$O2->set_tracking( $carrier, $trackid, '', 0 );
+			$O2->add_history(sprintf("Shipstation added tracking %s - %s", $carrier, $trackid));
+			$O2->order_save();
+			}
+			
+		}
+
 	if ($ACTION eq 'export') {
 		## builds a list of orders
 		my $TS = Date::Parse::str2time(sprintf("%s UTC",$VARS->{'start_date'})) || (86400*30);
@@ -275,7 +307,7 @@ sub jsonapi {
 		}
 
 
-	# open F, ">/tmp/shipstation.xml"; print F $BODY; close F;
+	open F, ">>/tmp/shipstation.xml"; print F $BODY; close F;
 
 	return($HTTP_RESPONSE,$HEADERS,$BODY);
 	}

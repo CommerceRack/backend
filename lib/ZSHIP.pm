@@ -67,6 +67,7 @@ $ZSHIP::OUTPUT = '';		# holds output
 	'ESD'=>{ expedited=>'1', method=>"Electronic Download", defaultable=>1 },
 	'CPU'=>{ expedited=>'0', method=>"Customer Pickup", defaultable=>0 },
 	'DELI'=>{ expedited=>'0', method=>"Local Deliver", defaultable=>1 },
+	'OTHER'=>{ expedited=>0, method=>'Other', defaultable=>0 },
 	## GENERIC OVERNIGHT.
 	#FAST|Carrier not determined - expedited shipping
 	'BEST'=>{  expedited=>'1', method=>'Primary Carrier - Priority Overnight', carrier=>'', is_nextday=>1 },
