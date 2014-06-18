@@ -98,6 +98,8 @@ my %eFunctions = (
 	'PID.BROADCAST'=>\&e_BROADCAST,
 	'SKU.CREATED'=>\&e_SKU,
 	'SKU.REMOVED'=>\&e_SKU,
+	'SKU.PRICE-CHANGE'=>\&e_SKU,
+	'SKU.COST-CHANGE'=>\&e_SKU,
 	'SYNDICATION.SUCCESS'=>\&e_SYNDICATION,
 	'SYNDICATION.FAILURE'=>\&e_SYNDICATION,
 	'CUSTOMER.SAVE'=>\&e_CUSTOMER,
@@ -682,6 +684,21 @@ sub e_BROADCAST {
 ##
 sub e_SKU {
 	my ($EVENT,$USERNAME,$PRT,$YREF,$LM,$redis,$CACHEREF) = @_;
+
+	my ($MID) = &ZOOVY::resolve_mid($USERNAME);
+	my $PID = $YREF->{'PID'};
+	my $SKU = $YREF->{'SKU'};
+
+	print "EVENT: $EVENT PID:$PID SKU:$SKU\n";
+
+	my ($P) = &load_cached_resource($CACHEREF,'PRODUCT',$USERNAME,$PID);
+	my $PID = $YREF->{'PID'};
+	my $SKU = $YREF->{'SKU'};
+
+	if ($P->fetch('amz:ts')) { 
+		&AMAZON3::item_set_status({USERNAME=>$USERNAME,MID=>$MID},$SKU,['+prices.todo'],'USE_PIDS'=>0);
+		}
+
 	return(undef);
 	}
 
@@ -743,12 +760,12 @@ sub e_PID {
 				}
 			elsif (($MKT_STATUS{$id}==1) && ($INTREF->{'dst'} eq 'AMZ')) {
 				## WAS ONLY: REMOVED AMAZON
-			push @SQ_VERBS, [ $PID, 'AMZ', 'DELETE' ]; 
+				push @SQ_VERBS, [ $PID, 'AMZ', 'DELETE' ]; 
 				&AMAZON3::item_set_status({USERNAME=>$USERNAME,MID=>$MID},$PID,['=this.delete_please'],'USE_PIDS'=>1);
 				}
 			elsif (($MKT_STATUS{$id}==2) && ($INTREF->{'dst'} eq 'AMZ')) {
 				## IS ONLY: ADDED AMAZON
-			push @SQ_VERBS, [ $PID, 'AMZ', 'CREATE' ]; 
+				push @SQ_VERBS, [ $PID, 'AMZ', 'CREATE' ]; 
 				&AMAZON3::item_set_status({USERNAME=>$USERNAME,MID=>$MID},$PID,['=this.create_please'],'USE_PIDS'=>1);
 				}
 			}

@@ -2141,10 +2141,10 @@ sub save {
 	my ($L_TB) = &ZOOVY::resolve_lookup_tb($USERNAME);
 	my %EXISTING_SKU_LOOKUPS = ();
 	if (1) {
-		my ($sth) = $udbh->prepare("select ID,INVOPTS from $L_TB where MID=$MID and PID=".$udbh->quote($PID));
+		my ($sth) = $udbh->prepare("select ID,INVOPTS,COST,PRICE from $L_TB where MID=$MID and PID=".$udbh->quote($PID));
 		$sth->execute();
-		while ( my ($ID,$INVOPTS) = $sth->fetchrow() ) {
-			$EXISTING_SKU_LOOKUPS{":$INVOPTS"} = $ID;
+		while ( my ($ID,$INVOPTS, $COST,$PRICE) = $sth->fetchrow() ) {
+			$EXISTING_SKU_LOOKUPS{":$INVOPTS"} = [ $ID, $COST, $PRICE ];
 			}
 		$sth->finish();
 		}
@@ -2154,6 +2154,7 @@ sub save {
 		next if ($SKU eq '.');	# we add a '.' to %SKU earlier if there were no %SKU (not sure why)
 		next if ($SKU eq ':');	# hmm.. this should never be reached.
 		my ($sPID,$CLAIM,$INVOPTS) = &PRODUCT::stid_to_pid($SKU);
+		## my $SKU = sprintf("%s%s",$PID,($INVOPTS?":$INVOPTS":""));
 
 		if ((not defined $INVOPTS) || ($INVOPTS eq '')) {
 			## sku corruption
@@ -2169,13 +2170,15 @@ sub save {
 			$HAS_INV_OPTIONS++; 
 			}
 
+
 		my $exists = (defined $EXISTING_SKU_LOOKUPS{":$INVOPTS"})?1:0;
 		## SKU_LOOKUP does not exist in DB.
+
 		my %vars = (
 			'MID'=>$MID,
 			'PID'=>$PID,
 			'INVOPTS'=>sprintf("%s",$INVOPTS),
-			'SKU'=>sprintf("%s%s",$PID,($INVOPTS?":$INVOPTS":"")),
+			'SKU'=>$SKU,
 			'IS_CONTAINER'=>0,
 			'TITLE'=>sprintf("%s",&PRODUCT::str($PREF->{'%SKU'}->{$SKU}->{'zoovy:sku_pogdesc'})),
 			'COST'=>sprintf("%0.2f",  
@@ -2201,7 +2204,20 @@ sub save {
 		# print STDERR "$pstmt\n";
 		# print STDERR "sql[$exists:$L_TB]: $pstmt ".Dumper(\%vars)."\n";
 		$udbh->do($pstmt);
+
+		my $old_price = $EXISTING_SKU_LOOKUPS{":$INVOPTS"}->[1];
+		if ($old_price != ($PREF->{'%SKU'}->{$SKU}->{'sku:price'} || 0)) {
+			push @EVENTS, sprintf('SKU.PRICE-CHANGE?SKU=%s&was=%s&is=%s',$SKU,$old_price,$PREF->{'%SKU'}->{$SKU}->{'sku:price'});
+			}
+
+		my $old_cost = $EXISTING_SKU_LOOKUPS{":$INVOPTS"}->[1];
+		if ($old_cost != ($PREF->{'%SKU'}->{$SKU}->{'sku:cost'} || 0)) {
+			push @EVENTS, sprintf('SKU.COST-CHANGE?SKU=%s&was=%s&is=%s',$SKU,$old_cost,$PREF->{'%SKU'}->{$SKU}->{'sku:cost'});
+			}
+
 		delete $EXISTING_SKU_LOOKUPS{":$INVOPTS"};
+
+
 		}
 
 
@@ -2236,7 +2252,7 @@ sub save {
 	if (scalar(keys %EXISTING_SKU_LOOKUPS)>0) {
 		## Invalid SKU's we should remove
 		foreach my $PIDINVOPTS (keys %EXISTING_SKU_LOOKUPS) {
-			my ($DBID) = $EXISTING_SKU_LOOKUPS{$PIDINVOPTS};
+			my ($DBID) = $EXISTING_SKU_LOOKUPS{$PIDINVOPTS}->[0]; 
 			my $pstmt = "delete from $L_TB where MID=$MID and PID=".$udbh->quote($PID)." and ID=".int($DBID)." /* $PID$PIDINVOPTS */";
 			# print STDERR $pstmt."\n";
 			$udbh->do($pstmt);

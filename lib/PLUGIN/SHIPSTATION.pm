@@ -165,7 +165,7 @@ sub jsonapi {
 		$writer->startTag('Orders','pages'=>$count);
 
 		my (@ORDERS) = ();
-		foreach my $x (1..10) {
+		foreach my $x (1..1) {
 			my ($orderid) = $redis->spop($REDIS_KEY);
 			push @ORDERS, $orderid;
 			}
@@ -225,7 +225,7 @@ sub jsonapi {
 				my $name = sprintf("%s, %s", $O2->in_get('bill/lastname'), $O2->in_get('bill/firstname') );
 
 				$writer->cdataElement('Name', HTML::Entities::encode_entities($name));
-				$writer->cdataElement('Company',$O2->in_get('bill/company'));
+				$writer->cdataElement('Company',HTML::Entities::encode_entities($O2->in_get('bill/company')));
 				$writer->cdataElement('Phone',$O2->in_get('bill/phone'));
 				$writer->cdataElement('Email',$O2->in_get('bill/email'));
 			$writer->endTag('BillTo');
@@ -235,7 +235,7 @@ sub jsonapi {
 				$writer->cdataElement('Name', HTML::Entities::encode_entities(sprintf("%s, %s", $O2->in_get('ship/lastname'), $O2->in_get('ship/firstname') )));
 				$writer->cdataElement('Company',HTML::Entities::encode_entities($O2->in_get('ship/company')));
 				$writer->cdataElement('Address1',HTML::Entities::encode_entities($O2->in_get('ship/address1')));
-				$writer->cdataElement('Address2',$O2->in_get('ship/address2'));
+				$writer->cdataElement('Address2',HTML::Entities::encode_entities($O2->in_get('ship/address2')));
 				# $writer->dataElement('Street3',$O2->in_get(''));
 				$writer->cdataElement('City',HTML::Entities::encode_entities($O2->in_get('ship/city')));
 				$writer->cdataElement('State',HTML::Entities::encode_entities($O2->in_get('ship/region')));
@@ -304,9 +304,9 @@ sub jsonapi {
 		$writer->endTag('Orders');
 		$writer->end();
 
-		#open F, ">/tmp/shipstation.order.$count";
-		#print F $BODY;
-		#close F;
+		open F, ">/tmp/shipstation.order.$count";
+		print F $BODY;
+		close F;
 
 		## this has zero orders
 		}
