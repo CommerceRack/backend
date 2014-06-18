@@ -127,8 +127,14 @@ sub jsonapi {
 		$writer->xmlDecl("UTF-8");
 		$writer->startTag('Orders','pages'=>$count);
 
-		my ($orderid) = $redis->spop($REDIS_KEY);
-		if ($orderid ne '') {
+		my (@ORDERS) = ();
+		foreach my $x (1..10) {
+			my ($orderid) = $redis->spop($REDIS_KEY);
+			push @ORDERS, $orderid;
+			}
+
+		foreach my $orderid (@ORDERS) {
+			next if ($orderid eq '');
 			my ($O2) = CART2->new_from_oid($self->username(),$orderid);
 
 			$writer->startTag('Order');
@@ -261,7 +267,7 @@ sub jsonapi {
 		$writer->endTag('Orders');
 		$writer->end();
 
-		#open F, ">/tmp/shipstation.order.$orderid";
+		#open F, ">/tmp/shipstation.order.$count";
 		#print F $BODY;
 		#close F;
 
@@ -269,7 +275,7 @@ sub jsonapi {
 		}
 
 
-	open F, ">/tmp/shipstation.xml"; print F $BODY; close F;
+	# open F, ">/tmp/shipstation.xml"; print F $BODY; close F;
 
 	return($HTTP_RESPONSE,$HEADERS,$BODY);
 	}
