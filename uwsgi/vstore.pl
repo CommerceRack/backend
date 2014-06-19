@@ -2580,8 +2580,8 @@ var pr_style_sheet="http://cdn.powerreviews.com/aux/$pwrgid/$pwrmid/css/powerrev
 			}
 		else {
 			## RENDER PAGE
-			$SITE::HANDLER = [ 'DONE', { 'Content-Type'=>'text/html; charset=utf8' } ];
-			# $r->content_type("text/html; charset=utf8");		## note: i don't think this line is necessary site we run SITE::header later.
+			$SITE::HANDLER = [ 'DONE', { 'Content-Type'=>'text/html; charset=UTF-8' } ];
+			# $r->content_type("text/html; charset=utf-8");		## note: i don't think this line is necessary site we run SITE::header later.
 
 			my $cache_hours = 0;
 			if (($SITE::PAGES{$SITE->pageid()} & 8)==8) { $cache_hours = 6; }
