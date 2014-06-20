@@ -34,7 +34,7 @@ sub css_handler {
    return OK;
 	}
 
-sub var_datettime { return(strftime("%Y%m%d%H%M%S",localtime(time())));  };
+sub var_datetime { return(strftime("%Y%m%d%H%M%S",localtime(time())));  };
 sub var_username { my $r = shift; return( uc( redis_hget( sprintf("domain+%s",lc($r->header_in("Host"))), "USERNAME" ) || "unknown" )); };
 sub var_hosttype { my $r = shift; return( uc(redis_hget( sprintf("domain+%s",lc($r->header_in("Host"))), "HOSTTYPE" ) || "unknown" )); };
 sub var_targetpath { 
