@@ -198,6 +198,11 @@ sub parseinventory {
 			## ERROR: INVALID CMD
 			$ERROR = "NO CMD specified";
 			}
+		elsif ((defined $optionsref->{'ALL_BASETYPE'}) && ($optionsref->{'ALL_BASETYPE'})) {
+			## no error, no check. basically for bulk changing a basetype e.x. RETURN
+			$INVCMD{'ALL_BASETYPE'} = $optionsref->{'ALL_BASETYPE'};
+			$INVCMD{'BASETYPE'} = $optionsref->{'BASETYPE'};
+			}
 		elsif ( (!$INVCMD{'SKU'}) && (!$INVCMD{'UUID'}) && (!$INVCMD{'PID'}) ) {
 			## ERROR: NO SKU/UUID
 			$ERROR = "NO UUID,SKU, or PID specified";

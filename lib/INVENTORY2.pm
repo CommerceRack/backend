@@ -997,7 +997,13 @@ sub invcmd {
 			$WHERESTMT .= " and MARKET_REFID=".$udbh->quote($options{'MARKET_REFID'}); 
 			}
 		}
-	if ((not defined $options{'PID'}) && (not defined $options{'SKU'}) && (not defined $options{'UUID'}) && (not defined $options{'MARKET_DST'})) {
+
+	print 'POTIONS: '.Dumper(\%options);
+
+	if ((defined $options{'ALL_BASETYPE'}) && ($options{'ALL_BASETYPE'}) && (defined $options{'BASETYPE'})) {
+		## BULK MODE lets us make massive changes by BASETYPE
+		}
+	elsif ((not defined $options{'PID'}) && (not defined $options{'SKU'}) && (not defined $options{'UUID'}) && (not defined $options{'MARKET_DST'})) {
 		die("INVENTORY::invcmd says SKU or UUID is required");
 		}
 
