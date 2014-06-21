@@ -18863,6 +18863,7 @@ sub appPublicSearch {
 			elsif ($v->{'mode'} eq 'elastic-search') {
 				# mode:elastic-search
 				$params{'timeout'} = '5s';
+				if (defined $v->{'timeout'}) { $params{'timeout'} = sprintf("%ds",$params{'timeout'}); }
 
 				## print STDERR 'params: '.Dumper(\%params);
 

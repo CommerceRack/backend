@@ -998,8 +998,7 @@ sub invcmd {
 			}
 		}
 
-	print 'POTIONS: '.Dumper(\%options);
-
+	## print 'POTIONS: '.Dumper(\%options);
 	if ((defined $options{'ALL_BASETYPE'}) && ($options{'ALL_BASETYPE'}) && (defined $options{'BASETYPE'})) {
 		## BULK MODE lets us make massive changes by BASETYPE
 		}

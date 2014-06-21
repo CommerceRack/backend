@@ -189,8 +189,7 @@ sub parseinventory {
 			$pos++;  # move to the next field that we should parse
 			}
 
-
-		print STDERR 'INVCMD: '.Dumper(\%INVCMD);
+		## print STDERR 'INVCMD: '.Dumper(\%INVCMD);
 
 		if ($ERROR) {
 			}
