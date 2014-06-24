@@ -117,6 +117,11 @@ sub elastic_fields {
 				 'id' => 'zoovy:prod_mfgid',
 				 'type' => 'reference'
 			  },
+{
+	'index'=>'es_boost',
+	'id'=>'es:boost',
+	'type'=>'integer',
+},
 #			  {
 #				 'index' => 'prod_asm',
 #				 'id' => 'zoovy:prod_asm',
