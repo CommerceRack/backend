@@ -197,15 +197,15 @@ sub jsonapi {
 
 			$writer->cdataElement('OrderStatus', $STATUS );
 			$writer->dataElement('LastModified', Date::Format::time2str("%m/%d/%Y %H:%M %p",$O2->in_get('flow/modified_ts')));
-			$writer->cdataElement('ShippingMethod', HTML::Entities::encode_entities($O2->in_get('sum/shp_method')));
-			$writer->cdataElement('PaymentMethod', HTML::Entities::encode_entities($O2->in_get('flow/payment_method')));
+			$writer->cdataElement('ShippingMethod', $O2->in_get('sum/shp_method'));
+			$writer->cdataElement('PaymentMethod', $O2->in_get('flow/payment_method'));
 			$writer->dataElement('OrderTotal', sprintf("%.2f",$O2->in_get('sum/order_total')));
 			$writer->dataElement('TaxAmount',sprintf("%.2f",$O2->in_get('sum/tax_total')));
 			$writer->dataElement('ShippingAmount',sprintf("%.2f",$O2->in_get('sum/shp_total')));
-			$writer->cdataElement('CustomerNotes',HTML::Entities::encode_entities($O2->in_get('want/order_notes')));
-			$writer->cdataElement('InternalNotes',HTML::Entities::encode_entities($O2->in_get('flow/private_notes')));
+			$writer->cdataElement('CustomerNotes',$O2->in_get('want/order_notes'));
+			$writer->cdataElement('InternalNotes',$O2->in_get('flow/private_notes'));
 			$writer->dataElement('Gift','false');					
-			$writer->dataElement('GiftMessage','');			
+			$writer->dataElement('GiftMessage','');					
 			$writer->cdataElement('CustomField1',$O2->in_get('mkt/erefid'));					
 			# $writer->cdataElement('CustomField2','');					
 			# $writer->cdataElement('CustomField3','');					
@@ -226,8 +226,8 @@ sub jsonapi {
 
 				$writer->cdataElement('Name', HTML::Entities::encode_entities($name));
 				$writer->cdataElement('Company',HTML::Entities::encode_entities($O2->in_get('bill/company')));
-				$writer->cdataElement('Phone',HTML::Entities::encode_entities($O2->in_get('bill/phone')));
-				$writer->cdataElement('Email',HTML::Entities::encode_entities($O2->in_get('bill/email')));
+				$writer->cdataElement('Phone',$O2->in_get('bill/phone'));
+				$writer->cdataElement('Email',$O2->in_get('bill/email'));
 			$writer->endTag('BillTo');
 			
 			$writer->startTag('ShipTo');
@@ -253,9 +253,9 @@ sub jsonapi {
 			$writer->startTag('Items');
 				foreach my $item ( @{$O2->stuff2()->items('real')} ) {
 					$writer->startTag('Item');
-					$writer->cdataElement('LineItemID',HTML::Entities::encode_entities($item->{'uuid'}));
-					$writer->cdataElement('SKU',HTML::Entities::encode_entities($item->{'sku'}));
-					$writer->cdataElement('Name',HTML::Entities::encode_entities($item->{'description'}));
+					$writer->cdataElement('LineItemID',$item->{'uuid'});
+					$writer->cdataElement('SKU',$item->{'sku'});
+					$writer->cdataElement('Name',$item->{'description'});
 #					$writer->cdataElement('ImageUrl',&ZOOVY::image_path($self->username(),$item->{'image'}));	# The URL to the full product image.
 					$writer->dataElement('Weight',int($item->{'weight'}));
 					$writer->dataElement('WeightUnits','Ounces');
@@ -283,7 +283,7 @@ sub jsonapi {
 			
 							$writer->startTag('Option');
 							# $writer->dataElement('AttributeID',$option->{'id'});
-							$writer->dataElement('Name',HTML::Entities::encode_entities($option->{'prompt'}));
+							$writer->dataElement('Name',$option->{'prompt'});
 							$writer->dataElement('Value',$option->{'data'} || $item->{'v'});
 							#if ($option->{'fee'}>0) { $writer->dataElement('Price',$option->{'fee'}); }
 							#if ($option->{'weight'}>0) { $writer->dataElement('Weight',$option->{'fee'}); }
@@ -304,15 +304,15 @@ sub jsonapi {
 		$writer->endTag('Orders');
 		$writer->end();
 
-		open F, ">/tmp/shipstation.order.$count";
-		print F $BODY;
-		close F;
+		#open F, ">/tmp/shipstation.order.$count";
+		#print F $BODY;
+		#close F;
 
 		## this has zero orders
 		}
 
 
-	open F, ">>/tmp/shipstation.xml"; print F $BODY; close F;
+	## open F, ">>/tmp/shipstation.xml"; print F $BODY; close F;
 
 	return($HTTP_RESPONSE,$HEADERS,$BODY);
 	}
