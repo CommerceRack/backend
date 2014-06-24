@@ -266,7 +266,7 @@ apply --img --media=$var --width=75 --height=75 --bgcolor='#ffffff' --replace;" 
 </table>
 |,
 
-	'%PACKSLIP%'=> q|
+	'%PACKSLIPITEMS%'=> q|
 <table id="contents" data-tlc="bind $items '.%ORDER.@ITEMS'; foreach $item in $items {{ transmogrify --templateid='skuTemplate' --dataset=$item; apply --append; }}; ">
 <thead>
 <tr>
@@ -1037,7 +1037,8 @@ if (is $expires --eq=0) {{ apply --append='No-Expiration'; }} else {{ datetime $
 %BLAST::DEFAULTS::DEPRECATED = ();
 $BLAST::DEFAULTS::DEPRECATED{'%CUSTOMER_INITPASS%'} = '%CUSTOMER_PASSWORD%';
 $BLAST::DEFAULTS::DEPRECATED{'%PASSWORD%'} = '%CUSTOMER_PASSWORD%';
-$BLAST::DEFAULTS::DEPRECATED{'%HTMLPACKSLIP%'} = '%PACKSLIP%';
+$BLAST::DEFAULTS::DEPRECATED{'%HTMLPACKSLIP%'} = '%PACKSLIPITEMS%';
+$BLAST::DEFAULTS::DEPRECATED{'%PACKSLIP%'} = '%PACKSLIPITEMS%';
 $BLAST::DEFAULTS::DEPRECATED{'%HTMLBILLADDR%'} = '%BILLADDR%';
 $BLAST::DEFAULTS::DEPRECATED{'%HTMLSHIPADDR%'} = '%SHIPADDR%';
 $BLAST::DEFAULTS::DEPRECATED{'%HTMLPAYINSTRUCTIONS%'} = '%PAYINSTRUCTIONS%';
@@ -1194,7 +1195,7 @@ foreach my $k (keys %BLAST::DEFAULTS::DEPRECATED) {
 <tr>
 	<td class="orderContentsProdlistContainer" colspan="2">
 <h3>Order Contents</h3>
-<p>%ORDERITEMS%</p>
+<p>%PACKSLIPITEMS%</p>
 
 <h3>Shipping Method</h3>
 <p>%SHIPMETHOD%</p>
@@ -1376,7 +1377,8 @@ two pieces, and a new order id #%SPLITID% has been created.
 
 <p>
 <h2>Contents of #%ORDERID%</h2>
-%PACKSLIP%
+
+%PACKSLIPITEMS%
 </p>
 
 <p>
