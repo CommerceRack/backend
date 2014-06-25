@@ -997,12 +997,7 @@ sub invcmd {
 			$WHERESTMT .= " and MARKET_REFID=".$udbh->quote($options{'MARKET_REFID'}); 
 			}
 		}
-
-	## print 'POTIONS: '.Dumper(\%options);
-	if ((defined $options{'ALL_BASETYPE'}) && ($options{'ALL_BASETYPE'}) && (defined $options{'BASETYPE'})) {
-		## BULK MODE lets us make massive changes by BASETYPE
-		}
-	elsif ((not defined $options{'PID'}) && (not defined $options{'SKU'}) && (not defined $options{'UUID'}) && (not defined $options{'MARKET_DST'})) {
+	if ((not defined $options{'PID'}) && (not defined $options{'SKU'}) && (not defined $options{'UUID'}) && (not defined $options{'MARKET_DST'})) {
 		die("INVENTORY::invcmd says SKU or UUID is required");
 		}
 
@@ -1724,6 +1719,12 @@ sub summarize {
 		my $pstmt = "select count(*) from $L_TB where MID=? and SKU=?";
 		my ($exists) = $udbh->selectrow_array($pstmt, {},$dbvars{'MID'},$dbvars{'SKU'});
 		my $VERB = ($exists)?'update':'insert';
+		if (not $exists) {
+			my ($PID,$CLAIM,$INVOPTS) = &PRODUCT::stid_to_pid($dbvars{'SKU'});
+			$dbvars{'PID'} = "$PID";
+			$dbvars{'INVOPTS'} = sprintf("%s",$INVOPTS);
+			print Dumper(\%dbvars)."\n";
+			}
 
 
 		my ($pstmt) = &DBINFO::insert($udbh,$L_TB,\%dbvars,key=>['MID','SKU'],sql=>1,'verb'=>$VERB);
