@@ -31,7 +31,7 @@ sub new {
 	#if ($s{'.ftp_server'} !~ /yahoo\.com$/) {
 	#	$ERROR = 'FTP Server must end in .yahoo.com'; 
 	#	}
-	$so->set('.url',sprintf("ftp://%s:%s\@%s/products.txt",$s{'.ftp_user'},$s{'.ftp_pass'},$s{'.ftp_server'}));
+	$so->set('.url',sprintf("sftp://%s:%s\@%s/products.txt",$s{'.ftp_user'},$s{'.ftp_pass'},$s{'.ftp_server'}));
 	bless $self, 'SYNDICATION::AMAZONPA';  
 	untie %s;
 

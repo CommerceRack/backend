@@ -1255,7 +1255,6 @@ sub transfer_email {
 	}
 
 
-
 ##
 ## FILES is an array which can contain either scalars or hashrefs
 ##	scalar: [$FILENAME]	(the input file -- only compatible with single file transfers)
@@ -1269,7 +1268,7 @@ sub transfer_ftp {
 	## FTP TYPE added to indicate ftp SSL as necessary 
 	my ($FTP_TYPE,$USER,$PASS,$HOST,$PORT,$UPFILE);
 	$tlm->pooshmsg("INFO|+URL:$URL");
-	if ($URL =~ /^(ftp|ftps)\:\/\/(.*?):(.*?)\@(.*?)\/(.*?)$/) {
+	if ($URL =~ /^(sftp|ftp|ftps)\:\/\/(.*?):(.*?)\@(.*?)\/(.*?)$/) {
 		($FTP_TYPE,$USER,$PASS,$HOST,$UPFILE) = ($1,$2,$3,$4,$5);
 	
 		if ($UPFILE =~ /^\//) {
@@ -1322,6 +1321,10 @@ sub transfer_ftp {
 			$ftp = Net::FTPSSL->new($HOST, Port=>$PORT, useSSL => 1, Debug => 1, Encryption => IMP_CRYPT);
 			}
 		## normal ftp transfer
+		elsif ($FTP_TYPE eq 'sftp') {
+			require Net::SFTP;
+			$ftp = Net::SFTP->new("$HOST", user=>$USER, password=>$PASS, debug=>1 );
+			}
 		else {
 			require Net::FTP;
 			$ftp = Net::FTP->new("$HOST", Port=>$PORT, Debug => 1);
@@ -1329,7 +1332,11 @@ sub transfer_ftp {
 		print STDERR "FTPSERV:[$HOST] FUSER: $USER FPASS: $PASS\n";
 		if (not defined $ftp) { $tlm->pooshmsg("ISE|+Unknown FTP server $HOST"); }
 		}
-	if ($tlm->can_proceed()) {
+
+	if ($FTP_TYPE eq 'sftp') {
+		## sftp does not have a separate login
+		}
+	elsif ($tlm->can_proceed()) {
 		$rc = $ftp->login($USER,$PASS);	
 		print STDERR "RC: $rc\n";
 		if ($rc!=1) { $tlm->pooshmsg('ERROR|+FTP User/Pass invalid.'); }
@@ -1340,7 +1347,8 @@ sub transfer_ftp {
 		# $ftp->pasv();
 		
 		foreach my $f (@{$FILESARRAY}) {
-			$ftp->binary();
+			if ($FTP_TYPE ne 'sftp') { $ftp->binary(); }
+
 			if (ref($f) eq '') {
 				## scalar
 				$tlm->pooshmsg("INFO|+SCALAR PUT FILE=$f UPFILE=$UPFILE");
@@ -1371,8 +1379,8 @@ sub transfer_ftp {
 		}
 
 	if ($tlm->can_proceed()) {
-		$ftp->quit;
-		$tlm->pooshmsg("SUCCESS|+Transferred files via FTP"); 
+		if ($FTP_TYPE ne 'sftp') { $ftp->quit; }
+		$tlm->pooshmsg("SUCCESS|+Transferred files via $FTP_TYPE"); 
 		}
 
 	return($tlm);
@@ -3019,7 +3027,7 @@ the trace product(s).  But it's all good, so you got nothing to worry about.");
 		## do nothing.
 		$tlm->pooshmsg("SUCCESS|Null upload method (nothing to do)");
 		}
-	elsif ($URL =~ /^ftp\:\/\//) {
+	elsif ($URL =~ /^(sftp|ftp)\:\/\//) {
 		## FTP (set's $lm to ERROR|ISE based on what went wrong)
 		($tlm) = $self->transfer_ftp($URL,[$FILENAME],$tlm);
 		if ($tlm->has_win()) {

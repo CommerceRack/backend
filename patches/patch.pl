@@ -56,7 +56,7 @@ elsif (defined $params{'version'}) {
 		my $patchid = sprintf("%s/%s",$params{'version'},$file);
 
 		$/ = undef;
-		if ($file =~ /\.perl$/) {
+		if ($file =~ /\.(perl|cpan)$/) {
 			my $contents = File::Slurp::read_file("$PATCHDIR/$file");
 			$PATCHES{ $patchid } =  $contents ;
 			}
@@ -161,7 +161,8 @@ to finish: ./patch.pl verb=finish user=$USERNAME version=$params{'version'} patc
 			use CPAN;
 			foreach my $line (split(/[\n\r]+/,$contents)) {
 				next if ($line eq '');
-				CPAN::Shell->install($line);
+				system("cpanm $line");
+				# CPAN::Shell->install($line);
 				}
 			}
 		elsif ($patchid =~ /\.sql$/) {
