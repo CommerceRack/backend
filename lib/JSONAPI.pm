@@ -8283,7 +8283,7 @@ sub adminProduct {
 			foreach my $msg (@{$lm->msgs()}) {
 				my ($msgref,$status) = LISTING::MSGS::msg_to_disposition($msg);
 				if (substr($msgref->{'+'},0,1) eq '+') { $msgref->{'+'} = substr($msgref->{'+'},1); }
-				next if ( ($msgref->{'!'} eq 'DEBUG') && (&ZOOVY::servername() ne 'dev') );
+				next if ( ($msgref->{'_'} eq 'DEBUG') && (&ZOOVY::servername() ne 'dev') );
 				push @{$R{'@MSGS'}}, $msgref;
 				}
 
