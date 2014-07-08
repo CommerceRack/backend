@@ -164,6 +164,9 @@ to finish: ./patch.pl verb=finish user=$USERNAME version=$params{'version'} patc
 				system("cpanm $line");
 				# CPAN::Shell->install($line);
 				}
+			$pstmt = "update PATCH_HISTORY set IS_CRASHED=0,RESULT='FINISHED' where ID=$DBID";
+			print "$pstmt\n";
+			$udbh->do($pstmt);
 			}
 		elsif ($patchid =~ /\.sql$/) {
 			my @ROWS = ();
@@ -203,7 +206,8 @@ to finish: ./patch.pl verb=finish user=$USERNAME version=$params{'version'} patc
 			$udbh->do($pstmt);
 			}
 		elsif ($patchid =~ /\.sh$/) {
-			system("$PATCHDIR/$patchid");
+			print "system: $PATCHDIR/../$patchid\n";
+			system("$PATCHDIR/../$patchid");
 			$pstmt = "update PATCH_HISTORY set IS_CRASHED=0,RESULT='FINISHED' where ID=$DBID";
 			print "$pstmt\n";
 			$udbh->do($pstmt);

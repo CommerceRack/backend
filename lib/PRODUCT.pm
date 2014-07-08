@@ -661,6 +661,15 @@ sub new {
 			delete $self->{'%data'}->{'zoovy:prod_asm'};
 			}
 
+		if (defined $self->{'%data'}->{'%SKU'}) {
+			## this specifically fixes a case where sku:price is blank (for cubworld)
+			foreach my $sku (keys %{$self->{'%data'}->{'%SKU'}}) {
+				if ((defined $self->{'%data'}->{'%SKU'}->{$sku}->{'sku:price'}) && ($self->{'%data'}->{'%SKU'}->{$sku}->{'sku:price'} eq '')) {
+					delete $self->{'%data'}->{'%SKU'}->{$sku}->{'sku:price'};
+					}
+				}
+			}
+
 		}
 	elsif ($options{'create'}) {
 		## we're creating a new product

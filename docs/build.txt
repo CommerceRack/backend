@@ -1,0 +1,1738 @@
+
+##
+## 201401 BUILD process
+##
+
+
+mkdir -p /httpd/sbin
+mkdir -p /httpd/bin
+
+
+echo "/usr/local/lib" > /etc/ld.so.conf.d/usr-local-lib.conf
+ldconfig
+
+
+
+iostat -- in sysstat
+
+# what i've done
+# copied /root/configs
+
+modify /etc/rc.d/rc.local set 
+	echo 1 > /proc/sys/net/ipv4/ip_forward
+
+
+## ZFS
+yum -y install rpm-build kernel-devel zlib-devel libuuid-devel libblkid-devel libselinux-devel  e2fsprogs-devel parted lsscsi
+yum localinstall --nogpgcheck http://archive.zfsonlinux.org/epel/zfs-release-1-3.el6.noarch.rpm
+yum -y install wget zlib-devel e2fsprogs-devel libuuid-devel libblkid-devel bc lsscsi mdadm parted mailx
+yum -y groupinstall "Development Tools"
+yum -y update
+yum -y install zfs
+reboot
+
+#===========================================
+yum update
+yum -y install cronie ftp postfix openssh openssl openssh-clients rdist ntpdate gcc make postfix mailx telnet openssh man wget
+
+yum -y install libtool-ltdl-devel glibc-devel apr-devel apr-util-devel aspell-devel binutils-devel bison-devel boost-devel boost-mpich2-devel boost-openmpi-devel 
+yum -y install inotify-tools incrond
+
+
+## 
+cat >> /etc/crontab 
+# run-parts 
+01 * * * * root run-parts /etc/cron.hourly 
+02 4 * * * root run-parts /etc/cron.daily 
+22 4 * * 0 root run-parts /etc/cron.weekly 
+42 4 1 * * root run-parts /etc/cron.monthly
+^D
+
+ln -s /httpd/cron/weekly /etc/cron.weekly/commercerack.weekly
+ln -s /httpd/cron/monthly /etc/cron.monthly/commercerack.monthly
+
+
+yum -y install bzip2-devel expat-devel expect-devel freetype-devel gd-devel gdbm-devel
+
+
+yum -y install glibc-devel.i686 gmp-devel gnutls-devel gpm-devel gsm-devel iso-codes-devel.noarch libIDL-devel libc-client-devel \
+	libcurl-devel libdaemon-devel libdbi-devel libdc1394-devel libdhash-devel libdiscid-devel libdmx-devel libdrm-devel \
+	libdv-devel libdvdread-devel libedit-devel libesmtp-devel libevent-devel libexif-devel libffi-devel libfontenc-devel libicu-devel libidn-devel \
+   libjpeg-devel libksba-devel libldb-devel libmemcached-devel libmng-devel libmpcdec-devel libnl-devel libpng-devel libstdc++-devel.i686 libstdc++-devel \
+   libtalloc-devel.i686 libtalloc-devel libtar-devel libtasn1-devel libtdb-devel libtevent-devel libtidy-devel libtiff-devel libuuid-devel libvorbis-devel 
+
+yum -y install \
+ libxml2-devel libxslt-devel libzip-devel log4cpp-devel lua-devel lzo-devel memcached-devel mpfr-devel ncurses-devel \
+ openjpeg-devel openmpi-devel openssl-devel pcre-devel perl-devel uuid-devel zlib-devel git rsync jwhois \
+ tcpdump iotop bind-utils asciidoc libatomic_ops-devel openssl-devel perl perl-ExtUtils-MakeMaker perl-ExtUtils-ParseXS perl-Module-Pluggable \
+ perl-Pod-Escapes perl-Pod-Simple perl-Test-Harness perl-devel perl-libs perl-version openssl-perl perl-Algorithm-Diff.noarch perl-AppConfig.noarch perl-Archive-Extract 
+
+yum -y install \
+ perl-Archive-Tar perl-Archive-Zip.noarch perl-Authen-SASL.noarch perl-B-Keywords.noarch perl-BSD-Resource perl-Bit-Vector perl-CGI perl-CPAN perl-CPANPLUS \
+ perl-CSS-Tiny.noarch perl-Cache-Memcached.noarch perl-Carp-Clan.noarch perl-Class-Accessor.noarch perl-Class-Data-Inheritable.noarch perl-Class-Inspector.noarch \
+ perl-Class-MethodMaker perl-Class-Singleton.noarch perl-Class-Trigger.noarch perl-Clone perl-Compress-Raw-Bzip2 \
+ perl-Compress-Raw-Zlib perl-Compress-Zlib perl-Config-General.noarch perl-Config-Simple.noarch perl-Config-Tiny.noarch \
+ perl-Convert-ASN1.noarch perl-Convert-BinHex.noarch perl-Crypt-OpenSSL-Bignum perl-Crypt-OpenSSL-RSA perl-Crypt-OpenSSL-Random \
+ perl-Crypt-PasswdMD5.noarch perl-Crypt-SSLeay perl-DBD-MySQL perl-DBI perl-DBIx-Simple.noarch \
+ perl-Data-OptList.noarch perl-Date-Calc.noarch perl-Date-Manip.noarch perl-DateTime perl-DateTime-Format-DateParse.noarch \
+ perl-DateTime-Format-Mail.noarch perl-DateTime-Format-W3CDTF.noarch perl-Devel-Cover perl-Devel-Cycle.noarch perl-Devel-Leak \
+ perl-Devel-StackTrace.noarch perl-Devel-Symdump.noarch perl-Digest-BubbleBabble.noarch perl-Digest-HMAC.noarch perl-Digest-SHA \
+ perl-Digest-SHA1 perl-Email-Date-Format.noarch perl-Encode-Detect perl-Error.noarch perl-Exception-Class.noarch \
+ perl-ExtUtils-CBuilder perl-ExtUtils-Embed perl-ExtUtils-MakeMaker-Coverage.noarch perl-File-Copy-Recursive.noarch perl-File-Fetch \
+ perl-File-Find-Rule.noarch perl-File-Find-Rule-Perl.noarch perl-File-HomeDir.noarch perl-File-Remove.noarch perl-File-Slurp.noarch \
+ perl-File-Which.noarch perl-File-pushd.noarch perl-Font-AFM.noarch perl-Font-TTF.noarch perl-FreezeThaw.noarch \
+ perl-GD perl-GD-Barcode.noarch perl-GDGraph.noarch perl-GDGraph3d.noarch perl-GDTextUtil.noarch \
+ perl-GSSAPI perl-Git.noarch perl-HTML-Format.noarch perl-HTML-Parser perl-HTML-Tagset.noarch \
+ perl-HTML-Tree.noarch perl-IO-Compress-Base perl-IO-Compress-Bzip2 perl-IO-Compress-Zlib perl-IO-Socket-INET6.noarch \
+ perl-IO-Socket-SSL.noarch perl-IO-String.noarch perl-IO-Tty perl-IO-Zlib perl-IO-stringy.noarch \
+ perl-IPC-Cmd perl-IPC-Run.noarch perl-IPC-Run3.noarch perl-JSON.noarch perl-LDAP.noarch \
+ perl-List-MoreUtils perl-Locale-Maketext-Gettext.noarch perl-Locale-Maketext-Simple perl-Locale-PO.noarch perl-Log-Message \
+ perl-Log-Message-Simple perl-MIME-Lite.noarch perl-MIME-Types.noarch perl-MIME-tools.noarch perl-Mail-DKIM.noarch \
+ perl-MailTools.noarch perl-Makefile-DOM.noarch perl-Makefile-Parser.noarch perl-Module-Build perl-Module-CoreList \
+ perl-Module-Find.noarch perl-Module-Info.noarch perl-Module-Install.noarch perl-Module-Load perl-Module-Load-Conditional \
+ perl-Module-Loaded perl-Module-ScanDeps.noarch perl-Mozilla-LDAP perl-Net-DNS perl-Net-DNS-Nameserver \
+ perl-Net-IP.noarch perl-Net-LibIDN perl-Net-SMTP-SSL.noarch perl-Net-SSLeay perl-Net-Telnet.noarch \
+ perl-Net-XMPP.noarch perl-NetAddr-IP perl-Number-Compare.noarch perl-Object-Accessor perl-Object-Deadly.noarch \
+ perl-PAR-Dist.noarch perl-Package-Constants perl-Package-Generator.noarch perl-Params-Check perl-Params-Util \
+ perl-Params-Validate perl-Parse-CPAN-Meta perl-Parse-RecDescent.noarch perl-Parse-Yapp.noarch perl-Perl-Critic.noarch \
+ perl-Perl-MinimumVersion.noarch perl-Perlilog.noarch perl-Pod-Coverage.noarch perl-Pod-POM.noarch perl-Pod-Spell.noarch \
+ perl-Probe-Perl.noarch perl-Readonly.noarch perl-Readonly-XS perl-SNMP_Session.noarch perl-SOAP-Lite.noarch \
+ perl-Socket6 perl-Spiffy.noarch perl-String-CRC32 perl-String-Format.noarch perl-Sub-Exporter.noarch \
+ perl-Sub-Install.noarch perl-Sub-Uplevel.noarch perl-Syntax-Highlight-Engine-Kate.noarc perl-Sys-Guestfs perl-Sys-Virt \
+ perl-Taint-Runtime perl-Task-Weaken.noarch perl-TeX-Hyphen.noarch perl-Template-Toolkit perl-Term-ProgressBar.noarch \
+ perl-Term-UI perl-TermReadKey perl-Test-Base.noarch perl-Test-CPAN-Meta.noarch perl-Test-ClassAPI.noarch \
+ perl-Test-Deep.noarch perl-Test-Differences.noarch perl-Test-Exception.noarch perl-Test-Inter.noarch perl-Test-Manifest.noarch \
+ perl-Test-Memory-Cycle.noarch perl-Test-MinimumVersion.noarch perl-Test-MockObject.noarch perl-Test-NoWarnings.noarch perl-Test-Object.noarch \
+ perl-Test-Output.noarch perl-Test-Perl-Critic.noarch perl-Test-Pod.noarch perl-Test-Pod-Coverage.noarch perl-Test-Prereq.noarch \
+ perl-Test-Script.noarch perl-Test-Simple perl-Test-Spelling.noarch perl-Test-SubCalls.noarch perl-Test-Taint \
+ perl-Test-Tester.noarch perl-Test-Warn.noarch perl-Text-Autoformat.noarch perl-Text-Diff.noarch perl-Text-Glob.noarch \
+ perl-Text-Iconv perl-Text-PDF.noarch perl-Text-Reform.noarch perl-Text-Unidecode.noarch perl-Tie-IxHash.noarch \
+ perl-Time-HiRes perl-Time-Piece perl-Time-modules.noarch perl-TimeDate.noarch perl-Tree-DAG_Node.noarch \
+ perl-UNIVERSAL-can.noarch perl-UNIVERSAL-isa.noarch perl-URI.noarch perl-Unicode-Map8 perl-Unicode-String \
+ perl-WWW-Curl perl-XML-DOM.noarch perl-XML-DOM-XPath.noarch perl-XML-Dumper.noarch perl-XML-Filter-BufferText.noarch \
+ perl-XML-Grove.noarch perl-XML-LibXML perl-XML-LibXSLT perl-XML-NamespaceSupport.noarch perl-XML-Parser \
+ perl-XML-RSS.noarch perl-XML-RegExp.noarch perl-XML-SAX.noarch perl-XML-SAX-Writer.noarch perl-XML-Simple.noarch \
+ perl-XML-Stream.noarch perl-XML-TokeParser.noarch perl-XML-TreeBuilder.noarch perl-XML-Twig.noarch perl-XML-Writer.noarch \
+ perl-XML-XPath.noarch perl-XML-XPathEngine.noarch perl-YAML.noarch perl-YAML-Syck perl-YAML-Tiny.noarch
+
+yum -y install perl-core perl-devel perl-hivex perl-libintl perl-libs
+yum -y install perl-libwww-perl.noarch perl-libxml-perl.noarch
+yum -y install postfix-perl-scripts
+
+yum -y install git-svn.noarch					## svn compatibility required for v8 javascript engine
+yum -y install gcc-c++ gcc-objc++	 ## required for v8
+yum -y install autoconf autoconf213.noarch		## for spidermonkey (and possibly others)
+yum -y install zip								## for spidermonkey
+yum -y install pciutils							## for hp monitoring
+yum -y install unzip
+yum -y install patch
+yum -y install lua lua-devel lua-static lua-wsapi lua-sql-mysql readline-devel
+yum -y install yum-plugin-fastestmirror
+
+## I think it makes sense to use varnish instead of squid
+#rpm --nosignature -i http://repo.varnish-cache.org/redhat/varnish-3.0/el5/noarch/varnish-release-3.0-1.noarch.rpm
+#yum -y install varnish varnish-libs
+
+
+##
+## JOE
+##
+yum -y install wget
+cd /usr/local/src
+wget 'http://downloads.sourceforge.net/project/joe-editor/JOE%20sources/joe-3.7/joe-3.7.tar.gz'
+tar -xzvf joe-3.7.tar.gz
+cd joe-3.7
+./configure
+make install
+scp 192.168.2.141:/usr/local/etc/joe/* /usr/local/etc/joe/
+
+
+
+
+## upgrade openssl (we'll need this for nginx)
+#cd /usr/local/src
+#wget http://www.openssl.org/source/openssl-1.0.1e.tar.gz
+#tar -xzvf openssl-1.0.1e.tar.gz
+#cd openssl-1.0.1e
+## note: no matter how tempting it might be to use /usr local as root 
+#./config --prefix=/usr/local --openssldir=/usr/local/ssl enable-tlsext shared
+#make install
+#/usr/local/bin/openssl version
+
+##
+#cd /usr/local/src
+#git clone https://github.com/zoovy/nginx_upstream_check_module.git
+
+
+## OPENRESTY - we need this for some of the modules
+#cd /usr/local/src/; wget http://openresty.org/download/ngx_openresty-1.4.3.3.tar.gz ; 
+#tar -xzvf ngx_openresty-1.4.3.3.tar.gz; cd ngx_openresty-1.4.3.3;
+#./configure
+
+cd /usr/local/src;
+wget http://openresty.org/download/ngx_openresty-1.5.8.1.tar.gz;
+tar -xzvf ngx_openresty-1.5.8.1.tar.gz; cd ngx_openresty-1.5.8.1;
+./configure;
+
+
+cd /usr/local/src/
+wget http://nginx.org/download/nginx-1.5.13.tar.gz; tar -xzvf nginx-1.5.13.tar.gz; cd nginx-1.5.13;
+## wget http://nginx.org/download/nginx-1.5.9.tar.gz; tar -xzvf nginx-1.5.9.tar.gz; cd nginx-1.5.9
+## cd /usr/local/src/nginx-1.5.9
+## wget http://nginx.org/patches/patch.spdy-v31.txt
+## patch -p1 < patch.spdy-v31.txt
+## THIS PATCH NO LONGER WORKS:
+## patch -p1 < ../nginx_upstream_check_module/check_1.2.6+.patch
+
+
+## note: removed --without-http-cache --with-proxy
+## 	--with-http_ssl_module \		## not needed
+cd /usr/local/src/nginx-1.5.13
+./configure --with-http_ssl_module --with-http_gunzip_module --with-http_gzip_static_module --without-http_ssi_module   \
+	--without-http_userid_module --without-http_access_module --without-http_auth_basic_module \ 
+	--without-http_autoindex_module --without-http_geo_module \
+	--without-http_map_module --with-http_perl_module --with-perl=/usr/bin/perl \
+	--with-pcre --with-pcre-jit --with-libatomic  \
+ 	--with-http_spdy_module \
+	--with-pcre-jit \
+	--add-module=../ngx_openresty-1.5.8.1/bundle/auth-request-nginx-module-0.2 \
+	--add-module=../ngx_openresty-1.5.8.1/bundle/echo-nginx-module-0.51 \
+	--add-module=../ngx_openresty-1.5.8.1/bundle/headers-more-nginx-module-0.25 \
+	--add-module=../ngx_openresty-1.5.8.1/bundle/ngx_coolkit-0.2rc1 \
+	--add-module=../ngx_openresty-1.5.8.1/bundle/ngx_devel_kit-0.2.19 \
+	--add-module=../ngx_openresty-1.5.8.1/bundle/redis-nginx-module-0.3.7 \
+	--add-module=../ngx_openresty-1.5.8.1/bundle/redis2-nginx-module-0.10 \
+	--add-module=../ngx_openresty-1.5.8.1/bundle/set-misc-nginx-module-0.24 \
+	--add-module=../ngx_openresty-1.5.8.1/bundle/srcache-nginx-module-0.25 \
+	--add-module=../ngx_openresty-1.5.8.1/bundle/memc-nginx-module-0.14 
+#	--with-openssl=../openssl-1.0.1e \
+#	--add-module=../nginx_upstream_check_module  \
+#	--add-module=../ngx_openresty-1.5.8.1/bundle/ngx_lua-0.9.2 \
+#	--add-module=../ngx_openresty-1.5.8.1/bundle/LuaJIT-2.0.2 \
+#	--add-module=../ngx_openresty-1.5.8.1/bundle/lua-resty-lock-0.01 \
+#	--add-module=../ngx_openresty-1.5.8.1/bundle/lua-resty-memcached-0.12 \
+#	--add-module=../ngx_openresty-1.5.8.1/bundle/lua-5.1.5 \
+#	--add-module=../ngx_openresty-1.5.8.1/bundle/lua-cjson-1.0.3 \
+#	--add-module=../ngx_openresty-1.5.8.1/bundle/lua-redis-parser-0.10 \
+#	--add-module=../ngx_openresty-1.5.8.1/bundle/lua-resty-redis-0.17 \
+#	--add-module=../ngx_openresty-1.5.8.1/bundle/lua-resty-string-0.08 \
+#	--add-module=../ngx_openresty-1.5.8.1/bundle/lua-resty-upload-0.09 \
+#	--add-module=../ngx_openresty-1.5.8.1/bundle/lua-resty-websocket-0.02 
+
+make -j2
+make install
+rm -f /httpd/bin/nginx
+ln -s /usr/local/nginx/sbin/nginx /httpd/bin/nginx
+## maybe we want to backport to dev?
+
+
+## http://openresty.org/download/ngx_openresty-1.4.3.3.tar.gz
+
+
+## 
+yum -y install gitolite gitolite3
+
+
+##
+
+
+##
+## 
+## SOLARIS REQUIRES libpng
+cd /usr/local/src
+## wget http://downloads.sourceforge.net/project/libpng/libpng16/1.6.1/libpng-1.6.1.tar.gz
+## wget http://sourceforge.net/projects/libpng/files/libpng16/1.6.2/libpng-1.6.2.tar.gz
+wget http://sourceforge.net/projects/libpng/files/libpng16/1.6.6/libpng-1.6.6.tar.gz
+tar -xzvf libpng-1.6.6.tar.gz
+cd libpng-1.6.6
+./configure --with-gnu-ld --enable-shared
+make install
+cd /usr/local/lib/
+## BUG FIXED IN 1.6
+#ln -s libpng15.so.15. libpng15.so.15
+
+
+
+##
+## IMAGEMAGICK
+##
+## wget http://www.imagemagick.org/download/ImageMagick-6.8.3-1.tar.gz
+## wget http://www.imagemagick.org/download/ImageMagick-6.8.4-10.tar.gz
+cd /usr/local/src
+wget http://www.imagemagick.org/download/ImageMagick.tar.gz
+tar -xzvf ImageMagick.tar.gz
+cd ImageMagick-6.8.*
+./configure --enable-shared=yes  --with-gnu-ld=yes  --with-quantum-depth=16  --with-bzlib=yes  \
+	--with-fontconfig=yes --with-freetype=yes --with-jpeg=yes \
+	--with-perl=yes --with-tiff=no  --with-x=no  --with-windows-font-dir=/httpd/fonts --with-png=yes \
+	--with-lzma=yes --with-zlib=yes
+make install
+
+
+## ELASTICSEARCH 
+yum -y install java-1.7.0-openjdk java-1.7.0-openjdk-devel  java-1.7.0-openjdk-javadoc java-1.7.0-openjdk-src
+
+
+wget http://search.cpan.org/CPAN/authors/id/M/MI/MIYAGAWA/PSGI-1.102.tar.gz
+# http://lists.unbit.it/pipermail/uwsgi/2013-November/006649.html
+
+
+##
+## uWSGi is required for image navbuttons .. yech.
+##
+yum -y python-devel
+cd /usr/local/src
+## wget http://projects.unbit.it/downloads/uwsgi-1.9.10.tar.gz
+## wget http://projects.unbit.it/downloads/uwsgi-1.9.18.2.tar.gz
+##tar -xvzf uwsgi-1.9.18.2.tar.gz
+##cd uwsgi-1.9.18.2
+## python uwsgiconfig.py --build psgi --build coroae 
+## wget http://projects.unbit.it/downloads/uwsgi-2.0.tar.gz
+wget http://projects.unbit.it/downloads/uwsgi-latest.tar.gz
+tar -xvzf uwsgi-latest.tar.gz
+cd uwsgi-2.0.*
+python uwsgiconfig.py --build psgi --build coroae
+## --build v8 ??
+## mv uwsgi /httpd/bin/uwsgi.`arch`
+cp uwsgi /usr/local/bin/uwsgi
+
+#there's some gotchas  on solaris:
+## * 1. need to pull latest from github
+## * 2. need to edit build.ini, comment out a ton of stuff (check hoth)
+#-----
+
+ 
+
+yum -y install dpkg
+## THANKS TO: http://charlesleaver.com/2012/04/start-stop-daemon-on-centosrhel/
+#cd /usr/local/src
+#wget http://ftp.de.debian.org/debian/pool/main/d/dpkg/dpkg_1.16.10.tar.xz
+#xz -d dpkg_1.16.10.tar.xz
+#tar -xvf dpkg_1.16.10.tar
+#cd dpkg-1.16.10/
+#./configure --disable-install-info --disable-update-alternatives --disable-dselect
+#make && make install
+
+
+
+##
+## CDB
+##
+cd /usr/local/src
+wget http://cr.yp.to/cdb/cdb-0.75.tar.gz
+tar -xzvf cdb-0.75.tar.gz
+cd cdb-0.75
+if [ `/bin/uname -m` == 'x86_64' ] ; then
+	echo "gcc -O3 -m64 -include /usr/include/errno.h" > conf-cc
+else 
+	echo "gcc -O3 -m32 -include /usr/include/errno.h" > conf-cc
+fi
+make setup check
+## NOTE: to fix a bad build use rm -Rf *.o
+## make setup check
+./install		## does this even do anythign?
+
+
+
+cd /usr/local/src/
+http://download.redis.io/releases/redis-2.6.16.tar.gz
+tar -xzvf redis-2.6.16.tar.gz
+cd redis-2.6.16
+make install
+
+## LIBREDIS
+cd /usr/local/src
+git clone git://github.com/toymachine/libredis.git
+cd libredis
+make
+./use_release.sh
+/bin/cp lib/libredis.so /usr/local/lib
+
+
+
+## GET NFS WORKING:
+yum -y install nfs-utils keyutils nfs-utils-lib rpc-bind libgssglue libtirpc
+service rpcbind start
+
+
+## MORE PERL
+perl -MCPAN -e shell 
+
+## just follow the prompts, yes to everything
+perl -MCPAN -e 'CPAN::Shell->install("UNIVERSAL::require");';
+perl -MCPAN -e 'CPAN::Shell->install("Exporter::Easy");';
+perl -MCPAN -e 'CPAN::Shell->install("File::Find::Rule");';
+perl -MCPAN -e 'CPAN::Shell->install("common::sense");';
+perl -MCPAN -e 'CPAN::Shell->install("JSON::XS");';
+perl -MCPAN -e 'CPAN::Shell->install("Test::More");';
+
+perl -MCPAN -e 'CPAN::Shell->install("Business::EDI");';
+perl -MCPAN -e 'CPAN::Shell->install("Business::UPC");';
+perl -MCPAN -e 'CPAN::Shell->install("Memcached::libmemcached");';
+## warnings are okay for Cache::libmemcached (there are no servers installed!)
+perl -MCPAN -e 'CPAN::Shell->install("Cache::Memcached::libmemcached");';		
+perl -MCPAN -e 'CPAN::Shell->install("CDB_File");';
+
+perl -MCPAN -e 'CPAN::Shell->install("FCGI");';
+perl -MCPAN -e 'CPAN::Shell->install("CGI");';
+perl -MCPAN -e 'CPAN::Shell->install("CGI::Lite");';
+perl -MCPAN -e 'CPAN::Shell->install("Class::Runtime");';
+perl -MCPAN -e 'CPAN::Shell->install("Class::Std");';
+perl -MCPAN -e 'CPAN::Shell->install("Class::Std::Fast::Storable");';
+perl -MCPAN -e 'CPAN::Shell->install("Data::UUID");';
+perl -MCPAN -e 'CPAN::Shell->install("Data::GUID");';
+perl -MCPAN -e 'CPAN::Shell->install("Date::Calc");';
+perl -MCPAN -e 'CPAN::Shell->install("version");';
+perl -MCPAN -e 'CPAN::Shell->install("Perl::OSType");';
+perl -MCPAN -e 'CPAN::Shell->install("Module::Metadata");';
+perl -MCPAN -e 'CPAN::Shell->install("CPAN::Meta::YAML");';
+perl -MCPAN -e 'CPAN::Shell->install("JSON::PP");';
+perl -MCPAN -e 'CPAN::Shell->install("CPAN::Meta::Requirements");';
+perl -MCPAN -e 'CPAN::Shell->install("Parse::CPAN::Meta");';
+perl -MCPAN -e 'CPAN::Shell->install("CPAN::Meta");';
+perl -MCPAN -e 'CPAN::Shell->install("Module::Build");';
+
+perl -MCPAN -e 'CPAN::Shell->install("Date::Manip");';
+perl -MCPAN -e 'CPAN::Shell->install("Date::Parse");';
+
+perl -MCPAN -e 'CPAN::Shell->install("ExtUtils::MakeMaker");';
+perl -MCPAN -e 'CPAN::Shell->install("Test::Requires");';
+perl -MCPAN -e 'CPAN::Shell->install("Try::Tiny");';
+perl -MCPAN -e 'CPAN::Shell->install("Test::Fatal");';
+perl -MCPAN -e 'CPAN::Shell->install("Module::Runtime");';
+perl -MCPAN -e 'CPAN::Shell->install("Dist::CheckConflicts");';
+
+perl -MCPAN -e 'CPAN::Shell->install("Module::Runtime");';
+perl -MCPAN -e 'CPAN::Shell->install("Module::Implementation");';
+perl -MCPAN -e 'CPAN::Shell->install("Package::DeprecationManager");';
+perl -MCPAN -e 'CPAN::Shell->install("Package::Stash::XS");';
+perl -MCPAN -e 'CPAN::Shell->install("Package::Stash");';
+perl -MCPAN -e 'CPAN::Shell->install("Class::Load");';
+perl -MCPAN -e 'CPAN::Shell->install("DateTime::TimeZone");';
+perl -MCPAN -e 'CPAN::Shell->install("DateTime");';
+perl -MCPAN -e 'CPAN::Shell->install("DBI");';
+perl -MCPAN -e 'CPAN::Shell->install("Digest::HMAC_SHA1");';
+perl -MCPAN -e 'CPAN::Shell->install("Digest::MD5");';
+perl -MCPAN -e 'CPAN::Shell->install("Digest::SHA1");';
+perl -MCPAN -e 'CPAN::Shell->install("DIME::Message");';
+perl -MCPAN -e 'CPAN::Shell->force("install","DIME::Payload");';
+
+perl -MCPAN -e 'CPAN::Shell->install("Data::Dump");';
+perl -MCPAN -e 'CPAN::Shell->install("Any::URI::Escape");'; 
+perl -MCPAN -e 'CPAN::Shell->install("HTTP::Tiny");';
+perl -MCPAN -e 'CPAN::Shell->install("HTTP::Lite");';
+
+--
+## NOTE: may require:
+perl -MCPAN -e 'CPAN::Shell->force("install","ElasticSearch::SearchBuilder");';
+##perl -MCPAN -e 'CPAN::Shell->install("ElasticSearch::SearchBuilder");';
+
+perl -MCPAN -e 'CPAN::Shell->install("Log::Any");';
+perl -MCPAN -e 'CPAN::Shell->install("Log::Any::Adapter");';
+perl -MCPAN -e 'CPAN::Shell->install("Log::Any::Adapter::Callback");';
+perl -MCPAN -e 'CPAN::Shell->install("Elasticsearch");';
+
+
+perl -MCPAN -e 'CPAN::Shell->install("URI");';
+perl -MCPAN -e 'CPAN::Shell->install("AnyEvent");';
+perl -MCPAN -e 'CPAN::Shell->install("AnyEvent::TLS");';
+perl -MCPAN -e 'CPAN::Shell->install("AnyEvent::HTTP");';
+perl -MCPAN -e 'CPAN::Shell->install("AnyEvent::HTTP::LWP::UserAgent");';
+perl -MCPAN -e 'CPAN::Shell->install("DateTime::Locale");';
+perl -MCPAN -e 'CPAN::Shell->install("DateTime::Format::Strptime");';
+perl -MCPAN -e 'CPAN::Shell->install("JSON");';
+perl -MCPAN -e 'CPAN::Shell->install("Test::Trap");';
+perl -MCPAN -e 'CPAN::Shell->install("Ouch");';
+perl -MCPAN -e 'CPAN::Shell->install("Mouse");';
+perl -MCPAN -e 'CPAN::Shell->install("Any::Moose");';
+perl -MCPAN -e 'CPAN::Shell->install("MIME::Base64::URLSafe");';
+perl -MCPAN -e 'CPAN::Shell->install("Facebook::Graph");';
+##perl -MCPAN -e 'CPAN::Shell->install("File::Basename");';		## included w/ perl (should match perl)
+## perl -MCPAN -e 'CPAN::Shell->install("File::Copy");';		## included w/ perl (should match perl)
+
+
+perl -MCPAN -e 'CPAN::Shell->install("Net::Curl");
+perl -MCPAN -e 'CPAN::Shell->install("Test::HTTP::Server");
+perl -MCPAN -e 'CPAN::Shell->install("LWP::Protocol::Net::Curl");
+
+perl -MCPAN -e 'CPAN::Shell->install("Filesys::Virtual");';
+perl -MCPAN -e 'CPAN::Shell->install("Filesys::Virtual::Plain");';
+perl -MCPAN -e 'CPAN::Shell->install("File::Find::Rule::Filesys::Virtual");';
+perl -MCPAN -e 'CPAN::Shell->install("File::Path");';
+perl -MCPAN -e 'CPAN::Shell->install("File::Slurp");';
+perl -MCPAN -e 'CPAN::Shell->install("File::Spec");';
+perl -MCPAN -e 'CPAN::Shell->install("File::Temp");';
+
+perl -MCPAN -e 'CPAN::Shell->install("Frontier::Client");';
+perl -MCPAN -e 'CPAN::Shell->install("Frontier::RPC2");';
+perl -MCPAN -e 'CPAN::Shell->install("Class::Measure");';
+
+perl -MCPAN -e 'CPAN::Shell->install("ExtUtils::MakeMaker");';
+perl -MCPAN -e 'CPAN::Shell->install("MRO::Compat");';
+perl -MCPAN -e 'CPAN::Shell->install("List::MoreUtils");';
+perl -MCPAN -e 'CPAN::Shell->install("Class::Load::XS");';
+
+perl -MCPAN -e 'CPAN::Shell->install("Eval::Closure");';
+perl -MCPAN -e 'CPAN::Shell->install("Sub::Name");';
+perl -MCPAN -e 'CPAN::Shell->install("Data::OptList");'; 
+perl -MCPAN -e 'CPAN::Shell->install("Carp");';
+perl -MCPAN -e 'CPAN::Shell->install("Sub::Exporter::Progressive");';
+perl -MCPAN -e 'CPAN::Shell->install("Devel::GlobalDestruction::XS");';
+perl -MCPAN -e 'CPAN::Shell->install("Devel::GlobalDestruction");';
+perl -MCPAN -e 'CPAN::Shell->force("install","Moose::Role");';
+perl -MCPAN -e 'CPAN::Shell->install("Variable::Magic");';
+perl -MCPAN -e 'CPAN::Shell->install("Class::MOP")';
+perl -MCPAN -e 'CPAN::Shell->install("Sub::Identify");';
+perl -MCPAN -e 'CPAN::Shell->install("Sub::Name")'; 
+perl -MCPAN -e 'CPAN::Shell->install("B::Hooks::EndOfScope")';
+perl -MCPAN -e 'CPAN::Shell->install("namespace::clean")';
+perl -MCPAN -e 'CPAN::Shell->install("namespace::autoclean");';
+perl -MCPAN -e 'CPAN::Shell->install("Mouse");';
+perl -MCPAN -e 'CPAN::Shell->install("Any::Moose");';
+perl -MCPAN -e 'CPAN::Shell->install("GIS::Distance");';
+
+## perl -MCPAN -e 'CPAN::Shell->force("install","Google::Checkout::General::GCO");';
+perl -MCPAN -e 'CPAN::Shell->install("XML::Writer");';
+perl -MCPAN -e 'CPAN::Shell->install("HTML::Entities");';
+## NO LONGER USED
+##perl -MCPAN -e 'CPAN::Shell->install("HTML::Mason");';
+##perl -MCPAN -e 'CPAN::Shell->install("HTML::Mason::ApacheHandler");';
+perl -MCPAN -e 'CPAN::Shell->install("HTML::Parser");';
+perl -MCPAN -e 'CPAN::Shell->install("HTML::Tagset");';
+perl -MCPAN -e 'CPAN::Shell->install("LWP::MediaTypes");';
+perl -MCPAN -e 'CPAN::Shell->install("Encode::Locale");';
+perl -MCPAN -e 'CPAN::Shell->install("IO::HTML");';
+perl -MCPAN -e 'CPAN::Shell->install("HTTP::Date");';
+perl -MCPAN -e 'CPAN::Shell->install("Compress::Raw::Bzip2");'; 
+perl -MCPAN -e 'CPAN::Shell->install("Compress::Raw::Zlib");'; 
+perl -MCPAN -e 'CPAN::Shell->install("IO::Compress::Bzip2");';
+perl -MCPAN -e 'CPAN::Shell->install("IO::Uncompress::Bunzip2");'; 
+
+perl -MCPAN -e 'CPAN::Shell->install("HTTP::Headers");';
+perl -MCPAN -e 'CPAN::Shell->install("HTTP::Cookies");';
+perl -MCPAN -e 'CPAN::Shell->install("HTTP::Date");';
+perl -MCPAN -e 'CPAN::Shell->install("HTTP::Request");';
+perl -MCPAN -e 'CPAN::Shell->install("HTTP::Request::Common");';
+perl -MCPAN -e 'CPAN::Shell->install("HTTP::Response");';
+perl -MCPAN -e 'CPAN::Shell->install("IO::File");';
+perl -MCPAN -e 'CPAN::Shell->install("IO::Scalar");';
+perl -MCPAN -e 'CPAN::Shell->install("IO::String");';
+perl -MCPAN -e 'CPAN::Shell->install("JSON::Syck");';
+perl -MCPAN -e 'CPAN::Shell->install("JSON::XS");';
+
+perl -MCPAN -e 'CPAN::Shell->install("Lingua::EN::Infinitive");';
+perl -MCPAN -e 'CPAN::Shell->install("HTTP::Negotiate");';
+perl -MCPAN -e 'CPAN::Shell->install("File::Listing");';
+perl -MCPAN -e 'CPAN::Shell->install("HTTP::Daemon");';
+perl -MCPAN -e 'CPAN::Shell->install("Net::HTTP");';
+perl -MCPAN -e 'CPAN::Shell->install("WWW::RobotRules");';
+perl -MCPAN -e 'CPAN::Shell->install("LWP");';
+perl -MCPAN -e 'CPAN::Shell->install("LWP::UserAgent");';
+perl -MCPAN -e 'CPAN::Shell->install("LWP::Simple");';
+perl -MCPAN -e 'CPAN::Shell->install("Mail::DKIM::PrivateKey");';
+perl -MCPAN -e 'CPAN::Shell->install("Mail::DKIM::Signer");';
+perl -MCPAN -e 'CPAN::Shell->install("MIME::Base64");';
+perl -MCPAN -e 'CPAN::Shell->install("MIME::Entity");';
+perl -MCPAN -e 'CPAN::Shell->install("MIME::Lite");';
+perl -MCPAN -e 'CPAN::Shell->install("MIME::Parser");';
+
+
+perl -MCPAN -e 'CPAN::Shell->install("Math::BigInt");';
+perl -MCPAN -e 'CPAN::Shell->install("Math::BigInt::FastCalc");';
+perl -MCPAN -e 'CPAN::Shell->install("Math::BigRat");';
+
+## perl -MCPAN -e 'CPAN::Shell->install("Image::Magick");';			## installed by imagemagick
+
+perl -MCPAN -e 'CPAN::Shell->install("Net::DNS");';
+perl -MCPAN -e 'CPAN::Shell->install("Net::FTP");';
+perl -MCPAN -e 'CPAN::Shell->install("Net::POP3");';
+
+perl -MCPAN -e 'CPAN::Shell->install("Test::use::ok");';
+perl -MCPAN -e 'CPAN::Shell->install("Tie::ToObject");';
+perl -MCPAN -e 'CPAN::Shell->install("Moose");';
+perl -MCPAN -e 'CPAN::Shell->install("Sub::Identify");';
+perl -MCPAN -e 'CPAN::Shell->install("Variable::Magic");';
+perl -MCPAN -e 'CPAN::Shell->install("B::Hooks::EndOfScope");';
+perl -MCPAN -e 'CPAN::Shell->install("namespace::clean");';
+
+perl -MCPAN -e 'CPAN::Shell->install("Data::Visitor::Callback");';
+perl -MCPAN -e 'CPAN::Shell->install("MooseX::Aliases");';
+perl -MCPAN -e 'CPAN::Shell->install("MooseX::Role::Parameterized");';
+perl -MCPAN -e 'CPAN::Shell->install("Net::OAuth");';
+perl -MCPAN -e 'CPAN::Shell->install("DateTime::Locale");';
+perl -MCPAN -e 'CPAN::Shell->install("DateTime::Format::Strptime");';
+
+perl -MCPAN -e 'CPAN::Shell->install("TAP::Harness::Env");';
+perl -MCPAN -e 'CPAN::Shell->install("ExtUtils::Helpers");';
+perl -MCPAN -e 'CPAN::Shell->install("ExtUtils::Config");';
+perl -MCPAN -e 'CPAN::Shell->install("ExtUtils::InstallPaths");';
+perl -MCPAN -e 'CPAN::Shell->install("Module::Build::Tiny");';
+perl -MCPAN -e 'CPAN::Shell->install("namespace::autoclean");';
+perl -MCPAN -e 'CPAN::Shell->install("Net::Twitter");';
+perl -MCPAN -e 'CPAN::Shell->install("Pod::Parser");';
+## perl -MCPAN -e 'CPAN::Shell->install("POSIX");';	## included with perl
+
+perl -MCPAN -e 'CPAN::Shell->install("Redis");';
+perl -MCPAN -e 'CPAN::Shell->install("Scalar::Util");';
+perl -MCPAN -e 'CPAN::Shell->install("Text::CSV");';
+perl -MCPAN -e 'CPAN::Shell->install("Text::CSV_XS");';
+perl -MCPAN -e 'CPAN::Shell->install("Text::Metaphone");';
+perl -MCPAN -e 'CPAN::Shell->install("Text::Soundex");';
+perl -MCPAN -e 'CPAN::Shell->install("Tie::Hash::Indexed");';
+perl -MCPAN -e 'CPAN::Shell->install("Time::HiRes");';
+
+
+perl -MCPAN -e 'CPAN::Shell->install("URI");';
+perl -MCPAN -e 'CPAN::Shell->install("URI::Escape");';
+perl -MCPAN -e 'CPAN::Shell->install("URI::Escape::XS");';
+perl -MCPAN -e 'CPAN::Shell->install("URI::Split");';
+perl -MCPAN -e 'CPAN::Shell->install("XML::LibXML");';
+perl -MCPAN -e 'CPAN::Shell->install("XML::Parser");';
+perl -MCPAN -e 'CPAN::Shell->install("XML::Parser::EasyTree");';
+perl -MCPAN -e 'CPAN::Shell->install("XML::RSS");';
+perl -MCPAN -e 'CPAN::Shell->install("XML::SAX::Base");';
+
+## NOTE: XML::SAX requires we press 'Y'
+perl -MCPAN -e 'CPAN::Shell->install("XML::SAX");';
+
+
+
+
+perl -MCPAN -e 'CPAN::Shell->install("XML::Handler::Trees");';
+perl -MCPAN -e 'CPAN::Shell->install("XML::SAX::Expat");';
+perl -MCPAN -e 'CPAN::Shell->install("XML::Simple");';
+perl -MCPAN -e 'CPAN::Shell->force("install","XML::SAX::Simple");';  ## HMM.. installed with errors!!!
+perl -MCPAN -e 'CPAN::Shell->force("install","Object::MultiType");'
+perl -MCPAN -e 'CPAN::Shell->force("install","XML::Smart");';
+perl -MCPAN -e 'CPAN::Shell->install("XML::Writer");';
+perl -MCPAN -e 'CPAN::Shell->install("YAML::Syck");';
+perl -MCPAN -e 'CPAN::Shell->install("YAML::XS");';
+
+perl -MCPAN -e 'CPAN::Shell->install("Text::WikiCreole");';
+perl -MCPAN -e 'CPAN::Shell->install("JSON::XS");';
+perl -MCPAN -e 'CPAN::Shell->install("Date::Calc");';
+perl -MCPAN -e 'CPAN::Shell->install("Text::Wrap");';
+perl -MCPAN -e 'CPAN::Shell->install("Digest::SHA1");';
+perl -MCPAN -e 'CPAN::Shell->install("DIME::Payload");';
+perl -MCPAN -e 'CPAN::Shell->force("install","DIME::Payload");';
+perl -MCPAN -e 'CPAN::Shell->install("Compress::Bzip2");';
+perl -MCPAN -e 'CPAN::Shell->install("HTML::Tiny");';
+perl -MCPAN -e 'CPAN::Shell->install("Captcha::reCAPTCHA");';
+perl -MCPAN -e 'CPAN::Shell->install("HTML::Tiny");';
+perl -MCPAN -e 'CPAN::Shell->install("Captcha::reCAPTCHA");';
+perl -MCPAN -e 'CPAN::Shell->install("File::Type");';
+perl -MCPAN -e 'CPAN::Shell->install("CGI::Lite::Request");';
+perl -MCPAN -e 'CPAN::Shell->install("File::Type");';
+perl -MCPAN -e 'CPAN::Shell->install("CGI::Lite::Request");';
+perl -MCPAN -e 'CPAN::Shell->install("Regexp::Common");';
+perl -MCPAN -e 'CPAN::Shell->install("Parse::RecDescent");';
+perl -MCPAN -e 'CPAN::Shell->install("Capture::Tiny");';
+perl -MCPAN -e 'CPAN::Shell->install("Email::Address");';
+perl -MCPAN -e 'CPAN::Shell->install("Email::MessageID");';
+perl -MCPAN -e 'CPAN::Shell->force("install","Email::Simple::Creator");';
+perl -MCPAN -e 'CPAN::Shell->install("Email::MIME::Encodings");';
+perl -MCPAN -e 'CPAN::Shell->install("Email::MIME::ContentType");';
+perl -MCPAN -e 'CPAN::Shell->install("Email::MIME");';
+perl -MCPAN -e 'CPAN::Shell->force("install","Email::MessageID");';
+perl -MCPAN -e 'CPAN::Shell->install("Email::MIME::Encodings");';
+perl -MCPAN -e 'CPAN::Shell->install("Email::MIME::ContentType");';
+perl -MCPAN -e 'CPAN::Shell->force("install","Email::Simple");';
+perl -MCPAN -e 'CPAN::Shell->force("install","Email::Simple");';
+
+perl -MCPAN -e 'CPAN::Shell->install("AnyEvent");';
+perl -MCPAN -e 'CPAN::Shell->install("Encode::IMAPUTF7");';
+perl -MCPAN -e 'CPAN::Shell->install("Email::MIME::ContentType");';
+perl -MCPAN -e 'CPAN::Shell->install("EV");';
+perl -MCPAN -e 'CPAN::Shell->install("Guard");';
+
+## PROMPTS
+perl -MCPAN -e 'CPAN::Shell->force("install","Coro");';
+
+
+perl -MCPAN -e 'CPAN::Shell->install("Net::Server");';
+perl -MCPAN -e 'CPAN::Shell->install("Net::Server::Coro");';
+
+perl -MCPAN -e 'CPAN::Shell->install("Net::Server");';
+# perl -MCPAN -e 'CPAN::Shell->force("install","Coro");';
+# perl -MCPAN -e 'CPAN::Shell->install("Net::Server::Coro");';
+perl -MCPAN -e 'CPAN::Shell->install("Email::MIME");';
+perl -MCPAN -e 'CPAN::Shell->notest("install","Net::IMAP::Simple");';		
+
+perl -MCPAN -e 'CPAN::Shell->install("App::ElasticSearch::Utilities");'
+
+
+##
+## 201401
+##
+perl -MCPAN -e 'CPAN::Shell->install("AnyEvent::Redis");'
+perl -MCPAN -e 'CPAN::Shell->install("String::Urandom");'
+perl -MCPAN -e 'CPAN::Shell->install("Net::AWS::SES");';
+perl -MCPAN -e 'CPAN::Shell->install("Nginx");';
+perl -MCPAN -e 'CPAN::Shell->install("Net::Domain::TLD");'
+perl -MCPAN -e 'CPAN::Shell->install("Data::Validate::Domain");'
+perl -MCPAN -e 'CPAN::Shell->install("Data::Validate::Email");'
+perl -MCPAN -e 'CPAN::Shell->install("Email::Valid");'
+perl -MCPAN -e 'CPAN::Shell->install("CSS::Minifier::XS");'
+perl -MCPAN -e 'CPAN::Shell->install("MediaWiki::API");'
+
+
+## 201401b
+#cd /usr/local/src/;
+#wget ftp://megrez.math.u-bordeaux.fr/pub/pari/unix/pari-2.5.5.tar.gz
+#tar -xzvf pari-2.5.5.tar.gz;
+#cd pari-2.5.5
+#./Configure
+#make install
+#ln -s /usr/local/src/pari-2.5.5  /root/.cpan/build
+
+rm /usr/local/lib/libpari*
+cd /usr/local/src
+wget http://search.cpan.org/CPAN/authors/id/I/IL/ILYAZ/modules/Math-Pari-2.01080605.tar.gz
+tar -xzvf Math-Pari-2.01080605.tar.gz
+cd Math-Pari*
+perl Makefile.PL force_download
+make install
+
+perl -MCPAN -e 'CPAN::Shell->install("Data::Buffer");'
+perl -MCPAN -e 'CPAN::Shell->install("Sort::Versions");'
+perl -MCPAN -e 'CPAN::Shell->install("Class::Loader");'
+perl -MCPAN -e 'CPAN::Shell->install("Math::Pari");'
+perl -MCPAN -e 'CPAN::Shell->install("Crypt::Random");'
+perl -MCPAN -e 'CPAN::Shell->install("Crypt::Primes");'
+perl -MCPAN -e 'CPAN::Shell->install("Crypt::Blowfish");'
+perl -MCPAN -e 'CPAN::Shell->install("Tie::EncryptedHash");'
+perl -MCPAN -e 'CPAN::Shell->install("Digest::MD2");'
+perl -MCPAN -e 'CPAN::Shell->install("Convert::ASCII::Armour");'
+perl -MCPAN -e 'CPAN::Shell->install("Crypt::RSA");'
+
+## these tests lock up
+perl -MCPAN -e 'CPAN::Shell->install("Path::Tiny");'
+perl -MCPAN -e 'CPAN::Shell->install("Exporter::Tiny");'
+perl -MCPAN -e 'CPAN::Shell->install("Type::Tiny");'
+perl -MCPAN -e 'CPAN::Shell->install("Types::Standard");'
+perl -MCPAN -e 'CPAN::Shell->install("Sub::Infix");'
+perl -MCPAN -e 'CPAN::Shell->install("match::simple");'
+
+perl -MCPAN -e 'CPAN::Shell->install("Test::Synopsis");'
+perl -MCPAN -e 'CPAN::Shell->install("Test::Pod");'
+perl -MCPAN -e 'CPAN::Shell->install("Test::Strict");'
+perl -MCPAN -e 'CPAN::Shell->install("PPI");'
+perl -MCPAN -e 'CPAN::Shell->install("PPIx::Regexp");'
+perl -MCPAN -e 'CPAN::Shell->install("Perl::MinimumVersion");'
+perl -MCPAN -e 'CPAN::Shell->force("install","Term::ANSIColor");'
+
+perl -MCPAN -e 'CPAN::Shell->install("Term::ANSIColor");'
+perl -MCPAN -e 'CPAN::Shell->install("Text::Aligner");'
+perl -MCPAN -e 'CPAN::Shell->install("Text::Table");'
+
+perl -MCPAN -e 'CPAN::Shell->install("Test::Without::Module");'
+perl -MCPAN -e 'CPAN::Shell->install("JSON::Any");'
+perl -MCPAN -e 'CPAN::Shell->install("Test::JSON");'
+perl -MCPAN -e 'CPAN::Shell->install("Test::MockModule");'
+perl -MCPAN -e 'CPAN::Shell->install("DBIx::Connector");'
+perl -MCPAN -e 'CPAN::Shell->install("MooseX::ArrayRef");'
+perl -MCPAN -e 'CPAN::Shell->install("Module::Load");'
+perl -MCPAN -e 'CPAN::Shell->install("Module::CoreList");'
+perl -MCPAN -e 'CPAN::Shell->install("Module::Load::Conditional");'
+perl -MCPAN -e 'CPAN::Shell->install("XML::Namespace");'
+perl -MCPAN -e 'CPAN::Shell->install("XML::NamespaceFactory");'
+perl -MCPAN -e 'CPAN::Shell->install("XML::CommonNS");'
+perl -MCPAN -e 'CPAN::Shell->install("Algorithm::Combinatorics");'
+
+perl -MCPAN -e 'CPAN::Shell->install("ExtUtils::Depends");'
+perl -MCPAN -e 'CPAN::Shell->install("B::Hooks::OP::Check");'
+perl -MCPAN -e 'CPAN::Shell->install("B::Hooks::OP::PPAddr");'
+perl -MCPAN -e 'CPAN::Shell->install("Module::Build::Tiny");'
+perl -MCPAN -e 'CPAN::Shell->install("MooseX::Traits");'
+perl -MCPAN -e 'CPAN::Shell->install("MooseX::Types::Moose");'
+
+perl -MCPAN -e 'CPAN::Shell->install("Class::Tiny");'
+perl -MCPAN -e 'CPAN::Shell->install("Devel::PartialDump");'
+
+perl -MCPAN -e 'CPAN::Shell->install("MooseX::Types::DateTime");'
+perl -MCPAN -e 'CPAN::Shell->install("MooseX::Types::Structured");'
+perl -MCPAN -e 'CPAN::Shell->install("MooseX::Types");'
+
+perl -MCPAN -e 'CPAN::Shell->install("aliased");'
+perl -MCPAN -e 'CPAN::Shell->install("Parse::Method::Signatures");'
+
+
+perl -MCPAN -e 'CPAN::Shell->install("Scope::Upper");'
+perl -MCPAN -e 'CPAN::Shell->install("Devel::Declare");'
+perl -MCPAN -e 'CPAN::Shell->install("TryCatch");'
+perl -MCPAN -e 'CPAN::Shell->install("");'
+perl -MCPAN -e 'CPAN::Shell->install("");'
+
+
+perl -MCPAN -e 'CPAN::Shell->install("Set::Scalar");'
+perl -MCPAN -e 'CPAN::Shell->install("RDF::Trine");'
+perl -MCPAN -e 'CPAN::Shell->install("RDF::Query");'
+perl -MCPAN -e 'CPAN::Shell->install("Crypt::X509");'
+perl -MCPAN -e 'CPAN::Shell->install("namespace::sweep");'
+perl -MCPAN -e 'CPAN::Shell->install("Web::ID");'
+
+
+
+
+
+
+perl -MCPAN -e 'CPAN::Shell->notest("install","Net::FTPSSL");';
+perl -MCPAN -e 'CPAN::Shell->install("SOAP::WSDL");';
+perl -MCPAN -e 'CPAN::Shell->install("Crypt::CBC");';
+perl -MCPAN -e 'CPAN::Shell->install("Crypt::Twofish");';
+perl -MCPAN -e 'CPAN::Shell->install("Crypt::DES");';
+perl -MCPAN -e 'CPAN::Shell->install("Data::Dumper::Concise");';
+perl -MCPAN -e 'CPAN::Shell->install("Config::General");';
+perl -MCPAN -e 'CPAN::Shell->install("Config::Any");';
+perl -MCPAN -e 'CPAN::Shell->install("Class::XSAccessor");';
+perl -MCPAN -e 'CPAN::Shell->install("Test::Exception");';
+perl -MCPAN -e 'CPAN::Shell->install("Class::Accessor::Grouped");';
+perl -MCPAN -e 'CPAN::Shell->install("Hash::Merge");';
+perl -MCPAN -e 'CPAN::Shell->install("Params::Validate");';
+perl -MCPAN -e 'CPAN::Shell->install("Test::Tester");';
+perl -MCPAN -e 'CPAN::Shell->install("Test::Warnings");';
+perl -MCPAN -e 'CPAN::Shell->install("Getopt::Long::Descriptive");';
+perl -MCPAN -e 'CPAN::Shell->install("SQL::Abstract");';
+perl -MCPAN -e 'CPAN::Shell->install("Data::Dumper::Concise");';
+
+
+perl -MCPAN -e 'CPAN::Shell->install("ok");';
+perl -MCPAN -e 'CPAN::Shell->install("Config::Any");';
+perl -MCPAN -e 'CPAN::Shell->install("SQL::Abstract");';
+perl -MCPAN -e 'CPAN::Shell->install("Context::Preserve");';
+perl -MCPAN -e 'CPAN::Shell->install("Test::Exception");';
+perl -MCPAN -e 'CPAN::Shell->install("Data::Compare");';
+perl -MCPAN -e 'CPAN::Shell->install("Path::Class");';
+perl -MCPAN -e 'CPAN::Shell->install("Scope::Guard");';
+perl -MCPAN -e 'CPAN::Shell->install("DBD::SQLite");';
+perl -MCPAN -e 'CPAN::Shell->install("Hash::Merge");';
+perl -MCPAN -e 'CPAN::Shell->install("Class::Accessor::Chained::Fast");';
+
+perl -MCPAN -e 'CPAN::Shell->install("Module::Find");';
+perl -MCPAN -e 'CPAN::Shell->install("Data::Page");';
+perl -MCPAN -e 'CPAN::Shell->install("Algorithm::C3");';
+perl -MCPAN -e 'CPAN::Shell->install("Class::C3");';
+perl -MCPAN -e 'CPAN::Shell->install("Class::C3::Componentised");';
+
+perl -MCPAN -e 'CPAN::Shell->install("strictures");';
+perl -MCPAN -e 'CPAN::Shell->install("Role::Tiny");';
+perl -MCPAN -e 'CPAN::Shell->install("Class::Method::Modifiers");';
+perl -MCPAN -e 'CPAN::Shell->install("Devel::GlobalDestruction");';
+
+perl -MCPAN -e 'CPAN::Shell->install("Moo");';
+	
+perl -MCPAN -e 'CPAN::Shell->install("Math::Symbolic");';
+perl -MCPAN -e 'CPAN::Shell->install("Sub::Identify");';
+perl -MCPAN -e 'CPAN::Shell->install("Variable::Magic");';
+perl -MCPAN -e 'CPAN::Shell->install("B::Hooks::EndOfScope");';
+perl -MCPAN -e 'CPAN::Shell->install("namespace::clean");';
+perl -MCPAN -e 'CPAN::Shell->install("DBIx::Class");';
+perl -MCPAN -e 'CPAN::Shell->install("Proc::PID::File");';
+perl -MCPAN -e 'CPAN::Shell->install("Acme::Damn");';
+perl -MCPAN -e 'CPAN::Shell->install("Sys::SigAction");';
+perl -MCPAN -e 'CPAN::Shell->install("forks");';
+perl -MCPAN -e 'CPAN::Shell->install("XML::SimpleObject");';
+perl -MCPAN -e 'CPAN::Shell->install("Net::Netmask");';
+perl -MCPAN -e 'CPAN::Shell->install("DBD::SQLite");';
+
+perl -MCPAN -e 'CPAN::Shell->install("File::Pid");';
+perl -MCPAN -e 'CPAN::Shell->install("Log::Log4perl");';
+perl -MCPAN -e 'CPAN::Shell->install("Sysadm::Install");';
+perl -MCPAN -e 'CPAN::Shell->install("App::Daemon");';
+
+## Needed for Webdoc parsing.
+perl -MCPAN -e 'CPAN::Shell->install("HTML::Entities::Numbered");';
+perl -MCPAN -e 'CPAN::Shell->install("HTML::TreeBuilder");';
+## perl -MCPAN -e 'CPAN::Shell->install("HTML::Tidy");';	 <<- doesn't work!
+echo "" | perl -MCPAN -e 'CPAN::Shell->install("XML::Twig");';
+
+
+## 201316
+perl -MCPAN -e 'CPAN::Shell->install("ExtUtils::Config");';
+perl -MCPAN -e 'CPAN::Shell->install("File::ShareDir::Install");';
+perl -MCPAN -e 'CPAN::Shell->install("Apache::LogFormat::Compiler");';
+perl -MCPAN -e 'CPAN::Shell->install("Stream::Buffered");';
+perl -MCPAN -e 'CPAN::Shell->install("Test::SharedFork");';
+perl -MCPAN -e 'CPAN::Shell->install("Test::TCP");';
+perl -MCPAN -e 'CPAN::Shell->install("File::ShareDir");';
+perl -MCPAN -e 'CPAN::Shell->install("ExtUtils::Helpers");';
+perl -MCPAN -e 'CPAN::Shell->install("ExtUtils::InstallPaths");';
+perl -MCPAN -e 'CPAN::Shell->install("Module::Build::Tiny");';
+perl -MCPAN -e 'CPAN::Shell->install("Hash::MultiValue");';
+perl -MCPAN -e 'CPAN::Shell->install("Devel::StackTrace");';
+perl -MCPAN -e 'CPAN::Shell->install("HTTP::Body");';
+perl -MCPAN -e 'CPAN::Shell->install("Filesys::Notify::Simple");';
+perl -MCPAN -e 'CPAN::Shell->install("Devel::StackTrace::AsHTML");';
+perl -MCPAN -e 'CPAN::Shell->install("Plack");';
+perl -MCPAN -e 'CPAN::Shell->install("HTTP::Message::PSGI");';
+perl -MCPAN -e 'CPAN::Shell->install("Test::UseAllModules");';
+perl -MCPAN -e 'CPAN::Shell->install("Plack::Request");';
+
+perl -MCPAN -e 'CPAN::Shell->install("Test::Fake::HTTPD");';
+perl -MCPAN -e 'CPAN::Shell->install("Class::Accessor::Lite");';
+perl -MCPAN -e 'CPAN::Shell->install("Test::Flatten");';
+perl -MCPAN -e 'CPAN::Shell->install("WWW::Google::Cloud::Messaging");';
+perl -MCPAN -e 'CPAN::Shell->install("Text::WikiCreole");';
+perl -MCPAN -e 'CPAN::Shell->install("Test::Class");';
+
+perl -MCPAN -e 'CPAN::Shell->install("Data::OptList");';
+perl -MCPAN -e 'CPAN::Shell->install("CPAN::Meta::Check");';
+perl -MCPAN -e 'CPAN::Shell->install("Test::CheckDeps");';
+perl -MCPAN -e 'CPAN::Shell->install("Test::Mouse");';
+perl -MCPAN -e 'CPAN::Shell->install("Any::Moose");';
+perl -MCPAN -e 'CPAN::Shell->install("Test::Moose");';
+perl -MCPAN -e 'CPAN::Shell->force("install","Test::Class");';
+perl -MCPAN -e 'CPAN::Shell->install("Net::APNS");';
+
+perl -MCPAN -e 'CPAN::Shell->install("Amazon::SQS::Simple");';
+## perl -MCPAN -e 'CPAN::Shell->install("Amazon::SQS::ProducerConsumer");
+
+
+
+##
+## STARLET REQUIREMENTS:
+perl -MCPAN -e 'CPAN::Shell->install("Proc::Wait3");';
+perl -MCPAN -e 'CPAN::Shell->install("Server::Starter");';
+perl -MCPAN -e 'CPAN::Shell->install("Parallel::Prefork");';
+perl -MCPAN -e 'CPAN::Shell->install("Starlet");';
+
+## STARMAN:
+perl -MCPAN -e 'CPAN::Shell->install("ExtUtils::Helpers");';
+perl -MCPAN -e 'CPAN::Shell->install("ExtUtils::Config");';
+perl -MCPAN -e 'CPAN::Shell->install("ExtUtils::InstallPaths");';
+perl -MCPAN -e 'CPAN::Shell->install("Module::Build::Tiny");';
+perl -MCPAN -e 'CPAN::Shell->install("HTTP::Parser::XS");';
+perl -MCPAN -e 'CPAN::Shell->force("install","Starman");';
+
+
+
+perl -MCPAN -e 'CPAN::Shell->install("Net::OAuth2");';
+
+## http://search.cpan.org/CPAN/authors/id/X/XA/XAICRON/JSON-WebToken-0.07.tar.gz
+perl -MCPAN -e 'CPAN::Shell->install("Test::Mock::Guard");'; 
+perl -MCPAN -e 'CPAN::Shell->install("JSON::WebToken");'; 
+
+## http://search.cpan.org/CPAN/authors/id/R/RI/RIZEN/Facebook-Graph-1.0600.tar.gz
+perl -MCPAN -e 'CPAN::Shell->install("Facebook::Graph");'; 
+
+## http://search.cpan.org/CPAN/authors/id/I/IA/IAMCAL/CSS-1.09.tar.gz
+perl -MCPAN -e 'CPAN::Shell->install("CSS");'; 
+## http://search.cpan.org/CPAN/authors/id/A/AD/ADAMK/CSS-Tiny-1.19.tar.gz
+perl -MCPAN -e 'CPAN::Shell->install("CSS::Tiny");';
+
+
+perl -MCPAN -e 'CPAN::Shell->install("Test::HexString");';
+perl -MCPAN -e 'CPAN::Shell->install("CPAN::Meta::Prereqs");';
+perl -MCPAN -e 'CPAN::Shell->install("CPAN::Meta::Check");';
+perl -MCPAN -e 'CPAN::Shell->install("Test::CheckDeps");'
+## perl -MCPAN -e 'CPAN::Shell->install("Protocol::UWSGI");';
+
+## 201352
+perl -MCPAN -e 'CPAN::Shell->install("String::Urandom");'
+perl -MCPAN -e 'CPAN::Shell->install("Net::AWS::SES");';
+perl -MCPAN -e 'CPAN::Shell->install("Nginx");';
+
+perl -MCPAN -e 'CPAN::Shell->install("Net::Domain::TLD");'
+perl -MCPAN -e 'CPAN::Shell->install("Data::Validate::Domain");'
+perl -MCPAN -e 'CPAN::Shell->install("Data::Validate::Email");'
+perl -MCPAN -e 'CPAN::Shell->install("Email::Valid");'
+
+perl -MCPAN -e 'CPAN::Shell->install("CSS::Minifier::XS");'
+perl -MCPAN -e 'CPAN::Shell->install("MediaWiki::API");'
+
+
+#   CLUSTER=`/root/configs/platform.pl show=cluster`
+#   ## verify mount points 
+#   if [[ ! -z "$CLUSTER" ]] ; then
+#	/httpd/bin/apachectl stop
+#	killall -9 httpd
+#	sleep 1
+#	umount /remote/$CLUSTER/users
+#      #/bin/mount -t nfs $CLUSTER:/data/users-$CLUSTER /remote/$CLUSTER/users \
+#      #  -O defaults,hard,udp,rsize=8192,wsize=8192,nfsvers=3,intr,noatime
+#      /bin/mount -t nfs $CLUSTER:/data/users-$CLUSTER /remote/$CLUSTER/users -O "defaults,hard,udp,rsize=8192,wsize=8192,nfsvers=3,intr,noatime"
+#   fi
+
+
+##
+## Google Checkout
+##
+cd /usr/local/src
+git clone https://github.com/brianhorakh/CPAN-Google-Checkout
+cd CPAN-Google-Checkout
+perl Makefile.PL
+make install;
+
+
+/etc/hosts
+184.72.58.88   trade.marketplace.buy.com
+
+
+--------------------------------
+
+##
+## ZERO MQ
+##
+cd /usr/local/src
+wget http://download.zeromq.org/zeromq-3.2.2.tar.gz
+tar -xzvf zeromq-3.2.2.tar.gz
+cd zeromq-3.2.2
+./configure
+make
+make install
+ldconfig
+
+perl -MCPAN -e 'CPAN::Shell->install("IO::CaptureOutput");';
+perl -MCPAN -e 'CPAN::Shell->install("Devel::CheckLib");';
+
+yum -y install yum;
+perl -MCPAN -e 'CPAN::Shell->install("ExtUtils::CBuilder");'
+perl -MCPAN -e 'CPAN::Shell->install("String::ShellQuote");'
+perl -MCPAN -e 'CPAN::Shell->install("Alien::ZMQ");'
+perl -MCPAN -e 'CPAN::Shell->install("ZMQ::Constants");'
+#perl -MCPAN -e 'CPAN::Shell->install("ZMQ::LibZMQ3");'
+# perl -MCPAN -e 'CPAN::Shell->install("ZMQ::Constants");'
+# perl -MCPAN -e 'CPAN::Shell->notest("install","ZMQ::LibZMQ3");';
+perl -MCPAN -e 'CPAN::Shell->notest("install","ZMQ::LibZMQ3");';
+
+
+
+
+
+##
+##  FUCKING SPIDERMONKEY
+##
+#cd /usr/local/src
+#wget http://ftp.mozilla.org/pub/mozilla.org/js/js-1.8.0-rc1.tar.gz
+#tar -xzvf js-1.8.0-rc1.tar.gz
+#cd js/src
+#export CFLAGS="-DJS_C_STRINGS_ARE_UTF8"
+#make -f Makefile.ref
+#JS_DIST=/usr make -f Makefile.ref export
+
+#cd /usr/local/src
+#wget http://search.cpan.org/CPAN/authors/id/C/CL/CLAESJAC/JavaScript-1.16.tar.gz
+#tar -xzvf JavaScript-1.16.tar.gz
+#cd JavaScript-1.16
+### edit Makefile.PL around line #44 add --
+#+push @incs, "/usr/local/src/js/src";
+#+push @libs, "/usr/local/lib";
+#perl Makefile.PL
+#make install
+
+###########################################################################################
+## NOTE: THE JS COMMANDS BELOW DO NOT WORK -- BUT SHOW SOME WAYS *NOT* TO DO IT.
+##  wget http://ftp.mozilla.org/pub/mozilla.org/js/js-1.7.0.tar.gz
+## cp config/Linux_All.mk Makefile
+## a bit of reading seems to indicate xulrunner repo contains the spidermonkey runtime!?
+## yum install -y nspr-devel-4.9.2-0.el6_3.1.x86_64  <-- does not work.
+## regrettably - spidermonkey is still required
+## git clone https://github.com/mozilla/rhino.git
+## https://developer.mozilla.org/en-US/docs/SpiderMonkey/Build_Documentation
+## wget http://ftp.mozilla.org/pub/mozilla.org/js/js185-1.0.0.tar.gz
+## tar -xzvf js185-1.0.0.tar.gz
+## autoconf-2.13   # js185 requires this version
+## ./configure
+## make
+## make install
+## ln -s /usr/local/src/js-1.8.5/js/src/config/system_wrappers_js/ /usr/include/nspr
+###########################################################################################
+
+
+## 
+
+
+
+
+##
+## NAGIOS
+##
+#cd /usr/local/src
+#wget http://prdownloads.sourceforge.net/sourceforge/nagiosplug/nagios-plugins-1.4.16.tar.gz
+#tar -xzvf nagios-plugins-1.4.16.tar.gz
+#cd nagios-plugins-1.4.16
+#./configure --enable-perl-modules --with-openssl=/usr/include/openssl
+#make
+#make install
+## yum -y install nagios-plugins nagios-plugins-disk nagios-plugins-mysql nagios-plugins-load nagios-plugins-tcp nagios-plugins-icmp nagios-plugins-http
+yum -y nagios-plugins
+yum -y install sysstat
+
+
+##
+## QUAGGA
+##
+#cd /usr/local/src
+#yum -y install compat-readline5-devel readline-devel
+#yum -y install net-snmp-devel net-snmp-libs net-snmp net-snmp-utils
+#wget http://download.savannah.gnu.org/releases/quagga/quagga-0.99.22.tar.gz
+#tar -xzvf quagga*.tar.gz
+#cd quagga*
+### NOTE: need snmp eventually!
+# ./configure --disable-ospf6d --disable-ripngd --enable-vtysh --enable-netlink
+#make install
+### NOTE: access localhost port 2601 to configure
+### opensourcecentre.wordpress.com/article/install-quagga-as-linux-router/
+#cat > /etc/quagga/daemons
+#zebra=yes //Compulsory .yes.
+#bgp=no //Border gateway protocol
+#ospf=yes //OSPF with IPV4
+#ospf6d=no //OSPF with IPv6
+#ripd=no //RIP versi 2
+#ripngd=no //RIP with IPV6
+#^D
+
+
+
+##
+## APACHE
+##
+## http://perl.apache.org/docs/2.0/user/install/install.html
+#cd /usr/local/src
+#wget http://www.carfab.com/apachesoftware//httpd/httpd-2.2.25.tar.gz
+#tar -xzvf httpd-2.2.25.tar.gz
+#############Apache Install##################
+#cd httpd-2.2.25
+### NOTE: no more ssl -- we don't need it since nginx handles that now!
+#./configure  --enable-mem-cache  --enable-dbd  --enable-headers  \
+#	--disable-authn-file --disable-authn-default --enable-auth-default --disable-auto-index \
+#	--enable-authn-default --enable-authn-file --enable-cache --enable-dbd --disable-include \
+#	--disable-filter --disable-charset-lite --enable-http --enable-cgi \
+#	--disable-negotiation --disable-actions --disable-userdir --disable-alias --enable-so \
+#	--with-z=/usr/local/src/HTTPD/zlib-1.2.5  --prefix=/usr/local/apache 
+#make
+#make install
+
+
+## elastic search really wants a swapfile.
+mkdir -p /var/swap
+## create a 1gb swap file
+dd if=/dev/zero of=/var/swap/swap1 count=1024 bs=1024000
+mkswap /var/swap/swap1
+swapon /var/swap/swap1
+echo "/var/swap/swap1 swap    swap    defaults         0 0" >> /etc/fstab
+
+##
+## elasticsearch
+##
+#cd /usr/local
+#cd /usr/local/
+#git clone https://github.com/elasticsearch/elasticsearch-servicewrapper.git
+#cd /usr/local/src/elasticsearch-servicewrapper
+#/bin/cp -Rv service /usr/local/elasticsearch/bin
+
+#/usr/local/elasticsearch/config/elasticsearch.yml
+#index.number_of_shards: 1
+#
+#/usr/local/elasticsearch/bin/service/elasticsearch.conf
+#set.default.ES_HOME=/local/elastic
+#set.default.ES_HEAP_SIZE=128
+#set.default.ES_MIN_MEM=128mb
+#set.default.ES_MAX_MEM=128mb
+#
+
+ cd /usr/local
+ rm -Rf elasticsearch*
+ rm -f /etc/init.d/elasticsearch
+ 
+ wget https://download.elasticsearch.org/elasticsearch/elasticsearch/elasticsearch-1.0.1.noarch.rpm
+ rpm --install elasticsearch-1.0.1.noarch.rpm
+ 
+
+rm -f /etc/elasticsearch.yml
+echo "node.max_local.storage_nodes: 1" >> /etc/elasticsearch/elasticsearch.yml
+echo "index.number_of_replicas: 0" >> /etc/elasticsearch/elasticsearch.yml
+echo "path.data: /local/elastic" >> /etc/elasticsearch/elasticsearch.yml
+
+
+
+
+
+## MYSQL
+yum -y remove mysql-libs mysql mysql-server mysql-devel mysql-shared mysql-server
+cd /usr/local/
+wget http://dev.mysql.com/get/Downloads/MySQL-5.6/MySQL-5.6.14-1.el6.x86_64.rpm-bundle.tar/from/http://cdn.mysql.com/
+tar -xvf *.tar
+rm MySQL-5.6.14-1.el6.x86_64.rpm-bundle.tar
+rpm --install MySQL-client-5.6.14-1.el6.x86_64.rpm MySQL-devel-5.6.14-1.el6.x86_64.rpm \
+	MySQL-server-5.6.14-1.el6.x86_64.rpm MySQL-shared-5.6.14-1.el6.x86_64.rpm \
+	MySQL-shared-compat-5.6.14-1.el6.x86_64.rpm
+
+
+##
+## SOME MORE PERL LIBRARIES
+##
+perl -MCPAN -e 'CPAN::Shell->install("DBIx::ContextualFetch");';
+perl -MCPAN -e 'CPAN::Shell->install("Ima::DBI");';
+perl -MCPAN -e 'CPAN::Shell->install("UNIVERSAL::moniker");';
+perl -MCPAN -e 'CPAN::Shell->install("Class::DBI");';
+perl -MCPAN -e 'CPAN::Shell->force("install","Apache::DBI::Cache");';		## it's safe to ignore errors
+perl -MCPAN -e 'CPAN::Shell->install("DBD::mysql");';
+
+
+perl -MCPAN -e 'CPAN::Shell->install("Stream::Buffered");';
+perl -MCPAN -e 'CPAN::Shell->install("Test::SharedFork");';
+perl -MCPAN -e 'CPAN::Shell->install("Test::TCP");';
+perl -MCPAN -e 'CPAN::Shell->install("File::ShareDir");';
+perl -MCPAN -e 'CPAN::Shell->install("Hash::MultiValue");';
+perl -MCPAN -e 'CPAN::Shell->install("Devel::StackTrace");';
+perl -MCPAN -e 'CPAN::Shell->install("HTTP::Body");';
+perl -MCPAN -e 'CPAN::Shell->install("Filesys::Notify::Simple");';
+perl -MCPAN -e 'CPAN::Shell->install("Devel::StackTrace::AsHTML");';
+perl -MCPAN -e 'CPAN::Shell->install("Mojolicious");';
+perl -MCPAN -e 'CPAN::Shell->install("AnyEvent");';
+perl -MCPAN -e 'CPAN::Shell->install("WWW::Twilio::API");';
+perl -MCPAN -e 'CPAN::Shell->install("Text::Wrap");';
+perl -MCPAN -e 'CPAN::Shell->install("Plack");';
+
+perl -MCPAN -e 'CPAN::Shell->install("Digest::SHA1");';
+perl -MCPAN -e 'CPAN::Shell->force("install","DIME::Payload");'
+
+perl -MCPAN -e 'CPAN::Shell->force("install","IPC::Lock::Memcached");';
+perl -MCPAN -e 'CPAN::Shell->force("install","IPC::ConcurrencyLimit::Lock");';
+
+## NetSRS -- DomainRegistration
+## pre-req for opensrs
+#cd /usr/local/src
+echo | perl -MCPAN -e 'CPAN::Shell->install("Test::Carp");';
+echo | perl -MCPAN -e 'CPAN::Shell->install("Locales::DB");';
+echo | perl -MCPAN -e 'CPAN::Shell->install("Locales");';
+echo | perl -MCPAN -e 'CPAN::Shell->install("DBM::Deep");';
+echo | perl -MCPAN -e 'CPAN::Shell->install("Number::Phone");';
+cd /usr/local/src;
+git clone https://github.com/brianhorakh/perl-cpan--Net-OpenSRS
+cd perl-cpan--Net-OpenSRS
+perl Makefile.PL
+make install
+
+
+## s3fs
+yum remove -y fuse fuse-devel libguestfs perl-Sys-Guestfs
+here are the instructions:
+## S3 FUSE FILESYSTEM ##
+
+http://sourceforge.net/projects/httpfs/files/latest/download?source=files
+
+## s3fs requires a higher version of fuse than comes with centos
+yum remove -y fuse fuse-devel libguestfs perl-Sys-Guestfs
+#browse to : http://sourceforge.net/projects/fuse/files/fuse-2.X/
+#download 2.9.6 then uncompress in /usr/local/src
+
+cd /usr/local/src
+wget 'http://downloads.sourceforge.net/project/fuse/fuse-2.X/2.9.3/fuse-2.9.3.tar.gz'
+tar -xzvf fuse-2.9.3.tar.gz
+cd fuse-2.9.3
+./configure
+make install
+
+
+cd /usr/local/src;
+wget http://s3fs.googlecode.com/files/s3fs-1.74.tar.gz;
+tar -xzvf  s3fs-1.74.tar.gz;
+cd s3fs-1.74;
+./configure;
+make;
+make install;
+
+mkdir /mnt/configs
+# public:
+/usr/local/bin/s3fs commercerack-configs /mnt/configs -odefault_acl=public-read -opublic_bucket=1 -ouse_cache=/tmp
+# private (rw)
+/usr/local/bin/s3fs commercerack-configs /mnt/configs -odefault_acl=public-read -ouse_cache=/tmp
+
+
+##
+## opensrs we must download the dev release
+## http://search.cpan.org/CPAN/authors/id/I/IV/IVAN/Net-OpenSRS-0.07_01.tar.gz
+#cd /usr/local/src
+#wget http://search.cpan.org/CPAN/authors/id/I/IV/IVAN/Net-OpenSRS-0.07_01.tar.gz
+#tar -xzvf Net-OpenSRS-0.07_01.tar.gz
+#cd Net-OpenSRS-0.07_01/
+#perl Makefile.PL
+#make
+
+
+
+
+## JFTP GATEWAY (for buy.com proxy)
+## 
+cd /usr/local/src
+wget http://www.mcknight.de/jftpgw/jftpgw-0.13.5.tar.gz
+tar -xzvf jftpgw-0.13.5.tar.gz
+cd jftpgw-0.13.5
+./configure --enable-libwrap
+make install
+cp /httpd/platform/role/gw/jftpgw.conf /usr/local/etc/jftpgw.conf
+ln -s /etc/jftpgw.conf /usr/local/etc/jftpgw.conf
+
+
+
+
+## HMM maybe:
+cd /usr/local/src
+wget http://redis.googlecode.com/files/redis-2.6.10.tar.gz
+tar xzf redis-2.6.10.tar.gz
+cd redis-2.6.10
+make 
+make install
+
+
+## xerces and xalan are needed for ebay xslt conversion
+## on i686
+## NEVER USE CENTOS BINARIES: -- THESE VERSIONS DONT WORK (IT WILL SCREW OVER XALAN)
+##	yum install xerces-c xerces-c-devel xerces-c-doc
+
+## 
+cd /usr/local/src/
+wget http://apache.cs.utah.edu/xerces/c/3/sources/xerces-c-3.1.1.tar.gz
+tar -xzvf xerces-c-3.1.1.tar.gz
+cd xerces-c-3.1.1
+./configure
+make install
+
+
+
+
+
+
+ldconfig
+
+cd /usr/local/src
+wget http://apache.cs.utah.edu/xalan/xalan-c/sources/xalan_c-1.11-src.tar.gz
+tar -xzvf xalan_c-1.11-src.tar.gz
+cd xalan-c-1.11/c
+ export XERCESCROOT="/usr/local/include/xercesc"
+ export XALANCROOT=`pwd`
+./runConfigure -p linux
+make clean
+
+## DO NOT RUN CONFIGURE -- YOU WILL SPEND HOURS FIGURING OUT WTF.
+## ./configure
+make
+
+make install
+
+
+
+##
+## git clone git://banu.com/tinyproxy.git
+cd /usr/local/src
+wget --no-check-certificate https://banu.com/pub/tinyproxy/1.8/tinyproxy-1.8.3.tar.bz2
+tar -xjvf tinyproxy-1.8.3.tar.bz2
+cd tinyproxy-1.8.3
+./configure
+make install
+
+##
+##
+
+yum -y install asciidoc
+
+
+
+perl -MCPAN -e 'CPAN::Shell->force("install","Data::JavaScript::LiteObject");'
+perl -MCPAN -e 'CPAN::Shell->force("install","JavaScript::Minifier");'
+
+
+## ZERO MQ
+
+## CANT GET ZEROMQ TO COMPILE UNPATCHED, Alien::ZMQ fixes it.
+## ./configure --with-pgm --enable-static --enable-shared --with-gnu-ld
+perl -MCPAN -e 'CPAN::Shell->install("ExtUtils::CBuilder");'
+perl -MCPAN -e 'CPAN::Shell->install("String::ShellQuote");'
+
+perl -MCPAN -e 'CPAN::Shell->install("Alien::ZMQ");'
+perl -MCPAN -e 'CPAN::Shell->install("ZMQ::LibZMQ3");'
+perl -MCPAN -e 'CPAN::Shell->install("String::Urandom");'
+
+yum -y install help2man texinfo libtool
+
+## latest autoconf needed for libmaxmind/geoip
+cd /usr/local/src;
+wget http://ftp.gnu.org/gnu/autoconf/autoconf-2.69.tar.gz;
+cd autoconf-2.69;
+./configure;
+make install;
+
+
+## download maxmind c library? (is this even needed)
+#cd /usr/local/src
+#git clone https://github.com/maxmind/libmaxminddb.git
+#cd libmaxminddb
+#./bootstrap
+#./configure
+#make install
+ 
+##
+
+cd /usr/local/src
+# wget http://www.maxmind.com/app/c
+/bin/rm -f GeoIP-latest.tar.gz;
+wget http://www.maxmind.com/download/geoip/api/c/GeoIP-latest.tar.gz
+tar -xzvf GeoIP-latest.tar.gz
+cd GeoIP-1.5.1
+./configure --enable-shared
+make
+make install
+
+## grab the latest database
+wget -N http://geolite.maxmind.com/download/geoip/database/GeoLiteCity.dat.gz
+## wget http://dev.maxmind.com/geoip/downloadable
+
+## grab the perl library
+## DO NOT USE: perl -MCPAN -e 'CPAN::Shell->force("install","Geo::IP");'
+wget http://search.cpan.org/CPAN/authors/id/B/BO/BORISZ/Geo-IP-1.42.tar.gz
+tar -xzvf Geo-IP-1.42.tar.gz
+cd Geo-IP-1.42
+perl Makefile.PL LIBS="-L/usr/local/lib"
+
+
+
+cd /usr/local/src
+wget -N http://geolite.maxmind.com/download/geoip/database/GeoLiteCountry/GeoIP.dat.gz
+gzip -d GeoIP.dat.gz
+mv GeoIP.dat /httpd/static
+
+
+
+## 201402
+
+ln -s /httpd /backend
+
+cd /
+ln -s /backend /httpd
+rm -Rf /backend/lib
+ln -s /backend/lib /backend/modules
+ 
+perl -MCPAN -e 'CPAN::Shell->install("ExtUtils::Constant");';
+perl -MCPAN -e 'CPAN::Shell->install("Socket");';
+perl -MCPAN -e 'CPAN::Shell->force("install","Net::Ping");';
+perl -MCPAN -e 'CPAN::Shell->install("Hijk");';
+perl -MCPAN -e 'CPAN::Shell->install("HTTP::Tiny");';
+perl -MCPAN -e 'CPAN::Shell->install("Elasticsearch");';
+perl -MCPAN -e 'CPAN::Shell->install("Pegex::Parser");'
+perl -MCPAN -e 'CPAN::Shell->install("Mo::builder");'
+perl -MCPAN -e 'CPAN::Shell->install("Net::AWS::SES");'
+
+ cd /usr/local
+ rm -Rf elasticsearch*
+ rm -f /etc/init.d/elasticsearch
+ 
+ wget https://download.elasticsearch.org/elasticsearch/elasticsearch/elasticsearch-1.0.1.noarch.rpm
+ rpm --install elasticsearch-1.0.1.noarch.rpm
+ 
+
+rm -f /etc/elasticsearch.yml
+echo "node.max_local.storage_nodes: 1" >> /etc/elasticsearch/elasticsearch.yml
+echo "index.number_of_replicas: 0" >> /etc/elasticsearch/elasticsearch.yml
+echo "path.data: /local/elastic" >> /etc/elasticsearch/elasticsearch.yml
+
+
+
+## 201403
+
+cd /tmp
+wget https://download.elasticsearch.org/elasticsearch/elasticsearch/elasticsearch-1.1.1.noarch.rpm
+rpm --install elasticsearch-1.1.1.noarch.rpm
+
+yum install -y monit
+
+
+
+
+
+/root/configs/ntp-time/ntp.sh
+
+sysctl -w net.core.somaxconn=1024
+
+
+yum -y install mysql mysql-devel mysql-client
+
+ln -sf /usr/share/zoneinfo/US/Pacific-New /etc/localtime
+
+
+######################################################### END OF FILE ######################################################
+
+
+## STUFF I DID NOT INSTALL:
+#rrd
+#mysql client
+#wget http://www.cpan.org/src/5.0/perl-5.16.2.tar.gz
+
+
+#http://dev.mysql.com/get/Downloads/MySQL-Proxy/mysql-proxy-0.8.3-linux-rhel5-x86-32bit.tar.gz/from/http://cdn.mysql.com/
+#http://dev.mysql.com/get/Downloads/MySQL-Proxy/mysql-proxy-0.8.3-linux-rhel5-x86-64bit.tar.gz/from/http://cdn.mysql.com/
+#tar -xzvf
+#mv /usr/local
+#ln -s mysql-proxy-0.8.3-linux-rhel5-x86-64bit mysql-proxy
+
+
+### STEPS TO FIX THE CLONE ISSUE:
+#steps to fix the clone issue:
+#1. joe /etc/udev/rules.d/70-persistent-net.rules
+#2. udev adds new nics when the new boots 
+#Change those from eth2, eth3 to eth0, eth1
+#delete the old eth0,1 lines
+#3. copy the new mac addresses
+#4. put them in /etc/sysconfig/network-scripts/ifcfgl-eth0 ,1
+#5. start_udev
+#6. reboot
+
+
+## 
+## CERTIFICATES!
+## if we were going to create new certificates we would:
+#cd /usr/local/ssl/misc/
+#   a) ./CA.sh -newca
+#         # Follow instructions, create PEM passphrase, but create a blank pass for the Challenge pass phrase
+#   b) Next, create a cert request and private key for the server. Remember that the Common Name for this cert should be the fully qualified domain name of the server:
+#   openssl req -new -nodes -keyout newreq.pem -out newreq.pem
+#       # Follow instructions, leave challenge password blank
+#   c) ./CA.sh -sign
+#       # You will need to enter the PEM passphrase here and confirm your selection
+#   d) Install these certs for use with Apache.
+#       mkdir -p /usr/local/share/certs/
+#       mv newcert.pem /usr/local/share/certs/apachecert.pem
+#       mv newreq.pem /usr/local/share/certs/apachecertkey.pem
+
+
+
+# Cut and paste the following into it:
+################################################
+#!/bin/sh
+#
+# Startup script for the Apache Web Server
+#
+# chkconfig: 345 85 15
+# description: Apache is a World Wide Web server.  It is used to serve \
+#        HTML files and CGI.
+# processname: httpd
+# pidfile: /var/run/httpd.pid
+# config: /usr/local/apache/conf/httpd.conf
+
+basedir=/usr/local/apache
+
+# Source function library.
+. /etc/rc.d/init.d/functions
+
+# See how we were called.
+case "$1" in
+start)
+echo -n "Starting httpd: "
+daemon $basedir/bin/httpd -D SSL
+echo
+touch /var/lock/subsys/httpd
+;;
+stop)
+echo -n "Shutting down http: "
+killproc $basedir/bin/httpd
+echo
+rm -f /var/lock/subsys/httpd
+rm -f /var/run/httpd.pid
+;;
+status)
+status $basedir/bin/httpd
+;;
+restart)
+$0 stop
+$0 start
+;;
+reload)
+echo -n "Reloading httpd: "
+killproc $basedir/bin/httpd -HUP
+echo
+;;
+*)
+echo "Usage: $0 {start|stop|restart|reload|status}"
+exit 1
+esac
+
+exit 0
+
+
+################################################
+
+17) make the startup script executable
+chmod 755 /etc/init.d/httpd
+
+18) Add apache to the appropriate run levels
+chkconfig --levels 345 httpd on
+
+19) edit your httpd.conf file how you like it or need it
+vi /usr/local/apache/conf/httpd.conf
+# Make sure you run the server as webman
+
+20) Make error logs
+mkdir -p /var/log/httpd/apache
+
+21) Start apache
+### skip starting apache if you are copying httpd.conf config files from another machine, until you have have completed all steps in this document
+/etc/init.d/httpd start
+
+22) Copy the /etc/passwd /etc/group and /etc/shadow to the new machine
+
+23) Make sure that the accounts for programs have no shell access, apache, mysql, etc
+# Change their accounts from /bin/bash
+# to: /sbin/nologin
+
+24) Set webman to /sbin/nologin
+
+
+
+
+#hoth  gw1, www1, www4
+#dagobah
+#bespin
+#crackle
+#pop
+
+
+
+=====
+HOST=z200 ; cat /root/.ssh/id_rsa.pub | ssh $HOST "cat >> ~/.ssh/authorized_keys"
+
+
+mkdir -m 700 ~nagios/.ssh;
+
+cat >> ~nagios/.ssh/authorized_keys
+ssh-dss AAAAB3NzaC1kc3MAAACBAKRKJYFTG44RbnkmqMj8xVeqYXxCzIpqsrp1llKwRpw7Vdj1BKhT1Lkanum+t/VOD8GhVHzAdGKEWiq6N9OBB1Eu+ug/w87Rt9dDQIpAJcQMfuAGRDUPpfPYszi9ES2FHWD3IDPI3WxrFSoRW1483aHjMynDUdk2o/OXUErxCwPBAAAAFQDFP1EVWEd47iDXXqMZbpZLhlSMAwAAAIEAmla9noFI3uzZ7Nmi1ml7cyBzShzZnKpfobSGrTIrzDsOe2Xykzd1BSxkp4pK7PiPWpnS1hAARd9hTcfGPosispsEAdpT0bzQUMwngMshEkZn4yDTh1lRzADSy944NJkhH8QqlSdLlUdUT6AiNZNJeVT75ZdQ3l1LmYlbP/yty+sAAACAN8mYEqq/P7ltO61W/qlfxJpWGbI7uiZn81pbVNt5SadW3pvtaoqaQvsCET/YSnGZb+dUoh8GsPWkZMQpQhCJCLJ9LdhYrBroLFnvQLgweTFdA7KI/Ejk324OThNm1Kb8sC1tAAh4TzMi4RDkK6EifSsi1bwsfkJ8AwDhfsVMIco= nagios@monitor.zoovy.com
+ssh-rsa AAAAB3NzaC1yc2EAAAABIwAAAQEAy/Yiq4g2tF+rNrG4MH5aZ/B65uDViqudCtWq2YweQclJGgHX7r/NI428aMdhU0ZFlSVL7+m5c7YP2QioRjgD4mD74N6oJW6GRxtKC9nKhkgi6aricaDNuu3ldQFosxavO7vS0+D6G40NR7JXpk9tLopQqInl/figBNuFzwpixRJajdMm3rpsbKsWcleDREp116lnohfTmSLdJlkcm+mqnQpOjpuWiGXJS7uwlz1LVZC9p09C9HLqhaoF6SUo7eqxY4I/6Xm4TOhQnpyMv3XBmzmXvsLO+3rDT7H7nXBFm1mftWpY9EGrGDxZ5gwEFvCrYaAxHGOlYpajNgOa9ech7w== nagios@monitor.zoovy.com
+
+
+useradd -M --system -u 495 nginx
+groupadd -g 494 nagios; useradd -m -u 494 -g 494 nagios; mkdir -m 755 -p /home/nagios; chown nagios /home/nagios;; mkdir -p 700 /home/nagios/.ssh
+chown nagios.nagios /home/nagios/.ssh
+ssh-keygen -t rsa
+
+echo 20 > /proc/sys/vm/swappiness
+sysctl -w net.ipv4.tcp_max_syn_backlog=1280
+sysctl -w net.ipv4.tcp_syncookies=1
+sysctl -w net.ipv4.tcp_rmem='4096 7380 16777216'
+sysctl -w vm.min_free_kbytes=65536
+sysctl -w net.core.rmem_max=16777216
+sysctl -w net.core.wmem_max=16777216
+sysctl -w fs.file-max=70000
+
+## raise the number of file descriptors
+/etc/security/limits.conf
+nginx       soft    nofile   10000
+nginx       hard    nofile  30000
+
+
+
+scp /usr/local/nginx/conf/vstore.conf gw1-crackle:/usr/local/nginx/conf/vstore.conf
+scp -r /usr/local/nginx/certs gw1-crackle:/usr/local/nginx/
+
+
+cat /root/.ssh/id_rsa.pub | ssh www1-crackle "cat >> ~/.ssh/authorized_keys"
+/root/configs/ntp-time/ntp.sh
+
+config eth0+eth0:1 in etc/rc.d/rc.local
+/etc/rc.d/rc.local
+ifconfig eth0 208.74.184.120/28
+ifconfig eth0:1 208.74.184.121/32
+route add default gw 208.74.184.114
+
+
+
+
+
+
+joe /etc/hosts
+192.168.2.35   crackle
+192.168.2.36   pop
+192.168.2.37   dagobah 
+192.168.2.38   hoth 
+192.168.2.39   bespin
+208.74.184.120 my.identity
+208.74.184.120 my.private
+208.74.184.120 vstore vstore.zoovy.com
+208.74.184.120 static static.zoovy.com
+
+scp /httpd/bin/apachectl gw1-dagobah:/httpd/bin/apachectl
+scp /usr/local/nginx/conf/nginx.conf gw1-dagobah:/usr/local/nginx/conf/nginx.conf
+scp /usr/local/nginx/sbin/nginx gw1-dagobah:/usr/local/nginx/sbin/nginx
+scp /httpd/bin/apachectl gw1-dagobah:/usr/local/nginx/sbin/nginx
+
+mkdir -m 755 -p /local/nginx/logs
+mkdir -m 0775 /local/nginx-cache
+mkdir -m 0755 -p /remote/crackle/users-sync
+mkdir -m 0755 -p /remote/crackle/users
+mv /httpd/htdocs /httpd/zoovy-htdocs
+
+/etc/fstab
+## MOUNT POINTS
+crackle:/data/users-crackle /remote/crackle/users-sync nfs defaults,hard,noac,tcp,nfsvers=3,intr,noatime 0 0
+crackle:/data/users-crackle /remote/crackle/users nfs defaults,hard,udp,rsize=8192,wsize=8192,nfsvers=3,intr,noatime 0 0
+
+mount -a
+
+/etc/init.d/iptables stop
+
+
+mkdir -m 0777 -p /remote/crackle/users; mkdir -m 0777 -p /remote/pop/users; mkdir -m 0777 -p /remote/dagobah/users; mkdir -m 0777 -p /remote/hoth/users;mkdir -m 0777 -p /remote/bespin/users
+cat >>/etc/fstab
+
+### crackle MOUNT POINTS
+crackle-int:/data/users-crackle /remote/crackle/users  nfs defaults,hard,rsize=32768,wsize=32768,nfsvers=4,intr,noacl,noatime 0
+## POP MOUNT POINTS
+pop-int:/data/users-pop /remote/pop/users nfs defaults,hard,rsize=32768,wsize=32768,nfsvers=4,intr,noacl,noatime 0 0
+## DAGOBAH MOUNT POINTS
+dagobah-int:/data/users-dagobah /remote/dagobah/users nfs defaults,hard,rsize=32768,wsize=32768,nfsvers=4,intr,noacl,noatime 0 0
+## HOTH MOUNT POINTS
+hoth-int:/data/users-hoth /remote/hoth/users nfs defaults,hard,rsize=32768,wsize=32768,nfsvers=4,intr,noacl,noatime 0 0
+## BESPIN
+bespin-int:/data/users-bespin /remote/bespin/users nfs defaults,hard,rsize=32768,wsize=32768,nfsvers=4,intr,noacl,noatime 0 0
+
+
+
+www4-pop
+echo 1024 > /proc/sys/net/core/somaxconn
+sysctl -w net.core.somaxconn=1024
+
+
+www2-pop
+
+---
+
+
+
+
+
+/etc/init.d/iptables start
+
+echo 1024 > /proc/sys/net/core/somaxconn
+
+echo 15 > /proc/sys/net/ipv4/tcp_keepalive_intvl
+echo 25 > /proc/sys/net/ipv4/tcp_fin_timeout
+echo 15 > /proc/sys/net/ipv4/tcp_keepalive_time
+
+# which sockets can be used for whatever
+echo 8192 61000 > /proc/sys/net/ipv4/ip_local_port_range
+
+# of probes before timeout
+echo 5 > /proc/sys/net/ipv4/tcp_keepalive_probes
+
+# This allows reusing sockets in TIME_WAIT state for new connections when it is safe from protocol viewpoint.
+echo 1 > /proc/sys/net/ipv4/tcp_tw_reuse
+
+www2-hoth
+echo 30 > /proc/sys/net/ipv4/tcp_keepalive_intvl
+echo 0 > /proc/sys/net/ipv4/tcp_tw_reuse
+
+
+renice the nginx process
+
+
+
+gw1 boxes:
+## DID NOT SET: /proc/sys/net/ipv4/tcp_fin_timeout
+## DID NOT SET  /proc/sys/net/ipv4/tcp_tw_reuse
+echo 15 > /proc/sys/net/ipv4/tcp_keepalive_intvl 
+echo 9 > /proc/sys/net/ipv4/tcp_keepalive_probes
+echo 8192 61000 > /proc/sys/net/ipv4/ip_local_port_range
+
+
+
+
+
