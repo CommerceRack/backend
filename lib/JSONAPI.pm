@@ -9318,6 +9318,7 @@ sub adminTask {
 		foreach my $TASKREF (@{$T->list()}) {
 			## filter by class e.g. class=>'SETUP'
 			next if ((defined $v->{'class'}) && ($v->{'class'} ne $TASKREF->{'CLASS'}));
+			next if ((not defined $v->{'completed'}) && ($TASKREF->{'COMPLETED_GMT'}>0));
 			next if ($LIMIT-- < 0);
 			my %TASK = ();
 			foreach my $k (keys %{$TASKREF}) {

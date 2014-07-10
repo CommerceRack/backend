@@ -565,7 +565,9 @@ sub contact_handler {
 			if ($order_id ne '') { $link = "order:$order_id"; }
          #$t->add(class=>"MSG",link=>$link,from=>$from,title=>$subject,detail=>$message);
 			$mode = 'confirmation';
-			&ZOOVY::add_enquiry($SITE->username(),"ENQUIRY.ORDER",
+			my $ENQUIRY = 'ENQUIRY';
+			if ($order_id ne '') { $ENQUIRY = 'ENQUIRY.ORDER'; }
+			&ZOOVY::add_enquiry($SITE->username(),$ENQUIRY,
 				order=>$order_id,link=>$link,from=>$from,title=>$subject,detail=>$message
 				);
 			}

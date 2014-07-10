@@ -10441,10 +10441,10 @@ sub process_payment {
 		require ZPAY::AUTHORIZENET;
 		($ZP) = ZPAY::AUTHORIZENET->new($USERNAME,$webdbref);		
 		}
-	elsif ($processor eq 'QBMS') {
-		require ZPAY::QBMS;
-		($ZP) = ZPAY::QBMS->new($USERNAME,$webdbref);
-		}
+#	elsif ($processor eq 'QBMS') {
+#		require ZPAY::QBMS;
+#		($ZP) = ZPAY::QBMS->new($USERNAME,$webdbref);
+#		}
 	elsif (($processor eq 'PAYPALWP') || ($processor eq 'PAYPALVT')) {
 		require ZPAY::PAYPALWP;
 		($ZP) = ZPAY::PAYPALWP->new($USERNAME,$webdbref);
