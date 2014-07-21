@@ -314,12 +314,6 @@ while ( my $YAML = $redis->brpoplpush("EVENTS","EVENTS.PROCESSING",1) ) {
 	my $MD5 = Digest::MD5::md5_hex($YAML);
 	$DIGESTS{$MD5}++;
 
-#	if (( $YREF->{'_USERNAME'} eq 'NUMBER21SPORTS' ) && ( $YREF->{'_EVENT'} eq 'INV.GOTINSTOCK' )) {
-#		warn "removing! $MD5 $DIGESTS{$MD5}\n";
-#		$redis->lrem("EVENTS.PROCESSING",-1,$YAML);
-#		next;
-#		}
-
 	next if (! -d &ZOOVY::resolve_userpath($USERNAME));
 
 	my $PRT = $YREF->{'PRT'};
@@ -1772,10 +1766,10 @@ sub e_INV_PRODUCT_UPDATE {
 	my ($EVENT,$USERNAME,$PRT,$YREF,$LM,$redis,$CACHEREF) = @_;
 
 	my $PID = $YREF->{'PID'};
-	my $REDIS_REATTEMPT_KEY = "EVENTS/INVENTORY/ELASTIC+$USERNAME+$PID";
+	my $REDIS_REATTEMPT_KEY = "EVENTS//INVENTORY/ELASTIC+$USERNAME+$PID";
 	my ($beenhere_donethat) = $redis->get($REDIS_REATTEMPT_KEY);
 	if (not $beenhere_donethat) {
-		$redis->setex($REDIS_REATTEMPT_KEY,time(),2*60);
+		$redis->setex($REDIS_REATTEMPT_KEY,2*60,time());
 		}
 
 	if ($beenhere_donethat) {
@@ -1971,18 +1965,18 @@ sub e_INV_CHANGED {
 	my ($P) = PRODUCT->new($USERNAME,$PID,'create'=>0);
 	if (not defined $P) { $error = "PRODUCT $PID not in database"; }
 
-	my $REDIS_REATTEMPT_KEY = "EVENTS/INVENTORY+$USERNAME+$PID";
+	my $REDIS_REATTEMPT_KEY = "EVENTS//INVENTORY+$USERNAME+$PID";
 	my ($beenhere_donethat) = $redis->get($REDIS_REATTEMPT_KEY);
 	if ($error) {
 		}
 	elsif (not $beenhere_donethat) {
-		$redis->setex($REDIS_REATTEMPT_KEY,time(),2*60);
+		$redis->setex($REDIS_REATTEMPT_KEY,2*60,time());
 		}
 
 	if ($error) {
 		}
 	elsif ($beenhere_donethat) {
-		warn "been here, done that already\n";
+		warn "been here, done that already (ebay)\n";
 		}
 	elsif ($P->fetch('ebay:ts')>0) {
 		## has ebay syndication enabled for the product, lets get a list of fixed price syndicated listings, and update the inventory

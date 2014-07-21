@@ -430,22 +430,6 @@ sub disposition {
 	$_[0]->{'RESULT_ERR_MSG'}); 
 	}
 
-#sub resolve_qty { 
-#	my ($self) = @_;
-#
-#	if ($self->{'QTY'} eq 'ALL') {
-#		return( INVENTORY2->new($self->username())->summary('SKU'=>$self->sku(),'SKU/VALUE'=>'AVAILABLE') ); 
-#		#my ($ONHANDREF) = &INVENTORY::fetch_incrementals($self->username(),[$self->sku()]);
-#		#return($ONHANDREF->{$self->sku()});		
-#		}
-#	elsif ($self->{'QTY'} eq 'USEPRODUCT') {
-#		die("USEPRODUCT not working (yet)");
-#		}
-#	elsif ($self->{'QTY'} =~ /^[-]?[\d]+$/) {
-#		return(int($self->{'QTY'}));
-#		}
-#	return(-1);
-#	}
 
 
 
@@ -469,129 +453,6 @@ sub validate_qty {
 
 	return(0); # failed
 	}
-
-##
-## a merge requires three things:
-##
-#sub merge {
-#	my ($self,$FIELDSMAP,$prodref,$nsref) = @_;
-#
-#	my @LOG = ();
-#
-#	my %data = ();
-#	foreach my $ref (@{$FIELDSMAP}) {
-#		my $attrib = $ref->{'id'};
-#		my $val = undef;
-#
-#		if ((not defined $val) && (defined $self->{'%DATA'}->{$attrib})) {
-#			## EVENT data always wins (if it's set)
-#			$val = $self->{'%DATA'}->{$attrib};
-#			push @LOG, "DEBUG|+$attrib loaded from event";
-#			if ((defined $val) && (defined $ref->{'properties'}) && ($ref->{'properties'}&1) && ($val eq '')) { 
-#				push @LOG, "DEBUG|+EVENT $attrib was reset to undef because it was blank";
-#				$val = undef; 
-#				}
-#			}
-#
-#		if ((not defined $val) && (defined $prodref->{$attrib})) {
-#			## Then PRODUCT data
-#			$val = $prodref->{$attrib};
-#			push @LOG, "DEBUG|+$attrib loaded from product";
-#			if ((defined $val) && (defined $ref->{'properties'}) && ($ref->{'properties'}&1) && ($val eq '')) { 
-#				push @LOG, "DEBUG|+PRODUCT $attrib was reset to undef because it was blank";
-#				$val = undef; 
-#				}
-#			}
-#
-#		if ((not defined $val) && ($ref->{'ns'} eq 'profile') && (defined $nsref->{$attrib})) {
-#			## Then PROFILE data
-#			$val = $nsref->{$attrib};
-#			push @LOG, "DEBUG|+$attrib loaded from profile";
-#			if ((defined $val) && (defined $ref->{'properties'}) && ($ref->{'properties'}&1) && ($val eq '')) { 
-#				push @LOG, "DEBUG|+PROFILE $attrib was reset to undef because it was blank";
-#				$val = undef; 
-#				}
-#			}
-#
-#		
-#		if ((not defined $val) && ($ref->{'loadfrom'})) {
-#			foreach my $lattrib (split(/,/,$ref->{'loadfrom'})) {
-#				if (defined $prodref->{$lattrib}) {
-#					## note: at some point we might need to run a transformation routine, which could be an 
-#					##			anonymous sub embedded in @EBAY_FIELDS
-#					$val = $prodref->{$lattrib};
-#					push @LOG, "DEBUG|+$attrib loaded from product $lattrib";
-#					}
-#				elsif ($ref->{'ns'} eq 'product') {
-#					## if an attribute is in product namespace, NEVER attempt to load from profile.
-#					}
-#				elsif (defined $nsref->{$lattrib}) {
-#					## note: at some point we might need to run a transformation routine, which could be an 
-#					##			anonymous sub embedded in @EBAY_FIELDS
-#					$val = $nsref->{$lattrib};
-#					push @LOG, "DEBUG|+$attrib loaded from profile $lattrib";
-#					}
-#				}			
-#			}
-#
-#		if ((not defined $val) && ($ref->{'legacy'})) {
-#			## load from legacy
-#			foreach my $lattrib (split(/,/,$ref->{'legacy'})) {
-#				if (defined $val) {
-#					## we already have a value, no need to look for another.
-#					}
-#				elsif (defined $prodref->{$lattrib}) {
-#					## note: at some point we might need to run a transformation routine, which could be an 
-#					##			anonymous sub embedded in @EBAY_FIELDS
-#					$val = $prodref->{$lattrib};
-#					push @LOG, "DEBUG|+$attrib loaded from legacy product $lattrib";
-#					}
-#				elsif ($ref->{'ns'} eq 'product') {
-#					## if an attribute is in product namespace, NEVER attempt to load from profile.
-#					}
-#				elsif (defined $nsref->{$lattrib}) {
-#					## note: at some point we might need to run a transformation routine, which could be an 
-#					##			anonymous sub embedded in @EBAY_FIELDS
-#					$val = $nsref->{$lattrib};
-#					push @LOG, "DEBUG|+$attrib loaded from legacy profile $lattrib";
-#					}
-#				}
-#			}
-#
-#		if (defined $val) {
-#			## good shit.
-#			$data{$attrib} = $val;
-#			}
-#		elsif ($ref->{'required'} && ($ref->{'ns'} eq 'product')) {
-#			## throw an error!
-#			push @LOG, "ERROR|+Could not find required product attribute $attrib ($ref->{'hint'})";
-#			}
-#		elsif ($ref->{'required'} && ($ref->{'ns'} eq 'profile')) {
-#			## throw an error!
-#			push @LOG, "ERROR|+Could not find required profile $attrib ($ref->{'hint'})";
-#			}
-#		elsif ($ref->{'required'}) {
-#			## throw an error!
-#			push @LOG, "ERROR|+Could not find required $attrib ($ref->{'hint'})";
-#			}
-#		elsif (not $ref->{'required'}) {
-#			## i guess we can ignore this.
-#			push @LOG, "DEBUG|+$attrib was not found, but was not required and can safely be ignored.";
-#			}
-#		else {
-#			## never reached.
-#			push @LOG, "ERROR|+Something horrible happened in LISTING::EVENT->merge";
-#			}
-#		}
-#
-#	return(\%data,\@LOG);
-#	}
-#
-
-
-
-
-
 
 ##
 ##
@@ -876,19 +737,6 @@ sub ebay_fields {
 	{properties=>1,id=>"ebay:ship_tax",ns=>"profile"},
 	{properties=>1, id=>"ebay:base_weight",type=>'weight',loadfrom=>"zoovy:base_weight",hint=>'eBay Specific Weight'},
 	
-	#{properties=>1,id=>"ebay:title2",hint=>"Powerlister Title Two"},
-	#{properties=>1,id=>"ebay:title3",hint=>"Powerlister Title Three"},
-	#{properties=>1,id=>"ebay:title4",hint=>"Powerlister Title Four"},
-	#{properties=>1,id=>"ebay:title5",hint=>"Powerlister Title Five"},
-	#{properties=>1,id=>"ebay:power_min","legacy=>ebay:minsellprice",hint=>"Powerlister minimum sell price"},
-	#{properties=>1,id=>"ebay:power_dow",hint=>"Ebay Vistitor Counter"},
-	#{properties=>1,id=>"ebay:power_endtime",hint=>"~"},
-	#{properties=>1,id=>"ebay:power_starttime",hint=>"~"},
-	#{properties=>1,id=>"ebay:power_interval",hint=>"~"},
-	#{properties=>1,id=>"ebay:power_maxauction",hint=>"~"},
-	#{properties=>1,id=>"ebay:power_quantity",hint=>"~"},
-	#{properties=>1,id=>"ebay:powerinv",hint=>"~"},
-
 	{properties=>1,id=>"ebay:sku",ns=>"product",type=>"text",title=>"eBay SKU",hint=>"SKU that will be sent to eBay and used on the inbound order/inventory. Use this if you have multiple products that act as separate ebay templates."},
 	{properties=>1,id=>"ebay:launch_immediate",type=>"boolean",ns=>"product",hint=>"Ignore launch window and launch immediately"},
 	{properties=>1,id=>"ebay:launch_window",type=>"boolean",ns=>"product",hint=>"Custom launch window"},
@@ -915,7 +763,7 @@ sub ebay_fields {
 	{properties=>1,id=>"ebay:prod_length",title=>"eBay Packaged Shipping Length",loadfrom=>"zoovy:prod_length,ebay:pkg_length,zoovy:pkg_length,ebay:pkg_depth,zoovy:pkg_depth",type=>"number",ns=>"product"},
 	{properties=>1,id=>"ebay:prod_height",title=>"eBay Packaged Shipping Height",loadfrom=>"zoovy:prod_height,ebay:pkg_height,zoovy:pkg_height",type=>"number",ns=>"product"},
 	{properties=>1,id=>"ebay:prod_width",title=>"eBay Packaged Shipping Width",loadfrom=>"zoovy:prod_width,ebay:pkg_width,zoovy:pkg_width",type=>"number",ns=>"product"},
-	{properties=>1,id=>"ebay:ship_packagetype",title=>"eBay Package Type",hint=>"see eBay documentation for CalculatedShippingRate.ShippingPackage",ns=>"profile"},
+  	{properties=>1,id=>"ebay:ship_packagetype",title=>"eBay Package Type",hint=>"see eBay documentation for CalculatedShippingRate.ShippingPackage",ns=>"profile"},
 	);
 
 	if (($listtype eq 'FIXED') || ($listtype eq '')) {
@@ -1520,6 +1368,10 @@ sub event_handler {
 			$html = &ZTOOLKIT::stripUnicode($html);
 			}
 		# $html =~ s/return/r e t u r n/gi;
+
+		if ($html =~ /<[Ii][Ff][Rr][Aa][Mm][Ee] /) {
+			push @{$MSGS}, "ERROR|+Resulting HTML contains iFrame html tag -- which is NOT allowed by eBay.";
+			}
 
 		##
 		## SANITY: at this point $html is built.
@@ -3151,7 +3003,7 @@ sub event_handler {
 			my $pstmt = sprintf("update EBAY_LISTINGS set IS_ENDED=if(IS_ENDED=0,77,IS_ENDED) where MID=%d and ID=%d",$vars{'MID'},$vars{'ID'});
 			print STDERR $pstmt."\n";
 			$udbh->do($pstmt);
-			push @{$MSGS}, "INFO|+Did database cleanup UUID:$vars{'ID'} to IS_ENDED=77";
+			push @{$MSGS}, "DEBUG|+Did database cleanup UUID:$vars{'ID'} to IS_ENDED=77";
 
 			use Data::Dumper;
 			open F, ">/tmp/ebay.failure.77";

@@ -481,9 +481,8 @@ sub footer_inventory {
 	my ($UUID,$result) = ();
 	if ($PREVIOUS_JOBID > 0) {
 		($UUID,$result) = $eb2->bdesapi('getJobStatus',{jobId=>$PREVIOUS_JOBID});
-		## we probably need to check to see if we got an expired job, or some crap like that, and if we do, then just suppress it.
 
-		print Dumper($result)."\n";
+		## we probably need to check to see if we got an expired job, or some crap like that, and if we do, then just suppress it.
 
 		if ($UUID eq '') {
 			$lm->pooshmsg("WARN|+Got blank UUID response from getJobStatus:$PREVIOUS_JOBID");
@@ -497,8 +496,10 @@ sub footer_inventory {
 			$lm->pooshmsg("WARN|+Got ack failure on previous job, but this might not be a bad thing.");
 			}
 		else {
-	
+
 			my ($jobStatus) = $result->{'jobProfile'}->[0]->{'jobStatus'}->[0];
+			if ($jobStatus eq 'Created') { $jobStatus = 'Failed'; }
+
 			if ($jobStatus eq 'Completed') {
 				my $fileId = $result->{'jobProfile'}->[0]->{'fileReferenceId'}->[0];
 				# $fileId = $result->{'jobProfile'}->[0]->{'InputFileReferenceId'}->[0];
@@ -512,7 +513,8 @@ sub footer_inventory {
 			elsif ($jobStatus eq 'Failed') {
 				$lm->pooshmsg("ISE|+Previous job:$PREVIOUS_JOBID is:$jobStatus (will need to manually reset account)");
 				my ($udbh) = &DBINFO::db_user_connect($USERNAME);
-				my $pstmt = "update EBAY_LISTINGS set LMS_INVENTORY_DOCID=0,LMS_INVENTORY_TS=0 where MID=$MID and EBAY_EIAS=".$udbh->quote($eb2->eias());
+				my $pstmt = "update EBAY_TOKENS set LMS_INVENTORY_DOCID=0,LMS_INVENTORY_TS=0 where MID=$MID and EBAY_EIAS=".$udbh->quote($eb2->ebay_eias());
+				print STDERR "$pstmt\n";
 				$udbh->do($pstmt);
 				&DBINFO::db_user_close();
 				}

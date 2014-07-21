@@ -90,18 +90,17 @@ if (defined $params{'.queue'}) {
 		if ($params{'.queue'}) {
 			$ENV{'SHELL'} = '/bin/bash';
 			# open H, "|/usr/bin/at -q $queue now + $i minutes";
-			my $CMD = "/usr/bin/at -q A now";
-			if (&ZOOVY::host_operating_system() eq 'SOLARIS') {
-				my $min = ($loop++%30).'min';
-				$CMD = "/usr/bin/at -q e now+$min";
-				}
+			my $min = ($loop++%30).'min';
+			my $CMD = "/usr/bin/at -q A now+$min";
+			if (&ZOOVY::host_operating_system() eq 'SOLARIS') { $CMD = "/usr/bin/at -q e now+$min"; }
+
 			open H, "|$CMD";			
 			print H "rm -f /tmp/EBAY-$USERNAME-$PRT.running-debug\n";
 			# print H "/httpd/servers/ebay/orders.pl >> /tmp/EBAY-$USERNAME-$PRT.running-debug\n";
 			print H "/httpd/servers/ebay/orders.pl user=$USERNAME prt=$PRT verb=create type=orders >> /tmp/EBAY-$USERNAME-$PRT.running-debug\n";
 			print H "sleep 30;";
 			print H "COUNTER=0; ";
-			print H "while [ \$COUNTER -lt 25 ] ; do \n";
+			print H "while [ \$COUNTER -lt 20 ] ; do \n";
 			print H "		/httpd/servers/ebay/orders.pl user=$USERNAME prt=$PRT verb=download type=orders >> /tmp/EBAY-$USERNAME-$PRT.running-debug\n";
 			print H "		if [ \$? -eq 0 ] ; then \n";
 			print H "			let COUNTER=COUNTER+60; \n";
