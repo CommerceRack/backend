@@ -86,6 +86,54 @@ sub list_roles {
 			'REPORTS'=>{ 'C'=>'+', 'U'=>'+', 'R'=>'+', 'L'=>'+', 'S'=>'+', 'D'=>'+' },
 			},
 		};
+
+	push @ROLES, {
+		'id'=>'TECHSUPPORT', 'title'=>'Technical Support', 'detail'=>'Access to almost everything',
+		'%objects'=>{
+			'DOMAIN'=>{ 'L'=>'+' },
+			'ORDER'=>{ 'C'=>'+', 'U'=>'+', 'R'=>'+', 'L'=>'+', 'S'=>'+', 'D'=>'+' },
+			'INVENTORY'=>{ 'C'=>'+', 'U'=>'+', 'R'=>'+', 'L'=>'+', 'S'=>'+', 'D'=>'+' },
+			'PRODUCT'=>{ 'C'=>'+', 'U'=>'+', 'R'=>'+', 'L'=>'+', 'S'=>'+', 'D'=>'+' },
+			'DASHBOARD'=>{ 'C'=>'+', 'U'=>'+', 'R'=>'+', 'L'=>'+', 'S'=>'+', 'D'=>'+' },
+			'REPORTS'=>{ 'C'=>'+', 'U'=>'+', 'R'=>'+', 'L'=>'+', 'S'=>'+', 'D'=>'+' },
+			'ORG'=>{ 'C'=>'+', 'U'=>'+', 'R'=>'+', 'L'=>'+', 'S'=>'+', 'D'=>'+' },		
+			'CONFIG'=>{ 'C'=>'+', 'U'=>'+', 'R'=>'+', 'L'=>'+', 'S'=>'+', 'D'=>'+' },
+			'NAVCAT'=>{ 'C'=>'+', 'U'=>'+', 'R'=>'+', 'L'=>'+', 'S'=>'+', 'D'=>'+' },
+			'ORDER'=>{ 'C'=>'+', 'U'=>'+', 'R'=>'+', 'L'=>'+', 'S'=>'+', 'D'=>'+' },	
+			'ORDER/PAYMENT'=>{ 'C'=>'+', 'U'=>'+', 'R'=>'+', 'L'=>'+', 'S'=>'+', 'D'=>'+' },
+			'ORDER/TRACKING'=>{ 'C'=>'+', 'U'=>'+', 'R'=>'+', 'L'=>'+', 'S'=>'+', 'D'=>'+' },
+			'ORDER/ITEMS'=>{ 'C'=>'+', 'U'=>'+', 'R'=>'+', 'L'=>'+', 'S'=>'+', 'D'=>'+' },
+			'INVENTORY'=>{ 'C'=>'+', 'U'=>'+', 'R'=>'+', 'L'=>'+', 'S'=>'+', 'D'=>'+' },
+			'PRODUCT'=>{ 'C'=>'+', 'U'=>'+', 'R'=>'+', 'L'=>'+', 'S'=>'+', 'D'=>'+' },
+			'IMAGE'=>{ 'C'=>'+', 'U'=>'+', 'R'=>'+', 'L'=>'+', 'S'=>'+', 'D'=>'+' },
+			'FAQ'=>{ 'C'=>'+', 'U'=>'+', 'R'=>'+', 'L'=>'+', 'S'=>'+', 'D'=>'+' },
+			'SYNDICATION'=>{ 'C'=>'+', 'U'=>'+', 'R'=>'+', 'L'=>'+', 'S'=>'+', 'D'=>'+' },
+			'PROJECT'=>{ 'C'=>'+', 'U'=>'+', 'R'=>'+', 'L'=>'+', 'S'=>'+', 'D'=>'+' },
+			'BLAST'=>{ 'C'=>'+', 'U'=>'+', 'R'=>'+', 'L'=>'+', 'S'=>'+', 'D'=>'+' }, 
+			'RSS'=>{ 'C'=>'+', 'U'=>'+', 'R'=>'+', 'L'=>'+', 'S'=>'+', 'D'=>'+' }, 
+			'REPORT'=>{ 'C'=>'+', 'U'=>'+', 'R'=>'+', 'L'=>'+', 'S'=>'+', 'D'=>'+' }, 
+			'WMS'=>{ 'C'=>'+', 'U'=>'+', 'R'=>'+', 'L'=>'+', 'S'=>'+', 'D'=>'+' },
+			'PLATFORM'=>{ 'C'=>'+', 'U'=>'+', 'R'=>'+', 'L'=>'+', 'S'=>'+', 'D'=>'+' },
+			'TICKET'=>{ 'C'=>'+', 'U'=>'+', 'R'=>'+', 'L'=>'+', 'S'=>'+', 'D'=>'+' },
+			'CAMPAIGN'=>{ 'C'=>'+', 'U'=>'+', 'R'=>'+', 'L'=>'+', 'S'=>'+', 'D'=>'+' },
+			'DASHBOARD'=>{ 'C'=>'+', 'U'=>'+', 'R'=>'+', 'L'=>'+', 'S'=>'+', 'D'=>'+' },
+			'DOMAIN'=>{ 'C'=>'+', 'U'=>'+', 'R'=>'+', 'L'=>'+', 'S'=>'+', 'D'=>'+' },
+			'EBAY'=>{ 'C'=>'+', 'U'=>'+', 'R'=>'+', 'L'=>'+', 'S'=>'+', 'D'=>'+' },
+			'AMAZON'=>{ 'C'=>'+', 'U'=>'+', 'R'=>'+', 'L'=>'+', 'S'=>'+', 'D'=>'+' },
+			'GIFTCARD'=>{ 'C'=>'+', 'U'=>'+', 'R'=>'+', 'L'=>'+', 'S'=>'+', 'D'=>'+' },
+			'CUSTOMER'=>{ 'C'=>'+', 'U'=>'+', 'R'=>'+', 'L'=>'+', 'S'=>'+', 'D'=>'+' },
+			'CUSTOMER/WALLET'=>{ 'C'=>'+', 'U'=>'+', 'R'=>'+', 'L'=>'+', 'S'=>'+', 'D'=>'+' },
+			'SUPPLIER'=>{ 'C'=>'+', 'U'=>'+', 'R'=>'+', 'L'=>'+', 'S'=>'+', 'D'=>'+' },
+			'REVIEW'=>{ 'C'=>'+', 'U'=>'+', 'R'=>'+', 'L'=>'+', 'S'=>'+', 'D'=>'+' },
+			'PAGE'=>{ 'C'=>'+', 'U'=>'+', 'R'=>'+', 'L'=>'+', 'S'=>'+', 'D'=>'+' },
+			'MESSAGE'=>{ 'C'=>'+', 'U'=>'+', 'R'=>'+', 'L'=>'+', 'S'=>'+', 'D'=>'+' },
+			'TASK'=>{ 'C'=>'+', 'U'=>'+', 'R'=>'+', 'L'=>'+', 'S'=>'+', 'D'=>'+' },
+			'JOB'=>{ 'C'=>'+', 'U'=>'+', 'R'=>'+', 'L'=>'+', 'S'=>'+', 'D'=>'+' },
+			'HELP'=>{ 'C'=>'+', 'U'=>'+', 'R'=>'+', 'L'=>'+', 'S'=>'+', 'D'=>'+' },
+			'LEGACY'=>{ 'C'=>'+', 'U'=>'+', 'R'=>'+', 'L'=>'+', 'S'=>'+', 'D'=>'+' }
+			}
+		};
+
 	push @ROLES, { 
 		'id'=>'SUPER', 'title'=>'Supervisor', 'detail'=>'Access to all areas (except ownership transfer)',
 		'%objects'=>{
@@ -308,34 +356,22 @@ sub validate_authtoken {
 	my $validdigest = Digest::SHA1::sha1_hex($str);
 	if ($trydigest ne $validdigest) {
 		## okay so the digest checks out
+		print STDERR "VALID_DIGEST ne TRYDIGEST\n";
 		return( undef );
 		}
 
-	my ($memd) = &ZOOVY::getMemd($USERNAME);
-	if (my $ACL = $memd->get("SESSION+$AUTHTOKEN")) {
-		## warn "got memache\n";
-		return($ACL);
+	my $SESSIONKEY = "SESSION+$USERNAME+$randomstr";
+	print STDERR "validate_authtoken attempting $SESSIONKEY\n";
+	my $redis = &ZOOVY::getRedis($USERNAME,1);
+	my ($SESSIONJS) = $redis->get($SESSIONKEY);
+	if ($SESSIONJS ne '') {
+		## yay memcache got it!, refresh the session key
+		$redis->expire($SESSIONKEY,86400);
+		my $OBJ = JSON::XS::decode_json($SESSIONJS);	
+		return($OBJ->{'%ACL'});
 		}
 
-	## doesn't exist in memcache, check the database (and add to MEMCACHE on success)
-	my ($udbh) = &DBINFO::db_user_connect($USERNAME);
-	my ($MID) = &ZOOVY::resolve_mid($USERNAME);
-	my $pstmt = "select LUSERNAME,ACL from OAUTH_SESSIONS where MID=$MID and AUTHTOKEN=".$udbh->quote($AUTHTOKEN);
-	## print STDERR "/* $LUSERNAME */ $pstmt\n";
-	my ($dbLUSER,$dbACL) = $udbh->selectrow_array($pstmt);
-	&DBINFO::db_user_close();
-
-	if (uc($dbLUSER) eq uc($LUSERNAME)) {
-		#warn "set memcache\n";
-		$memd->set("SESSION+$AUTHTOKEN",$dbACL);
-		return($dbACL);
-		}
-	else {
-		#warn "failed db lookup\n";
-		return(undef);
-		}
-
-	## this line should NEVER be reached!
+	return(undef);
 	}
 
 
@@ -346,19 +382,9 @@ sub validate_authtoken {
 sub destroy_authtoken {
 	my ($USERNAME,$LUSERNAME,$AUTHTOKEN) = @_;
 
-	my ($udbh) = &DBINFO::db_user_connect($USERNAME);
-	my ($MID) = &ZOOVY::resolve_mid($USERNAME);
-
-	my ($memd) = &ZOOVY::getMemd($USERNAME);
-	if (defined $memd) {
-		$memd->delete("USER:$USERNAME.$LUSERNAME");
-		$memd->delete("SESSION+$AUTHTOKEN");
-		}
-
-	my $pstmt = "delete from OAUTH_SESSIONS where MID=$MID /* $USERNAME */ and AUTHTOKEN=".$udbh->quote($AUTHTOKEN);
-	print STDERR "$pstmt\n";
-	$udbh->do($pstmt);
-	&DBINFO::db_user_close();
+	my $redis = &ZOOVY::getRedis($USERNAME,1);
+	my $SESSIONKEY = "SESSION+$USERNAME+$AUTHTOKEN";
+	$redis->del($SESSIONKEY);
 
 	return();
 	}
@@ -370,6 +396,10 @@ sub destroy_authtoken {
 ##
 sub create_authtoken {
 	my ($USERNAME,$LUSERNAME,$CLIENTID,$DEVICEID, %options) = @_;
+
+	my ($randomstr) = &OAUTH::randomstring(24);
+	my ($redis) = &ZOOVY::getRedis($USERNAME,1);
+	my $SESSIONKEY = "SESSION+$USERNAME+$randomstr";
 
 	my ($udbh) = &DBINFO::db_user_connect($USERNAME);
 	my ($MID) = &ZOOVY::resolve_mid($USERNAME);
@@ -392,6 +422,10 @@ sub create_authtoken {
 		push @MYROLES, 'BOSS';
 		# &DBINFO::db_user_close();
 		}
+	elsif ($options{'@MYROLES'}) {
+		## used for support, etc.
+		@MYROLES = @{$options{'@MYROLES'}};
+		}
 	else {
 		my ($udbh) = &DBINFO::db_user_connect($USERNAME);
 		my $pstmt = "select UID, USERNAME, LUSER, MID, EXPIRES_GMT, ROLES from LUSERS where MID=".$MID." /* $USERNAME */ and LUSER=".$udbh->quote($LUSERNAME);
@@ -412,41 +446,27 @@ sub create_authtoken {
 		}
 
 	my ($ACL) = &OAUTH::build_myacl($USERNAME,\@MYROLES);
-	## my $authtoken = &OAUTH::build_authtoken($USERNAME,$LUSERNAME,$CLIENTID,$DEVICEID);
 
 	## create an authtoken
-	my ($randomstr) = &OAUTH::randomstring(24);
 	my $str = sprintf("%s-%s-%s-%s-%s",lc($USERNAME),lc($LUSERNAME),$CLIENTID,$DEVICEID,$randomstr);
 	my $digest = Digest::SHA1::sha1_hex($str);
 	my $authtoken = "1|$randomstr|$digest";
 
-	my $memd = &ZOOVY::getMemd($USERNAME);
-	$memd->set("SESSION+$authtoken",serialize_acl($ACL));
+	my ($redis) = &ZOOVY::getRedis($USERNAME,1);
+	$redis->set($SESSIONKEY,JSON::XS::encode_json({
+		USERNAME=>$USERNAME,
+		LUSERNAME=>$LUSERNAME,
+		DEVICEID=>$DEVICEID,
+		CLIENTID=>$CLIENTID,
+		IP_ADDRESS=>$ENV{'REMOTE_ADDR'},
+		CREATED_GMT=>time(),
+		AUTHTOKEN=>$authtoken,
+		MID=>$MID,
+		'%ACL'=>$ACL
+		}));
+	$redis->expire($SESSIONKEY,86400);
 
-	if (defined $dbresult) {
-		my $pstmt = &DBINFO::insert($udbh,'OAUTH_SESSIONS',{
-			'USERNAME'=>$USERNAME,
-			'LUSERNAME'=>$LUSERNAME,
-			'MID'=>$MID,
-			'DEVICEID'=>$DEVICEID,
-			'CLIENTID'=>$CLIENTID,
-			'IP_ADDRESS'=>$ENV{'REMOTE_ADDR'},
-			'*CREATED_TS'=>'now()',
-			'*EXPIRES_TS'=>'date_add(now(),interval 1 year)',
-			'AUTHTOKEN'=>$authtoken,
-			# 'CACHED_FLAGS'=>sprintf("%s",$dbresult->{'CACHED_FLAGS'}),
-			'ACL'=>serialize_acl($ACL),
-			},key=>['MID','AUTHTOKEN'],verb=>'insert',sql=>1);
-		print STDERR "$pstmt\n";
-		my ($rv) = $udbh->do($pstmt);
-
-		if (not defined $rv) {
-			warn "RESET SESSIONID/SECURITYID due to DB FAILURE\n";
-			($authtoken) = (undef);
-			}
-		}
-
-	&DBINFO::db_user_close();
+	print STDERR "SESSIONKEY: $SESSIONKEY\n";
 
 	return($authtoken);
 	}

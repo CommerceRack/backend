@@ -330,39 +330,50 @@ sub authinfo {
 	}
 
 
+##
+##
+##
 sub new_authtoken {
-	my ($class,$USERNAME,$LUSER,$AUTHTOKEN) = @_;
+	my ($class,$USERNAME,$LUSERNAME,$AUTHTOKEN) = @_;
 
-	my ($memd) = &ZOOVY::getMemd($USERNAME);
-	my ($ACL) = $memd->get("SESSION+$AUTHTOKEN");
+	my ($v,$randomstr,$trydigest) = split(/\|/,$AUTHTOKEN);
+	if ($v == 1) {
+		return(LUSER->new_from_session($USERNAME,$LUSERNAME,$randomstr));
+		}
+	}
+
+##
+##
+##
+sub new_from_session {
+	my ($CLASS,$USERNAME,$LUSERNAME,$SESSIONID) = @_;
+
+	my $redis = &ZOOVY::getRedis($USERNAME,1);
+	my $SESSIONKEY = "SESSION+$USERNAME+$SESSIONID";
+	my ($SESSIONJS) = $redis->get($SESSIONKEY);
+	$redis->expire($SESSIONKEY,86400);
 	my ($MID) = &ZOOVY::resolve_mid($USERNAME);
 
 	my $self = undef;
-	if ($ACL ne '') {
+
+	print STDERR "LUSER->new_authtoken: $SESSIONKEY = $SESSIONJS\n";
+	if ($SESSIONJS ne '') {
 		## yay memcache got it!
-		$self = { 'MID'=>$MID, 'USERNAME'=>$USERNAME, 'LUSERNAME'=>$LUSER, 'ACL'=>$ACL };
-		}
-	else {	
-		## db lookup
-		my ($udbh) = &DBINFO::db_user_connect($USERNAME);
-		my $pstmt = "select * from OAUTH_SESSIONS where MID=$MID and AUTHTOKEN=".$udbh->quote($AUTHTOKEN);
-		$self = $udbh->selectrow_hashref($pstmt);
-		&DBINFO::db_user_close();
+		my $ACL = JSON::XS::decode_json($SESSIONJS);			
+		$ACL = $ACL->{'%ACL'};
+		$self = { 'MID'=>$MID, 'USERNAME'=>$USERNAME, 'LUSERNAME'=>$LUSERNAME, '%ACL'=>$ACL };
 		}
 
 	if (defined $self) {
 		bless $self, 'LUSER';
 		}
 
-	if (ref($self) eq 'LUSER') {
-		$self->{'%ACL'} = YAML::Syck::Load($self->{'ACL'});
-		delete $self->{'ACL'};
-		}
-
 	return($self);
 	}
 
-
+##
+##
+##
 sub new_trusted {
 	my ($class,$USERNAME,$SUBUSER,$PRT, $ROLES) = @_;
 
