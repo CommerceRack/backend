@@ -32,9 +32,12 @@ require HTTP::Headers;
 my $app = sub {
 	my $env = shift;
 
+
 	my $HEADERS = HTTP::Headers->new;
 	my $req = Plack::Request->new($env);
 	my $path = $req->path_info;
+
+	print STDERR "REQUEST METHOD: ".$req->method()."\n";
 
 	## strip leading /s=www.domain.com/	
 	$path =~ s/\/s\=[a-z0-9\.\-]+\//\//;
@@ -46,6 +49,7 @@ my $app = sub {
 
 	$HEADERS->push_header( 'X-Powered-By' => 'ZOOVY/v.'.&ZOOVY::servername() );
 	## print STDERR "METHOD: ".$req->method()." -- $path\n";
+
 	
 	if (defined $HTTP_RESPONSE) {
 		## we're already done! (probably an error)

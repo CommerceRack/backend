@@ -1403,7 +1403,7 @@ sub providerExec {
 		my $USERID = lc("SUPPORT/$REMOTE_USER\@$USERNAME");
 		$USERNAME = lc($USERNAME);
 		my ($DEVICEID) = &OAUTH::device_initialize($USERNAME,$LUSER,$self->ipaddress(),sprintf("%s",$note));
-		my ($AUTHTOKEN) = OAUTH::create_authtoken($USERNAME,$LUSER,"admin",$DEVICEID,'trusted'=>1);
+		my ($AUTHTOKEN) = &OAUTH::create_authtoken($USERNAME,$LUSER,"admin",$DEVICEID,'trusted'=>1);
 		#print STDERR 'providerExecLogin: '.Dumper({
 		#	LUSER=>$LUSER,NOTE=>sprintf("%s",$note),CLIENTID=>$CLIENTID,
 		#	USERNAME=>$USERNAME,CLIENT=>&JSONAPI::lookup_client("admin"),AUTHTOKEN=>$AUTHTOKEN,DEVICEID=>$DEVICEID,
@@ -1798,6 +1798,7 @@ sub configJS {
 			'https_api_url'=>'/jsonapi/',
 			'http_app_url'=>lc("http://$NORMAL_URL/"),			
 			'https_app_url'=>lc("https://$SECURE_URL/"),
+			'admin_api_url'=>sprintf("https://$SECURE_URL:9000/jsonapi/"),
 			'projectid'=>$self->projectid(),
 			},
 		'plugins'=>\%PLUGINS,
@@ -2404,6 +2405,7 @@ sub LU {
 		}
 	elsif ($self->authtoken() ne '') {
 		## since we have an authtoken we'll use the LUSER from OAUTH
+
 		$LU = $self->{'*LU'} = LUSER->new_authtoken($self->username(),$self->luser(),$self->authtoken());
 		if (defined $LU) {
 			$LU->prt($self->prt());
@@ -4199,22 +4201,30 @@ sub authAdminLogin {
 	$USERID = lc($USERID);
 	if ($USERID eq $self->username()) { $USERID = 'admin'; }
 
-	my ($USERNAME,$LUSER,$DOMAIN) = ();	
+	my ($USERNAME,$LUSER,$PROVIDER) = ();	
 	$USERNAME = lc($self->username());
 	$LUSER = lc($self->luser());
+	
 
 	if ($v->{'authtype'} eq 'google:id_token') {
 		}
 	elsif (uc($USERID) eq 'ADMIN') {
 		$LUSER = 'admin';
 		}
+	elsif (index($USERID,'/')>0) {
+		## a support user.  ex: brianh/commercrack.com
+		($LUSER,$PROVIDER) = split(/\//,$USERID);
+		}
 	elsif (index($USERID,'@')>0) {
+		## an email address
 		($LUSER,my $null) = split(/\@/,$USERID);
 		}
 	elsif (index($USERID,'*')>0) {
+		## a sub-user
 		(my $null,$LUSER) = split(/\*/,$USERID);
 		}
 	elsif (uc($USERID) eq uc($USERNAME)) {
+		## just admin
 		$LUSER = 'admin';
 		}
 	elsif ($USERID) {
@@ -4247,6 +4257,7 @@ sub authAdminLogin {
 		&JSONAPI::set_error(\%R,'apperr',8803,"Sorry, the clientid is not valid/not set (this is highly unusual)");
 		}
 
+	my %TOKEN_OPTIONS = ();
 	if (&JSONAPI::hadError(\%R)) {
 		}
 	elsif ($v->{'authtype'} eq 'google:id_token') {
@@ -4318,6 +4329,17 @@ sub authAdminLogin {
 			#$R{'user_id'} = $api->{'user_id'};
 			}
 		}
+	elsif (($v->{'authtype'} eq 'password') && ($PROVIDER ne '')) {
+		## ex: brian/commercerack.com
+		if ($PROVIDER eq 'commercerack.com') {
+			$LUSER = "$LUSER/commercerack";
+			push @{$TOKEN_OPTIONS{'@MYROLES'}}, 'TECHSUPPORT';
+			}
+		else {
+			&JSONAPI::set_error(\%R,'apperr',155,"Incorrect password.");			
+			}
+		
+		}
  	elsif (($v->{'authtype'} eq 'md5') || ($v->{'authtype'} eq 'sha1')) {
 		&JSONAPI::set_error(\%R,'apperr',8802,"Sorry, the authtype md5/sha1 is no longer supported (please shift+refresh to make sure you are on the latest version).");
 		}
@@ -4364,9 +4386,9 @@ sub authAdminLogin {
 				}
 			}
 
-		if ($USERID eq 'brianh@commercerack.com') {
-			$FAILURES = 0;
-			}
+		#if ($USERID eq 'brianh@commercerack.com') {
+		#	$FAILURES = 0;
+		#	}
 
 
 		if ($FAILURES) {
@@ -4379,19 +4401,19 @@ sub authAdminLogin {
 		}
 
 
-	if ($USERID eq 'brianh@commercerack.com') {
-		my ($DEVICEID) = &OAUTH::device_initialize($USERNAME,$LUSER,$self->ipaddress(),sprintf("test"));
-		my ($AUTHTOKEN) = OAUTH::create_authtoken($USERNAME,$LUSER,"admin",$DEVICEID,'trusted'=>1);
-		$R{'ts'} = $ts;
-		$R{'clientid'} = $self->clientid();
-		$R{'deviceid'} = $DEVICEID;
-		$R{'luser'} = $LUSER;
-		$R{'authtoken'} = $AUTHTOKEN;
-		$R{'userid'} = sprintf("%s\@%s",$LUSER,$USERNAME);
-		$R{'username'} = lc($USERNAME);
-		$R{'authtype'} = $v->{'authtype'};
-		}
-	elsif (not &JSONAPI::hadError(\%R)) {
+	#if ($USERID eq 'brianh@commercerack.com') {
+	#	my ($DEVICEID) = &OAUTH::device_initialize($USERNAME,$LUSER,$self->ipaddress(),sprintf("test"));
+	#	my ($AUTHTOKEN) = OAUTH::create_authtoken($USERNAME,$LUSER,"admin",$DEVICEID,'trusted'=>1);
+	#	$R{'ts'} = $ts;
+	#	$R{'clientid'} = $self->clientid();
+	#	$R{'deviceid'} = $DEVICEID;
+	#	$R{'luser'} = $LUSER;
+	#	$R{'authtoken'} = $AUTHTOKEN;
+	#	$R{'userid'} = sprintf("%s\@%s",$LUSER,$USERNAME);
+	#	$R{'username'} = lc($USERNAME);
+	#	$R{'authtype'} = $v->{'authtype'};
+	#	}
+	if (not &JSONAPI::hadError(\%R)) {
 		my $IP = $ENV{'REMOTE_ADDR'};
 
 		$R{'ts'} = $ts;
@@ -4400,7 +4422,7 @@ sub authAdminLogin {
 		$R{'clientid'} = $self->clientid();
 		$R{'deviceid'} = &OAUTH::device_initialize( $USERNAME, $LUSER, $IP, $DEVICE_NOTE );
 		$R{'luser'} = $LUSER;
-		$R{'authtoken'} = &OAUTH::create_authtoken($USERNAME,$LUSER,$self->clientid(),$R{'deviceid'});
+		$R{'authtoken'} = &OAUTH::create_authtoken($USERNAME,$LUSER,$self->clientid(),$R{'deviceid'},%TOKEN_OPTIONS);
 		$R{'userid'} = sprintf("%s\@%s",$LUSER,$USERNAME);
 		$R{'username'} = lc($USERNAME);
 		$R{'authtype'} = $v->{'authtype'};
@@ -17509,6 +17531,9 @@ sub appConfig {
 	my ($self,$v) = @_;
 
 	## this basically mirrors the config.js file
+	my $SITE = $self->SITE();
+	$SITE->{'_DOMAIN_HOST'} |= 'www';		## make sure this is set to something reasonable
+
 	my %R = %{$self->configJS()};
 	$R{'server'} = &ZOOVY::servername();
 	&JSONAPI::append_msg_to_response(\%R,'success',0);		
