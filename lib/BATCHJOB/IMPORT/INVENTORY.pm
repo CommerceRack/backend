@@ -148,6 +148,9 @@ sub parseinventory {
 					$INVCMD{'NOTE'} = $DATA[$pos]; 
 					if ($INVCMD{'NOTE'} eq '_') { $INVCMD{'NOTE'} = ''; }
 					}
+				elsif ( ($destfield eq '%NOTE') && ($DATA[$pos] eq '')) { 
+					## so we don't generate an invalid header
+					}
 				elsif ( ($destfield eq '%WMS_GEO') && ($DATA[$pos] ne '')) { 
 					if (not defined $INVCMD{'BASETYPE'}) { $INVCMD{'BASETYPE'} = 'WMS'; }
 					$INVCMD{'GEO'} = $DATA[$pos]; 

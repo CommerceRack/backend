@@ -9965,6 +9965,11 @@ sub adminProductReview {
 			}
 		$R{'@REVIEWS'} = $result;
 		}
+	elsif ($v->{'_cmd'} eq 'adminProductReviewRemove') {
+		## let them explicitly remove reviews by RID (so it allows blank PID)
+		my ($RID) = int($v->{'RID'});
+		&PRODUCT::REVIEWS::update_review($USERNAME,$RID,_NUKE_=>1);	
+		}
 	elsif (not &JSONAPI::validate_required_parameter(\%R,$v,'PID')) {
 		}
 	elsif ($v->{'_cmd'} eq 'adminProductReviewCreate') {
@@ -9983,10 +9988,6 @@ sub adminProductReview {
 	elsif ($v->{'_cmd'} eq 'adminProductReviewApprove') {
 		my ($RID) = int($v->{'RID'});
 		&PRODUCT::REVIEWS::update_review($USERNAME,$RID,APPROVED_GMT=>time());	
-		}
-	elsif ($v->{'_cmd'} eq 'adminProductReviewRemove') {
-		my ($RID) = int($v->{'RID'});
-		&PRODUCT::REVIEWS::update_review($USERNAME,$RID,_NUKE_=>1);	
 		}
 	elsif ($v->{'_cmd'} eq 'adminProductReviewUpdate') {
 		my ($RID) = int($v->{'RID'});
