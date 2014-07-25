@@ -5816,10 +5816,11 @@ sub panel_builder {
 	my $PRT = $LU->prt();
 	my $out = '';
 
-	## my (@domains) = DOMAIN::TOOLS::domains($USERNAME,PROFILE=>$NS,PRT=>$PRT);
 	my $WRAPPERS = '';
-	## my $ref = &ZOOVY::fetchmerchantns_ref($USERNAME,$NS);
-	my ($nsref) = $D->as_legacy_nsref();
+	my ($nsref) = {};
+	if ($D) {
+		$nsref = $D->as_legacy_nsref();
+		}
 
 	require ZWEBSITE;
 	my $mapped_domain_count = 0;
