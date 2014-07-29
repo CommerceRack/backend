@@ -187,7 +187,7 @@ foreach my $workloadset (shuffle @TO_QUEUE) {
 	my ($USERNAME,$DOMAIN,$PRT,$DBID,$DSTTYPE,$DSTCODE,$INTERVAL) = @{$workloadset};
 	# next if ($DSTCODE eq 'AMZ');
 
-	my $CMD = "/bin/nice 10 /httpd/servers/syndication/work.pl user=$USERNAME type=$DSTTYPE dst=$DSTCODE queued=$TS dbid=$DBID";
+	my $CMD = "/bin/nice -n 10 /httpd/servers/syndication/work.pl user=$USERNAME type=$DSTTYPE dst=$DSTCODE queued=$TS dbid=$DBID";
 
 	## OVERRIDES FOR INDIVIDUAL SPECIALIZED MARKETPLACES
 	if (($DSTCODE eq 'SRS') && ($DSTTYPE eq 'TRACKING')) {
