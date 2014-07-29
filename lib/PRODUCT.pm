@@ -664,7 +664,12 @@ sub new {
 		if (defined $self->{'%data'}->{'%SKU'}) {
 			## this specifically fixes a case where sku:price is blank (for cubworld)
 			foreach my $sku (keys %{$self->{'%data'}->{'%SKU'}}) {
-				if ((defined $self->{'%data'}->{'%SKU'}->{$sku}->{'sku:price'}) && ($self->{'%data'}->{'%SKU'}->{$sku}->{'sku:price'} eq '')) {
+
+				if (ref($self->{'%data'}->{'%SKU'}->{$sku}) ne 'HASH') { 
+					## corrupt $sku entry (hopefully it was just '.')
+					delete $self->{'%data'}->{'%SKU'}->{$sku}; 
+					}
+				elsif ((defined $self->{'%data'}->{'%SKU'}->{$sku}->{'sku:price'}) && ($self->{'%data'}->{'%SKU'}->{$sku}->{'sku:price'} eq '')) {
 					delete $self->{'%data'}->{'%SKU'}->{$sku}->{'sku:price'};
 					}
 				}
