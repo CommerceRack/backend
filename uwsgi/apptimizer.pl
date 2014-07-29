@@ -207,6 +207,9 @@ my $app = sub {
 	$CONFIG{'sitemap#syntax'} = $CONFIG{'sitemap#syntax'} || $ZOOVY::RELEASE;
 	$CONFIG{'seo#fragments'} = $CONFIG{'seo#fragments'} || 1;
 	$CONFIG{'seo#index'} = 'seo.html';
+	
+	$CONFIG{'seo#frag_lookup'} = $CONFIG{'seo#frag_lookup'} || 1;
+	$CONFIG{'seo#frag_notfound_http'} = $CONFIG{'seo#frag_notfound'} || 404;
 
 #	$CONFIG{'html#compress'} = 0;
 #	$CONFIG{'js#compress'} = 0;
@@ -233,30 +236,62 @@ my $app = sub {
 		$HEADERS->push_header('Last-Modified',POSIX::strftime("%a, %0d %b %Y %H:%M:%S GMT",gmtime($TS)));	# Last-Modified: Thu, 01 Dec 1994 16:00:00 GMT
 		$HEADERS->push_header('Expires',POSIX::strftime("%a, %0d %b %Y %H:%M:%S GMT",gmtime(time()+3600)));	# Last-Modified: Thu, 01 Dec 1994 16:00:00 GMT
 
+		$HTTP_RESPONSE = 0;
+		my $TRY_URIKEY = '';
+		my $TRY_URIVAL = '';
 		if ($BODY ne '') { 
 			$BODY .= "\n<!-- _escaped_fragment_ created: ".&ZTOOLKIT::pretty_date($TS,1)." -->\n";
 			$HTTP_RESPONSE = 200;
 			}
-		else {
-			$HTTP_RESPONSE = 404;
-			
-			$BODY = sprintf("<html>\nInvalid escaped fragment: %s\n",$FRAGMENT);
-			my $pstmt = "select ESCAPED_FRAGMENT from SEO_PAGES where MID=$MID and DOMAIN=".$udbh->quote($HOSTDOMAIN)." limit 0,250";
-			my $sth = $udbh->prepare($pstmt);
-			$sth->execute();
-			$BODY .= "<ul>";
-			while ( my ($FRAGMENT) = $sth->fetchrow() ) {
-				$BODY .= "<li> <a href=\"/index.html#!$FRAGMENT\">$FRAGMENT</a>\n";
+
+		if (($HTTP_RESPONSE==0) && ($CONFIG{'seo#frag_lookup'})) {
+			if ($FRAGMENT =~ /product\/(.*?)\//) {
+				$TRY_URIKEY = 'product'; $TRY_URIVAL = $1;
 				}
-			$BODY .= "</ul></html>";
-			$sth->finish();
+			elsif ($FRAGMENT =~ /product\/([A-Z0-9\-\_]+)$/) {
+				$TRY_URIKEY = 'product'; $TRY_URIVAL = $1;
+				}
+			elsif ($FRAGMENT =~ /category\/(.*?)\//) {
+				$TRY_URIKEY = 'category'; $TRY_URIVAL = $1;
+				}
+
+			if (($HTTP_RESPONSE == 0) && ($TRY_URIKEY)) {
+				$pstmt = "select UNESCAPED_URL from SEO_PAGES_FRAGMENTS where MID=$MID and DOMAIN=".$udbh->quote($HOSTDOMAIN)." and URIKEY=".$udbh->quote($TRY_URIKEY)." and URIVAL=".$udbh->quote($TRY_URIVAL);
+				print STDERR "$pstmt\n";
+				my ($REDIRECT) = $udbh->selectrow_array($pstmt);
+				if ($REDIRECT) {
+					$HTTP_RESPONSE = 301;
+					my $GOTO = sprintf("http://$HOSTDOMAIN#!$REDIRECT");
+					$HEADERS->push_header('Location'=>$GOTO);
+					}
+				}
+			}
+
+
+		if ($HTTP_RESPONSE == 0) {
+			$HTTP_RESPONSE = $CONFIG{'seo#frag_missing'} || 410;
+			
+			open F, ">>/tmp/missed_fragments";
+			print F "$FRAGMENT\n";
+			close F;
+
+			$BODY = "<html>Unknown fragment</html>\n";
+			#$BODY = sprintf("<html>\nInvalid escaped fragment: %s\n",$FRAGMENT);
+			#my $pstmt = "select UNESCAPED_FRAGMENT from SEO_PAGES where MID=$MID and DOMAIN=".$udbh->quote($HOSTDOMAIN)." limit 0,250";
+			#my $sth = $udbh->prepare($pstmt);
+			#$sth->execute();
+			#$BODY .= "<ul>";
+			#while ( my ($UNESCFRAGMENT) = $sth->fetchrow() ) {
+			#	my ($URIUNESCFRAG) = URI::Escape::uri_escape($UNESCFRAGMENT);
+			#	$BODY .= "<li> <a href=\"/index.html#!$URIUNESCFRAG\">$UNESCFRAGMENT</a>\n";
+			#	}
+			#$BODY .= "</ul></html>";
+			#$sth->finish();
 			}
 		&DBINFO::db_user_close();
 		$HEADERS->push_header('Content-Length',length($BODY));
 		$HEADERS->push_header('Content-Type','text/html');
 		}
-	
-
 	
 
 	## SHORT CIRCUIT
@@ -269,6 +304,18 @@ my $app = sub {
 
 	my $USE_CACHE = 1;
 	if (not $CONFIG{'cache'}) { $USE_CACHE = 0; }
+	if ($req->headers()->header('X-WWW-Robot')) {
+		print STDERR "******************* WELCOME MR. ROBOTO **********************\n";
+		print STDERR "******************* WELCOME MR. ROBOTO **********************\n";
+		print STDERR "******************* WELCOME MR. ROBOTO **********************\n";
+		print STDERR "******************* WELCOME MR. ROBOTO **********************\n";
+		print STDERR "******************* WELCOME MR. ROBOTO **********************\n";
+		print STDERR "******************* WELCOME MR. ROBOTO **********************\n";
+		print STDERR "******************* WELCOME MR. ROBOTO **********************\n";
+		print STDERR "******************* WELCOME MR. ROBOTO **********************\n";
+		print STDERR "******************* WELCOME MR. ROBOTO **********************\n";
+		$USE_CACHE = 0;
+		}
 	if ($req->parameters()->get('seoRequest')) { 
 		$USE_CACHE = 0; 
 		$CONFIG{'html#compress'} = 0;
@@ -322,6 +369,7 @@ my $app = sub {
 	##
 	##	
 	my $USE_ROOT = undef;		
+	print STDERR "USE_CACHE: $USE_CACHE\n";
 	if (defined $HTTP_RESPONSE) {
 		}
 	elsif (not $CONFIG{'cache'}) {
@@ -365,7 +413,6 @@ my $app = sub {
 
 		$CONFIG{'_ROOT'} = $NFSROOT;
 
-		my $BODY = undef;
 		if (-f "$NFSROOT/$FILENAME") {
 			open Fin, "<$NFSROOT/$FILENAME"; $/ = undef;
 			($BODY) = <Fin>;
@@ -423,7 +470,6 @@ please use http://jigsaw.w3.org/css-validator/validator to correct, or disable c
 
 		## 
 		if (not defined $BODY) {
-
 			## SHIT!: FILE DOES NOT EXIST
 			$HTTP_RESPONSE = 404;
 			open F, ">$LOCALFILE.missing";
@@ -477,13 +523,15 @@ please use http://jigsaw.w3.org/css-validator/validator to correct, or disable c
 				elsif (substr($_,0,1) eq '#') {
 					## ignore comments!
 					}
-				elsif ($verb =~ /^(\~|\=)(uri|url|path|query|queryparam)$/) {
+				elsif ($verb =~ /^(\~|\=)(uri|url|path|query|queryparam|path#rewrite)$/) {
 					my ($style,$part) = ($1,$2);
 					my $src = undef;
 					if ($part eq 'uri') { $src = $URI->as_string(); }
 					if ($part eq 'url') { $src = $URI->path_query(); }
 					if ($part eq 'path') { $src = $URI->path(); }
+					if ($part eq 'path#rewrite') { $src = $URI->path(); }
 					if ($part eq 'query') { $src = $URI->query(); }
+
 
 
 					#print STDERR "STYLE:$style SRC:$src  IFMATCH:$ifmatch\n";
@@ -507,6 +555,11 @@ please use http://jigsaw.w3.org/css-validator/validator to correct, or disable c
 							}
 						}
 
+					if ($path eq 'path#rewrite') {
+						## rewrite the path, unset $GOTO
+						$URI->path($GOTO); $GOTO = undef;
+						}
+
 					if ((defined $GOTO) && ($modifiers ne '')) {
 						foreach my $token (split(/,/,$modifiers)) {
 							$token =~ s/^[\s]+//gs; $token =~ s/[\s]+$//gs; # strip leading/trailing whitespace
@@ -514,11 +567,10 @@ please use http://jigsaw.w3.org/css-validator/validator to correct, or disable c
 							$GOTO_modifiers{$k} = $v;
 							}
 
-						if (defined $GOTO_modifiers{'set'}) {
-							## this is a rewrite, it lets us do something like this:
-					
-							if ($GOTO_modifiers{'set'} eq 'path') { $URI->path($GOTO); $GOTO = undef; }
-							}
+						#if (defined $GOTO_modifiers{'set'}) {
+						#	## this is a rewrite, it lets us do something like this:
+						#	if ($GOTO_modifiers{'set'} eq 'path') { $URI->path($GOTO); $GOTO = undef; }
+						#	}
 
 						}
 
