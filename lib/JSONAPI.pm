@@ -2455,6 +2455,10 @@ sub load_platform_action {
 sub dateify_to_gmt {
 	my ($self,$value) = @_;
 	$value = int($value);
+	## YYYYMMDDHHMM
+	if (length($value)==6) { $value .= '00'; }	## append minutes
+	if (length($value)==8) { $value .= '00'; }	## append minutes
+	if (length($value)==10) { $value .= '00'; }	## append seconds.
 	if ($value == 0) { $value = 0; }
 	return(&ZTOOLKIT::mysql_to_unixtime($value));
 	}
