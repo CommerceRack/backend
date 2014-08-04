@@ -11061,6 +11061,18 @@ sub check {
 	}
 
 
+## used to chcek and see if an order has already been placed.
+sub has_oid {
+	my ($self) = @_;
+
+	my $USERNAME = $self->username();
+	my ($redis) = &ZOOVY::getRedis($USERNAME,0);
+	my $OIDRSV = sprintf("OIDRSV+%s+%s",$self->username(),$self->uuid());
+	my $ID = $redis->get($OIDRSV);
+	
+	return($ID);
+	}
+
 ## Gets the next available order ID
 ## note: normally $COUNT will be one unless we're requesting a block, don't
 ##		 ask for ZERO since it will simply return the last order ID issued.
@@ -11104,7 +11116,6 @@ sub next_id {
 		}
 
 	if (($ID==0) && (defined $redis) && (defined $CARTID) && ($CARTID ne '')) {
-		$ID = $redis->get("OIDRSV+$USERNAME+$CARTID");
 		}
 	
 	while ($ID == 0) {
@@ -11153,7 +11164,7 @@ sub next_id {
 
 		if (($ID>0) && (defined $redis) && (defined $CARTID) && ($CARTID ne '')) {
 			$redis->set("OIDRSV+$USERNAME+$CARTID","$ID");
-			$redis->expire("OIDRSV+$USERNAME+$CARTID",86400*7);
+			$redis->expire("OIDRSV+$USERNAME+$CARTID",86400*30);
 			}
 		} 
 

@@ -234,13 +234,34 @@ foreach my $USERNAME (@{$CFG->users()}) {
 				($txt) = join("",File::Slurp::read_file("/httpd/platform/ssl/20110225-rapidssl-secondary-intermediate.txt"));	
 				print Fn "# Geotrust EV1\n$txt\n";
 		      ($txt) = join("",File::Slurp::read_file("/httpd/platform/ssl/20120901-geotrust-evssl.txt"));
+				print Fn "# Geotrust CA-G2 (TrueBiz ID)\n$txt\n";
+		      ($txt) = join("",File::Slurp::read_file("/httpd/platform/ssl/20140724-geotrust-ca-g2.pem"));
 				print Fn "\n";
 				close Fn;
 				}
-	
+
+			## so for www. we also configure 	
 			my ($CRT_DATE) = &ZTOOLKIT::pretty_date($CRTctime,1);
 			print "Append $NGINX_CONFIG_FILE data:$IPADDR\n";
 			open F, ">>$NGINX_CONFIG_FILE";
+
+			if ($HOSTDOMAIN =~ /^www\./) {
+				print F qq~
+##
+## $DOMAIN ($USERNAME)
+##
+#server { 
+#	listen 80;
+#	listen 443 ssl spdy;
+#	server_name $DOMAIN;
+#	ssl_certificate      $PEM_FILE;
+#	ssl_certificate_key  $PEM_FILE;
+#	return 301 http://$HOSTDOMAIN\$request_uri;
+#	}
+~;
+				}
+
+
 			print F qq~
 #
 # $HOSTDOMAIN ($USERNAME)
@@ -273,6 +294,7 @@ server {
 	## END SSL
 	}
 	~;
+
 
 			close F;
 			}

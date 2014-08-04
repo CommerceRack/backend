@@ -74,6 +74,11 @@ sub work {
 		$SELECTED_PIDS = [ &ZOOVY::fetchproduct_list_by_merchant($bj->username()) ];
 		}
 
+	if (not defined $SELECTED_PIDS) {
+		## we should probably throw an error here.
+		$SELECTED_PIDS = [];
+		}
+
 	my @HEAD = ();
 	my $WANTS_INVENTORY = 0;
 	foreach my $attrib (split(/,/,$meta->{'headers'})) {

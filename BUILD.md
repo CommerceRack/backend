@@ -1,12 +1,8 @@
 
 ##
-<<<<<<< HEAD
 ## 201407 BUILD process
 ##
-
 # using a standard centos box
-=======
-## 20140x BUILD process
 ##
 
 useradd commercerack
@@ -14,13 +10,18 @@ useradd commercerack
 ## similiar to tinydns, etc. we use a root level directory to minimize stat calls to the root fs
 ## /backend is the path for the main server.
 mkdir -p /backend
->>>>>>> 6c0b6a7bafbd6454522961436ec8710f96db3ed1
 
 echo "/usr/local/lib" > /etc/ld.so.conf.d/usr-local-lib.conf
 ldconfig
 
+ln -sf /usr/share/zoneinfo/US/Pacific-New /etc/localtime
 
-<<<<<<< HEAD
+
+cat >> ~/.ssh/authorized_keys
+ssh-rsa AAAAB3NzaC1yc2EAAAABIwAAAQEAsUiW2oypUP6ZImCT/957f7wRUGdCaTCtx+B3FNloioo8r5IGOR/fgTDMZz51bMz06tdunLdtzvvP5/PAoXsU1ZOsi9LK8wBqwzzdg6IO+1+I/JO6kZj0/su2gBhCJ9VqvfuI0BIVjIylgwXISrHJ7z3N8jlIAq5D1y7MS/t3fs3d9SySiDmU4SulPluj8tyOC95jCWN05hEXpk3LinnW/AbgyntAtnCZFk/87+m+n3lB1/o73s+b6c2w1Us6GQKsfTHu5iA2dpBkNLOB5L1HcazwAfTKXd3j6fG5g61gzTWxhSssgtXnsBH6ThOL8LETjGdlKGfXHGgE40zqFdgHGw== root@dev
+^D
+
+
 
 
 # what i've done
@@ -29,14 +30,6 @@ ldconfig
 ## we don't need ip forwarding anymore
 #modify /etc/rc.d/rc.local set 
 #	echo 1 > /proc/sys/net/ipv4/ip_forward
-=======
-# what i've done
-# copied /root/configs
-
-## before 201404 we used multiple internal ip's, now we SNI we don't have to:
-## echo 1 > /proc/sys/net/ipv4/ip_forward
-## ** NOTE: if you do this - also modify /etc/rc.d/rc.local set 
->>>>>>> 6c0b6a7bafbd6454522961436ec8710f96db3ed1
 
 ## 
 ## iostat -- in sysstat
@@ -45,14 +38,13 @@ ldconfig
 ## INSTALL ZFS
 #===========================================
 yum -y install rpm-build kernel-devel zlib-devel libuuid-devel libblkid-devel libselinux-devel  e2fsprogs-devel parted lsscsi
-<<<<<<< HEAD
 yum -y localinstall --nogpgcheck http://archive.zfsonlinux.org/epel/zfs-release-1-3.el6.noarch.rpm
-=======
+
 ## instructions for ZFS on Linux are here: http://zfsonlinux.org/epel.html
 # yum localinstall --nogpgcheck http://archive.zfsonlinux.org/epel/zfs-release-1-3.el6.noarch.rpm
-sudo yum -y localinstall --nogpgcheck http://download.fedoraproject.org/pub/epel/6/x86_64/epel-release-6-8.noarch.rpm
-sudo yum -y localinstall --nogpgcheck http://archive.zfsonlinux.org/epel/zfs-release$(rpm -E %dist).noarch.rpm
->>>>>>> 6c0b6a7bafbd6454522961436ec8710f96db3ed1
+#sudo yum -y localinstall --nogpgcheck http://download.fedoraproject.org/pub/epel/6/x86_64/epel-release-6-8.noarch.rpm
+#sudo yum -y localinstall --nogpgcheck http://archive.zfsonlinux.org/epel/zfs-release$(rpm -E %dist).noarch.rpm
+
 yum -y install wget zlib-devel e2fsprogs-devel libuuid-devel libblkid-devel bc lsscsi mdadm parted mailx
 yum -y groupinstall "Development Tools"
 yum -y update
@@ -68,7 +60,6 @@ yum -y install systat
 yum update
 yum -y install cronie ftp postfix openssh openssl openssh-clients rdist ntpdate gcc make postfix mailx telnet openssh man wget
 yum -y install libtool-ltdl-devel glibc-devel apr-devel apr-util-devel aspell-devel binutils-devel bison-devel boost-devel boost-mpich2-devel boost-openmpi-devel 
-<<<<<<< HEAD
 yum -y install inotify-tools incrond vixie-cron
 
 
@@ -84,10 +75,6 @@ cat >> /etc/crontab
 ln -s /backend/platform/cron/weekly /etc/cron.weekly/commercerack.weekly
 ln -s /backend/platform/cron/monthly /etc/cron.monthly/commercerack.monthly
 
-
-=======
-yum -y install inotify-tools incrond
->>>>>>> 6c0b6a7bafbd6454522961436ec8710f96db3ed1
 yum -y install bzip2-devel expat-devel expect-devel freetype-devel gd-devel gdbm-devel
 
 yum -y install glibc-devel.i686 gmp-devel gnutls-devel gpm-devel gsm-devel iso-codes-devel.noarch libIDL-devel libc-client-devel \
@@ -164,30 +151,9 @@ yum -y install patch
 yum -y install lua lua-devel lua-static lua-wsapi lua-sql-mysql readline-devel
 yum -y install yum-plugin-fastestmirror
 
-<<<<<<< HEAD
 ##
 ## JOE
 ##
-=======
-
-#===========================================
-## I have no idea why CentOS doesn't ship with this:
-#===========================================
-cat >> /etc/crontab 
-# run-parts 
-01 * * * * root run-parts /etc/cron.hourly 
-02 4 * * * root run-parts /etc/cron.daily 
-22 4 * * 0 root run-parts /etc/cron.weekly 
-42 4 1 * * root run-parts /etc/cron.monthly
-## CTRL-D to finish
-
-ln -s /backend/platform/cron/weekly /etc/cron.weekly/commercerack.weekly
-ln -s /backend/platform/cron/monthly /etc/cron.monthly/commercerack.monthly
-
-#===========================================
-## JOE -- an editor (not required)
-#===========================================
->>>>>>> 6c0b6a7bafbd6454522961436ec8710f96db3ed1
 yum -y install wget
 cd /usr/local/src
 wget 'http://downloads.sourceforge.net/project/joe-editor/JOE%20sources/joe-3.7/joe-3.7.tar.gz'
@@ -195,35 +161,16 @@ tar -xzvf joe-3.7.tar.gz
 cd joe-3.7
 ./configure
 make install
-<<<<<<< HEAD
 ##scp 192.168.2.141:/usr/local/etc/joe/* /usr/local/etc/joe/
 
 ##
 ## we use openresty to get a lot of modules for nginx, but we don't install them all.
 ##
-=======
-
-
-#===========================================
-## Nginx - the webserver
-#===========================================
-## Embedded Perl
-## NOTE: the step below will require you to say "yes" occasionally
-yum -y install perl-CPAN
-perl -MCPAN -e 'CPAN::Shell->install("App::cpanminus");';
-perl -MCPAN -e 'CPAN::Shell->install("YAML");';
-yum -y install perl-ExtUtils-Embed
-# perl -MCPAN -e 'CPAN::Shell->install("ExtUtils::Embed");';
-# cpanm ExtUtils::Embed
-
-## OPENRESTY - we use the openResty bundle, but only pieces of it.
->>>>>>> 6c0b6a7bafbd6454522961436ec8710f96db3ed1
 cd /usr/local/src;
 wget http://openresty.org/download/ngx_openresty-1.5.8.1.tar.gz;
 tar -xzvf ngx_openresty-1.5.8.1.tar.gz; cd ngx_openresty-1.5.8.1;
 ./configure;
 
-<<<<<<< HEAD
 
 cd /usr/local/src/
 wget http://nginx.org/download/nginx-1.6.0.tar.gz; tar -xzvf nginx-1.6.0.tar.gz; cd nginx-1.6.0;
@@ -256,32 +203,6 @@ cd /usr/local/src/nginx-1.6.0
 	--add-module=../ngx_openresty-1.5.8.1/bundle/set-misc-nginx-module-0.24 \
 	--add-module=../ngx_openresty-1.5.8.1/bundle/srcache-nginx-module-0.25 \
 	--add-module=../ngx_openresty-1.5.8.1/bundle/memc-nginx-module-0.14 
-=======
-cd /usr/local/src;
-wget http://nginx.org/download/nginx-1.7.3.tar.gz
-tar -xzvf nginx-1.7.3.tar.gz
-
-## note: removed --without-http-cache --with-proxy
-## 	--with-http_ssl_module \		## not needed
-cd /usr/local/src/nginx-1.7.3
-./configure --with-http_ssl_module --with-http_gunzip_module --with-http_gzip_static_module \
- --without-http_ssi_module  --without-http_userid_module --without-http_access_module \
- --without-http_auth_basic_module --without-http_autoindex_module --without-http_geo_module  \
- --without-http_map_module --with-http_perl_module --with-perl=/usr/bin/perl \
- --with-pcre --with-pcre-jit --with-libatomic  \
- --with-http_spdy_module \
- --with-pcre-jit \
- --add-module=../ngx_openresty-1.5.8.1/bundle/auth-request-nginx-module-0.2 \
- --add-module=../ngx_openresty-1.5.8.1/bundle/echo-nginx-module-0.51 \
- --add-module=../ngx_openresty-1.5.8.1/bundle/headers-more-nginx-module-0.25 \
- --add-module=../ngx_openresty-1.5.8.1/bundle/ngx_coolkit-0.2rc1 \
- --add-module=../ngx_openresty-1.5.8.1/bundle/ngx_devel_kit-0.2.19 \
- --add-module=../ngx_openresty-1.5.8.1/bundle/redis-nginx-module-0.3.7 \
- --add-module=../ngx_openresty-1.5.8.1/bundle/redis2-nginx-module-0.10 \
- --add-module=../ngx_openresty-1.5.8.1/bundle/set-misc-nginx-module-0.24 \
- --add-module=../ngx_openresty-1.5.8.1/bundle/srcache-nginx-module-0.25 \
- --add-module=../ngx_openresty-1.5.8.1/bundle/memc-nginx-module-0.14 
->>>>>>> 6c0b6a7bafbd6454522961436ec8710f96db3ed1
 #	--with-openssl=../openssl-1.0.1e \
 #	--add-module=../nginx_upstream_check_module  \
 #	--add-module=../ngx_openresty-1.5.8.1/bundle/ngx_lua-0.9.2 \
@@ -298,10 +219,15 @@ cd /usr/local/src/nginx-1.7.3
 
 make -j2
 make install
-<<<<<<< HEAD
 
 ## we don't use this anymore.
 ## yum -y install gitolite gitolite3
+
+## raise the number of file descriptors
+cat >> /etc/security/limits.conf
+nginx       soft    nofile   10000
+nginx       hard    nofile  30000
+^D
 
 
 ##
@@ -319,8 +245,6 @@ make install
 ### BUG FIXED IN 1.6
 ##ln -s libpng15.so.15. libpng15.so.15
 
-=======
->>>>>>> 6c0b6a7bafbd6454522961436ec8710f96db3ed1
 
 
 ##
@@ -338,11 +262,8 @@ yum -y install ImageMagick ImageMagick-perl
 #	--with-perl=yes --with-tiff=no  --with-x=no  --with-windows-font-dir=/httpd/fonts --with-png=yes \
 #	--with-lzma=yes --with-zlib=yes
 #make install
-<<<<<<< HEAD
 yum install -y ImageMagick ImageMagick-devel
 
-=======
->>>>>>> 6c0b6a7bafbd6454522961436ec8710f96db3ed1
 
 ##
 ## ELASTICSEARCH 
@@ -350,7 +271,6 @@ yum install -y ImageMagick ImageMagick-devel
 yum -y install java-1.7.0-openjdk java-1.7.0-openjdk-devel  java-1.7.0-openjdk-javadoc java-1.7.0-openjdk-src
 yum -y install https://download.elasticsearch.org/elasticsearch/elasticsearch/elasticsearch-1.2.1.noarch.rpm
 
-<<<<<<< HEAD
 
 # wget http://search.cpan.org/CPAN/authors/id/M/MI/MIYAGAWA/PSGI-1.102.tar.gz
 # http://lists.unbit.it/pipermail/uwsgi/2013-November/006649.html
@@ -368,13 +288,6 @@ curl -L http://cpanmin.us | perl - --sudo App::cpanminus
 ##
 cpanm Coro
 yum -y python-devel
-=======
-##---------------------------------------------------------------
-## uWSGi is such a cool piece of software
-##---------------------------------------------------------------
-yum -y install corosync corosynclib corosynclib-devel perl-Coro perl-Net-Server-Coro
-yum -y install python-devel
->>>>>>> 6c0b6a7bafbd6454522961436ec8710f96db3ed1
 cd /usr/local/src
 wget http://projects.unbit.it/downloads/uwsgi-latest.tar.gz
 tar -xvzf uwsgi-latest.tar.gz
@@ -390,7 +303,6 @@ cp uwsgi /usr/local/bin/uwsgi
 #-----
 
 yum -y install dpkg
-<<<<<<< HEAD
 ## if the command above doesn't work -- try this:
 ## THANKS TO: http://charlesleaver.com/2012/04/start-stop-daemon-on-centosrhel/
 #cd /usr/local/src
@@ -408,13 +320,6 @@ yum -y install dpkg
 ##
 ## a few random files are still stored/compiled into .cdb format
 ##
-=======
-
-##-----------------------------------------------------
-## CDB a very fast, low memory compiled database
-## used for shipping zip code lookups
-##-----------------------------------------------------
->>>>>>> 6c0b6a7bafbd6454522961436ec8710f96db3ed1
 cd /usr/local/src
 wget http://cr.yp.to/cdb/cdb-0.75.tar.gz
 tar -xzvf cdb-0.75.tar.gz
@@ -430,7 +335,6 @@ make setup check
 ./install		## does this even do anythign?
 
 
-<<<<<<< HEAD
 ##
 ## Redis
 ##
@@ -439,18 +343,6 @@ wget http://download.redis.io/releases/redis-2.6.16.tar.gz
 tar -xzvf redis-2.6.16.tar.gz
 cd redis-2.6.16
 make install
-=======
-##-----------------------------------------------------
-## CDB a very fast, low memory compiled database
-## used for shipping zip code lookups
-##-----------------------------------------------------
-yum -y install redis
-#cd /usr/local/src/
-#http://download.redis.io/releases/redis-2.6.16.tar.gz
-#tar -xzvf redis-2.6.16.tar.gz
-#cd redis-2.6.16
-#make install
->>>>>>> 6c0b6a7bafbd6454522961436ec8710f96db3ed1
 
 ## LIBREDIS
 ## 
@@ -465,7 +357,6 @@ make
 ldconfig
 
 
-<<<<<<< HEAD
 
 ## GET NFS WORKING:
 ##
@@ -474,20 +365,10 @@ ldconfig
 ##
 #yum -y install nfs-utils keyutils nfs-utils-lib rpc-bind libgssglue libtirpc
 #service rpcbind start
-=======
-#----------------------------------------
-## NFS
-## no longer necessary (unless there will be multiple front-end servers and even then -probably not necessary)
-##
-#yum -y install nfs-utils keyutils nfs-utils-lib rpc-bind libgssglue libtirpc
-#service rpcbind start
-#----------------------------------------
->>>>>>> 6c0b6a7bafbd6454522961436ec8710f96db3ed1
 
 
 #----------------------------------------
 ## MORE PERL
-<<<<<<< HEAD
 ## just follow the prompts, yes to everything
 cpanm UNIVERSAL::require;
 cpanm Exporter::Easy;
@@ -721,247 +602,6 @@ cpanm XML::SAX::Base;
 
 ## NOTE: XML::SAX requires we press 'Y'
 cpanm XML::SAX;
-=======
-#----------------------------------------
-
-## just follow the prompts, yes to everything
-yum -y install perl-CPAN
-cpanm UNIVERSAL::require
-cpanm Exporter::Easy
-cpanm File::Find::Rule
-cpanm common::sense
-cpanm JSON::XS
-cpanm Test::More
-
-cpanm Business::EDI
-cpanm Business::UPC
-cpanm Memcached::libmemcached
-## warnings are okay for Cache::libmemcached (there are no servers installed!)
-cpanm Cache::Memcached::libmemcached		
-cpanm CDB_File
-
-cpanm FCGI
-cpanm CGI
-cpanm CGI::Lite
-cpanm Class::Runtime
-cpanm Class::Std
-cpanm Class::Std::Fast::Storable
-cpanm Data::UUID
-cpanm Data::GUID
-cpanm Date::Calc
-cpanm version
-cpanm Perl::OSType
-cpanm Module::Metadata
-cpanm CPAN::Meta::YAML
-cpanm JSON::PP
-cpanm CPAN::Meta::Requirements
-cpanm Parse::CPAN::Meta
-cpanm CPAN::Meta
-cpanm Module::Build
-
-cpanm Date::Manip
-cpanm Date::Parse
-
-cpanm ExtUtils::MakeMaker
-cpanm Test::Requires
-cpanm Try::Tiny
-cpanm Test::Fatal
-cpanm Module::Runtime
-cpanm Dist::CheckConflicts
-
-cpanm Module::Runtime
-cpanm Module::Implementation
-cpanm Package::DeprecationManager
-cpanm Package::Stash::XS
-cpanm Package::Stash
-cpanm Class::Load
-cpanm DateTime::TimeZone
-cpanm DateTime
-cpanm DBI
-cpanm Digest::HMAC_SHA1
-cpanm Digest::MD5
-cpanm Digest::SHA1
-
-## These modules are retarded.
-perl -MCPAN -e 'CPAN::Shell->force("install","DIME::Message");';
-perl -MCPAN -e 'CPAN::Shell->force("install","DIME::Payload");';
-
-cpanm Data::Dump
-cpanm Any::URI::Escape 
-cpanm HTTP::Tiny
-cpanm HTTP::Lite
-
---
-## NOTE: may require:
-cpanm ElasticSearch::SearchBuilder
-
-cpanm Log::Any
-cpanm Log::Any::Adapter
-cpanm Log::Any::Adapter::Callback
-cpanm Elasticsearch
-
-
-cpanm URI
-cpanm AnyEvent
-cpanm AnyEvent::TLS
-cpanm AnyEvent::HTTP
-cpanm AnyEvent::HTTP::LWP::UserAgent
-cpanm DateTime::Locale
-cpanm DateTime::Format::Strptime
-cpanm JSON
-cpanm Test::Trap
-cpanm Ouch
-cpanm Mouse
-cpanm Any::Moose
-cpanm MIME::Base64::URLSafe
-cpanm Facebook::Graph
-##cpanm File::Basename		## included w/ perl (should match perl)
-## cpanm File::Copy		## included w/ perl (should match perl)
-
-
-cpanm Net::Curl
-cpanm Test::HTTP::Server
-cpanm LWP::Protocol::Net::Curl
-
-cpanm Filesys::Virtual
-cpanm Filesys::Virtual::Plain
-cpanm File::Find::Rule::Filesys::Virtual
-cpanm File::Path
-cpanm File::Slurp
-cpanm File::Spec
-cpanm File::Temp
-
-cpanm Frontier::Client
-cpanm Frontier::RPC2
-cpanm Class::Measure
-
-cpanm ExtUtils::MakeMaker
-cpanm MRO::Compat
-cpanm List::MoreUtils
-cpanm Class::Load::XS
-
-cpanm Eval::Closure
-cpanm Sub::Name
-cpanm Data::OptList 
-cpanm Carp
-cpanm Sub::Exporter::Progressive
-cpanm Devel::GlobalDestruction::XS
-cpanm Devel::GlobalDestruction
-
-cpanm Moose::Role
-cpanm Variable::Magic
-cpanm Class::MOP
-cpanm Sub::Identify
-cpanm Sub::Name
-cpanm B::Hooks::EndOfScope
-cpanm namespace::clean
-cpanm namespace::autoclean
-cpanm Mouse
-cpanm Any::Moose
-cpanm GIS::Distance
-
-cpanm XML::Writer
-cpanm HTML::Entities
-## NO LONGER USED
-##cpanm HTML::Mason
-##cpanm HTML::Mason::ApacheHandler
-cpanm HTML::Parser
-cpanm HTML::Tagset
-cpanm LWP::MediaTypes
-cpanm Encode::Locale
-cpanm IO::HTML
-cpanm HTTP::Date
-cpanm Compress::Raw::Bzip2 
-cpanm Compress::Raw::Zlib 
-cpanm IO::Compress::Bzip2
-cpanm IO::Uncompress::Bunzip2 
-
-cpanm HTTP::Headers
-cpanm HTTP::Cookies
-cpanm HTTP::Date
-cpanm HTTP::Request
-cpanm HTTP::Request::Common
-cpanm HTTP::Response
-cpanm IO::File
-cpanm IO::Scalar
-cpanm IO::String
-cpanm JSON::Syck
-cpanm JSON::XS
-
-cpanm Lingua::EN::Infinitive
-cpanm HTTP::Negotiate
-cpanm File::Listing
-cpanm HTTP::Daemon
-cpanm Net::HTTP
-cpanm WWW::RobotRules
-cpanm LWP
-cpanm LWP::UserAgent
-cpanm LWP::Simple
-cpanm Mail::DKIM::PrivateKey
-cpanm Mail::DKIM::Signer
-cpanm MIME::Base64
-cpanm MIME::Entity
-cpanm MIME::Lite
-cpanm MIME::Parser
-
-cpanm Math::BigInt
-cpanm Math::BigInt::FastCalc
-cpanm Math::BigRat
-
-## cpanm Image::Magick			## installed by imagemagick
-
-cpanm Net::DNS
-cpanm Net::FTP
-cpanm Net::POP3
-
-cpanm Test::use::ok
-cpanm Tie::ToObject
-cpanm Moose
-cpanm Sub::Identify
-cpanm Variable::Magic
-cpanm B::Hooks::EndOfScope
-cpanm namespace::clean
-
-cpanm Data::Visitor::Callback
-cpanm MooseX::Aliases
-cpanm MooseX::Role::Parameterized
-cpanm Net::OAuth
-cpanm DateTime::Locale
-cpanm DateTime::Format::Strptime
-
-cpanm TAP::Harness::Env
-cpanm ExtUtils::Helpers
-cpanm ExtUtils::Config
-cpanm ExtUtils::InstallPaths
-cpanm Module::Build::Tiny
-cpanm namespace::autoclean
-cpanm Net::Twitter
-cpanm Pod::Parser
-## cpanm POSIX	## included with perl
-
-cpanm Redis
-cpanm Scalar::Util
-cpanm Text::CSV
-cpanm Text::CSV_XS
-cpanm Text::Metaphone
-cpanm Text::Soundex
-cpanm Tie::Hash::Indexed
-cpanm Time::HiRes
-
-
-cpanm URI
-cpanm URI::Escape
-cpanm URI::Escape::XS
-cpanm URI::Split
-cpanm XML::LibXML
-cpanm XML::Parser
-cpanm XML::Parser::EasyTree
-cpanm XML::RSS
-cpanm XML::SAX::Base
-
-## NOTE: XML::SAX requires we press 'Y'
-cpanm XML::SAX
->>>>>>> 6c0b6a7bafbd6454522961436ec8710f96db3ed1
 
 
 
@@ -970,7 +610,7 @@ cpanm XML::SAX
 cpanm XML::Handler::Trees;
 cpanm XML::SAX::Expat;
 cpanm XML::Simple;
-cpanm XML::SAX::Simple;
+	cpanm XML::SAX::Simple;
 cpanm Object::MultiType;
 cpanm XML::Smart;
 cpanm XML::Writer;
@@ -1047,7 +687,7 @@ cpanm MediaWiki::API;
 #tar -xzvf pari-2.5.5.tar.gz;
 #cd pari-2.5.5
 #./Configure
-=======
+
 cpanm XML::Handler::Trees
 cpanm XML::SAX::Expat
 cpanm XML::Simple
@@ -1314,7 +954,6 @@ cpanm Net::APNS;
 cpanm Amazon::SQS::Simple;
 ## cpanm Amazon::SQS::ProducerConsum;
 
-=======
 cpanm Data::Buffer
 cpanm Sort::Versions
 cpanm Class::Loader
@@ -1557,14 +1196,6 @@ cpanm Email::Vali;
 cpanm CSS::Minifier::X;
 cpanm MediaWiki::AP;
 
-
-
-
-
-
-exit;
-
-=======
 cpanm Proc::Wait3
 cpanm Server::Starter
 cpanm Parallel::Prefork
@@ -1576,9 +1207,6 @@ cpanm ExtUtils::Config
 cpanm ExtUtils::InstallPaths
 cpanm Module::Build::Tiny
 cpanm HTTP::Parser::XS
-cpanm Starman
-
-
 
 cpanm Net::OAuth2
 
@@ -1613,7 +1241,6 @@ cpanm Email::Valid
 
 cpanm CSS::Minifier::XS
 cpanm MediaWiki::API
->>>>>>> 6c0b6a7bafbd6454522961436ec8710f96db3ed1
 
 
 #   CLUSTER=`/root/configs/platform.pl show=cluster`
@@ -1628,19 +1255,14 @@ cpanm MediaWiki::API
 #      /bin/mount -t nfs $CLUSTER:/data/users-$CLUSTER /remote/$CLUSTER/users -O "defaults,hard,udp,rsize=8192,wsize=8192,nfsvers=3,intr,noatime"
 #   fi
 
-
 ##
-## Google Checkout
+## if you plan to use buy.com make sure you open a support ticket letting us know your public ip address.
+## buy.com requires an active ftp connection which is very difficult to do out of AWS since it requires opening
+## of many ports, and it's very insecure. we have an active/passive gateway.
 ##
-cd /usr/local/src
-git clone https://github.com/brianhorakh/CPAN-Google-Checkout
-cd CPAN-Google-Checkout
-perl Makefile.PL
-make install;
-
-
-/etc/hosts
+cat >> /etc/hosts
 184.72.58.88   trade.marketplace.buy.com
+^D
 
 
 --------------------------------
@@ -1657,20 +1279,6 @@ make
 make install
 ldconfig
 
-<<<<<<< HEAD
-cpanm IO::CaptureOutput;
-cpanm Devel::CheckLib;
-
-yum -y install yum;
-cpanm ExtUtils::CBuilde;
-cpanm String::ShellQuot;
-cpanm Alien::ZM;
-cpanm ZMQ::Constant;
-#cpanm ZMQ::LibZMQ;
-# cpanm ZMQ::Constant;
-# perl -MCPAN -e 'CPAN::Shell->notest("install","ZMQ::LibZMQ3");';
-perl -MCPAN -e 'CPAN::Shell->notest("install","ZMQ::LibZMQ3");';
-=======
 cpanm IO::CaptureOutput
 cpanm Devel::CheckLib
 
@@ -1679,60 +1287,7 @@ cpanm ExtUtils::CBuilder
 cpanm String::ShellQuote
 cpanm Alien::ZMQ
 cpanm ZMQ::Constants
-#cpanm ZMQ::LibZMQ3
-# cpanm ZMQ::Constants
-# perl -MCPAN -e 'CPAN::Shell->notest("install","ZMQ::LibZMQ3
-perl -MCPAN -e 'CPAN::Shell->notest("install","ZMQ::LibZMQ3
->>>>>>> 6c0b6a7bafbd6454522961436ec8710f96db3ed1
-
-
-
-
-
-##
-##  FUCKING SPIDERMONKEY
-##
-#cd /usr/local/src
-#wget http://ftp.mozilla.org/pub/mozilla.org/js/js-1.8.0-rc1.tar.gz
-#tar -xzvf js-1.8.0-rc1.tar.gz
-#cd js/src
-#export CFLAGS="-DJS_C_STRINGS_ARE_UTF8"
-#make -f Makefile.ref
-#JS_DIST=/usr make -f Makefile.ref export
-
-#cd /usr/local/src
-#wget http://search.cpan.org/CPAN/authors/id/C/CL/CLAESJAC/JavaScript-1.16.tar.gz
-#tar -xzvf JavaScript-1.16.tar.gz
-#cd JavaScript-1.16
-### edit Makefile.PL around line #44 add --
-#+push @incs, "/usr/local/src/js/src";
-#+push @libs, "/usr/local/lib";
-#perl Makefile.PL
-#make install
-
-###########################################################################################
-## NOTE: THE JS COMMANDS BELOW DO NOT WORK -- BUT SHOW SOME WAYS *NOT* TO DO IT.
-##  wget http://ftp.mozilla.org/pub/mozilla.org/js/js-1.7.0.tar.gz
-## cp config/Linux_All.mk Makefile
-## a bit of reading seems to indicate xulrunner repo contains the spidermonkey runtime!?
-## yum install -y nspr-devel-4.9.2-0.el6_3.1.x86_64  <-- does not work.
-## regrettably - spidermonkey is still required
-## git clone https://github.com/mozilla/rhino.git
-## https://developer.mozilla.org/en-US/docs/SpiderMonkey/Build_Documentation
-## wget http://ftp.mozilla.org/pub/mozilla.org/js/js185-1.0.0.tar.gz
-## tar -xzvf js185-1.0.0.tar.gz
-## autoconf-2.13   # js185 requires this version
-## ./configure
-## make
-## make install
-## ln -s /usr/local/src/js-1.8.5/js/src/config/system_wrappers_js/ /usr/include/nspr
-###########################################################################################
-
-
-## 
-
-
-
+cpanm ZMQ::LibZMQ3
 
 ##
 ## NAGIOS
@@ -1749,101 +1304,24 @@ yum -y nagios-plugins
 yum -y install sysstat
 
 
-exit;
-
-
-## THINGS WE DON'T USE NO MORE
-
-## http://openresty.org/download/ngx_openresty-1.4.3.3.tar.gz
-## 
-#yum -y install gitolite gitolite3
-
-##
-## QUAGGA
-##
-#cd /usr/local/src
-#yum -y install compat-readline5-devel readline-devel
-#yum -y install net-snmp-devel net-snmp-libs net-snmp net-snmp-utils
-#wget http://download.savannah.gnu.org/releases/quagga/quagga-0.99.22.tar.gz
-#tar -xzvf quagga*.tar.gz
-#cd quagga*
-### NOTE: need snmp eventually!
-# ./configure --disable-ospf6d --disable-ripngd --enable-vtysh --enable-netlink
-#make install
-### NOTE: access localhost port 2601 to configure
-### opensourcecentre.wordpress.com/article/install-quagga-as-linux-router/
-#cat > /etc/quagga/daemons
-#zebra=yes //Compulsory .yes.
-#bgp=no //Border gateway protocol
-#ospf=yes //OSPF with IPV4
-#ospf6d=no //OSPF with IPv6
-#ripd=no //RIP versi 2
-#ripngd=no //RIP with IPV6
-#^D
-
-
-
-##
-## APACHE
-##
-## http://perl.apache.org/docs/2.0/user/install/install.html
-#cd /usr/local/src
-#wget http://www.carfab.com/apachesoftware//httpd/httpd-2.2.25.tar.gz
-#tar -xzvf httpd-2.2.25.tar.gz
-#############Apache Install##################
-#cd httpd-2.2.25
-### NOTE: no more ssl -- we don't need it since nginx handles that now!
-#./configure  --enable-mem-cache  --enable-dbd  --enable-headers  \
-#	--disable-authn-file --disable-authn-default --enable-auth-default --disable-auto-index \
-#	--enable-authn-default --enable-authn-file --enable-cache --enable-dbd --disable-include \
-#	--disable-filter --disable-charset-lite --enable-http --enable-cgi \
-#	--disable-negotiation --disable-actions --disable-userdir --disable-alias --enable-so \
-#	--with-z=/usr/local/src/HTTPD/zlib-1.2.5  --prefix=/usr/local/apache 
-#make
-#make install
-
-
-## elastic search really wants a swapfile.
-#mkdir -p /var/swap
-## create a 1gb swap file
-#dd if=/dev/zero of=/var/swap/swap1 count=1024 bs=1024000
-#mkswap /var/swap/swap1
-#swapon /var/swap/swap1
-#echo "/var/swap/swap1 swap    swap    defaults         0 0" >> /etc/fstab
-
-##
-## elasticsearch
-##
-#cd /usr/local
-#cd /usr/local/
-#git clone https://github.com/elasticsearch/elasticsearch-servicewrapper.git
-#cd /usr/local/src/elasticsearch-servicewrapper
-#/bin/cp -Rv service /usr/local/elasticsearch/bin
-
-#/usr/local/elasticsearch/config/elasticsearch.yml
-#index.number_of_shards: 1
-#
-#/usr/local/elasticsearch/bin/service/elasticsearch.conf
-#set.default.ES_HOME=/local/elastic
-#set.default.ES_HEAP_SIZE=128
-#set.default.ES_MIN_MEM=128mb
-#set.default.ES_MAX_MEM=128mb
-#
 
  cd /usr/local
  rm -Rf elasticsearch*
  rm -f /etc/init.d/elasticsearch
  
- wget https://download.elasticsearch.org/elasticsearch/elasticsearch/elasticsearch-1.0.1.noarch.rpm
- rpm --install elasticsearch-1.0.1.noarch.rpm
+ ## wget https://download.elasticsearch.org/elasticsearch/elasticsearch/elasticsearch-1.0.1.noarch.rpm
+ ## rpm --install elasticsearch-1.0.1.noarch.rpm
+wget https://download.elasticsearch.org/elasticsearch/elasticsearch/elasticsearch-1.3.1.noarch.rpm
+rpm --install elasticsearch-1.3.1.noarch.rpm
  
-
+## you might need to change the values below to something sane:
 rm -f /etc/elasticsearch.yml
 echo "node.max_local.storage_nodes: 1" >> /etc/elasticsearch/elasticsearch.yml
 echo "index.number_of_replicas: 0" >> /etc/elasticsearch/elasticsearch.yml
 echo "path.data: /local/elastic" >> /etc/elasticsearch/elasticsearch.yml
 
-
+/sbin/chkconfig --add elasticsearch
+service elasticsearch start
 
 
 
@@ -1857,18 +1335,17 @@ rpm --install MySQL-client-5.6.14-1.el6.x86_64.rpm MySQL-devel-5.6.14-1.el6.x86_
 	MySQL-server-5.6.14-1.el6.x86_64.rpm MySQL-shared-5.6.14-1.el6.x86_64.rpm \
 	MySQL-shared-compat-5.6.14-1.el6.x86_64.rpm
 
+service mysql start
+
 
 ##
 ## SOME MORE PERL LIBRARIES
 ##
-<<<<<<< HEAD
 cpanm DBIx::ContextualFetch;
 cpanm Ima::DBI;
 cpanm UNIVERSAL::moniker;
 cpanm Class::DBI;
-perl -MCPAN -e 'CPAN::Shell->force("install","Apache::DBI::Cache");';		## it's safe to ignore errors
 cpanm DBD::mysql;
-
 
 cpanm Stream::Buffered;
 cpanm Test::SharedFork;
@@ -1886,63 +1363,9 @@ cpanm Text::Wrap;
 cpanm Plack;
 
 cpanm Digest::SHA1;
-perl -MCPAN -e 'CPAN::Shell->force("install","DIME::Payload");'
-
-perl -MCPAN -e 'CPAN::Shell->force("install","IPC::Lock::Memcached");';
-perl -MCPAN -e 'CPAN::Shell->force("install","IPC::ConcurrencyLimit::Lock");';
-=======
-cpanm DBIx::ContextualFetch
-cpanm Ima::DBI
-cpanm UNIVERSAL::moniker
-cpanm Class::DBI
-perl -MCPAN -e 'CPAN::Shell->force("install","Apache::DBI::Cache		## it's safe to ignore errors
-cpanm DBD::mysql
-
-
-cpanm Stream::Buffered
-cpanm Test::SharedFork
-cpanm Test::TCP
-cpanm File::ShareDir
-cpanm Hash::MultiValue
-cpanm Devel::StackTrace
-cpanm HTTP::Body
-cpanm Filesys::Notify::Simple
-cpanm Devel::StackTrace::AsHTML
-cpanm Mojolicious
-cpanm AnyEvent
-cpanm WWW::Twilio::API
-cpanm Text::Wrap
-cpanm Plack
-
-cpanm Digest::SHA1
-perl -MCPAN -e 'CPAN::Shell->force("install","DIME::Payload
-
-perl -MCPAN -e 'CPAN::Shell->force("install","IPC::Lock::Memcached
-perl -MCPAN -e 'CPAN::Shell->force("install","IPC::ConcurrencyLimit::Lock
->>>>>>> 6c0b6a7bafbd6454522961436ec8710f96db3ed1
-
-## NetSRS -- DomainRegistration
-## pre-req for opensrs
-#cd /usr/local/src
-<<<<<<< HEAD
-echo | cpanm Test::Carp;
-echo | cpanm Locales::DB;
-echo | cpanm Locales;
-echo | cpanm DBM::Deep;
-echo | cpanm Number::Phone;
-=======
-echo | cpanm Test::Carp
-echo | cpanm Locales::DB
-echo | cpanm Locales
-echo | cpanm DBM::Deep
-echo | cpanm Number::Phone
->>>>>>> 6c0b6a7bafbd6454522961436ec8710f96db3ed1
-cd /usr/local/src;
-git clone https://github.com/brianhorakh/perl-cpan--Net-OpenSRS
-cd perl-cpan--Net-OpenSRS
-perl Makefile.PL
-make install
-
+cpanm DIME::Payload;
+cpanm IPC::Lock::Memcached;
+cpanm IPC::ConcurrencyLimit::Lock;
 
 ## s3fs
 yum remove -y fuse fuse-devel libguestfs perl-Sys-Guestfs
@@ -1977,6 +1400,80 @@ mkdir /mnt/configs
 /usr/local/bin/s3fs commercerack-configs /mnt/configs -odefault_acl=public-read -opublic_bucket=1 -ouse_cache=/tmp
 # private (rw)
 /usr/local/bin/s3fs commercerack-configs /mnt/configs -odefault_acl=public-read -ouse_cache=/tmp
+
+
+## 
+## xerces and xalan are needed for ebay xslt conversion, also for some types of EDI
+## on i686
+## NEVER USE CENTOS BINARIES: -- THESE VERSIONS DONT WORK (IT WILL SCREW OVER XALAN)
+##	yum install xerces-c xerces-c-devel xerces-c-doc
+## 
+cd /usr/local/src/
+wget http://apache.cs.utah.edu/xerces/c/3/sources/xerces-c-3.1.1.tar.gz
+tar -xzvf xerces-c-3.1.1.tar.gz
+cd xerces-c-3.1.1
+./configure
+make install
+ldconfig
+
+cd /usr/local/src
+wget http://apache.cs.utah.edu/xalan/xalan-c/sources/xalan_c-1.11-src.tar.gz
+tar -xzvf xalan_c-1.11-src.tar.gz
+cd xalan-c-1.11/c
+ export XERCESCROOT="/usr/local/include/xercesc"
+ export XALANCROOT=`pwd`
+./runConfigure -p linux
+make clean
+
+## DO NOT RUN CONFIGURE -- YOU WILL SPEND HOURS FIGURING OUT WTF.
+## ./configure
+make
+make install
+
+
+
+## CANT GET ZEROMQ TO COMPILE UNPATCHED, Alien::ZMQ fixes it.
+## ./configure --with-pgm --enable-static --enable-shared --with-gnu-ld
+cpanm ExtUtils::CBuilder;
+cpanm String::ShellQuote;
+
+cpanm Alien::ZMQ;
+cpanm ZMQ::LibZMQ;
+cpanm String::Urandom;
+
+yum -y install help2man texinfo libtool
+
+
+
+##########################################################
+## line of deprecation
+##
+
+
+## elastic search really wants a swapfile.
+#mkdir -p /var/swap
+## create a 1gb swap file
+#dd if=/dev/zero of=/var/swap/swap1 count=1024 bs=1024000
+#mkswap /var/swap/swap1
+#swapon /var/swap/swap1
+#echo "/var/swap/swap1 swap    swap    defaults         0 0" >> /etc/fstab
+
+
+
+
+## NetSRS -- DomainRegistration
+## pre-req for opensrs
+#cd /usr/local/src
+#echo | cpanm Test::Carp;
+#echo | cpanm Locales::DB;
+#echo | cpanm Locales;
+#echo | cpanm DBM::Deep;
+#echo | cpanm Number::Phone;
+#cd /usr/local/src;
+#git clone https://github.com/brianhorakh/perl-cpan--Net-OpenSRS
+#cd perl-cpan--Net-OpenSRS
+#perl Makefile.PL
+#make install
 
 
 ##
@@ -2015,84 +1512,25 @@ make
 make install
 
 
-## xerces and xalan are needed for ebay xslt conversion
-## on i686
-## NEVER USE CENTOS BINARIES: -- THESE VERSIONS DONT WORK (IT WILL SCREW OVER XALAN)
-##	yum install xerces-c xerces-c-devel xerces-c-doc
-
-## 
-cd /usr/local/src/
-wget http://apache.cs.utah.edu/xerces/c/3/sources/xerces-c-3.1.1.tar.gz
-tar -xzvf xerces-c-3.1.1.tar.gz
-cd xerces-c-3.1.1
-./configure
-make install
-
-
-
-
-
-
-ldconfig
-
-cd /usr/local/src
-wget http://apache.cs.utah.edu/xalan/xalan-c/sources/xalan_c-1.11-src.tar.gz
-tar -xzvf xalan_c-1.11-src.tar.gz
-cd xalan-c-1.11/c
- export XERCESCROOT="/usr/local/include/xercesc"
- export XALANCROOT=`pwd`
-./runConfigure -p linux
-make clean
-
-## DO NOT RUN CONFIGURE -- YOU WILL SPEND HOURS FIGURING OUT WTF.
-## ./configure
-make
-
-make install
-
-
 
 ##
 ## git clone git://banu.com/tinyproxy.git
-cd /usr/local/src
-wget --no-check-certificate https://banu.com/pub/tinyproxy/1.8/tinyproxy-1.8.3.tar.bz2
-tar -xjvf tinyproxy-1.8.3.tar.bz2
-cd tinyproxy-1.8.3
-./configure
-make install
-
+#cd /usr/local/src
+#wget --no-check-certificate https://banu.com/pub/tinyproxy/1.8/tinyproxy-1.8.3.tar.bz2
+#tar -xjvf tinyproxy-1.8.3.tar.bz2
+#cd tinyproxy-1.8.3
+#./configure
+#make install
 ##
 ##
 
 yum -y install asciidoc
 
-
-
-perl -MCPAN -e 'CPAN::Shell->force("install","Data::JavaScript::LiteObject
-perl -MCPAN -e 'CPAN::Shell->force("install","JavaScript::Minifier
+cpanm Data::JavaScript::LiteObject
+cpanm JavaScript::Minifier
 
 
 ## ZERO MQ
-
-## CANT GET ZEROMQ TO COMPILE UNPATCHED, Alien::ZMQ fixes it.
-## ./configure --with-pgm --enable-static --enable-shared --with-gnu-ld
-<<<<<<< HEAD
-cpanm ExtUtils::CBuilde;
-cpanm String::ShellQuot;
-
-cpanm Alien::ZM;
-cpanm ZMQ::LibZMQ;
-cpanm String::Urando;
-=======
-cpanm ExtUtils::CBuilder
-cpanm String::ShellQuote
-
-cpanm Alien::ZMQ
-cpanm ZMQ::LibZMQ3
-cpanm String::Urandom
->>>>>>> 6c0b6a7bafbd6454522961436ec8710f96db3ed1
-
-yum -y install help2man texinfo libtool
 
 ## latest autoconf needed for libmaxmind/geoip
 cd /usr/local/src;
@@ -2127,7 +1565,7 @@ wget -N http://geolite.maxmind.com/download/geoip/database/GeoLiteCity.dat.gz
 ## wget http://dev.maxmind.com/geoip/downloadable
 
 ## grab the perl library
-## DO NOT USE: perl -MCPAN -e 'CPAN::Shell->force("install","Geo::IP
+## DO NOT USE: cpanm Geo::IP
 wget http://search.cpan.org/CPAN/authors/id/B/BO/BORISZ/Geo-IP-1.42.tar.gz
 tar -xzvf Geo-IP-1.42.tar.gz
 cd Geo-IP-1.42
@@ -2151,51 +1589,17 @@ ln -s /backend /httpd
 rm -Rf /backend/lib
 ln -s /backend/lib /backend/modules
  
-<<<<<<< HEAD
-cpanm ExtUtils::Constant;
-cpanm Socket;
-perl -MCPAN -e 'CPAN::Shell->force("install","Net::Ping");';
-cpanm Hijk;
-cpanm HTTP::Tiny;
-cpanm Elasticsearch;
-cpanm Pegex::Parse;
-cpanm Mo::builde;
-cpanm Net::AWS::SE;
-=======
 cpanm ExtUtils::Constant
 cpanm Socket
-perl -MCPAN -e 'CPAN::Shell->force("install","Net::Ping
+cpanm Net::Ping
 cpanm Hijk
 cpanm HTTP::Tiny
 cpanm Elasticsearch
 cpanm Pegex::Parser
 cpanm Mo::builder
 cpanm Net::AWS::SES
->>>>>>> 6c0b6a7bafbd6454522961436ec8710f96db3ed1
-
- cd /usr/local
- rm -Rf elasticsearch*
- rm -f /etc/init.d/elasticsearch
- 
- wget https://download.elasticsearch.org/elasticsearch/elasticsearch/elasticsearch-1.0.1.noarch.rpm
- rpm --install elasticsearch-1.0.1.noarch.rpm
- 
-
-rm -f /etc/elasticsearch.yml
-echo "node.max_local.storage_nodes: 1" >> /etc/elasticsearch/elasticsearch.yml
-echo "index.number_of_replicas: 0" >> /etc/elasticsearch/elasticsearch.yml
-echo "path.data: /local/elastic" >> /etc/elasticsearch/elasticsearch.yml
-
-
 
 ## 201403
-
-cd /tmp
-wget https://download.elasticsearch.org/elasticsearch/elasticsearch/elasticsearch-1.1.1.noarch.rpm
-rpm --install elasticsearch-1.1.1.noarch.rpm
-
-yum install -y monit
-
 
 
 
@@ -2207,7 +1611,6 @@ sysctl -w net.core.somaxconn=1024
 
 yum -y install mysql mysql-devel mysql-client
 
-ln -sf /usr/share/zoneinfo/US/Pacific-New /etc/localtime
 
 
 ######################################################### END OF FILE ######################################################
@@ -2337,16 +1740,6 @@ mkdir -p /var/log/httpd/apache
 24) Set webman to /sbin/nologin
 
 
-
-
-#hoth  gw1, www1, www4
-#dagobah
-#bespin
-#crackle
-#pop
-
-
-
 =====
 HOST=z200 ; cat /root/.ssh/id_rsa.pub | ssh $HOST "cat >> ~/.ssh/authorized_keys"
 
@@ -2356,6 +1749,8 @@ mkdir -m 700 ~nagios/.ssh;
 cat >> ~nagios/.ssh/authorized_keys
 ssh-dss AAAAB3NzaC1kc3MAAACBAKRKJYFTG44RbnkmqMj8xVeqYXxCzIpqsrp1llKwRpw7Vdj1BKhT1Lkanum+t/VOD8GhVHzAdGKEWiq6N9OBB1Eu+ug/w87Rt9dDQIpAJcQMfuAGRDUPpfPYszi9ES2FHWD3IDPI3WxrFSoRW1483aHjMynDUdk2o/OXUErxCwPBAAAAFQDFP1EVWEd47iDXXqMZbpZLhlSMAwAAAIEAmla9noFI3uzZ7Nmi1ml7cyBzShzZnKpfobSGrTIrzDsOe2Xykzd1BSxkp4pK7PiPWpnS1hAARd9hTcfGPosispsEAdpT0bzQUMwngMshEkZn4yDTh1lRzADSy944NJkhH8QqlSdLlUdUT6AiNZNJeVT75ZdQ3l1LmYlbP/yty+sAAACAN8mYEqq/P7ltO61W/qlfxJpWGbI7uiZn81pbVNt5SadW3pvtaoqaQvsCET/YSnGZb+dUoh8GsPWkZMQpQhCJCLJ9LdhYrBroLFnvQLgweTFdA7KI/Ejk324OThNm1Kb8sC1tAAh4TzMi4RDkK6EifSsi1bwsfkJ8AwDhfsVMIco= nagios@monitor.zoovy.com
 ssh-rsa AAAAB3NzaC1yc2EAAAABIwAAAQEAy/Yiq4g2tF+rNrG4MH5aZ/B65uDViqudCtWq2YweQclJGgHX7r/NI428aMdhU0ZFlSVL7+m5c7YP2QioRjgD4mD74N6oJW6GRxtKC9nKhkgi6aricaDNuu3ldQFosxavO7vS0+D6G40NR7JXpk9tLopQqInl/figBNuFzwpixRJajdMm3rpsbKsWcleDREp116lnohfTmSLdJlkcm+mqnQpOjpuWiGXJS7uwlz1LVZC9p09C9HLqhaoF6SUo7eqxY4I/6Xm4TOhQnpyMv3XBmzmXvsLO+3rDT7H7nXBFm1mftWpY9EGrGDxZ5gwEFvCrYaAxHGOlYpajNgOa9ech7w== nagios@monitor.zoovy.com
+ssh-rsa AAAAB3NzaC1yc2EAAAABIwAAAQEAsUiW2oypUP6ZImCT/957f7wRUGdCaTCtx+B3FNloioo8r5IGOR/fgTDMZz51bMz06tdunLdtzvvP5/PAoXsU1ZOsi9LK8wBqwzzdg6IO+1+I/JO6kZj0/su2gBhCJ9VqvfuI0BIVjIylgwXISrHJ7z3N8jlIAq5D1y7MS/t3fs3d9SySiDmU4SulPluj8tyOC95jCWN05hEXpk3LinnW/AbgyntAtnCZFk/87+m+n3lB1/o73s+b6c2w1Us6GQKsfTHu5iA2dpBkNLOB5L1HcazwAfTKXd3j6fG5g61gzTWxhSssgtXnsBH6ThOL8LETjGdlKGfXHGgE40zqFdgHGw== root@dev
+
 
 
 useradd -M --system -u 495 nginx
@@ -2372,46 +1767,11 @@ sysctl -w net.core.rmem_max=16777216
 sysctl -w net.core.wmem_max=16777216
 sysctl -w fs.file-max=70000
 
-## raise the number of file descriptors
-/etc/security/limits.conf
-nginx       soft    nofile   10000
-nginx       hard    nofile  30000
-
-
-
-scp /usr/local/nginx/conf/vstore.conf gw1-crackle:/usr/local/nginx/conf/vstore.conf
-scp -r /usr/local/nginx/certs gw1-crackle:/usr/local/nginx/
 
 
 cat /root/.ssh/id_rsa.pub | ssh www1-crackle "cat >> ~/.ssh/authorized_keys"
 /root/configs/ntp-time/ntp.sh
 
-config eth0+eth0:1 in etc/rc.d/rc.local
-/etc/rc.d/rc.local
-ifconfig eth0 208.74.184.120/28
-ifconfig eth0:1 208.74.184.121/32
-route add default gw 208.74.184.114
-
-
-
-
-
-
-joe /etc/hosts
-192.168.2.35   crackle
-192.168.2.36   pop
-192.168.2.37   dagobah 
-192.168.2.38   hoth 
-192.168.2.39   bespin
-208.74.184.120 my.identity
-208.74.184.120 my.private
-208.74.184.120 vstore vstore.zoovy.com
-208.74.184.120 static static.zoovy.com
-
-scp /httpd/bin/apachectl gw1-dagobah:/httpd/bin/apachectl
-scp /usr/local/nginx/conf/nginx.conf gw1-dagobah:/usr/local/nginx/conf/nginx.conf
-scp /usr/local/nginx/sbin/nginx gw1-dagobah:/usr/local/nginx/sbin/nginx
-scp /httpd/bin/apachectl gw1-dagobah:/usr/local/nginx/sbin/nginx
 
 mkdir -m 755 -p /local/nginx/logs
 mkdir -m 0775 /local/nginx-cache
@@ -2432,25 +1792,13 @@ mount -a
 mkdir -m 0777 -p /remote/crackle/users; mkdir -m 0777 -p /remote/pop/users; mkdir -m 0777 -p /remote/dagobah/users; mkdir -m 0777 -p /remote/hoth/users;mkdir -m 0777 -p /remote/bespin/users
 cat >>/etc/fstab
 
-### crackle MOUNT POINTS
-crackle-int:/data/users-crackle /remote/crackle/users  nfs defaults,hard,rsize=32768,wsize=32768,nfsvers=4,intr,noacl,noatime 0
-## POP MOUNT POINTS
-pop-int:/data/users-pop /remote/pop/users nfs defaults,hard,rsize=32768,wsize=32768,nfsvers=4,intr,noacl,noatime 0 0
-## DAGOBAH MOUNT POINTS
-dagobah-int:/data/users-dagobah /remote/dagobah/users nfs defaults,hard,rsize=32768,wsize=32768,nfsvers=4,intr,noacl,noatime 0 0
-## HOTH MOUNT POINTS
-hoth-int:/data/users-hoth /remote/hoth/users nfs defaults,hard,rsize=32768,wsize=32768,nfsvers=4,intr,noacl,noatime 0 0
-## BESPIN
-bespin-int:/data/users-bespin /remote/bespin/users nfs defaults,hard,rsize=32768,wsize=32768,nfsvers=4,intr,noacl,noatime 0 0
+### NFS MOUNT POINTS
+server:/users/homedir /remote/users  nfs defaults,hard,rsize=32768,wsize=32768,nfsvers=4,intr,noacl,noatime 0
 
 
-
-www4-pop
 echo 1024 > /proc/sys/net/core/somaxconn
 sysctl -w net.core.somaxconn=1024
 
-
-www2-pop
 
 ---
 

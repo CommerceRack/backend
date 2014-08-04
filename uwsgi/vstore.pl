@@ -1127,6 +1127,15 @@ sub legacyResponseHandler {
 			$SITE::DEBUG && warn('Getting CART_ID from URL (environment variable)');
 			}
 
+
+		if (defined $SITE::CART2) {
+			## check REDIS to see if this cart has placed an order, if it has, nuke it
+			if ($SITE::CART2->has_oid()) {
+				## we cannot use this cart again
+				$SITE::CART2 = undef;
+				}
+			}
+
 		##
 		## Aiee! - create a new cart!
 		##
