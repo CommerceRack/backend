@@ -14,7 +14,6 @@ require STUFF;
 require CART2;
 require ZOOVY;
 require ZSHIP;
-require DIME::Parser;
 require ZTOOLKIT;
 require ZWEBSITE;
 require SYNDICATION;

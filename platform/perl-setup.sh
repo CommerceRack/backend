@@ -54,11 +54,11 @@ cpanm Package::Stash;
 cpanm Class::Load;
 cpanm DateTime::TimeZone;
 cpanm DateTime;
-cpanm DBI;
+cpanm --force DBI;
 cpanm Digest::HMAC_SHA1;
 cpanm Digest::MD5;
 cpanm Digest::SHA1;
-cpanm DIME::Message;
+##cpanm --force DIME::Message;
 
 cpanm Data::Dump;
 cpanm Any::URI::Escape;

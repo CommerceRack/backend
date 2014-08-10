@@ -377,6 +377,7 @@ ldconfig
 #service rpcbind start
 
 
+# to simplify the perl modules - just run:
 /backend/platform/perl-setup.sh 
 
 
@@ -388,9 +389,6 @@ ldconfig
 #perl Makefile.PL force_download
 #make install
 
-
-##
-## STARLET REQUIREMENTS:
 
 
 

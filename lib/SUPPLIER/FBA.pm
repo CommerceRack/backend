@@ -10,7 +10,6 @@ use XML::SAX::Simple;
 
 use lib "/backend/lib";
 require ZOOVY;
-require DIME::Parser;
 require ZTOOLKIT;
 require AMAZON3;
 require PRODUCT;
