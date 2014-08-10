@@ -5,11 +5,21 @@
 # using a standard centos box
 ##
 
-useradd commercerack
+yum install -y git
+
+useradd -u 1000 commercerack
+
+
 
 ## similiar to tinydns, etc. we use a root level directory to minimize stat calls to the root fs
 ## /backend is the path for the main server.
 mkdir -p /backend
+cd /
+git clone https://github.com/commercerack/backend.git
+cd /backend/
+git clone https://github.com/commercerack/backend-static.git
+ln -s backend-static static
+
 
 echo "/usr/local/lib" > /etc/ld.so.conf.d/usr-local-lib.conf
 ldconfig
@@ -17,9 +27,6 @@ ldconfig
 ln -sf /usr/share/zoneinfo/US/Pacific-New /etc/localtime
 
 
-cat >> ~/.ssh/authorized_keys
-ssh-rsa AAAAB3NzaC1yc2EAAAABIwAAAQEAsUiW2oypUP6ZImCT/957f7wRUGdCaTCtx+B3FNloioo8r5IGOR/fgTDMZz51bMz06tdunLdtzvvP5/PAoXsU1ZOsi9LK8wBqwzzdg6IO+1+I/JO6kZj0/su2gBhCJ9VqvfuI0BIVjIylgwXISrHJ7z3N8jlIAq5D1y7MS/t3fs3d9SySiDmU4SulPluj8tyOC95jCWN05hEXpk3LinnW/AbgyntAtnCZFk/87+m+n3lB1/o73s+b6c2w1Us6GQKsfTHu5iA2dpBkNLOB5L1HcazwAfTKXd3j6fG5g61gzTWxhSssgtXnsBH6ThOL8LETjGdlKGfXHGgE40zqFdgHGw== root@dev
-^D
 
 
 
@@ -51,13 +58,15 @@ yum -y update
 yum -y install zfs
 reboot
 
+
+
 ## for iostat
 yum -y install systat
 
 #===========================================
 ##  
 #===========================================
-yum update
+yum -y update
 yum -y install cronie ftp postfix openssh openssl openssh-clients rdist ntpdate gcc make postfix mailx telnet openssh man wget
 yum -y install libtool-ltdl-devel glibc-devel apr-devel apr-util-devel aspell-devel binutils-devel bison-devel boost-devel boost-mpich2-devel boost-openmpi-devel 
 yum -y install inotify-tools incrond vixie-cron
@@ -86,7 +95,7 @@ yum -y install glibc-devel.i686 gmp-devel gnutls-devel gpm-devel gsm-devel iso-c
 yum -y install \
  libxml2-devel libxslt-devel libzip-devel log4cpp-devel lua-devel lzo-devel memcached-devel mpfr-devel ncurses-devel \
  openjpeg-devel openmpi-devel openssl-devel pcre-devel perl-devel uuid-devel zlib-devel git rsync jwhois \
- tcpdump iotop bind-utils asciidoc libatomic_ops-devel openssl-devel perl perl-ExtUtils-MakeMaker perl-ExtUtils-ParseXS perl-Module-Pluggable \
+ tcpdump iotop bind-utils asciidoc libatomic libatomic_ops-devel openssl-devel perl perl-ExtUtils-MakeMaker perl-ExtUtils-ParseXS perl-Module-Pluggable \
  perl-Pod-Escapes perl-Pod-Simple perl-Test-Harness perl-devel perl-libs perl-version openssl-perl perl-Algorithm-Diff.noarch perl-AppConfig.noarch perl-Archive-Extract 
 
 yum -y install \
@@ -164,13 +173,12 @@ make install
 ##scp 192.168.2.141:/usr/local/etc/joe/* /usr/local/etc/joe/
 
 ##
-## we use openresty to get a lot of modules for nginx, but we don't install them all.
+## we use openresty to get a lot of modules for nginx, but we don't install them all. (NOT ANYMORE)
 ##
-cd /usr/local/src;
-wget http://openresty.org/download/ngx_openresty-1.5.8.1.tar.gz;
-tar -xzvf ngx_openresty-1.5.8.1.tar.gz; cd ngx_openresty-1.5.8.1;
-./configure;
-
+##cd /usr/local/src;
+##wget http://openresty.org/download/ngx_openresty-1.5.8.1.tar.gz;
+##tar -xzvf ngx_openresty-1.5.8.1.tar.gz; cd ngx_openresty-1.5.8.1;
+##./configure;
 
 cd /usr/local/src/
 wget http://nginx.org/download/nginx-1.6.0.tar.gz; tar -xzvf nginx-1.6.0.tar.gz; cd nginx-1.6.0;
@@ -192,17 +200,17 @@ cd /usr/local/src/nginx-1.6.0
 	--without-http_map_module --with-http_perl_module --with-perl=/usr/bin/perl \
 	--with-pcre --with-pcre-jit --with-libatomic  \
  	--with-http_spdy_module \
-	--with-pcre-jit \
-	--add-module=../ngx_openresty-1.5.8.1/bundle/auth-request-nginx-module-0.2 \
-	--add-module=../ngx_openresty-1.5.8.1/bundle/echo-nginx-module-0.51 \
-	--add-module=../ngx_openresty-1.5.8.1/bundle/headers-more-nginx-module-0.25 \
-	--add-module=../ngx_openresty-1.5.8.1/bundle/ngx_coolkit-0.2rc1 \
-	--add-module=../ngx_openresty-1.5.8.1/bundle/ngx_devel_kit-0.2.19 \
-	--add-module=../ngx_openresty-1.5.8.1/bundle/redis-nginx-module-0.3.7 \
-	--add-module=../ngx_openresty-1.5.8.1/bundle/redis2-nginx-module-0.10 \
-	--add-module=../ngx_openresty-1.5.8.1/bundle/set-misc-nginx-module-0.24 \
-	--add-module=../ngx_openresty-1.5.8.1/bundle/srcache-nginx-module-0.25 \
-	--add-module=../ngx_openresty-1.5.8.1/bundle/memc-nginx-module-0.14 
+	--with-pcre-jit 
+#	--add-module=../ngx_openresty-1.5.8.1/bundle/auth-request-nginx-module-0.2 \
+#	--add-module=../ngx_openresty-1.5.8.1/bundle/echo-nginx-module-0.51 \
+#	--add-module=../ngx_openresty-1.5.8.1/bundle/headers-more-nginx-module-0.25 \
+#	--add-module=../ngx_openresty-1.5.8.1/bundle/ngx_coolkit-0.2rc1 \
+#	--add-module=../ngx_openresty-1.5.8.1/bundle/ngx_devel_kit-0.2.19 \
+#	--add-module=../ngx_openresty-1.5.8.1/bundle/redis-nginx-module-0.3.7 \
+#	--add-module=../ngx_openresty-1.5.8.1/bundle/redis2-nginx-module-0.10 \
+#	--add-module=../ngx_openresty-1.5.8.1/bundle/set-misc-nginx-module-0.24 \
+#	--add-module=../ngx_openresty-1.5.8.1/bundle/srcache-nginx-module-0.25 \
+#	--add-module=../ngx_openresty-1.5.8.1/bundle/memc-nginx-module-0.14 
 #	--with-openssl=../openssl-1.0.1e \
 #	--add-module=../nginx_upstream_check_module  \
 #	--add-module=../ngx_openresty-1.5.8.1/bundle/ngx_lua-0.9.2 \
@@ -220,8 +228,6 @@ cd /usr/local/src/nginx-1.6.0
 make -j2
 make install
 
-## we don't use this anymore.
-## yum -y install gitolite gitolite3
 
 ## raise the number of file descriptors
 cat >> /etc/security/limits.conf
@@ -229,6 +235,9 @@ nginx       soft    nofile   10000
 nginx       hard    nofile  30000
 ^D
 
+
+## we don't use this anymore.
+## yum -y install gitolite gitolite3
 
 ##
 ## 
@@ -338,11 +347,13 @@ make setup check
 ##
 ## Redis
 ##
-cd /usr/local/src/
-wget http://download.redis.io/releases/redis-2.6.16.tar.gz
-tar -xzvf redis-2.6.16.tar.gz
-cd redis-2.6.16
-make install
+#cd /usr/local/src/
+#wget http://download.redis.io/releases/redis-2.6.16.tar.gz
+#tar -xzvf redis-2.6.16.tar.gz
+#cd redis-2.6.16
+#make install
+yum -y install redis
+yum -y install hiredis hiredis-devel
 
 ## LIBREDIS
 ## 
@@ -357,7 +368,6 @@ make
 ldconfig
 
 
-
 ## GET NFS WORKING:
 ##
 ## you only need NFS if you're planning to have multiple instances servicing a single with non-distributed files.
@@ -367,395 +377,8 @@ ldconfig
 #service rpcbind start
 
 
-#----------------------------------------
-## MORE PERL
-## just follow the prompts, yes to everything
-cpanm UNIVERSAL::require;
-cpanm Exporter::Easy;
-cpanm File::Find::Rule;
-cpanm common::sense;
-cpanm JSON::XS;
-cpanm Test::More;
+/backend/platform/perl-setup.sh 
 
-cpanm Business::EDI;
-cpanm Business::UPC;
-cpanm Memcached::libmemcached;
-## warnings are okay for Cache::libmemcached (there are no servers installed!)
-cpanm Cache::Memcached::libmemcached;
-cpanm CDB_File;
-
-cpanm FCGI;
-cpanm CGI;
-cpanm CGI::Lite;
-cpanm Class::Runtime;
-cpanm Class::Std;
-cpanm Class::Std::Fast::Storable;
-cpanm Data::UUID;
-cpanm Data::GUID;
-cpanm Date::Calc;
-cpanm version;
-cpanm Perl::OSType;
-cpanm Module::Metadata;
-cpanm CPAN::Meta::YAML;
-cpanm JSON::PP;
-cpanm CPAN::Meta::Requirements;
-cpanm Parse::CPAN::Meta;
-cpanm CPAN::Meta;
-cpanm Module::Build;
-
-cpanm Date::Manip;
-cpanm Date::Parse;
-
-cpanm ExtUtils::MakeMaker;
-cpanm Test::Requires;
-cpanm Try::Tiny;
-cpanm Test::Fatal;
-cpanm Module::Runtime;
-cpanm Dist::CheckConflicts;
-
-cpanm Module::Runtime;
-cpanm Module::Implementation;
-cpanm Package::DeprecationManager;
-cpanm Package::Stash::XS;
-cpanm Package::Stash;
-cpanm Class::Load;
-cpanm DateTime::TimeZone;
-cpanm DateTime;
-cpanm DBI;
-cpanm Digest::HMAC_SHA1;
-cpanm Digest::MD5;
-cpanm Digest::SHA1;
-cpanm DIME::Message;
-## perl -MCPAN -e 'CPAN::Shell->force("install","DIME::Payload");';
-
-cpanm Data::Dump;
-cpanm Any::URI::Escape";
-cpanm HTTP::Tiny;
-cpanm HTTP::Lite;
-
---
-## NOTE: may require:
-perl -MCPAN -e 'CPAN::Shell->force("install","ElasticSearch::SearchBuilder");';
-##cpanm ElasticSearch::SearchBuilder;
-
-cpanm Log::Any;
-cpanm Log::Any::Adapter;
-cpanm Log::Any::Adapter::Callback;
-cpanm Elasticsearch;
-
-
-cpanm URI;
-cpanm AnyEvent;
-cpanm AnyEvent::TLS;
-cpanm AnyEvent::HTTP;
-cpanm AnyEvent::HTTP::LWP::UserAgent;
-cpanm DateTime::Locale;
-cpanm DateTime::Format::Strptime;
-cpanm JSON;
-cpanm Test::Trap;
-cpanm Ouch;
-cpanm Mouse;
-cpanm Any::Moose;
-cpanm MIME::Base64::URLSafe;
-cpanm Facebook::Graph;
-##cpanm File::Basename");';		## included w/ perl (should match ;
-## cpanm File::Copy");';		## included w/ perl (should match ;
-
-
-cpanm Net::Cu;
-cpanm Test::HTTP::Serv;
-cpanm LWP::Protocol::Net::Cu;
-
-cpanm Filesys::Virtual;
-cpanm Filesys::Virtual::Plain;
-cpanm File::Find::Rule::Filesys::Virtual;
-cpanm --force File::Path;
-cpanm File::Slurp;
-cpanm File::Spec;
-cpanm File::Temp;
-
-cpanm Frontier::Client;
-cpanm Frontier::RPC2;
-cpanm Class::Measure;
-
-cpanm ExtUtils::MakeMaker;
-cpanm MRO::Compat;
-cpanm List::MoreUtils;
-cpanm Class::Load::XS;
-
-cpanm Eval::Closure;
-cpanm Sub::Name;
-cpanm Data::OptList;
-cpanm Carp;
-cpanm Sub::Exporter::Progressive;
-cpanm Devel::GlobalDestruction::XS;
-cpanm Devel::GlobalDestruction;
-cpanm Moose::Role;
-cpanm Variable::Magic;
-cpanm Class::MO;
-cpanm Sub::Identify;
-cpanm Sub::Name;
-cpanm B::Hooks::EndOfScop;
-cpanm namespace::clea;
-cpanm namespace::autoclean;
-cpanm Mouse;
-cpanm Any::Moose;
-cpanm GIS::Distance;
-
-## perl -MCPAN -e 'CPAN::Shell->force("install","Google::Checkout::General::GCO");';
-cpanm XML::Writer;
-cpanm HTML::Entities;
-## NO LONGER USED
-##cpanm HTML::Mason;
-##cpanm HTML::Mason::ApacheHandler;
-cpanm HTML::Parser;
-cpanm HTML::Tagset;
-cpanm LWP::MediaTypes;
-cpanm Encode::Locale;
-cpanm IO::HTML;
-cpanm HTTP::Date;
-cpanm Compress::Raw::Bzip2;
-cpanm Compress::Raw::Zlib;
-cpanm IO::Compress::Bzip2;
-cpanm IO::Uncompress::Bunzip;
-
-cpanm HTTP::Headers;
-cpanm HTTP::Cookies;
-cpanm HTTP::Date;
-cpanm HTTP::Request;
-cpanm HTTP::Request::Common;
-cpanm HTTP::Response;
-cpanm IO::File;
-cpanm IO::Scalar;
-cpanm IO::String;
-cpanm JSON::Syck;
-cpanm JSON::XS;
-
-cpanm Lingua::EN::Infinitive;
-cpanm HTTP::Negotiate;
-cpanm File::Listing;
-cpanm HTTP::Daemon;
-cpanm Net::HTTP;
-cpanm WWW::RobotRules;
-cpanm LWP;
-cpanm LWP::UserAgent;
-cpanm LWP::Simple;
-cpanm Mail::DKIM::PrivateKey;
-cpanm Mail::DKIM::Signer;
-cpanm MIME::Base64;
-cpanm MIME::Entity;
-cpanm MIME::Lite;
-cpanm MIME::Parser;
-
-
-cpanm Math::BigInt;
-cpanm Math::BigInt::FastCalc;
-cpanm Math::BigRat;
-cpanm Net::DNS;
-cpanm Net::FTP;
-cpanm Net::POP3;
-
-cpanm Test::use::ok;
-cpanm Tie::ToObject;
-cpanm Moose;
-cpanm Sub::Identify;
-cpanm Variable::Magic;
-cpanm B::Hooks::EndOfScope;
-cpanm namespace::clean;
-
-cpanm Data::Visitor::Callback;
-cpanm MooseX::Aliases;
-cpanm MooseX::Role::Parameterized;
-cpanm Net::OAuth;
-cpanm DateTime::Locale;
-cpanm DateTime::Format::Strptime;
-
-cpanm TAP::Harness::Env;
-cpanm ExtUtils::Helpers;
-cpanm ExtUtils::Config;
-cpanm ExtUtils::InstallPaths;
-cpanm Module::Build::Tiny;
-cpanm namespace::autoclean;
-cpanm Net::Twitter;
-cpanm Pod::Parser;
-## cpanm POSIX");';	## included with;
-
-cpanm Redis;
-cpanm Scalar::Util;
-cpanm Text::CSV;
-cpanm Text::CSV_XS;
-cpanm Text::Metaphone;
-cpanm Text::Soundex;
-cpanm Tie::Hash::Indexed;
-cpanm Time::HiRes;
-
-
-cpanm URI;
-cpanm URI::Escape;
-cpanm URI::Escape::XS;
-cpanm URI::Split;
-cpanm XML::LibXML;
-cpanm XML::Parser;
-cpanm XML::Parser::EasyTree;
-cpanm XML::RSS;
-cpanm XML::SAX::Base;
-
-## NOTE: XML::SAX requires we press 'Y'
-cpanm XML::SAX;
-
-
-
-
-<<<<<<< HEAD
-cpanm XML::Handler::Trees;
-cpanm XML::SAX::Expat;
-cpanm XML::Simple;
-	cpanm XML::SAX::Simple;
-cpanm Object::MultiType;
-cpanm XML::Smart;
-cpanm XML::Writer;
-cpanm YAML::Syck;
-cpanm YAML::XS;
-
-cpanm Text::WikiCreole;
-cpanm JSON::XS;
-cpanm Date::Calc;
-cpanm Text::Wrap;
-cpanm Digest::SHA1;
-cpanm DIME::Payload;
-cpanm Compress::Bzip2;
-cpanm HTML::Tiny;
-cpanm Captcha::reCAPTCHA;
-cpanm HTML::Tiny;
-cpanm Captcha::reCAPTCHA;
-cpanm File::Type;
-cpanm CGI::Lite::Request;
-cpanm File::Type;
-cpanm CGI::Lite::Request;
-cpanm Regexp::Common;
-cpanm Parse::RecDescent;
-cpanm Capture::Tiny;
-cpanm Email::Address;
-cpanm Email::MessageID;
-cpanm Email::Simple::Creator;
-cpanm Email::MIME::Encodings;
-cpanm Email::MIME::ContentType;
-cpanm Email::MIME;
-cpanm Email::MessageID;
-cpanm Email::MIME::Encodings;
-cpanm Email::MIME::ContentType;
-cpanm Email::Simple;
-
-cpanm AnyEvent;
-cpanm Encode::IMAPUTF7;
-cpanm Email::MIME::ContentType;
-cpanm EV;
-cpanm Guard;
-cpanm Coro;
-
-cpanm Net::Server;
-cpanm Net::Server::Coro;
-
-cpanm Net::Server;
-# perl -MCPAN -e 'CPAN::Shell->force("install","Coro");';
-# cpanm Net::Server::Coro;
-cpanm Email::MIME;
-# perl -MCPAN -e 'CPAN::Shell->notest("install","Net::IMAP::Simple");';		
-cpanm Net::IMAP::Simple
-
-cpanm App::ElasticSearch::Utilities;
-
-
-##
-## 201401
-##
-cpanm AnyEvent::Redis;
-cpanm String::Urandom;
-cpanm --force Net::AWS::SES;
-cpanm Nginx;
-cpanm Net::Domain::TLD;
-cpanm Data::Validate::Domain;
-cpanm Data::Validate::Email;
-cpanm Email::Valid;
-cpanm CSS::Minifier::XS;
-cpanm MediaWiki::API;
-
-
-## 201401b
-#cd /usr/local/src/;
-#wget ftp://megrez.math.u-bordeaux.fr/pub/pari/unix/pari-2.5.5.tar.gz
-#tar -xzvf pari-2.5.5.tar.gz;
-#cd pari-2.5.5
-#./Configure
-
-cpanm XML::Handler::Trees
-cpanm XML::SAX::Expat
-cpanm XML::Simple
-cpanm Object::MultiType
-cpanm XML::Smart
-
-cpanm XML::Writer
-cpanm YAML::Syck
-cpanm YAML::XS
-
-cpanm Text::WikiCreole
-cpanm JSON::XS
-cpanm Date::Calc
-cpanm Text::Wrap
-cpanm Digest::SHA1
-cpanm DIME::Payload
-cpanm Compress::Bzip2
-cpanm HTML::Tiny
-cpanm Captcha::reCAPTCHA
-cpanm HTML::Tiny
-cpanm Captcha::reCAPTCHA
-cpanm File::Type
-cpanm CGI::Lite::Request
-cpanm File::Type
-cpanm CGI::Lite::Request
-cpanm Regexp::Common
-cpanm Parse::RecDescent
-cpanm Capture::Tiny
-cpanm Email::Address
-cpanm Email::MessageID
-cpanm Email::Simple::Creator
-cpanm Email::MIME::Encodings
-cpanm Email::MIME::ContentType
-cpanm Email::MIME
-cpanm Email::MessageID
-cpanm Email::MIME::Encodings
-cpanm Email::MIME::ContentType
-cpanm Email::Simple
-
-cpanm AnyEvent
-cpanm Encode::IMAPUTF7
-cpanm Email::MIME::ContentType
-cpanm EV
-cpanm Guard
-
-cpanm Coro
-cpanm Net::Server
-cpanm Net::Server::Coro
-
-cpanm Net::Server
-# perl -MCPAN -e 'CPAN::Shell->force("install","Coro
-# cpanm Net::Server::Coro
-cpanm Email::MIME
-cpanm Net::IMAP::Simple
-cpanm App::ElasticSearch::Utilities
-
-cpanm AnyEvent::Redis
-cpanm String::Urandom
-cpanm Net::AWS::SES
-cpanm Nginx
-cpanm Net::Domain::TLD
-cpanm Data::Validate::Domain
-cpanm Data::Validate::Email
-cpanm Email::Valid
-cpanm CSS::Minifier::XS
-cpanm MediaWiki::API
-
-cpanm Math::Pari
 
 #rm /usr/local/lib/libpari*
 #cd /usr/local/src
@@ -763,484 +386,12 @@ cpanm Math::Pari
 #tar -xzvf Math-Pari-2.01080605.tar.gz
 #cd Math-Pari*
 #perl Makefile.PL force_download
->>>>>>> 6c0b6a7bafbd6454522961436ec8710f96db3ed1
 #make install
-
-<<<<<<< HEAD
-cpanm Data::Buffer;
-cpanm Sort::Versions;
-cpanm Class::Loader;
-cpanm Math::Pari;
-cpanm Crypt::Random;
-cpanm Crypt::Primes;
-cpanm Crypt::Blowfish;
-cpanm Tie::EncryptedHash;
-cpanm Digest::MD5;
-cpanm Convert::ASCII::Armour;
-cpanm Crypt::RSA;
-
-## these tests lock up
-cpanm Path::Tiny;
-cpanm Exporter::Tiny;
-cpanm Type::Tiny;
-cpanm Types::Standard;
-cpanm Sub::Infix;
-cpanm match::simple;
-
-cpanm Test::Synopsis;
-cpanm Test::Poe;
-cpanm Test::Strict;
-cpanm PPI;
-cpanm PPIx::Regex;
-cpanm Perl::MinimumVersion;
-cpanm Term::ANSIColor;
-
-cpanm Term::ANSIColo4;
-cpanm Text::Aligned;
-cpanm Text::Table;
-
-cpanm Test::Without::Module;
-cpanm JSON::Any;
-cpanm Test::JSON;
-cpanm Test::MockModule;
-cpanm DBIx::Connector;
-cpanm MooseX::ArrayRef;
-cpanm Module::Load;
-cpanm Module::CoreList;
-cpanm Module::Load::Conditional;
-cpanm XML::Namespace;
-cpanm XML::NamespaceFactory;
-cpanm XML::CommonNS;
-cpanm Algorithm::Combinatorics;
-
-cpanm ExtUtils::Depends;
-cpanm B::Hooks::OP::Check;
-cpanm B::Hooks::OP::PPAddr;
-cpanm Module::Build::Tiny;
-cpanm MooseX::Traits;
-cpanm MooseX::Types::Moose;
-
-cpanm Class::Tiny;
-cpanm Devel::PartialDump;
-
-cpanm MooseX::Types::DateTime;
-cpanm MooseX::Types::Structured;
-cpanm MooseX::Types;
-
-cpanm aliases;
-cpanm Parse::Method::Signatures;
-
-
-cpanm Scope::Upper;
-cpanm Devel::Declare;
-cpanm TryCatch;
-
-
-cpanm Set::Scalar;
-cpanm RDF::TriN3;
-cpanm RDF::Query;
-cpanm Crypt::X509;
-cpanm namespace::sweet;
-cpanm Web::ID;
-
-
-cpanm Net::FTPSSL;
-cpanm SOAP::WSDL;
-cpanm Crypt::CBC;
-cpanm Crypt::Twofish;
-cpanm Crypt::DES;
-cpanm Data::Dumper::Concise;
-cpanm Config::General;
-cpanm Config::Any;
-cpanm Class::XSAccessor;
-cpanm Test::Exception;
-cpanm Class::Accessor::Grouped;
-cpanm Hash::Merge;
-cpanm Params::Validate;
-cpanm Test::Tester;
-cpanm Test::Warnings;
-cpanm Getopt::Long::Descriptive;
-cpanm SQL::Abstract;
-cpanm Data::Dumper::Concise;
-
-
-cpanm ok;
-cpanm Config::Any;
-cpanm SQL::Abstract;
-cpanm Context::Preserve;
-cpanm Test::Exception;
-cpanm Data::Compare;
-cpanm Path::Class;
-cpanm Scope::Guard;
-cpanm DBD::SQLite;
-cpanm Hash::Merge;
-cpanm Class::Accessor::Chained::Fast;
-
-cpanm Module::Find;
-cpanm Data::Page;
-cpanm Algorithm::C3;
-cpanm Class::C3;
-cpanm Class::C3::Componentised;
-
-cpanm strictures;
-cpanm Role::Tiny;
-cpanm Class::Method::Modifiers;
-cpanm Devel::GlobalDestruction;
-
-cpanm Moo;
-	
-cpanm Math::Symbolic;
-cpanm Sub::Identify;
-cpanm Variable::Magic;
-cpanm B::Hooks::EndOfScope;
-cpanm namespace::clean;
-cpanm DBIx::Class;
-cpanm Proc::PID::File;
-cpanm Acme::Damn;
-cpanm Sys::SigAction;
-cpanm forks;
-cpanm XML::SimpleObject;
-cpanm Net::Netmask;
-cpanm DBD::SQLite;
-
-cpanm File::Pid;
-cpanm Log::Log4perl;
-cpanm Sysadm::Install;
-cpanm App::Daemon;
-
-## Needed for Webdoc parsing.
-cpanm HTML::Entities::Numbered;
-cpanm HTML::TreeBuilder;
-## cpanm HTML::Tidy");';	 <<- doesn't ;
-echo "" | cpanm XML::Twig;
-
-
-## 201316
-cpanm ExtUtils::Config;
-cpanm File::ShareDir::Install;
-cpanm Apache::LogFormat::Compiler;
-cpanm Stream::Buffered;
-cpanm Test::SharedFork;
-cpanm Test::TCP;
-cpanm File::ShareDir;
-cpanm ExtUtils::Helpers;
-cpanm ExtUtils::InstallPaths;
-cpanm Module::Build::Tiny;
-cpanm Hash::MultiValue;
-cpanm Devel::StackTrace;
-cpanm HTTP::Body;
-cpanm Filesys::Notify::Simple;
-cpanm Devel::StackTrace::AsHTML;
-cpanm Plack;
-cpanm HTTP::Message::PSGI;
-cpanm Test::UseAllModules;
-cpanm Plack::Request;
-
-cpanm Test::Fake::HTTPD;
-cpanm Class::Accessor::Lite;
-cpanm Test::Flatten;
-cpanm WWW::Google::Cloud::Messaging;
-cpanm Text::WikiCreole;
-cpanm Test::Class;
-
-cpanm Data::OptList;
-cpanm CPAN::Meta::Check;
-cpanm Test::CheckDeps;
-cpanm Test::Mouse;
-cpanm Any::Moose;
-cpanm Test::Moose;
-cpanm Net::APNS;
-
-cpanm Amazon::SQS::Simple;
-## cpanm Amazon::SQS::ProducerConsum;
-
-cpanm Data::Buffer
-cpanm Sort::Versions
-cpanm Class::Loader
-cpanm Math::Pari
-cpanm Crypt::Random
-cpanm Crypt::Primes
-cpanm Crypt::Blowfish
-cpanm Tie::EncryptedHash
-cpanm Digest::MD2
-cpanm Convert::ASCII::Armour
-cpanm Crypt::RSA
-
-## these tests lock up
-cpanm Path::Tiny
-cpanm Exporter::Tiny
-cpanm Type::Tiny
-cpanm Types::Standard
-cpanm Sub::Infix
-cpanm match::simple
-
-cpanm Test::Synopsis
-cpanm Test::Pod
-cpanm Test::Strict
-cpanm PPI
-cpanm PPIx::Regexp
-cpanm Perl::MinimumVersion
-cpanm Term::ANSIColor
-perl -MCPAN -e 'CPAN::Shell->force("install","Term::ANSIColor");'
-
-cpanm Term::ANSIColor
-cpanm Text::Aligner
-cpanm Text::Table
-
-cpanm Test::Without::Module
-cpanm JSON::Any
-cpanm Test::JSON
-cpanm Test::MockModule
-cpanm DBIx::Connector
-cpanm MooseX::ArrayRef
-cpanm Module::Load
-cpanm Module::CoreList
-cpanm Module::Load::Conditional
-cpanm XML::Namespace
-cpanm XML::NamespaceFactory
-cpanm XML::CommonNS
-cpanm Algorithm::Combinatorics
-
-cpanm ExtUtils::Depends
-cpanm B::Hooks::OP::Check
-cpanm B::Hooks::OP::PPAddr
-cpanm Module::Build::Tiny
-cpanm MooseX::Traits
-cpanm MooseX::Types::Moose
-
-cpanm Class::Tiny
-cpanm Devel::PartialDump
-
-cpanm MooseX::Types::DateTime
-cpanm MooseX::Types::Structured
-cpanm MooseX::Types
-
-cpanm aliased
-cpanm Parse::Method::Signatures
-
-
-cpanm Scope::Upper
-cpanm Devel::Declare
-cpanm TryCatch
-
-cpanm Set::Scalar
-cpanm RDF::Trine
-cpanm RDF::Query
-cpanm Crypt::X509
-cpanm namespace::sweep
-cpanm Web::ID
-
-
-
-
-
-
-cpanm Net::FTPSSL
-cpanm SOAP::WSDL
-cpanm Crypt::CBC
-cpanm Crypt::Twofish
-cpanm Crypt::DES
-cpanm Data::Dumper::Concise
-cpanm Config::General
-cpanm Config::Any
-cpanm Class::XSAccessor
-cpanm Test::Exception
-cpanm Class::Accessor::Grouped
-cpanm Hash::Merge
-cpanm Params::Validate
-cpanm Test::Tester
-cpanm Test::Warnings
-cpanm Getopt::Long::Descriptive
-cpanm SQL::Abstract
-cpanm Data::Dumper::Concise
-
-
-cpanm ok
-cpanm Config::Any
-cpanm SQL::Abstract
-cpanm Context::Preserve
-cpanm Test::Exception
-cpanm Data::Compare
-cpanm Path::Class
-cpanm Scope::Guard
-cpanm DBD::SQLite
-cpanm Hash::Merge
-cpanm Class::Accessor::Chained::Fast
-
-cpanm Module::Find
-cpanm Data::Page
-cpanm Algorithm::C3
-cpanm Class::C3
-cpanm Class::C3::Componentised
-
-cpanm strictures
-cpanm Role::Tiny
-cpanm Class::Method::Modifiers
-cpanm Devel::GlobalDestruction
-
-cpanm Moo
-	
-cpanm Math::Symbolic
-cpanm Sub::Identify
-cpanm Variable::Magic
-cpanm B::Hooks::EndOfScope
-cpanm namespace::clean
-cpanm DBIx::Class
-cpanm Proc::PID::File
-cpanm Acme::Damn
-cpanm Sys::SigAction
-cpanm forks
-cpanm XML::SimpleObject
-cpanm Net::Netmask
-cpanm DBD::SQLite
-
-cpanm File::Pid
-cpanm Log::Log4perl
-cpanm Sysadm::Install
-cpanm App::Daemon
-
-## Needed for Webdoc parsing.
-cpanm HTML::Entities::Numbered
-cpanm HTML::TreeBuilder
-## cpanm HTML::Tidy	 <<- doesn't work!
-echo "" | cpanm XML::Twig
-
-
-## 201316
-cpanm ExtUtils::Config
-cpanm File::ShareDir::Install
-cpanm Apache::LogFormat::Compiler
-cpanm Stream::Buffered
-cpanm Test::SharedFork
-cpanm Test::TCP
-cpanm File::ShareDir
-cpanm ExtUtils::Helpers
-cpanm ExtUtils::InstallPaths
-cpanm Module::Build::Tiny
-cpanm Hash::MultiValue
-cpanm Devel::StackTrace
-cpanm HTTP::Body
-cpanm Filesys::Notify::Simple
-cpanm Devel::StackTrace::AsHTML
-cpanm Plack
-cpanm HTTP::Message::PSGI
-cpanm Test::UseAllModules
-cpanm Plack::Request
-
-cpanm Test::Fake::HTTPD
-cpanm Class::Accessor::Lite
-cpanm Test::Flatten
-cpanm WWW::Google::Cloud::Messaging
-cpanm Text::WikiCreole
-cpanm Test::Class
-
-cpanm Data::OptList
-cpanm CPAN::Meta::Check
-cpanm Test::CheckDeps
-cpanm Test::Mouse
-cpanm Any::Moose
-cpanm Test::Moose
-cpanm Test::Class
-cpanm Net::APNS
-
-cpanm Amazon::SQS::Simple
->>>>>>> 6c0b6a7bafbd6454522961436ec8710f96db3ed1
 
 
 ##
 ## STARLET REQUIREMENTS:
-<<<<<<< HEAD
-cpanm Proc::Wait3;
-cpanm Server::Starter;
-cpanm Parallel::Prefork;
-cpanm Starlet;
 
-## STARMAN:
-cpanm ExtUtils::Helpers;
-cpanm ExtUtils::Config;
-cpanm ExtUtils::InstallPaths;
-cpanm Module::Build::Tiny;
-cpanm HTTP::Parser::XS;
-
-
-
-cpanm Net::OAuth2;
-
-## http://search.cpan.org/CPAN/authors/id/X/XA/XAICRON/JSON-WebToken-0.07.tar.gz
-cpanm Test::Mock::Guard";
-cpanm JSON::WebToken";
-
-## http://search.cpan.org/CPAN/authors/id/R/RI/RIZEN/Facebook-Graph-1.0600.tar.gz
-cpanm Facebook::Graph";
-
-## http://search.cpan.org/CPAN/authors/id/I/IA/IAMCAL/CSS-1.09.tar.gz
-cpanm CSS";
-## http://search.cpan.org/CPAN/authors/id/A/AD/ADAMK/CSS-Tiny-1.19.tar.gz
-cpanm CSS::Tiny;
-
-
-cpanm Test::HexString;
-cpanm CPAN::Meta::Prereqs;
-cpanm CPAN::Meta::Check;
-cpanm Test::CheckDep;
-## cpanm Protocol::UWSGI;
-
-## 201352
-cpanm String::Urando;
-cpanm Net::AWS::SES;
-cpanm Nginx;
-cpanm Net::Domain::TL;
-cpanm Data::Validate::Domai;
-cpanm Data::Validate::Emai;
-cpanm Email::Vali;
-cpanm CSS::Minifier::X;
-cpanm MediaWiki::AP;
-
-cpanm Proc::Wait3
-cpanm Server::Starter
-cpanm Parallel::Prefork
-cpanm Starlet
-
-## STARMAN:
-cpanm ExtUtils::Helpers
-cpanm ExtUtils::Config
-cpanm ExtUtils::InstallPaths
-cpanm Module::Build::Tiny
-cpanm HTTP::Parser::XS
-
-cpanm Net::OAuth2
-
-## http://search.cpan.org/CPAN/authors/id/X/XA/XAICRON/JSON-WebToken-0.07.tar.gz
-cpanm Test::Mock::Guard 
-cpanm JSON::WebToken 
-
-## http://search.cpan.org/CPAN/authors/id/R/RI/RIZEN/Facebook-Graph-1.0600.tar.gz
-cpanm Facebook::Graph 
-
-## http://search.cpan.org/CPAN/authors/id/I/IA/IAMCAL/CSS-1.09.tar.gz
-cpanm CSS 
-## http://search.cpan.org/CPAN/authors/id/A/AD/ADAMK/CSS-Tiny-1.19.tar.gz
-cpanm CSS::Tiny
-
-
-cpanm Test::HexString
-cpanm CPAN::Meta::Prereqs
-cpanm CPAN::Meta::Check
-cpanm Test::CheckDeps
-## cpanm Protocol::UWSGI
-
-## 201352
-cpanm String::Urandom
-cpanm Net::AWS::SES
-cpanm Nginx
-
-cpanm Net::Domain::TLD
-cpanm Data::Validate::Domain
-cpanm Data::Validate::Email
-cpanm Email::Valid
-
-cpanm CSS::Minifier::XS
-cpanm MediaWiki::API
 
 
 #   CLUSTER=`/root/configs/platform.pl show=cluster`
@@ -1279,15 +430,7 @@ make
 make install
 ldconfig
 
-cpanm IO::CaptureOutput
-cpanm Devel::CheckLib
-
 yum -y install yum;
-cpanm ExtUtils::CBuilder
-cpanm String::ShellQuote
-cpanm Alien::ZMQ
-cpanm ZMQ::Constants
-cpanm ZMQ::LibZMQ3
 
 ##
 ## NAGIOS
@@ -1757,6 +900,9 @@ ssh-dss AAAAB3NzaC1kc3MAAACBAKRKJYFTG44RbnkmqMj8xVeqYXxCzIpqsrp1llKwRpw7Vdj1BKhT
 ssh-rsa AAAAB3NzaC1yc2EAAAABIwAAAQEAy/Yiq4g2tF+rNrG4MH5aZ/B65uDViqudCtWq2YweQclJGgHX7r/NI428aMdhU0ZFlSVL7+m5c7YP2QioRjgD4mD74N6oJW6GRxtKC9nKhkgi6aricaDNuu3ldQFosxavO7vS0+D6G40NR7JXpk9tLopQqInl/figBNuFzwpixRJajdMm3rpsbKsWcleDREp116lnohfTmSLdJlkcm+mqnQpOjpuWiGXJS7uwlz1LVZC9p09C9HLqhaoF6SUo7eqxY4I/6Xm4TOhQnpyMv3XBmzmXvsLO+3rDT7H7nXBFm1mftWpY9EGrGDxZ5gwEFvCrYaAxHGOlYpajNgOa9ech7w== nagios@monitor.zoovy.com
 ssh-rsa AAAAB3NzaC1yc2EAAAABIwAAAQEAsUiW2oypUP6ZImCT/957f7wRUGdCaTCtx+B3FNloioo8r5IGOR/fgTDMZz51bMz06tdunLdtzvvP5/PAoXsU1ZOsi9LK8wBqwzzdg6IO+1+I/JO6kZj0/su2gBhCJ9VqvfuI0BIVjIylgwXISrHJ7z3N8jlIAq5D1y7MS/t3fs3d9SySiDmU4SulPluj8tyOC95jCWN05hEXpk3LinnW/AbgyntAtnCZFk/87+m+n3lB1/o73s+b6c2w1Us6GQKsfTHu5iA2dpBkNLOB5L1HcazwAfTKXd3j6fG5g61gzTWxhSssgtXnsBH6ThOL8LETjGdlKGfXHGgE40zqFdgHGw== root@dev
 
+
+cat >> ~/.ssh/authorized_keys
+ssh-rsa AAAAB3NzaC1yc2EAAAABIwAAAQEAsUiW2oypUP6ZImCT/957f7wRUGdCaTCtx+B3FNloioo8r5IGOR/fgTDMZz51bMz06tdunLdtzvvP5/PAoXsU1ZOsi9LK8wBqwzzdg6IO+1+I/JO6kZj0/su2gBhCJ9VqvfuI0BIVjIylgwXISrHJ7z3N8jlIAq5D1y7MS/t3fs3d9SySiDmU4SulPluj8tyOC95jCWN05hEXpk3LinnW/AbgyntAtnCZFk/87+m+n3lB1/o73s+b6c2w1Us6GQKsfTHu5iA2dpBkNLOB5L1HcazwAfTKXd3j6fG5g61gzTWxhSssgtXnsBH6ThOL8LETjGdlKGfXHGgE40zqFdgHGw== updates@commercerack.com
 
 
 useradd -M --system -u 495 nginx
