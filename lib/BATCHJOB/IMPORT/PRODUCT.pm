@@ -100,10 +100,12 @@ sub parseproduct {
 				}
 			}	
 		elsif (substr($header,0,1) eq '!') {}	# IGNORED HEADERS
-		elsif ($header =~ /^[\s]*\<(sku|base)\>/) { $fieldsref->[$i] = $header; } # FORCED HEADERS
+		elsif ($header =~ /^[\s]*\<(sku|base)\>/) { $fieldsref->[$i] = $header; } # FORCED HEADERS <base>zoovy:tag_doesnt_exist
 		elsif (($header eq '') && ($optionsref->{'IGNORE_BLANK_FIELDS'})) {}	# ignore blank headers
 		elsif (not &PRODUCT::FLEXEDIT::is_valid($header,$USERNAME)) {
 			$FATAL_ERROR = "HEADER_ATTRIBUTE IN COLUMN:[$i] VALUE:[$header] is not valid";
+			print "$FATAL_ERROR\n";
+			die();
 			}
 		$i++;
 		}

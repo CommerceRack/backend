@@ -43,7 +43,7 @@ use strict;
 ## 
 $JSONAPI::MAX_CARTS_PER_SESSION = 8;
 
-$JSONAPI::VERSION = "201405";
+$JSONAPI::VERSION = "201408";
 $JSONAPI::VERSION_MINIMUM = 201312;
 @JSONAPI::TRACE = ();
 
@@ -291,6 +291,7 @@ use strict;
 	'appSEOFetch'=>[ \&JSONAPI::appSEO, {}, 'seo' ],
 	'appSEOStore'=>[ \&JSONAPI::appSEO, {}, 'seo'  ],
 	'appSEOFinish'=>[ \&JSONAPI::appSEO, {}, 'seo' ],
+	'appSEORewriteDebug'=>[ \&JSONAPI::appSEO, {}, 'seo' ],
 
 	## Admin
 	## 'appAdminInit'=>[ \&JSONAPI::appAdminInit,  { 'cart'=>0, 'cart'=>0 }, 'admin', ],
@@ -15797,6 +15798,7 @@ sub adminDomain {
 			my @HOSTS = ();
 			foreach my $HOSTNAME (keys %{$D->{'%HOSTS'}}) {
 				$D->{'%HOSTS'}->{$HOSTNAME}->{'HOSTNAME'} = $HOSTNAME;
+				$D->{'%HOSTS'}->{$HOSTNAME}->{'FQDN'} = sprintf("%s.%s",$HOSTNAME,$DOMAINNAME);
 				push @HOSTS, $D->{'%HOSTS'}->{$HOSTNAME};
 				}
 
@@ -29132,9 +29134,16 @@ sub adminCSVImport {
 
 =pod
 
+
 <API id="API: adminSEOInit">
 <purpose>Starts an SEO Session</purpose>
-<output id="token"></input>
+<input id="token"></input>
+</API>
+
+<API id="API: appSEORewriteDebug">
+<purpose>Starts an SEO Session</purpose>
+<input id="url"></input>
+<output id="@log"></output>
 </API>
 
 <API id="API: appSEOFetch">
@@ -29167,6 +29176,8 @@ sub adminCSVImport {
 sub appSEO {
 	my ($self, $v) = @_;
 
+
+
 	my %R = ();
 	my $USERNAME = $self->username();
 
@@ -29175,7 +29186,13 @@ sub appSEO {
 	my $MID = $self->mid();
 	my ($udbh) = &DBINFO::db_user_connect($USERNAME);
 
-	if ($v->{'_cmd'} eq 'adminSEOInit') {
+	if ($v->{'_cmd'} eq 'appSEORewriteDebug') {
+		my @LOG = ();
+		push @LOG, "Hello world - the time is: ".&ZTOOLKIT::pretty_date();;
+		push @LOG, "URL IS: $v->{'url'}";
+		$R{'@log'} = \@LOG;
+		}
+	elsif ($v->{'_cmd'} eq 'adminSEOInit') {
 		if (not &validate_required_parameter(\%R,$v,'hostdomain')) {
 			}
 		else {

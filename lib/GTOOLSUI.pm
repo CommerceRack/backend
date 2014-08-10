@@ -3585,6 +3585,10 @@ sub checkout {
 		$GTOOLSUI::TAG{'<!-- CHECKOUT_201405A -->'} = ($webdbref->{'checkout'} eq 'checkout-201405a')?'checked':'';
 		$GTOOLSUI::TAG{'<!-- CHECKOUT_201405P -->'} = ($webdbref->{'checkout'} eq 'checkout-201405p')?'checked':'';
 		$GTOOLSUI::TAG{'<!-- CHECKOUT_201405R -->'} = ($webdbref->{'checkout'} eq 'checkout-201405r')?'checked':'';
+
+		$GTOOLSUI::TAG{'<!-- CHECKOUT_201408A -->'} = ($webdbref->{'checkout'} eq 'checkout-201408a')?'checked':'';
+		$GTOOLSUI::TAG{'<!-- CHECKOUT_201408P -->'} = ($webdbref->{'checkout'} eq 'checkout-201408p')?'checked':'';
+		$GTOOLSUI::TAG{'<!-- CHECKOUT_201408R -->'} = ($webdbref->{'checkout'} eq 'checkout-201408r')?'checked':'';
 	
 		my $chkout_phone = $webdbref->{'chkout_phone'};
 		if (!defined($chkout_phone)) { $chkout_phone = 'REQUIRED'; }

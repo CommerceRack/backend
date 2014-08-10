@@ -190,7 +190,7 @@ sub declaw {
 ## options:
 ##
 sub public_product_link {
-	my ($self, $P, %options) = @_;
+	my ($self, $P, $SKU, %options) = @_;
 
 	## create links
 	## product link
@@ -202,7 +202,7 @@ sub public_product_link {
 	#	'meta'=>$meta
 	#	);
 
-	my $link = sprintf("http://www.%s/%s",$self->domain(),$P->public_url('origin'=>'cpc','mkt'=>$self->dstcode(),'style'=>$style));
+	my $link = sprintf("http://www.%s/%s",$self->domain(),$P->public_url('origin'=>'cpc','mkt'=>$self->dstcode(),'style'=>$style,'sku'=>$SKU));
 
 	## product link with meta data
 	my $analytics_data = '';
@@ -2846,7 +2846,7 @@ the trace product(s).  But it's all good, so you got nothing to worry about.");
 
 				if ($self->provider()->{'store'} eq 'DOMAIN') {
 					## don't generate a link unless we expected a valid domain name
-					$OVERRIDES->{'zoovy:link2'} = $self->public_product_link($P);
+					$OVERRIDES->{'zoovy:link2'} = $self->public_product_link($P,$SKU);
 					}
 
 				my ($line) = undef;

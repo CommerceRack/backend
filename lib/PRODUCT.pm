@@ -758,7 +758,11 @@ sub public_url {
 		my $origin = $options{'origin'} || 'unknown';
 		my $market = $options{'mkt'} || 'xxx';
 		my $pid = $self->pid();
-		return("?origin=$origin&product=$pid&marketplace=$market");
+
+		my $params = "?origin=$origin&product=$pid&marketplace=$market";
+		if ($options{'sku'} && ($options{'sku'} =~ /:/)) { $params .= "&sku=".URI::Escape::XS::uri_escape($options{'sku'}); }
+
+		return($params);
 		}
 	elsif ($options{'style'} eq 'vstore') {
 		my $uri_name = $self->fetch('zoovy:prod_name');
@@ -788,8 +792,12 @@ sub public_url {
 		else {
 			$url = sprintf('/product/%s/%s',$self->pid(),$uri_name);
 			}
-		if (defined $options{'mkt'}) {
-			$url = sprintf("%s?meta=%s",$url,$options{'mkt'});
+
+		my $params = '';
+		if (defined $options{'mkt'}) { $params = sprintf("&meta=%s",$options{'mkt'}); }
+		if ((defined $options{'sku'}) && ($options{'sku'} =~ /:/)) { $params = sprintf("&sku=%s",URI::Escape::XS::uri_escape($options{'sku'})); }
+		if ($params ne '') {
+			$url = sprintf("%s?%s",$url,substr($params,1)); # prepend url, strip leading & , replace with ?
 			}
 		return($url);
 		}
