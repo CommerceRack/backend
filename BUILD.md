@@ -21,14 +21,38 @@ git clone https://github.com/commercerack/backend-static.git
 ln -s backend-static static
 
 
+## set MOTD
+rm /etc/motd
+ln -s /backend/platform/etc-motd /etc/motd
+
 echo "/usr/local/lib" > /etc/ld.so.conf.d/usr-local-lib.conf
 ldconfig
 
 ln -sf /usr/share/zoneinfo/US/Pacific-New /etc/localtime
 
 
+##
+## RPM forge
+##
+rpm --import http://apt.sw.be/RPM-GPG-KEY.dag.txt
+yum -y install htop
+
+##
+## ELRepo
+##
+#rpm --import https://www.elrepo.org/RPM-GPG-KEY-elrepo.org
+### CENTOS 6:
+#rpm -Uvh http://www.elrepo.org/elrepo-release-6-6.el6.elrepo.noarch.rpm
+### CENTOS 7:
+#rpm -Uvh http://www.elrepo.org/elrepo-release-7.0-2.el7.elrepo.noarch.rpm (external link)
+
+## Fedora Extras (centos 6)
+yum -y install http://dl.fedoraproject.org/pub/epel/6/i386/epel-release-6-8.noarch.rpm
+## https://dl.fedoraproject.org/pub/epel/beta/7/x86_64/epel-release-7-0.2.noarch.rpm
 
 
+## upgrade fuse:
+yum -y install ftp://rpmfind.net/linux/sourceforge/a/an/anthonos/mirror/os2-repo/os3-packages/stage-6-packages/fuse-2.9.3-2.x86_64.rpm
 
 
 # what i've done
@@ -46,6 +70,8 @@ ln -sf /usr/share/zoneinfo/US/Pacific-New /etc/localtime
 #===========================================
 yum -y install rpm-build kernel-devel zlib-devel libuuid-devel libblkid-devel libselinux-devel  e2fsprogs-devel parted lsscsi
 yum -y localinstall --nogpgcheck http://archive.zfsonlinux.org/epel/zfs-release-1-3.el6.noarch.rpm
+yum -y localinstall --nogpgcheck http://archive.zfsonlinux.org/epel/zfs-release$(rpm -E %dist).noarch.rpm
+
 
 ## instructions for ZFS on Linux are here: http://zfsonlinux.org/epel.html
 # yum localinstall --nogpgcheck http://archive.zfsonlinux.org/epel/zfs-release-1-3.el6.noarch.rpm
@@ -62,6 +88,7 @@ reboot
 
 ## for iostat
 yum -y install systat
+yum -y install help2man texinfo libtool
 
 #===========================================
 ##  
@@ -446,14 +473,15 @@ yum -y install sysstat
 
 
 
- cd /usr/local
- rm -Rf elasticsearch*
- rm -f /etc/init.d/elasticsearch
+# cd /usr/local
+# rm -Rf elasticsearch*
+# rm -f /etc/init.d/elasticsearch
  
- ## wget https://download.elasticsearch.org/elasticsearch/elasticsearch/elasticsearch-1.0.1.noarch.rpm
- ## rpm --install elasticsearch-1.0.1.noarch.rpm
-wget https://download.elasticsearch.org/elasticsearch/elasticsearch/elasticsearch-1.3.1.noarch.rpm
-rpm --install elasticsearch-1.3.1.noarch.rpm
+# ## wget https://download.elasticsearch.org/elasticsearch/elasticsearch/elasticsearch-1.0.1.noarch.rpm
+# ## rpm --install elasticsearch-1.0.1.noarch.rpm
+#cd /root
+#wget https://download.elasticsearch.org/elasticsearch/elasticsearch/elasticsearch-1.3.1.noarch.rpm
+#rpm --install elasticsearch-1.3.1.noarch.rpm
  
 ## you might need to change the values below to something sane:
 rm -f /etc/elasticsearch.yml
@@ -467,56 +495,28 @@ service elasticsearch start
 
 
 ## MYSQL
-yum -y remove mysql-libs mysql mysql-server mysql-devel mysql-shared mysql-server
+yum -y install mysql-libs mysql mysql-server mysql-devel mysql-shared mysql-server
 cd /usr/local/
-wget http://dev.mysql.com/get/Downloads/MySQL-5.6/MySQL-5.6.14-1.el6.x86_64.rpm-bundle.tar/from/http://cdn.mysql.com/
-tar -xvf *.tar
-rm MySQL-5.6.14-1.el6.x86_64.rpm-bundle.tar
-rpm --install MySQL-client-5.6.14-1.el6.x86_64.rpm MySQL-devel-5.6.14-1.el6.x86_64.rpm \
-	MySQL-server-5.6.14-1.el6.x86_64.rpm MySQL-shared-5.6.14-1.el6.x86_64.rpm \
-	MySQL-shared-compat-5.6.14-1.el6.x86_64.rpm
+#wget http://cdn.mysql.com/get/Downloads/MySQL-5.6/MySQL-5.6.14-1.el6.x86_64.rpm-bundle.tar/from/http://cdn.mysql.com/
+#tar -xvf *.tar
+#rm MySQL-5.6.14-1.el6.x86_64.rpm-bundle.tar
+#rpm --install MySQL-client-5.6.14-1.el6.x86_64.rpm MySQL-devel-5.6.14-1.el6.x86_64.rpm \
+#	MySQL-server-5.6.14-1.el6.x86_64.rpm MySQL-shared-5.6.14-1.el6.x86_64.rpm \
+#	MySQL-shared-compat-5.6.14-1.el6.x86_64.rpm
 
 service mysql start
 
 
-##
-## SOME MORE PERL LIBRARIES
-##
-cpanm DBIx::ContextualFetch;
-cpanm Ima::DBI;
-cpanm UNIVERSAL::moniker;
-cpanm Class::DBI;
-cpanm DBD::mysql;
-
-cpanm Stream::Buffered;
-cpanm Test::SharedFork;
-cpanm Test::TCP;
-cpanm File::ShareDir;
-cpanm Hash::MultiValue;
-cpanm Devel::StackTrace;
-cpanm HTTP::Body;
-cpanm Filesys::Notify::Simple;
-cpanm Devel::StackTrace::AsHTML;
-cpanm Mojolicious;
-cpanm AnyEvent;
-cpanm WWW::Twilio::API;
-cpanm Text::Wrap;
-cpanm Plack;
-
-cpanm Digest::SHA1;
-cpanm DIME::Payload;
-cpanm IPC::Lock::Memcached;
-cpanm IPC::ConcurrencyLimit::Lock;
-
 ## s3fs
 yum remove -y fuse fuse-devel libguestfs perl-Sys-Guestfs
-here are the instructions:
+##here are the instructions:
 ## S3 FUSE FILESYSTEM ##
+## yum -y install ftp://rpmfind.net/linux/sourceforge/a/an/anthonos/mirror/os2-repo/os3-packages/stage-6-packages/fuse-2.9.3-2.x86_64.rpm
 
-http://sourceforge.net/projects/httpfs/files/latest/download?source=files
+##http://sourceforge.net/projects/httpfs/files/latest/download?source=files
 
 ## s3fs requires a higher version of fuse than comes with centos
-yum remove -y fuse fuse-devel libguestfs perl-Sys-Guestfs
+## yum remove -y fuse fuse-devel libguestfs perl-Sys-Guestfs
 #browse to : http://sourceforge.net/projects/fuse/files/fuse-2.X/
 #download 2.9.6 then uncompress in /usr/local/src
 
@@ -573,17 +573,13 @@ make install
 
 
 
-## CANT GET ZEROMQ TO COMPILE UNPATCHED, Alien::ZMQ fixes it.
-## ./configure --with-pgm --enable-static --enable-shared --with-gnu-ld
-cpanm ExtUtils::CBuilder;
-cpanm String::ShellQuote;
+## OKAY NOW WE'RE ALL SET WITH INSTALLATION(S) -- let's provision filesystems
+zpool create tank /dev/xvdf 
+zfs create tank/users
+rmdir /home
 
-cpanm Alien::ZMQ;
-cpanm ZMQ::LibZMQ;
-cpanm String::Urandom;
 
-yum -y install help2man texinfo libtool
-
+## now we can provision a new account
 
 
 ##########################################################

@@ -93,9 +93,9 @@ cpanm Facebook::Graph;
 ## cpanm File::Copy");';		## included w/ perl (should match ;
 
 
-cpanm Net::Cu;
-cpanm Test::HTTP::Serv;
-cpanm LWP::Protocol::Net::Cu;
+cpanm --force Net::Curl;
+cpanm Test::HTTP::Server;
+cpanm --force LWP::Protocol::Net::Curl;
 
 cpanm Filesys::Virtual;
 cpanm Filesys::Virtual::Plain;
@@ -126,8 +126,8 @@ cpanm Variable::Magic;
 cpanm Class::MO;
 cpanm Sub::Identify;
 cpanm Sub::Name;
-cpanm B::Hooks::EndOfScop;
-cpanm namespace::clea;
+cpanm B::Hooks::EndOfScope;
+cpanm namespace::clean;
 cpanm namespace::autoclean;
 cpanm Mouse;
 cpanm Any::Moose;
@@ -148,7 +148,7 @@ cpanm HTTP::Date;
 cpanm Compress::Raw::Bzip2;
 cpanm Compress::Raw::Zlib;
 cpanm IO::Compress::Bzip2;
-cpanm IO::Uncompress::Bunzip;
+cpanm IO::Uncompress::Bunzip2;
 
 cpanm HTTP::Headers;
 cpanm HTTP::Cookies;
@@ -854,8 +854,40 @@ cpanm MediaWiki::API
 cpanm IO::CaptureOutput
 cpanm Devel::CheckLib
 
+## CANT GET ZEROMQ TO COMPILE UNPATCHED, Alien::ZMQ fixes it.
+## ./configure --with-pgm --enable-static --enable-shared --with-gnu-ld
 cpanm ExtUtils::CBuilder
 cpanm String::ShellQuote
 cpanm Alien::ZMQ
 cpanm ZMQ::Constants
 cpanm ZMQ::LibZMQ3
+
+##
+## SOME MORE PERL LIBRARIES
+##
+cpanm DBIx::ContextualFetch;
+cpanm Ima::DBI;
+cpanm UNIVERSAL::moniker;
+cpanm Class::DBI;
+cpanm DBD::mysql;
+
+cpanm Stream::Buffered;
+cpanm Test::SharedFork;
+cpanm Test::TCP;
+cpanm File::ShareDir;
+cpanm Hash::MultiValue;
+cpanm Devel::StackTrace;
+cpanm HTTP::Body;
+cpanm Filesys::Notify::Simple;
+cpanm Devel::StackTrace::AsHTML;
+cpanm Mojolicious;
+cpanm AnyEvent;
+cpanm WWW::Twilio::API;
+cpanm Text::Wrap;
+cpanm Plack;
+
+cpanm Digest::SHA1;
+cpanm DIME::Payload;
+cpanm IPC::Lock::Memcached;
+cpanm IPC::ConcurrencyLimit::Lock;
+
