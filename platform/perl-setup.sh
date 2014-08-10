@@ -12,7 +12,7 @@ cpanm Test::More;
 
 cpanm Business::EDI;
 cpanm Business::UPC;
-cpanm Memcached::libmemcached;
+cpanm --force Memcached::libmemcached;
 ## warnings are okay for Cache::libmemcached (there are no servers installed!)
 cpanm Cache::Memcached::libmemcached;
 cpanm CDB_File;
