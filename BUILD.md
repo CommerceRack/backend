@@ -331,6 +331,7 @@ cp uwsgi /usr/local/bin/uwsgi
 ln -s /backend/platform/etc-init.d-uwsgi /etc/init.d/uwsgi
 
 
+
 #there's some gotchas  on solaris:
 ## * 1. need to pull latest from github
 ## * 2. need to edit build.ini, comment out a ton of stuff (check hoth)
@@ -824,6 +825,8 @@ sysctl -w fs.file-max=70000
 /root/configs/ntp-time/ntp.sh
 mkdir -m 755 -p /local/nginx/logs
 mkdir -m 0775 /local/nginx-cache
+mkdir /local/logs
+ln -s /local/logs /backend/logs
 
 
 

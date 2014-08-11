@@ -12,7 +12,7 @@
 ###########################
 PROG=/usr/local/bin/uwsgi
 DESC=uWSGI
-DAEMON_OPTS='--master --master-fifo=/var/run/uwsgi-master --daemonize "/var/logs/uwsgi.log" --die-on-term --emperor "/backend/uwsgi/vassals/*.ini" --emperor zmq://tcp://127.0.0.1:5252'
+DAEMON_OPTS='--master --master-fifo=/var/run/uwsgi-master --daemonize "/var/log/uwsgi.log" --die-on-term --emperor "/backend/uwsgi/vassals/*.ini" --emperor zmq://tcp://127.0.0.1:5252'
 lockfile=/var/lock/subsys/uwsgi
 
 start () {
