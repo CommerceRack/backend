@@ -114,7 +114,7 @@ echo "nameserver 8.8.8.8" > /etc/resolv.conf
   chmod 777 /var/run/redis.sock
 	 	
 	/bin/rm /usr/local/nginx/conf/vhosts/*.conf
-	/httpd/platform/dump-domains.pl
+	/backend/platform/dump-domains.pl
 	/etc/init.d/uwsgi start
 	/etc/init.d/nginx start
 

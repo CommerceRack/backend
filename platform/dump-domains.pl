@@ -4,12 +4,12 @@
 use Data::Dumper;
 use Storable;
 use strict;
-use lib "/httpd/modules";
+use lib "/backend/modules";
 use CFG;
 use POSIX;
 use strict;
 use File::Slurp;
-use lib "/httpd/modules";
+use lib "/backend/modules";
 use DBINFO;
 use DOMAIN;
 use CFG;
@@ -227,15 +227,15 @@ foreach my $USERNAME (@{$CFG->users()}) {
 				print Fn "# Certificate\n";
 				print Fn $SSL_CERT."\n";
 				my ($txt) = '';		
-				($txt) = join("",File::Slurp::read_file("/httpd/platform/ssl/geotrust.pem"));
+				($txt) = join("",File::Slurp::read_file("/backend/platform/ssl/geotrust.pem"));
 				print Fn "# Geotrust\n$txt\n";
-				($txt) = join("",File::Slurp::read_file("/httpd/platform/ssl/20110225-rapidssl-primary-intermediate.txt"));
+				($txt) = join("",File::Slurp::read_file("/backend/platform/ssl/20110225-rapidssl-primary-intermediate.txt"));
 				print Fn "# RapidSSL Primary\n$txt\n";
-				($txt) = join("",File::Slurp::read_file("/httpd/platform/ssl/20110225-rapidssl-secondary-intermediate.txt"));	
+				($txt) = join("",File::Slurp::read_file("/backend/platform/ssl/20110225-rapidssl-secondary-intermediate.txt"));	
 				print Fn "# Geotrust EV1\n$txt\n";
-		      ($txt) = join("",File::Slurp::read_file("/httpd/platform/ssl/20120901-geotrust-evssl.txt"));
+		      ($txt) = join("",File::Slurp::read_file("/backend/platform/ssl/20120901-geotrust-evssl.txt"));
 				print Fn "# Geotrust CA-G2 (TrueBiz ID)\n$txt\n";
-		      ($txt) = join("",File::Slurp::read_file("/httpd/platform/ssl/20140724-geotrust-ca-g2.pem"));
+		      ($txt) = join("",File::Slurp::read_file("/backend/platform/ssl/20140724-geotrust-ca-g2.pem"));
 				print Fn "\n";
 				close Fn;
 				}
