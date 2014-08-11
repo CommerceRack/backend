@@ -253,6 +253,11 @@ nginx       soft    nofile   10000
 nginx       hard    nofile  30000
 ^D
 
+yum install memcached
+
+/sbin/chkconfig --add memcached
+service memcached start
+
 
 ## we don't use this anymore.
 ## yum -y install gitolite gitolite3
@@ -365,15 +370,23 @@ make setup check
 ##
 ## Redis
 ##
-#cd /usr/local/src/
-#wget http://download.redis.io/releases/redis-2.6.16.tar.gz
-#tar -xzvf redis-2.6.16.tar.gz
-#cd redis-2.6.16
-#make install
 yum -y install redis
-yum -y install hiredis hiredis-devel
+cd /usr/local/src/
+wget http://download.redis.io/releases/redis-2.6.16.tar.gz
+tar -xzvf redis-2.6.16.tar.gz
+cd redis-2.6.16
+make install
+
+rm /usr/sbin/redis-server
+ln -s /usr/local/bin/redis-server /usr/sbin/redis-server
+#yum -y install hiredis hiredis-devel
 /sbin/chkconfig --add redis
 service redis start
+ln -s /backend/platform/redis/redis.conf /etc/redis.conf
+rm -Rf /var/lib/redis/dump.rdb
+mkdir -p /local/redis
+ln -s /var/lib/redis /local/redis
+
 
 ## LIBREDIS
 ## 

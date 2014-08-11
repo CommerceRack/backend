@@ -55,6 +55,7 @@ cpanm Class::Load;
 cpanm DateTime::TimeZone;
 cpanm DateTime;
 cpanm --force DBI;
+cpanm DBD::mysql;
 cpanm Digest::HMAC_SHA1;
 cpanm Digest::MD5;
 cpanm Digest::SHA1;
