@@ -253,8 +253,18 @@ nginx       soft    nofile   10000
 nginx       hard    nofile  30000
 ^D
 
-yum install memcached
+ln -s /backend/platform/etc-init.d-nginx /etc/init.d/nginx
+cd /usr/local/nginx/conf
+rm nginx.conf
+ln -s /backend/platform/nginx/certs/ /usr/local/nginx
+ln -s /backend/platform/nginx/conf/nginx.conf .
+ln -s /backend/platform/nginx/conf/commercerack-locations.conf .
+mkdir vhosts
 
+
+
+
+yum install memcached
 /sbin/chkconfig --add memcached
 service memcached start
 

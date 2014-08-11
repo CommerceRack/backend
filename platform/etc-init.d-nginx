@@ -20,7 +20,7 @@
 [ "$NETWORKING" = "no" ] && exit 0
 
  
-nginx="/usr/local/bin/nginx"
+nginx="/usr/local/nginx/sbin/nginx"
 prog=$(basename $nginx)
  
 NGINX_CONF_FILE="/usr/local/nginx/conf/nginx.conf"

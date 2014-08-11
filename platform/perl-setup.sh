@@ -905,3 +905,6 @@ cpanm Pegex::Parser
 cpanm Mo::builder
 cpanm Net::AWS::SES
 
+cpanm Net::uwsgi
+
+ 

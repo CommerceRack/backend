@@ -10,7 +10,7 @@ use Plack::Request;
 use Plack::Response;
 use MIME::Types qw();
 
-use lib "/httpd/modules";
+use lib "/backend/modules";
 require ZWEBSITE;
 require ZOOVY;
 require MEDIA;
@@ -74,7 +74,7 @@ my $app = sub {
 				$HEADERS{"X-XSS-Protection"} = "0";
 				}
 
-			my $dir = "/httpd/static".$path;
+			my $dir = "/backend/static".$path;
 			if (substr($path,0,21) eq '/graphics/navbuttons/') {
 				## navbuttons can be dynamically created
 				$VERB = [ 'NAVBUTTON', $path ];
@@ -217,7 +217,7 @@ my $app = sub {
 			##		merchant  - is the poor sap who's data we're dealing with.
 			##		img_arg	 - is the image arguments or - if we need the original image
 			##		img_subdir 	 - is the directory off the merchants ~/IMAGES directory that we will find the image in
-			##		dir	 - is the fully qualified path, including img_subdir (e.g. "/httpd/zoovy/merchants/b/brian/IMAGES/t/")
+			##		dir	 - is the fully qualified path, including img_subdir (e.g. "/backend/zoovy/merchants/b/brian/IMAGES/t/")
 			##
 			## **********************************************************************************
 
@@ -361,14 +361,14 @@ my $app = sub {
 		$VERB = [ 'HEALTH' ];
 		}
 	elsif (substr($path,0,16) eq '/crossdomain.xml') {
-		$VERB = [ 'FILE', '/httpd/htdocs/crossdomain.xml' ];
+		$VERB = [ 'FILE', '/backend/htdocs/crossdomain.xml' ];
 		}
 	elsif (substr($path,0,11) eq '/robots.txt') {
 		## added a robots.txt for static.
-		$VERB = [ 'FILE', '/httpd/static/robots.txt' ];
+		$VERB = [ 'FILE', '/backend/static/robots.txt' ];
 		}
 	elsif (substr($path,0,14) eq '/geotrust.html') {
-		$VERB = [ 'FILE', '/httpd/static/geotrust.html' ];
+		$VERB = [ 'FILE', '/backend/static/geotrust.html' ];
 		}
 
 	## attempt to lookup project/files
@@ -419,7 +419,7 @@ my $app = sub {
 
 		## LET'S DO SOME FANCY MIME TYPE
 
-		## NEED MORE?? MIME::Types::import_mime_types("/httpd/conf/mime.types");
+		## NEED MORE?? MIME::Types::import_mime_types("/backend/conf/mime.types");
 
 		my ($mime_type, $encoding) = MIME::Types::by_suffix($VERB->[1]);
 		if ($mime_type ne '') {
@@ -675,21 +675,21 @@ sub generate_counter_image {
 
 
 	my %CHAR = ();
-	my $PATH = "/httpd/static/counters/";
+	my $PATH = "/backend/static/counters/";
 	my $CACHEDIR = "/local/cache/_counters";
 
 	my $CACHEFILE = "$CACHEDIR/$COUNTER--$SERIES.gif";
 
 	if ( -f $CACHEFILE ) { 
-		# /httpd/counters/katt014/00/katt0141.gif 	# image #1
+		# /backend/counters/katt014/00/katt0141.gif 	# image #1
 		open F, "<$CACHEFILE"; $/ = undef;
 		$output = <F>;
 		close F;
 		$/ = "\n";
 		}
 	else {
-		my $digit_dir =  "/httpd/static/counters/$SERIES/original";
-		my $flyprog = "/httpd/static/counters/fly -q";
+		my $digit_dir =  "/backend/static/counters/$SERIES/original";
+		my $flyprog = "/backend/static/counters/fly -q";
 		my $fly_temp ="/tmp/fly_temp.txt".$$.time();
 
 	   ### IMAGE SETTINGS ###
@@ -697,7 +697,7 @@ sub generate_counter_image {
 		########################################################################################
 		##find image height and width
 	
-		#		my $filename="/httpd/counters/" . $COUNTER . "/original/0.gif";
+		#		my $filename="/backend/counters/" . $COUNTER . "/original/0.gif";
 		#
 		#		my $im = Image::Magick->new();
 		#		$im->Read($filename);
@@ -707,7 +707,7 @@ sub generate_counter_image {
 		#
 		#		print STDERR "width and height are $width:$height\n";
 		my $width = -1; my $height = -1;
-		open F, "</httpd/static/counters/$SERIES/info.txt"; $/ = undef; my $buf = <F>; close F; $/ = "\n";
+		open F, "</backend/static/counters/$SERIES/info.txt"; $/ = undef; my $buf = <F>; close F; $/ = "\n";
 		foreach my $kv (split(/\&/s,$buf)) {
 			my ($k,$v) = split(/=/,$kv);
 			if ($k eq 'w') { $width = $v; }
@@ -794,7 +794,7 @@ sub generate_counter_image {
 
 	if ($output eq '') { 
 		warn "no output - loading blank image\n";
-		open F, "</httpd/htdocs/images/blank.gif"; $output = <F>; close F; 
+		open F, "</backend/static/graphics/blank.gif"; $output = <F>; close F; 
 		}
 
 	return($output);

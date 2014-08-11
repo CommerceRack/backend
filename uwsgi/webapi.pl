@@ -1,7 +1,7 @@
 #!/usr/bin/perl
 
 use strict;
-use lib "/httpd/modules";
+use lib "/backend/lib";
 use Plack::Request;
 use Plack::Response;
 use HTTP::Headers;

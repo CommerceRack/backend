@@ -91,7 +91,7 @@ EOF
                 my $redis_message = undef;
 
 
-		use lib "/httpd/modules";
+		use lib "/backend/lib";
 		require JSONAPI;
 		my $v = {};
 		my $req = Plack::Request->new($env);

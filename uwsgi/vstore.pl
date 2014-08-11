@@ -23,7 +23,7 @@ use Storable;
 use Data::Dumper;
 use Cache::Memcached::libmemcached;
 
-use lib "/httpd/modules";
+use lib "/backend/modules";
 require SITE;
 require CART2;
 require CUSTOMER;
@@ -35,7 +35,7 @@ require PAGE::HANDLER;
 require DOMAIN::TOOLS;
 require PRODUCT;
 
-use lib "/httpd/modules";
+use lib "/backend/modules";
 require ZWEBSITE;
 require ZOOVY;
 require MEDIA;
@@ -840,7 +840,7 @@ sub legacyResponseHandler {
 		die("r->pnotes *SITE must be a reference to a SITE object");
 		}
 	else {
-		$SITE->sset('_FS','');			## the current flowstyle (references /httpd/static/flows.txt)
+		$SITE->sset('_FS','');			## the current flowstyle (references /backend/static/flows.txt)
 		$SITE->pageid( '' );		# this is used to track state throughout the application.
 		}
 
@@ -2001,7 +2001,7 @@ sub legacyResponseHandler {
 					if ($checkout_layout eq 'passive') {  $checkout_layout = 'checkout-201405p'; }
 					if ($checkout_layout eq 'required') {  $checkout_layout = 'checkout-201405r'; }
 
-					if (! -d "/httpd/static/layouts/$checkout_layout") { $checkout_layout = 'checkout-201405p'; }
+					if (! -d "/backend/static/layouts/$checkout_layout") { $checkout_layout = 'checkout-201405p'; }
 
 					## if they requested an override, use that.
 					if ($SITE::v->{'fl'} ne '') { $checkout_layout = $SITE::v->{'fl'}; }

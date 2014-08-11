@@ -12,7 +12,7 @@ use MIME::Types qw();
 use Coro::AnyEvent;
 use AnyEvent::Redis;
 
-use lib "/httpd/modules";
+use lib "/backend/lib";
 require ZWEBSITE;
 require ZOOVY;
 require MEDIA;

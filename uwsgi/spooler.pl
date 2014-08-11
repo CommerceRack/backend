@@ -6,7 +6,7 @@ use strict;
 use Net::uwsgi;
 use Data::Dumper;
 use Fcntl ':flock';
-use lib "/httpd/lib";
+use lib "/backend/lib";
 use JSONAPI;
 use ZOOVY;
 
