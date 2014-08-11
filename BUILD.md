@@ -388,7 +388,7 @@ ln -s /backend/platform/redis/redis.conf /etc/redis.conf
 rm -Rf /var/lib/redis/dump.rdb
 mkdir -p /local/redis
 ln -s /var/lib/redis /local/redis
-
+ln -s /var/lib/redis/redis.sock /var/run/redis.sock
 
 ## LIBREDIS
 ## 
