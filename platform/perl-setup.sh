@@ -891,3 +891,16 @@ cpanm DIME::Payload;
 cpanm IPC::Lock::Memcached;
 cpanm IPC::ConcurrencyLimit::Lock;
 
+cpanm Data::JavaScript::LiteObject
+cpanm JavaScript::Minifier
+
+cpanm ExtUtils::Constant
+cpanm Socket
+cpanm Net::Ping
+cpanm Hijk
+cpanm HTTP::Tiny
+cpanm Elasticsearch
+cpanm Pegex::Parser
+cpanm Mo::builder
+cpanm Net::AWS::SES
+

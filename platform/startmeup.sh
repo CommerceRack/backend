@@ -87,7 +87,7 @@ echo "nameserver 8.8.8.8" > /etc/resolv.conf
  # /etc/init.d/mysql start
   sleep 10;	## give mysql some time to start
   
-  for USER in `/httpd/platform/cfgecho.pl type:user` ; do    
+  for USER in `/backend/platform/cfgecho.pl type:user` ; do    
   		lcUSER=`echo $USER | tr '[:upper:]' '[:lower:]'`;    
   		DBPASS=`/httpd/platform/cfgecho.pl $USER dbpass`;    
   		DBUSER=`/httpd/platform/cfgecho.pl $USER dbuser`;    

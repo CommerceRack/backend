@@ -1,6 +1,6 @@
 #!/usr/bin/perl
 
-use lib "/httpd/modules";
+use lib "/backend/lib";
 use CFG;
 
 # /httpd/platform/cfgecho.pl type:user

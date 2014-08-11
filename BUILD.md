@@ -5,6 +5,7 @@
 # using a standard centos box
 ##
 
+yum -y install yum-plugin-fastestmirror
 yum install -y git
 
 useradd -u 1000 commercerack
@@ -50,20 +51,10 @@ yum -y install htop
 yum -y install http://dl.fedoraproject.org/pub/epel/6/i386/epel-release-6-8.noarch.rpm
 ## https://dl.fedoraproject.org/pub/epel/beta/7/x86_64/epel-release-7-0.2.noarch.rpm
 
-
-## upgrade fuse:
-yum -y install ftp://rpmfind.net/linux/sourceforge/a/an/anthonos/mirror/os2-repo/os3-packages/stage-6-packages/fuse-2.9.3-2.x86_64.rpm
-
-
-# what i've done
-# copied /root/configs
-
 ## we don't need ip forwarding anymore
 #modify /etc/rc.d/rc.local set 
 #	echo 1 > /proc/sys/net/ipv4/ip_forward
 
-## 
-## iostat -- in sysstat
 
 #===========================================
 ## INSTALL ZFS
@@ -88,15 +79,15 @@ reboot
 
 ## for iostat
 yum -y install systat
-yum -y install help2man texinfo libtool
+yum -y install help2man texinfo libtool asciidoc
 
 #===========================================
 ##  
 #===========================================
-yum -y update
 yum -y install cronie ftp postfix openssh openssl openssh-clients rdist ntpdate gcc make postfix mailx telnet openssh man wget
 yum -y install libtool-ltdl-devel glibc-devel apr-devel apr-util-devel aspell-devel binutils-devel bison-devel boost-devel boost-mpich2-devel boost-openmpi-devel 
 yum -y install inotify-tools incrond vixie-cron
+yum -y update
 
 
 ## 
@@ -381,6 +372,8 @@ make setup check
 #make install
 yum -y install redis
 yum -y install hiredis hiredis-devel
+/sbin/chkconfig --add redis
+service redis start
 
 ## LIBREDIS
 ## 
@@ -495,14 +488,14 @@ service elasticsearch start
 
 
 ## MYSQL
-yum -y install mysql-libs mysql mysql-server mysql-devel mysql-shared mysql-server
+yum -y remove mysql-libs mysql mysql-server mysql-devel mysql-shared mysql-server
 cd /usr/local/
-#wget http://cdn.mysql.com/get/Downloads/MySQL-5.6/MySQL-5.6.14-1.el6.x86_64.rpm-bundle.tar/from/http://cdn.mysql.com/
-#tar -xvf *.tar
-#rm MySQL-5.6.14-1.el6.x86_64.rpm-bundle.tar
-#rpm --install MySQL-client-5.6.14-1.el6.x86_64.rpm MySQL-devel-5.6.14-1.el6.x86_64.rpm \
-#	MySQL-server-5.6.14-1.el6.x86_64.rpm MySQL-shared-5.6.14-1.el6.x86_64.rpm \
-#	MySQL-shared-compat-5.6.14-1.el6.x86_64.rpm
+wget http://dev.mysql.com/get/Downloads/MySQL-5.6/MySQL-5.6.20-1.el6.x86_64.rpm-bundle.tar
+tar -xvf *.tar
+rm MySQL-5.6.20-1.el6.x86_64.rpm-bundle.tar
+rpm --install MySQL-client-5.6.20-1.el6.x86_64.rpm MySQL-devel-5.6.20-1.el6.x86_64.rpm \
+	MySQL-server-5.6.20-1.el6.x86_64.rpm MySQL-shared-5.6.20-1.el6.x86_64.rpm \
+	MySQL-shared-compat-5.6.20-1.el6.x86_64.rpm
 
 service mysql start
 
@@ -533,14 +526,14 @@ wget http://s3fs.googlecode.com/files/s3fs-1.74.tar.gz;
 tar -xzvf  s3fs-1.74.tar.gz;
 cd s3fs-1.74;
 ./configure;
-make;
+make -j2;
 make install;
 
 mkdir /mnt/configs
 # public:
 /usr/local/bin/s3fs commercerack-configs /mnt/configs -odefault_acl=public-read -opublic_bucket=1 -ouse_cache=/tmp
 # private (rw)
-/usr/local/bin/s3fs commercerack-configs /mnt/configs -odefault_acl=public-read -ouse_cache=/tmp
+#/usr/local/bin/s3fs commercerack-configs /mnt/configs -odefault_acl=public-read -ouse_cache=/tmp
 
 
 ## 
@@ -576,7 +569,11 @@ make install
 ## OKAY NOW WE'RE ALL SET WITH INSTALLATION(S) -- let's provision filesystems
 zpool create tank /dev/xvdf 
 zfs create tank/users
-rmdir /home
+mkdir -p /users
+
+
+
+
 
 
 ## now we can provision a new account
@@ -641,12 +638,12 @@ ln -s /etc/jftpgw.conf /usr/local/etc/jftpgw.conf
 
 
 ## HMM maybe:
-cd /usr/local/src
-wget http://redis.googlecode.com/files/redis-2.6.10.tar.gz
-tar xzf redis-2.6.10.tar.gz
-cd redis-2.6.10
-make 
-make install
+#cd /usr/local/src
+#wget http://redis.googlecode.com/files/redis-2.6.10.tar.gz
+#tar xzf redis-2.6.10.tar.gz
+#cd redis-2.6.10
+#make 
+#make install
 
 
 
@@ -661,10 +658,6 @@ make install
 ##
 ##
 
-yum -y install asciidoc
-
-cpanm Data::JavaScript::LiteObject
-cpanm JavaScript::Minifier
 
 
 ## ZERO MQ
@@ -684,8 +677,7 @@ make install;
 #./bootstrap
 #./configure
 #make install
- 
-##
+
 
 cd /usr/local/src
 # wget http://www.maxmind.com/app/c
@@ -726,16 +718,6 @@ ln -s /backend /httpd
 rm -Rf /backend/lib
 ln -s /backend/lib /backend/modules
  
-cpanm ExtUtils::Constant
-cpanm Socket
-cpanm Net::Ping
-cpanm Hijk
-cpanm HTTP::Tiny
-cpanm Elasticsearch
-cpanm Pegex::Parser
-cpanm Mo::builder
-cpanm Net::AWS::SES
-
 ## 201403
 
 
@@ -744,9 +726,6 @@ cpanm Net::AWS::SES
 /root/configs/ntp-time/ntp.sh
 
 sysctl -w net.core.somaxconn=1024
-
-
-yum -y install mysql mysql-devel mysql-client
 
 
 
@@ -801,100 +780,6 @@ yum -y install mysql mysql-devel mysql-client
 #       mv newreq.pem /usr/local/share/certs/apachecertkey.pem
 
 
-
-# Cut and paste the following into it:
-################################################
-#!/bin/sh
-#
-# Startup script for the Apache Web Server
-#
-# chkconfig: 345 85 15
-# description: Apache is a World Wide Web server.  It is used to serve \
-#        HTML files and CGI.
-# processname: httpd
-# pidfile: /var/run/httpd.pid
-# config: /usr/local/apache/conf/httpd.conf
-
-basedir=/usr/local/apache
-
-# Source function library.
-. /etc/rc.d/init.d/functions
-
-# See how we were called.
-case "$1" in
-start)
-echo -n "Starting httpd: "
-daemon $basedir/bin/httpd -D SSL
-echo
-touch /var/lock/subsys/httpd
-;;
-stop)
-echo -n "Shutting down http: "
-killproc $basedir/bin/httpd
-echo
-rm -f /var/lock/subsys/httpd
-rm -f /var/run/httpd.pid
-;;
-status)
-status $basedir/bin/httpd
-;;
-restart)
-$0 stop
-$0 start
-;;
-reload)
-echo -n "Reloading httpd: "
-killproc $basedir/bin/httpd -HUP
-echo
-;;
-*)
-echo "Usage: $0 {start|stop|restart|reload|status}"
-exit 1
-esac
-
-exit 0
-
-
-################################################
-
-17) make the startup script executable
-chmod 755 /etc/init.d/httpd
-
-18) Add apache to the appropriate run levels
-chkconfig --levels 345 httpd on
-
-19) edit your httpd.conf file how you like it or need it
-vi /usr/local/apache/conf/httpd.conf
-# Make sure you run the server as webman
-
-20) Make error logs
-mkdir -p /var/log/httpd/apache
-
-21) Start apache
-### skip starting apache if you are copying httpd.conf config files from another machine, until you have have completed all steps in this document
-/etc/init.d/httpd start
-
-22) Copy the /etc/passwd /etc/group and /etc/shadow to the new machine
-
-23) Make sure that the accounts for programs have no shell access, apache, mysql, etc
-# Change their accounts from /bin/bash
-# to: /sbin/nologin
-
-24) Set webman to /sbin/nologin
-
-
-=====
-HOST=z200 ; cat /root/.ssh/id_rsa.pub | ssh $HOST "cat >> ~/.ssh/authorized_keys"
-
-
-mkdir -m 700 ~nagios/.ssh;
-
-cat >> ~nagios/.ssh/authorized_keys
-ssh-dss AAAAB3NzaC1kc3MAAACBAKRKJYFTG44RbnkmqMj8xVeqYXxCzIpqsrp1llKwRpw7Vdj1BKhT1Lkanum+t/VOD8GhVHzAdGKEWiq6N9OBB1Eu+ug/w87Rt9dDQIpAJcQMfuAGRDUPpfPYszi9ES2FHWD3IDPI3WxrFSoRW1483aHjMynDUdk2o/OXUErxCwPBAAAAFQDFP1EVWEd47iDXXqMZbpZLhlSMAwAAAIEAmla9noFI3uzZ7Nmi1ml7cyBzShzZnKpfobSGrTIrzDsOe2Xykzd1BSxkp4pK7PiPWpnS1hAARd9hTcfGPosispsEAdpT0bzQUMwngMshEkZn4yDTh1lRzADSy944NJkhH8QqlSdLlUdUT6AiNZNJeVT75ZdQ3l1LmYlbP/yty+sAAACAN8mYEqq/P7ltO61W/qlfxJpWGbI7uiZn81pbVNt5SadW3pvtaoqaQvsCET/YSnGZb+dUoh8GsPWkZMQpQhCJCLJ9LdhYrBroLFnvQLgweTFdA7KI/Ejk324OThNm1Kb8sC1tAAh4TzMi4RDkK6EifSsi1bwsfkJ8AwDhfsVMIco= nagios@monitor.zoovy.com
-ssh-rsa AAAAB3NzaC1yc2EAAAABIwAAAQEAy/Yiq4g2tF+rNrG4MH5aZ/B65uDViqudCtWq2YweQclJGgHX7r/NI428aMdhU0ZFlSVL7+m5c7YP2QioRjgD4mD74N6oJW6GRxtKC9nKhkgi6aricaDNuu3ldQFosxavO7vS0+D6G40NR7JXpk9tLopQqInl/figBNuFzwpixRJajdMm3rpsbKsWcleDREp116lnohfTmSLdJlkcm+mqnQpOjpuWiGXJS7uwlz1LVZC9p09C9HLqhaoF6SUo7eqxY4I/6Xm4TOhQnpyMv3XBmzmXvsLO+3rDT7H7nXBFm1mftWpY9EGrGDxZ5gwEFvCrYaAxHGOlYpajNgOa9ech7w== nagios@monitor.zoovy.com
-ssh-rsa AAAAB3NzaC1yc2EAAAABIwAAAQEAsUiW2oypUP6ZImCT/957f7wRUGdCaTCtx+B3FNloioo8r5IGOR/fgTDMZz51bMz06tdunLdtzvvP5/PAoXsU1ZOsi9LK8wBqwzzdg6IO+1+I/JO6kZj0/su2gBhCJ9VqvfuI0BIVjIylgwXISrHJ7z3N8jlIAq5D1y7MS/t3fs3d9SySiDmU4SulPluj8tyOC95jCWN05hEXpk3LinnW/AbgyntAtnCZFk/87+m+n3lB1/o73s+b6c2w1Us6GQKsfTHu5iA2dpBkNLOB5L1HcazwAfTKXd3j6fG5g61gzTWxhSssgtXnsBH6ThOL8LETjGdlKGfXHGgE40zqFdgHGw== root@dev
-
-
 cat >> ~/.ssh/authorized_keys
 ssh-rsa AAAAB3NzaC1yc2EAAAABIwAAAQEAsUiW2oypUP6ZImCT/957f7wRUGdCaTCtx+B3FNloioo8r5IGOR/fgTDMZz51bMz06tdunLdtzvvP5/PAoXsU1ZOsi9LK8wBqwzzdg6IO+1+I/JO6kZj0/su2gBhCJ9VqvfuI0BIVjIylgwXISrHJ7z3N8jlIAq5D1y7MS/t3fs3d9SySiDmU4SulPluj8tyOC95jCWN05hEXpk3LinnW/AbgyntAtnCZFk/87+m+n3lB1/o73s+b6c2w1Us6GQKsfTHu5iA2dpBkNLOB5L1HcazwAfTKXd3j6fG5g61gzTWxhSssgtXnsBH6ThOL8LETjGdlKGfXHGgE40zqFdgHGw== updates@commercerack.com
 
@@ -915,24 +800,10 @@ sysctl -w fs.file-max=70000
 
 
 
-cat /root/.ssh/id_rsa.pub | ssh www1-crackle "cat >> ~/.ssh/authorized_keys"
 /root/configs/ntp-time/ntp.sh
-
-
 mkdir -m 755 -p /local/nginx/logs
 mkdir -m 0775 /local/nginx-cache
-mkdir -m 0755 -p /remote/crackle/users-sync
-mkdir -m 0755 -p /remote/crackle/users
-mv /httpd/htdocs /httpd/zoovy-htdocs
 
-/etc/fstab
-## MOUNT POINTS
-crackle:/data/users-crackle /remote/crackle/users-sync nfs defaults,hard,noac,tcp,nfsvers=3,intr,noatime 0 0
-crackle:/data/users-crackle /remote/crackle/users nfs defaults,hard,udp,rsize=8192,wsize=8192,nfsvers=3,intr,noatime 0 0
-
-mount -a
-
-/etc/init.d/iptables stop
 
 
 mkdir -m 0777 -p /remote/crackle/users; mkdir -m 0777 -p /remote/pop/users; mkdir -m 0777 -p /remote/dagobah/users; mkdir -m 0777 -p /remote/hoth/users;mkdir -m 0777 -p /remote/bespin/users
@@ -984,25 +855,6 @@ gw1 boxes:
 echo 15 > /proc/sys/net/ipv4/tcp_keepalive_intvl 
 echo 9 > /proc/sys/net/ipv4/tcp_keepalive_probes
 echo 8192 61000 > /proc/sys/net/ipv4/ip_local_port_range
-
-
-
-
-
-##
-## 
-## SOLARIS REQUIRES libpng
-#cd /usr/local/src
-## wget http://downloads.sourceforge.net/project/libpng/libpng16/1.6.1/libpng-1.6.1.tar.gz
-## wget http://sourceforge.net/projects/libpng/files/libpng16/1.6.2/libpng-1.6.2.tar.gz
-#wget http://sourceforge.net/projects/libpng/files/libpng16/1.6.6/libpng-1.6.6.tar.gz
-#tar -xzvf libpng-1.6.6.tar.gz
-#cd libpng-1.6.6
-#./configure --with-gnu-ld --enable-shared
-#make install
-#cd /usr/local/lib/
-## BUG FIXED IN 1.6
-#ln -s libpng15.so.15. libpng15.so.15
 
 
 
