@@ -94,7 +94,7 @@ echo "nameserver 8.8.8.8" > /etc/resolv.conf
   		DBNAME=`/httpd/platform/cfgecho.pl $USER dbname`;    
   		HOME=`/httpd/platform/cfgecho.pl "$USER" home`;    
   		ln -sfv "/users/$lcUSER/DATABASE" "/var/lib/mysql/$USER";    
-  		/httpd/platform/mysql/grant.pl "$USER" "$DBUSER" "$DBPASS" | mysql;    
+  		/backend/platform/mysql/grant.pl "$USER" "$DBUSER" "$DBPASS" | mysql;    
   		chown -R mysql.mysql "/users/$lcUSER/DATABASE"; 
   	done
   

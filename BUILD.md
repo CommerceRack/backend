@@ -572,6 +572,12 @@ zfs create tank/users
 mkdir -p /users
 
 
+cat /etc/commercerack.ini
+[zid]
+insecure: 1
+
+!users: /users/*/platform.yaml
+^D
 
 
 
