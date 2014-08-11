@@ -328,6 +328,8 @@ python uwsgiconfig.py --build psgi --build coroae
 ## --build v8 ??
 ## mv uwsgi /httpd/bin/uwsgi.`arch`
 cp uwsgi /usr/local/bin/uwsgi
+ln -s /backend/platform/etc-init.d-uwsgi.conf /etc/init.d/uwsgi
+
 
 #there's some gotchas  on solaris:
 ## * 1. need to pull latest from github
