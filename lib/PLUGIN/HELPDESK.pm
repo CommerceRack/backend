@@ -83,6 +83,7 @@ sub execute {
 	## NOTE: these is an issue with RSA encryption (it only supports keylength - padding) so we shouldn't add any unnecessary characters
 	## $CMD{'_uuid'} = Data::GUID->new()->as_string();
 
+	my $R = undef;
 	my ($PUBLIC_KEY) = ZTOOLKIT::SECUREKEY::rsa_key($CMD{'_user'},"commercerack.com.pub");
 	if ($PUBLIC_KEY eq '') {
 		$R = &JSONAPI::set_error({},'youerr',7301,'commercerack.com public helpdesk key not installed.');
@@ -91,7 +92,6 @@ sub execute {
 		my $rsa_pub = Crypt::OpenSSL::RSA->new_public_key($PUBLIC_KEY);
 		$CMD{'_signature'} = MIME::Base64::encode($rsa_pub->encrypt(time()));
 
-		my $R = undef;
 		my @RESPONSES = @{&PLUGIN::HELPDESK::send_cmds( 'https://54.219.139.212/jsonapi/', [ \%CMD ])};
 	
 		if (scalar(@RESPONSES)==0) {
