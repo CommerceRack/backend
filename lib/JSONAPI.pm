@@ -1018,59 +1018,6 @@ sub paymentQCMD {
 	}
 
 
-##
-## serialize a call to disk.
-##
-#sub call_serialize {
-#	my ($self, $v) = @_;
-#
-#	my %out = ();
-#	foreach my $k (keys %{$self}) {
-#		if (substr($k,0,1) eq '*') {
-#			## no support for *LU at the moment
-#			}
-#		elsif ($k eq uc($k)) { 
-#			## ex. APIVERSION
-#			$out{'%_'}->{$k} = $self->{$k}; 
-#			}
-#		}
-#	$out{'%CMD'} = $v;
-#	my $CALLID = sprintf("%s-%s-%s-%s-%s",$self->username(),$v->{'_cmd'},$v->{'_uuid'},&ZTOOLKIT::timestamp(),Data::GUID->new()->as_string());
-#	open F, sprintf(">/dev/shm/call-%s.json",$CALLID);
-#	JSON::XS::encode_json(\%out);
-#	close F;
-#	return($CALLID);
-#	}
-
-##
-##
-##
-#sub call_deserialize {
-#	my ($CALLID) = @_;
-#
-#	my ($JSONAPI,$v) = ();
-#	my $IN = undef;
-#	if (-f "/dev/shm/call-%s.json") {
-#		open F, sprintf("</dev/shm/call-%s.json",$CALLID);
-#		$/ = undef; my $json = <F>; $/ = "\n";
-#		close F;
-#
-#		$IN = JSON::XS::decode_json($json);
-#		}
-#
-#	if (not defined $IN) {
-#		$JSONAPI = JSONAPI->new();
-#		foreach my $k (keys %{$IN->{'%_'}}) {
-#			$JSONAPI->{$k} = $IN->{'%_'};
-#			}
-#		$v = $IN->{'%CMD'};
-#		}	
-#		
-#	## first, establish .. 
-#	return($JSONAPI,$v); 
-#	}
-
-
 
 
 ##
@@ -1123,7 +1070,12 @@ sub async_fetch {
 
 =pod
 
-<API id="adminControlPanelAction">
+#**
+# @api adminControlPanelAction
+# @apiName adminControlPanelAction
+# @apiDescription
+#  hello
+#*
 <input  id="verb">config-rebuild|nginx-restart|uwsgi-restart</input>
 </API>
 

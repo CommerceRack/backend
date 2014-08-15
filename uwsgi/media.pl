@@ -334,20 +334,20 @@ my $app = sub {
 		##
 		## syntax:
 		##		/kount/$USERNAME/$LIVE/$KMERCHANT/s=$SDOMAIN/c=$CARTID/logo.(html|gif)
-		if (defined $VERB) {
-			}
-		elsif (substr($path,0,7) eq '/kount/') {		
-			if ($path =~ /\/kount\/([a-z0-9]+)\/([\d]{1,1})\/([\d]+)\/s\=([A-Z0-9a-z\.\-]+)\/c\=([A-Z0-9a-z]+)\/logo\.(gif|html|htm)/o) {
-				my ($username,$live,$kmerchant,$sdomain,$cartid,$ext) = ($1,$2,$3,$4,$5,$6);
-				$HEADERS{"Cache-Control"} = "no-cache, no-store";    # HTTP 1.1 non-caching specification
-				$HEADERS{"Expires"} = "0";                           # HTTP 1.0 way of saying "expire now"
-				my $url =  sprintf('https://%s.kaptcha.com/logo.%s?m=%s&s=%s',(($live)?'ssl':'tst'),$ext,$kmerchant,$cartid);
-				$VERB = [ 'REDIRECT', $url ];
-				}
-			else {
-				warn "MISSED ON: $path\n";
-				}
-			}
+		#if (defined $VERB) {
+		#	}
+		#elsif (substr($path,0,7) eq '/kount/') {		
+		#	if ($path =~ /\/kount\/([a-z0-9]+)\/([\d]{1,1})\/([\d]+)\/s\=([A-Z0-9a-z\.\-]+)\/c\=([A-Z0-9a-z]+)\/logo\.(gif|html|htm)/o) {
+		#		my ($username,$live,$kmerchant,$sdomain,$cartid,$ext) = ($1,$2,$3,$4,$5,$6);
+		#		$HEADERS{"Cache-Control"} = "no-cache, no-store";    # HTTP 1.1 non-caching specification
+		#		$HEADERS{"Expires"} = "0";                           # HTTP 1.0 way of saying "expire now"
+		#		my $url =  sprintf('https://%s.kaptcha.com/logo.%s?m=%s&s=%s',(($live)?'ssl':'tst'),$ext,$kmerchant,$cartid);
+		#		$VERB = [ 'REDIRECT', $url ];
+		#		}
+		#	else {
+		#		warn "MISSED ON: $path\n";
+		#		}
+		#	}
 
 		## END /media
 		}
