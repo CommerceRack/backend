@@ -84,22 +84,22 @@ sub execute {
 	## $CMD{'_uuid'} = Data::GUID->new()->as_string();
 
 	my ($PUBLIC_KEY) = ZTOOLKIT::SECUREKEY::rsa_key($CMD{'_user'},"commercerack.com.pub");
-	my $rsa_pub = Crypt::OpenSSL::RSA->new_public_key($PUBLIC_KEY);
-	$CMD{'_signature'} = MIME::Base64::encode($rsa_pub->encrypt(time()));
-	#my %ECMD = ();
-	#my $json = JSON::XS::encode_json(\%CMD);
-	#$ECMD{'_user'} = $CMD{'_user'};
-	#$ECMD{'_cmd'} = 'encrypted-json-payload';
-	#$ECMD{'_payload'} = MIME::Base64::encode_base64($rsa->encrypt($json));
-
-	my $R = undef;
-	my @RESPONSES = @{&PLUGIN::HELPDESK::send_cmds( 'https://54.219.139.212/jsonapi/', [ \%CMD ])};
-
-	if (scalar(@RESPONSES)==0) {
-		$R = &JSONAPI::set_error({},'apierr','7300','No response from API');
+	if ($PUBLIC_KEY eq '') {
+		$R = &JSONAPI::set_error({},'youerr',7301,'commercerack.com public helpdesk key not installed.');
 		}
 	else {
-		$R = $RESPONSES[0];
+		my $rsa_pub = Crypt::OpenSSL::RSA->new_public_key($PUBLIC_KEY);
+		$CMD{'_signature'} = MIME::Base64::encode($rsa_pub->encrypt(time()));
+
+		my $R = undef;
+		my @RESPONSES = @{&PLUGIN::HELPDESK::send_cmds( 'https://54.219.139.212/jsonapi/', [ \%CMD ])};
+	
+		if (scalar(@RESPONSES)==0) {
+			$R = &JSONAPI::set_error({},'apierr','7300','No response from API');
+			}
+		else {
+			$R = $RESPONSES[0];
+			}
 		}
 	
 	return($R);
