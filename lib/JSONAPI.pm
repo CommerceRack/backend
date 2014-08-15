@@ -2067,6 +2067,7 @@ sub psgiinit {
 		}
 	elsif ($CFG->get('global','username')) {
 		## set in /etc/commercerack.ini
+		$self->{'USERID'} = $v->{'_userid'} || $HEADERS->header('x-userid') || "";
 		$self->{'USERNAME'} = $CFG->get('global','username');
 		}
  	elsif ($plackreq->env()->{'HTTP_HOST'} =~ /^[\d]+\.[\d]+\.[\d]+\.[\d]+\:9000/) {
