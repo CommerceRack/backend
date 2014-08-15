@@ -135,6 +135,7 @@ require INVENTORY2;
 require PRODUCT;
 require STUFF;
 require LUSER;
+require CFG;
 require ORDER::BATCH;
 require ZTOOLKIT::XMLUTIL;
 require SITE;
@@ -2043,6 +2044,7 @@ sub psgiinit {
 		}
 	
 
+	my ($CFG) = CFG->new();
 	if (defined $R) {
 		}
 	elsif ($self->is_config_js()) {
@@ -2063,9 +2065,9 @@ sub psgiinit {
 		$self->{'USERNAME'} = $DNSINFO->{'USERNAME'};
 		$self->{'USERID'} = $v->{'_userid'} || $HEADERS->header('x-userid') || "";
 		}
-	elsif (CFG->new()->get('global','username')) {
+	elsif ($CFG->get('global','username')) {
 		## set in /etc/commercerack.ini
-		$self->{'USERNAME'} = CFG->get('global','username');
+		$self->{'USERNAME'} = $CFG->get('global','username');
 		}
  	elsif ($plackreq->env()->{'HTTP_HOST'} =~ /^[\d]+\.[\d]+\.[\d]+\.[\d]+\:9000/) {
       $self->{'USERID'} = $v->{'_userid'} || $HEADERS->header('x-userid') || "";
