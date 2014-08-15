@@ -2063,6 +2063,16 @@ sub psgiinit {
 		$self->{'USERNAME'} = $DNSINFO->{'USERNAME'};
 		$self->{'USERID'} = $v->{'_userid'} || $HEADERS->header('x-userid') || "";
 		}
+ 	elsif ($plackreq->env()->{'HTTP_HOST'} =~ /^[\d]+\.[\d]+\.[\d]+\.[\d]+\:9000/) {
+      $self->{'USERID'} = $v->{'_userid'} || $HEADERS->header('x-userid') || "";
+      ## look through the @cmds for an authAdminLogin - get userid from that.
+      require URI;
+      my $ref = URI->new($plackreq->env()->{'HTTP_REFERER'});
+      use URI::QueryParam;
+      if ($ref->query_param('username')) {
+         $self->{'USERNAME'} = $ref->query_param('username');
+         }
+      }
 	else {
 		## wow. no userid, much bad.
 		&JSONAPI::set_error($R = {}, 'youerr', 7, sprintf("DNS Lookup error, cannot resolve database"));			

@@ -166,39 +166,46 @@ sub update {
 		($LM) = LISTING::MSGS->new($self->username(),stderr=>1);
 		}
 
-	my @CMDS = ();
-	#push @CMDS, { '_uuid'=>"$USERNAME!nuke", '_cmd'=>'dns-user-delete' };
-	my ($USERNAME) = $self->username();
-	my $DOMAIN = $self->domainname();
-	my ($MID) = $self->mid();
+	my $CFG = CFG->new();
 
-	my ($VIP) = DOMAIN::whatis_public_vip($USERNAME);
-	if ($VIP eq '') { die("NO VIP SET\n"); }
+	if ($CFG->get('dns','provider') eq 'zoovy') {
+		##
+		## Zoovy DNS Service
+		##
+		my @CMDS = ();
 
-	push @CMDS, { '_uuid'=>"$USERNAME\@static", '_cmd'=>'dns-wildcard-reserve', 'zone'=>'app-hosted.com', 'host'=>sprintf("static---%s",$USERNAME), 'ipv4'=>$VIP };
+		my ($USERNAME) = $self->username();
+		my $DOMAIN = $self->domainname();
+		my ($MID) = $self->mid();
 
-	my $D = $self;
-	my @SERVERS = &PLATFORM::ns_servers();
+		my ($VIP) = DOMAIN::whatis_public_vip($USERNAME);
+		if ($VIP eq '') { die("NO VIP SET\n"); }
 
-	# push @CMDS, { '_uuid'=>"$USERNAME\@$DOMAIN", '_cmd'=>'dns-domain-delete', 'DOMAIN'=>$DOMAIN }; 
-	push @CMDS, { '_uuid'=>"$USERNAME\@$DOMAIN", '_cmd'=>'dns-domain-update', 'DOMAIN'=>$DOMAIN, '%DOMAIN'=>$D->for_export() }; 
+		push @CMDS, { '_uuid'=>"$USERNAME\@static", '_cmd'=>'dns-wildcard-reserve', 'zone'=>'app-hosted.com', 'host'=>sprintf("static---%s",$USERNAME), 'ipv4'=>$VIP };
 
-	foreach my $HOSTINFO (@{$D->hosts()}) {
-		my $HOSTNAME = $HOSTINFO->{'HOSTNAME'};
-		my ($wildHOST,$wildDOMAIN) = split(/\./,&ZWEBSITE::domain_to_checkout_domain("$HOSTNAME.$DOMAIN"),2);
-		my %CMD = ( '_uuid'=>"$USERNAME\@$DOMAIN-$HOSTNAME", '_cmd'=>'dns-wildcard-reserve', 'DOMAIN'=>$DOMAIN, 'zone'=>$wildDOMAIN, 'host'=>$wildHOST, 'ipv4'=>$VIP ); 
-		push @CMDS, \%CMD;
+		my $D = $self;
+		my @SERVERS = &PLATFORM::ns_servers();
+	
+		# push @CMDS, { '_uuid'=>"$USERNAME\@$DOMAIN", '_cmd'=>'dns-domain-delete', 'DOMAIN'=>$DOMAIN }; 
+		push @CMDS, { '_uuid'=>"$USERNAME\@$DOMAIN", '_cmd'=>'dns-domain-update', 'DOMAIN'=>$DOMAIN, '%DOMAIN'=>$D->for_export() }; 
+	
+		foreach my $HOSTINFO (@{$D->hosts()}) {
+			my $HOSTNAME = $HOSTINFO->{'HOSTNAME'};
+			my ($wildHOST,$wildDOMAIN) = split(/\./,&ZWEBSITE::domain_to_checkout_domain("$HOSTNAME.$DOMAIN"),2);
+			my %CMD = ( '_uuid'=>"$USERNAME\@$DOMAIN-$HOSTNAME", '_cmd'=>'dns-wildcard-reserve', 'DOMAIN'=>$DOMAIN, 'zone'=>$wildDOMAIN, 'host'=>$wildHOST, 'ipv4'=>$VIP ); 
+			push @CMDS, \%CMD;
+			}
+
+		for my $CMD (@CMDS) {
+			$CMD->{'MID'} = $MID;
+			$CMD->{'USERNAME'} = $USERNAME;
+			}
+
+		#print STDERR Dumper(\@CMDS);
+
+		$LM->pooshmsg(sprintf("INFO|+We have %d commands for %d servers",scalar(@CMDS),scalar(@SERVERS)));
+		&PLATFORM::send_cmds($LM,\@CMDS,\@SERVERS);
 		}
-
-	for my $CMD (@CMDS) {
-		$CMD->{'MID'} = $MID;
-		$CMD->{'USERNAME'} = $USERNAME;
-		}
-
-	#print STDERR Dumper(\@CMDS);
-
-	$LM->pooshmsg(sprintf("INFO|+We have %d commands for %d servers",scalar(@CMDS),scalar(@SERVERS)));
-	&PLATFORM::send_cmds($LM,\@CMDS,\@SERVERS);
 
 	return($LM);
 	}

@@ -1445,19 +1445,29 @@ sub conversion_trackers_as_array {
 		push @OUT, [ 'omniture', $OUTPUT ]; 
 		}
 
+	$nsref->{'analytics:roi'} = '';
 	if ($nsref->{'analytics:roi'} ne 'GOOGLE') {
 		## NOT GOOGLE ROI 
 		}
 	elsif ($nsref->{'analytics:headjs'} =~ /pagetracker/is) {
 		$nsref->{'analytics:roi'} = 'GOOGLE-NONASYNC';
 		}
-	else {
+	elsif ($nsref->{'analytics:headjs'} =~ /\_gaq/) {
 		## NOTE: if you're changing this, you should also check ZPAY/GOOGLE.pm for the google checkout button that passes the coookie.
 		$nsref->{'analytics:roi'} = 'GOOGLE-ASYNC';
+		}
+	elsif ($nsref->{'analytics:headjs'} =~ /ga\(/) {
+		## UNIVERSAL ANALYTICS SHOULD BE RUN BY 1PC ONLY
+		$nsref->{'analytics:roi'} = 'GOOGLE-UNIVERSAL';
 		}
 
 
 	my $SDOMAIN = $self->sdomain();
+
+	if ($nsref->{'analytics:roi'} eq 'GOOGLE-UNIVERSAL') {
+		## app tracking
+		}
+
 	if ($nsref->{'analytics:roi'} eq 'GOOGLE-ASYNC') {
 #<script type="text/javascript">
 #  var _gaq = _gaq || [];

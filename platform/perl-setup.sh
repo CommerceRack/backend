@@ -238,7 +238,7 @@ cpanm XML::SAX;
 cpanm XML::Handler::Trees;
 cpanm XML::SAX::Expat;
 cpanm XML::Simple;
-cpanm XML::SAX::Simple;
+cpanm XML::SAX::Simple --force;
 cpanm Object::MultiType;
 cpanm XML::Smart;
 cpanm XML::Writer;
@@ -906,5 +906,14 @@ cpanm Mo::builder
 cpanm Net::AWS::SES
 
 cpanm Net::uwsgi
+cpanm Text::CSV_XS
+cpanm String::MkPasswd
+cpanm Git::Repository
+cpanm CSS::Inliner::Parser
+cpanm Data::Structure::Util
+
+cpanm HTML::FormatText::Html2text
+cpanm JSON::Path
+cpanm XML::Smart
 
  

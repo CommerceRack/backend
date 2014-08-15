@@ -3096,15 +3096,15 @@ sub SITE_SIDEBAR {
 		#	## end sidebar_showssl
 		#	}
 
-		if ((defined $SITE->globalref()->{'%kount'}) && ($SITE->globalref()->{'%kount'}->{'enable'})) {
-			## kount fraud screen will show up on sidebar.
-			require PLUGIN::KOUNT;
-			my ($pk) = PLUGIN::KOUNT->new($SITE->username(),prt=>$SITE->prt(),webdb=>$SITE->webdb());
-			# print STDERR "PK: $pk\n";
-			if (defined $pk) {
-				$out .= "%pre%\n<!-- KOUNT START --><center>\n".(($pk->is_live()==2)?'KOUNT-TEST':'').$pk->kaptcha($SITE::CART2->cartid(),$SITE->sdomain())."\n</center><!-- END KOUNT -->\n%post%";
-				}
-			}
+#		if ((defined $SITE->globalref()->{'%kount'}) && ($SITE->globalref()->{'%kount'}->{'enable'})) {
+#			## kount fraud screen will show up on sidebar.
+#			require PLUGIN::KOUNT;
+#			my ($pk) = PLUGIN::KOUNT->new($SITE->username(),prt=>$SITE->prt(),webdb=>$SITE->webdb());
+#			# print STDERR "PK: $pk\n";
+#			if (defined $pk) {
+#				$out .= "%pre%\n<!-- KOUNT START --><center>\n".(($pk->is_live()==2)?'KOUNT-TEST':'').$pk->kaptcha($SITE::CART2->cartid(),$SITE->sdomain())."\n</center><!-- END KOUNT -->\n%post%";
+#				}
+#			}
 		}
 
 	if (not defined $iniref->{'PRETEXT'}) {

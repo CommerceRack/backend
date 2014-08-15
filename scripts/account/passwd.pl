@@ -23,6 +23,10 @@ if (not $USERNAME || not $LUSER || not $PASS) {
 	}
 
 my ($udbh) = &DBINFO::db_user_connect($USERNAME);
+
+## CREATE:
+##  perl -e 'use lib "/backend/lib"; use DBINFO; my %vars = (); $vars{"MID"} = 60001; $vars{"USERNAME"}="campuscolors"; $vars{"LUSER"}="admin"; $vars{"CREATED_GMT"}=time(); $vars{"IS_ADMIN"}="Y"; $vars{"ROLES"}="BOSS;SUPER;";  $vars{"DATA"}="";  my ($udbh) = &DBINFO::db_user_connect("campuscolors"); &DBINFO::insert($udbh,"LUSERS",\%vars,verb=>"insert");
+
 my $pstmt = "select UID,PASSHASH,PASSSALT,count(*) from LUSERS where LUSER=".$udbh->quote($LUSER)."\n";
 my ($UID,$HASH,$SALT,$COUNT) = $udbh->selectrow_array($pstmt);
 

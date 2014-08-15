@@ -20,7 +20,9 @@ git clone https://github.com/commercerack/backend.git
 cd /backend/
 git clone https://github.com/commercerack/backend-static.git
 ln -s backend-static static
-
+cd /backend/static/zmvc
+./git-sync
+ln -s latest $VERSION
 
 ## set MOTD
 rm /etc/motd
@@ -256,10 +258,15 @@ nginx       hard    nofile  30000
 ln -s /backend/platform/etc-init.d-nginx /etc/init.d/nginx
 cd /usr/local/nginx/conf
 rm nginx.conf
+rm -Rf /usr/local/nginx/logs
+ln -s /local/logs /usr/local/nginx/logs
 ln -s /backend/platform/nginx/certs/ /usr/local/nginx
 ln -s /backend/platform/nginx/conf/nginx.conf .
 ln -s /backend/platform/nginx/conf/commercerack-locations.conf .
 mkdir vhosts
+
+## legacy path:
+ln -s /backend/ /httpd
 
 
 
@@ -837,6 +844,8 @@ mkdir -m 755 -p /local/nginx/logs
 mkdir -m 0775 /local/nginx-cache
 mkdir /local/logs
 ln -s /local/logs /backend/logs
+chmod 777 /local/logs
+
 
 
 
