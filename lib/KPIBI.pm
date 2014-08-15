@@ -1796,13 +1796,7 @@ sub new {
 	$self->{'_MID'} = $MID;
 	$self->{'_PRT'} = $PRT;
 	$self->{'*DBI'} = undef;
-	my $TBMID = $MID;
-	if ($MID%10000>0) { $TBMID = $MID -($MID % 10000); }		
-	$self->{'_KPITB'} = 'KPI_STATS_'.$TBMID;
-	if (&ZOOVY::myrelease($USERNAME)>201338) { 
-		$self->{'_KPITB'} = 'KPI_STATS';
-		}
-
+	$self->{'_KPITB'} = 'KPI_STATS';
 	bless $self, 'KPIBI';
 	return($self);
 	}
