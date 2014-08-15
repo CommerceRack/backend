@@ -2508,7 +2508,7 @@ sub prt {
 	return($_[0]->{'PRT'}); 
 	}
 sub mid { 
-	if (not defined $_[0]->{'MID'}) { 
+	if ((not defined $_[0]->{'MID'}) || ($_[0]->{'MID'} == 0)) { 
 		$_[0]->{'MID'} = &ZOOVY::resolve_mid($_[0]->username()); 
 		}
 	return($_[0]->{'MID'});  

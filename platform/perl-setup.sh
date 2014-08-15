@@ -328,7 +328,7 @@ cpanm YAML::XS
 
 cpanm Text::WikiCreole
 cpanm JSON::XS
-cpanm Date::Calc
+cpanm Date::Calc::XS
 cpanm Text::Wrap
 cpanm Digest::SHA1
 cpanm DIME::Payload
