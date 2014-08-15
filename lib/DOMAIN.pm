@@ -638,6 +638,12 @@ sub save {
 	$data{'EMAIL_CONFIG'} = &ZTOOLKIT::buildparams($self->{'%EMAIL'});
 	$data{'EMAIL_TYPE'} = $self->{'%EMAIL'}->{'TYPE'};
 
+	if ($self->{'DKIM_PRIVKEY'} eq '') { 
+		$self->get_dkim_keys();
+		$data{'DKIM_PRIVKEY'} = $self->{'DKIM_PRIVKEY'};
+		$data{'DKIM_PUBKEY'} = $self->{'DKIM_PUBKEY'};
+		}
+
 	my ($pstmt) = &DBINFO::insert($udbh,'DOMAINS',\%data,key=>['MID','DOMAIN','ID'],debug=>1,sql=>1);
 	## print STDERR "$pstmt\n";
 	$udbh->do($pstmt);
