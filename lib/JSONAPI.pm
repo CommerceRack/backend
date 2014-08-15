@@ -2063,6 +2063,10 @@ sub psgiinit {
 		$self->{'USERNAME'} = $DNSINFO->{'USERNAME'};
 		$self->{'USERID'} = $v->{'_userid'} || $HEADERS->header('x-userid') || "";
 		}
+	elsif (CFG->new()->get('global','username')) {
+		## set in /etc/commercerack.ini
+		$self->{'USERNAME'} = CFG->get('global','username');
+		}
  	elsif ($plackreq->env()->{'HTTP_HOST'} =~ /^[\d]+\.[\d]+\.[\d]+\.[\d]+\:9000/) {
       $self->{'USERID'} = $v->{'_userid'} || $HEADERS->header('x-userid') || "";
       ## look through the @cmds for an authAdminLogin - get userid from that.
