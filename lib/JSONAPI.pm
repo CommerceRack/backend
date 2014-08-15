@@ -16857,8 +16857,15 @@ sub bossUser {
 			$UREF{'IS_ADMIN'} = 'N';
 			if ($UREF{'ROLES'} =~ /;(SUPER|BOSS|AD1);/) { $UREF{'IS_ADMIN'} = 'Y'; }
 
+			if ($v->{'_cmd'} eq 'bossUserUpdate') {
+				my $pstmt = sprintf("select count(*) from LUSERS where MID=%d and LUSER=",$self->mid(),$udbh->quote($LOGIN));
+				my ($exists) = $udbh->selectrow_array($pstmt);
+				if (not $exists) { $v->{'_cmd'} = 'bossUserCreate'; }
+				}
+
 			if ($v->{'_cmd'} eq 'bossUserCreate') {
 				$self->accesslog('SETUP.USERMGR',"ACTION: CREATE SUB-USER: $LOGIN",'INFO');
+				if (not defined $UREF{'DATA'}) { $UREF{'DATA'} = ''; }
 				my $pstmt = &DBINFO::insert($udbh,'LUSERS',\%UREF,'verb'=>'insert','sql'=>1);
 				print STDERR "$pstmt\n";
 				$udbh->do($pstmt);
