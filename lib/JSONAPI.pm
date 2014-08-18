@@ -6606,6 +6606,21 @@ sub adminSupplier {
 				print STDERR "$pstmt\n";
 				&JSONAPI::dbh_do(\%R,$udbh,$pstmt);				
 				}
+	       elsif ($VERB eq 'ORDER:FIXERROR') {
+				## only orders which arae hold
+				my ($OID) = $pref->{'orderid'};
+				my $qtOID = $udbh->quote($OID);
+				my $pstmt = "update VENDOR_ORDERS set STATUS='OPEN' where STATUS='ERROR' and MID=$MID /* $USERNAME */ and OUR_ORDERID=$qtOID";
+				print STDERR $pstmt."\n";
+				$self->accesslog('SUPPLIER.ORDERS.FIXERROR',"[ORDER: $OID] was reset from ERROR to OPEN",'INFO');
+				my ($rv) = &JSONAPI::dbh_do(\%R,$udbh,$pstmt);
+				if ($rv==1) {
+				   push @MSGS, "SUCCESS|FIXERROR ORDER: $OID";
+				   }
+				else {
+				   &JSONAPI::set_error(\%R,'apperr',4900,"APPROVE FAILURE ON ORDER: $OID");
+					}
+				}
 			elsif ($VERB eq 'ORDER:APPROVE') {
 				## only orders which arae hold
 				my ($OID) = $pref->{'orderid'};
