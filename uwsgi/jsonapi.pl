@@ -446,8 +446,8 @@ my $app = sub {
 			($R,my $cmdlines) = $JSAPI->handle($v);
 			}
 
-		if ($JSAPI->username() eq 'sporks') {
-			use Data::Dumper; open F, ">>/tmp/sporks"; print F Dumper(time(),$v,$R); close F;
+		if (-f '/dev/shm/debug.api') {
+			use Data::Dumper; open F, ">>/tmp/debug.api.log"; print F Dumper(time(),$v,$R); close F;
 			}
 				
 		my $utf8_encoded_json_text = JSON::XS->new->utf8->allow_blessed(1)->convert_blessed(1)->encode($R);
