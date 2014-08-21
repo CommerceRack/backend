@@ -11983,6 +11983,11 @@ sub adminSyndication {
 		push @FIELDS, { type=>'checkbox', id=>'.include_shipping' };
 		push @FIELDS, { type=>'checkbox', id=>'.ignore_validation' };
 		push @FIELDS, { type=>'textbox', id=>'.linkstyle' };
+		push @FIELDS, { type=>'textbox', name=>".custom_label_0_attrib", id=>'Custom Label #0 Attribute' };
+		push @FIELDS, { type=>'textbox', name=>".custom_label_1_attrib", id=>'Custom Label #1 Attribute' };
+		push @FIELDS, { type=>'textbox', name=>".custom_label_2_attrib", id=>'Custom Label #2 Attribute' };
+		push @FIELDS, { type=>'textbox', name=>".custom_label_3_attrib", id=>'Custom Label #3 Attribute' };
+		push @FIELDS, { type=>'textbox', name=>".custom_label_4_attrib", id=>'Custom Label #4 Attribute' };
 		}
 	elsif ($MKT eq 'BZR') {
 		($DST,$MARKETPLACE) = ('BZR','Shopzilla');
@@ -12227,6 +12232,11 @@ sub adminSyndication {
 			$R{'navcat_skiplists'} = (($s{'.feed_options'}&4)>0)?1:0;
 			$R{'include_shippping'} = (($s{'.include_shipping'}&1)>0)?1:0;
 			$R{'ignore_validation'} = (($s{'.ignore_validation'}&1)>0)?1:0;
+			$R{'custom_label_0_attrib'} = $s{'.custom_label_0_attrib'};
+			$R{'custom_label_1_attrib'} = $s{'.custom_label_1_attrib'};
+			$R{'custom_label_2_attrib'} = $s{'.custom_label_2_attrib'};
+			$R{'custom_label_3_attrib'} = $s{'.custom_label_3_attrib'};
+			$R{'custom_label_4_attrib'} = $s{'.custom_label_4_attrib'};
 			# $s{'.ignore_validation'} = 0;
 			}	
 
@@ -12473,6 +12483,9 @@ sub adminSyndication {
 					$s{'.include_shipping'} = (&ZOOVY::is_true($params->{'include_shipping'}))?1:0;
 					$s{'.ignore_validation'} = (&ZOOVY::is_true($params->{'ignore_validation'}))?1:0;
 					$s{'.trusted_feed'} = (&ZOOVY::is_true($params->{'trusted_feed'}))?1:0;
+					foreach my $i (0..4) {
+						$s{".custom_label_$i\_attrib"} = $params->{"custom_label_$i\_attrib"};
+						}
 					}
 
 				if ($DST eq 'AMZ') {
