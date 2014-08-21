@@ -1,0 +1,2416 @@
+$VAR1 = {
+          '_TREE' => {
+                       '0' => [
+                                '141',
+                                '146',
+                                '148',
+                                '330',
+                                '36',
+                                '188',
+                                '191',
+                                '193',
+                                '194',
+                                '195',
+                                '196',
+                                '5',
+                                '6',
+                                '298',
+                                '7',
+                                '3',
+                                '8',
+                                '355',
+                                '357',
+                                '358',
+                                '359',
+                                '360',
+                                '63',
+                                '66',
+                                '67',
+                                '68',
+                                '69',
+                                '192',
+                                '356',
+                                '4',
+                                '64',
+                                '317',
+                                '18',
+                                '245',
+                                '288',
+                                '106',
+                                '117',
+                                '153',
+                                '157',
+                                '189',
+                                '20',
+                                '206',
+                                '207',
+                                '212',
+                                '23',
+                                '240',
+                                '248',
+                                '255',
+                                '266',
+                                '269',
+                                '271',
+                                '277',
+                                '284',
+                                '285',
+                                '290',
+                                '310',
+                                '338',
+                                '44',
+                                '52',
+                                '55',
+                                '62',
+                                '80',
+                                '82',
+                                '85',
+                                '97',
+                                '12',
+                                '120',
+                                '154',
+                                '170',
+                                '22',
+                                '286',
+                                '291',
+                                '312',
+                                '336',
+                                '337',
+                                '35',
+                                '58',
+                                '76',
+                                '77',
+                                '102',
+                                '107',
+                                '11',
+                                '115',
+                                '126',
+                                '158',
+                                '163',
+                                '166',
+                                '197',
+                                '2',
+                                '202',
+                                '204',
+                                '208',
+                                '311',
+                                '351',
+                                '78',
+                                '98',
+                                '131',
+                                '152',
+                                '167',
+                                '168',
+                                '178',
+                                '200',
+                                '205',
+                                '211',
+                                '215',
+                                '260',
+                                '272',
+                                '274',
+                                '276',
+                                '306',
+                                '39',
+                                '48',
+                                '65',
+                                '71',
+                                '79',
+                                '88',
+                                '9',
+                                '91',
+                                '10',
+                                '173',
+                                '203',
+                                '252',
+                                '268',
+                                '316',
+                                '352',
+                                '220',
+                                '221',
+                                '292',
+                                '100',
+                                '334',
+                                '40',
+                                '50',
+                                '110',
+                                '372',
+                                '112',
+                                '25',
+                                '26',
+                                '42',
+                                '59',
+                                '377',
+                                '376',
+                                '375',
+                                '374',
+                                '378',
+                                '373',
+                                '149',
+                                '1',
+                                '343',
+                                '56',
+                                '261',
+                                '60',
+                                '380',
+                                '177',
+                                '96',
+                                '174',
+                                '190',
+                                '381',
+                                '54',
+                                '105',
+                                '138',
+                                '210',
+                                '92',
+                                '313',
+                                '382',
+                                '201',
+                                '222',
+                                '223',
+                                '250',
+                                '379',
+                                '264',
+                                '267',
+                                '305',
+                                '327',
+                                '328',
+                                '129',
+                                '307',
+                                '224',
+                                '225',
+                                '87',
+                                '134',
+                                '123',
+                                '213',
+                                '254',
+                                '282',
+                                '319',
+                                '114',
+                                '144',
+                                '151',
+                                '186',
+                                '187',
+                                '226',
+                                '227',
+                                '297',
+                                '344',
+                                '84',
+                                '93',
+                                '181',
+                                '33',
+                                '333',
+                                '72',
+                                '103',
+                                '135',
+                                '136',
+                                '17',
+                                '199',
+                                '249',
+                                '304',
+                                '323',
+                                '34',
+                                '43',
+                                '94',
+                                '127',
+                                '175',
+                                '180',
+                                '243',
+                                '258',
+                                '273',
+                                '279',
+                                '28',
+                                '322',
+                                '353',
+                                '70',
+                                '86',
+                                '89',
+                                '238',
+                                '241',
+                                '270',
+                                '139',
+                                '143',
+                                '179',
+                                '218',
+                                '228',
+                                '229',
+                                '37',
+                                '198',
+                                '331',
+                                '342',
+                                '346',
+                                '347',
+                                '38',
+                                '47',
+                                '75',
+                                '116',
+                                '122',
+                                '171',
+                                '182',
+                                '230',
+                                '231',
+                                '348',
+                                '383',
+                                '121',
+                                '137',
+                                '16',
+                                '324',
+                                '61',
+                                '95',
+                                '130',
+                                '185',
+                                '216',
+                                '232',
+                                '233',
+                                '242',
+                                '247',
+                                '263',
+                                '318',
+                                '364',
+                                '253',
+                                '99',
+                                '125',
+                                '251',
+                                '309',
+                                '349',
+                                '365',
+                                '113',
+                                '118',
+                                '132',
+                                '142',
+                                '155',
+                                '159',
+                                '161',
+                                '162',
+                                '164',
+                                '244',
+                                '265',
+                                '275',
+                                '278',
+                                '280',
+                                '29',
+                                '295',
+                                '296',
+                                '30',
+                                '300',
+                                '301',
+                                '302',
+                                '320',
+                                '321',
+                                '325',
+                                '326',
+                                '329',
+                                '335',
+                                '345',
+                                '354',
+                                '362',
+                                '41',
+                                '45',
+                                '46',
+                                '90',
+                                '124',
+                                '160',
+                                '165',
+                                '217',
+                                '234',
+                                '235',
+                                '239',
+                                '281',
+                                '57',
+                                '73',
+                                '101',
+                                '109',
+                                '184',
+                                '257',
+                                '294',
+                                '314',
+                                '49',
+                                '53',
+                                '104',
+                                '108',
+                                '140',
+                                '145',
+                                '172',
+                                '176',
+                                '209',
+                                '236',
+                                '237',
+                                '259',
+                                '262',
+                                '283',
+                                '287',
+                                '289',
+                                '308',
+                                '315',
+                                '350',
+                                '361',
+                                '51'
+                              ]
+                     },
+          '_INFO' => {
+                       '127' => {
+                                  'Path' => 'Home & Garden / Home Décor / Flooring',
+                                  'isLeaf' => 1,
+                                  'Name' => 'Home & Garden / Home Décor / Flooring',
+                                  'Parent' => '127'
+                                },
+                       '276' => {
+                                  'Path' => 'Arts & Entertainment / Music / Rock',
+                                  'isLeaf' => 1,
+                                  'Name' => 'Arts & Entertainment / Music / Rock',
+                                  'Parent' => '276'
+                                },
+                       '90' => {
+                                 'Path' => 'Sports & Outdoors / Individual Sports / Cycling',
+                                 'isLeaf' => 1,
+                                 'Name' => 'Sports & Outdoors / Individual Sports / Cycling',
+                                 'Parent' => '90'
+                               },
+                       '206' => {
+                                  'Path' => 'Arts & Entertainment / Books / Music',
+                                  'isLeaf' => 1,
+                                  'Name' => 'Arts & Entertainment / Books / Music',
+                                  'Parent' => '206'
+                                },
+                       '71' => {
+                                 'Path' => 'Arts & Entertainment / Music / Classical',
+                                 'isLeaf' => 1,
+                                 'Name' => 'Arts & Entertainment / Music / Classical',
+                                 'Parent' => '71'
+                               },
+                       '118' => {
+                                  'Path' => 'Sports & Outdoors / Individual Sports / Field Hockey',
+                                  'isLeaf' => 1,
+                                  'Name' => 'Sports & Outdoors / Individual Sports / Field Hockey',
+                                  'Parent' => '118'
+                                },
+                       '102' => {
+                                  'Path' => 'Arts & Entertainment / Movies / Drama',
+                                  'isLeaf' => 1,
+                                  'Name' => 'Arts & Entertainment / Movies / Drama',
+                                  'Parent' => '102'
+                                },
+                       '358' => {
+                                  'Path' => 'Apparel / Clothing / Shirts and Tops - Women',
+                                  'isLeaf' => 1,
+                                  'Name' => 'Apparel / Clothing / Shirts and Tops - Women',
+                                  'Parent' => '358'
+                                },
+                       '331' => {
+                                  'Path' => 'Home & Garden / Small Appliances / Toasters',
+                                  'isLeaf' => 1,
+                                  'Name' => 'Home & Garden / Small Appliances / Toasters',
+                                  'Parent' => '331'
+                                },
+                       '16' => {
+                                 'Path' => 'Office / Office Furniture / Armoires and Bookcases and Shelving',
+                                 'isLeaf' => 1,
+                                 'Name' => 'Office / Office Furniture / Armoires and Bookcases and Shelving',
+                                 'Parent' => '16'
+                               },
+                       '55' => {
+                                 'Path' => 'Arts & Entertainment / Books / Calendars',
+                                 'isLeaf' => 1,
+                                 'Name' => 'Arts & Entertainment / Books / Calendars',
+                                 'Parent' => '55'
+                               },
+                       '84' => {
+                                 'Path' => 'Health & Beauty / Personal Care / Contact Lenses',
+                                 'isLeaf' => 1,
+                                 'Name' => 'Health & Beauty / Personal Care / Contact Lenses',
+                                 'Parent' => '84'
+                               },
+                       '233' => {
+                                  'Path' => 'Office / Office Supplies / Office - Other',
+                                  'isLeaf' => 1,
+                                  'Name' => 'Office / Office Supplies / Office - Other',
+                                  'Parent' => '233'
+                                },
+                       '194' => {
+                                  'Path' => 'Apparel / Clothing / Shirts and Tops - Men',
+                                  'isLeaf' => 1,
+                                  'Name' => 'Apparel / Clothing / Shirts and Tops - Men',
+                                  'Parent' => '194'
+                                },
+                       '57' => {
+                                 'Path' => 'Sports & Outdoors / Outdoor & Recreation / Camping Gear',
+                                 'isLeaf' => 1,
+                                 'Name' => 'Sports & Outdoors / Outdoor & Recreation / Camping Gear',
+                                 'Parent' => '57'
+                               },
+                       '259' => {
+                                  'Path' => 'Tools & Hardware / Tools & Hardware / Plumbing Tools',
+                                  'isLeaf' => 1,
+                                  'Name' => 'Tools & Hardware / Tools & Hardware / Plumbing Tools',
+                                  'Parent' => '259'
+                                },
+                       '220' => {
+                                  'Path' => 'Arts & Entertainment / Other Arts & Entertainment / Arts and Entertainment Accessories',
+                                  'isLeaf' => 1,
+                                  'Name' => 'Arts & Entertainment / Other Arts & Entertainment / Arts and Entertainment Accessories',
+                                  'Parent' => '220'
+                                },
+                       '316' => {
+                                  'Path' => 'Arts & Entertainment / Musical Instruments / Stringed Instruments',
+                                  'isLeaf' => 1,
+                                  'Name' => 'Arts & Entertainment / Musical Instruments / Stringed Instruments',
+                                  'Parent' => '316'
+                                },
+                       '163' => {
+                                  'Path' => 'Arts & Entertainment / Movies / Independent',
+                                  'isLeaf' => 1,
+                                  'Name' => 'Arts & Entertainment / Movies / Independent',
+                                  'Parent' => '163'
+                                },
+                       '89' => {
+                                 'Path' => 'Home & Garden / Home Décor / Cushions and Home Accents',
+                                 'isLeaf' => 1,
+                                 'Name' => 'Home & Garden / Home Décor / Cushions and Home Accents',
+                                 'Parent' => '89'
+                               },
+                       '175' => {
+                                  'Path' => 'Home & Garden / Home Décor / Kitchen and Dining',
+                                  'isLeaf' => 1,
+                                  'Name' => 'Home & Garden / Home Décor / Kitchen and Dining',
+                                  'Parent' => '175'
+                                },
+                       '35' => {
+                                 'Path' => 'Arts & Entertainment / Hobbies & Collectibles / Beer and Wine Making',
+                                 'isLeaf' => 1,
+                                 'Name' => 'Arts & Entertainment / Hobbies & Collectibles / Beer and Wine Making',
+                                 'Parent' => '35'
+                               },
+                       '11' => {
+                                 'Path' => 'Arts & Entertainment / Movies / Animation',
+                                 'isLeaf' => 1,
+                                 'Name' => 'Arts & Entertainment / Movies / Animation',
+                                 'Parent' => '11'
+                               },
+                       '208' => {
+                                  'Path' => 'Arts & Entertainment / Movies / Mystery and Suspense',
+                                  'isLeaf' => 1,
+                                  'Name' => 'Arts & Entertainment / Movies / Mystery and Suspense',
+                                  'Parent' => '208'
+                                },
+                       '347' => {
+                                  'Path' => 'Home & Garden / Small Appliances / Washing Machines and Dryers',
+                                  'isLeaf' => 1,
+                                  'Name' => 'Home & Garden / Small Appliances / Washing Machines and Dryers',
+                                  'Parent' => '347'
+                                },
+                       '93' => {
+                                 'Path' => 'Health & Beauty / Personal Care / Dental and Oral Care',
+                                 'isLeaf' => 1,
+                                 'Name' => 'Health & Beauty / Personal Care / Dental and Oral Care',
+                                 'Parent' => '93'
+                               },
+                       '292' => {
+                                  'Path' => 'Arts & Entertainment / Sheet Music / Sheet Music',
+                                  'isLeaf' => 1,
+                                  'Name' => 'Arts & Entertainment / Sheet Music / Sheet Music',
+                                  'Parent' => '292'
+                                },
+                       '378' => {
+                                  'Path' => 'Baby / Other Baby / Other Baby',
+                                  'isLeaf' => 1,
+                                  'Name' => 'Baby / Other Baby / Other Baby',
+                                  'Parent' => '378'
+                                },
+                       '29' => {
+                                 'Path' => 'Sports & Outdoors / Individual Sports / Baseball and Softball',
+                                 'isLeaf' => 1,
+                                 'Name' => 'Sports & Outdoors / Individual Sports / Baseball and Softball',
+                                 'Parent' => '29'
+                               },
+                       '325' => {
+                                  'Path' => 'Sports & Outdoors / Individual Sports / Team Sports',
+                                  'isLeaf' => 1,
+                                  'Name' => 'Sports & Outdoors / Individual Sports / Team Sports',
+                                  'Parent' => '325'
+                                },
+                       '350' => {
+                                  'Path' => 'Tools & Hardware / Tools & Hardware / Welding',
+                                  'isLeaf' => 1,
+                                  'Name' => 'Tools & Hardware / Tools & Hardware / Welding',
+                                  'Parent' => '350'
+                                },
+                       '291' => {
+                                  'Path' => 'Arts & Entertainment / Hobbies & Collectibles / Sewing and Needlework',
+                                  'isLeaf' => 1,
+                                  'Name' => 'Arts & Entertainment / Hobbies & Collectibles / Sewing and Needlework',
+                                  'Parent' => '291'
+                                },
+                       '374' => {
+                                  'Path' => 'Baby / Cribs / Cribs',
+                                  'isLeaf' => 1,
+                                  'Name' => 'Baby / Cribs / Cribs',
+                                  'Parent' => '374'
+                                },
+                       '114' => {
+                                  'Path' => 'Health & Beauty / Personal Care / Eyeglasses',
+                                  'isLeaf' => 1,
+                                  'Name' => 'Health & Beauty / Personal Care / Eyeglasses',
+                                  'Parent' => '114'
+                                },
+                       '199' => {
+                                  'Path' => 'Home & Garden / Furniture / Misc. Furniture',
+                                  'isLeaf' => 1,
+                                  'Name' => 'Home & Garden / Furniture / Misc. Furniture',
+                                  'Parent' => '199'
+                                },
+                       '58' => {
+                                 'Path' => 'Arts & Entertainment / Hobbies & Collectibles / Candle and Soap Making',
+                                 'isLeaf' => 1,
+                                 'Name' => 'Arts & Entertainment / Hobbies & Collectibles / Candle and Soap Making',
+                                 'Parent' => '58'
+                               },
+                       '226' => {
+                                  'Path' => 'Health & Beauty / Personal Care / Health and Beauty Accessories',
+                                  'isLeaf' => 1,
+                                  'Name' => 'Health & Beauty / Personal Care / Health and Beauty Accessories',
+                                  'Parent' => '226'
+                                },
+                       '153' => {
+                                  'Path' => 'Arts & Entertainment / Books / History',
+                                  'isLeaf' => 1,
+                                  'Name' => 'Arts & Entertainment / Books / History',
+                                  'Parent' => '153'
+                                },
+                       '211' => {
+                                  'Path' => 'Arts & Entertainment / Music / New Age',
+                                  'isLeaf' => 1,
+                                  'Name' => 'Arts & Entertainment / Music / New Age',
+                                  'Parent' => '211'
+                                },
+                       '337' => {
+                                  'Path' => 'Arts & Entertainment / Hobbies & Collectibles / Trains and Models',
+                                  'isLeaf' => 1,
+                                  'Name' => 'Arts & Entertainment / Hobbies & Collectibles / Trains and Models',
+                                  'Parent' => '337'
+                                },
+                       '382' => {
+                                  'Path' => 'Electronics / Laptop Accessories / Laptop Accessories',
+                                  'isLeaf' => 1,
+                                  'Name' => 'Electronics / Laptop Accessories / Laptop Accessories',
+                                  'Parent' => '382'
+                                },
+                       '73' => {
+                                 'Path' => 'Sports & Outdoors / Outdoor & Recreation / Climbing and Hiking',
+                                 'isLeaf' => 1,
+                                 'Name' => 'Sports & Outdoors / Outdoor & Recreation / Climbing and Hiking',
+                                 'Parent' => '73'
+                               },
+                       '101' => {
+                                  'Path' => 'Tools & Hardware / Home Improvement / Doors and Windows',
+                                  'isLeaf' => 1,
+                                  'Name' => 'Tools & Hardware / Home Improvement / Doors and Windows',
+                                  'Parent' => '101'
+                                },
+                       '76' => {
+                                 'Path' => 'Arts & Entertainment / Hobbies & Collectibles / Coins',
+                                 'isLeaf' => 1,
+                                 'Name' => 'Arts & Entertainment / Hobbies & Collectibles / Coins',
+                                 'Parent' => '76'
+                               },
+                       '62' => {
+                                 'Path' => 'Arts & Entertainment / Books / Children',
+                                 'isLeaf' => 1,
+                                 'Name' => 'Arts & Entertainment / Books / Children',
+                                 'Parent' => '62'
+                               },
+                       '311' => {
+                                  'Path' => 'Arts & Entertainment / Movies / Sports',
+                                  'isLeaf' => 1,
+                                  'Name' => 'Arts & Entertainment / Movies / Sports',
+                                  'Parent' => '311'
+                                },
+                       '67' => {
+                                 'Path' => 'Apparel / Clothing / Shirts and Tops - Children',
+                                 'isLeaf' => 1,
+                                 'Name' => 'Apparel / Clothing / Shirts and Tops - Children',
+                                 'Parent' => '67'
+                               },
+                       '241' => {
+                                  'Path' => 'Home & Garden / Large Appliances / Ovens',
+                                  'isLeaf' => 1,
+                                  'Name' => 'Home & Garden / Large Appliances / Ovens',
+                                  'Parent' => '241'
+                                },
+                       '139' => {
+                                  'Path' => 'Home & Garden / Lawn & Garden / Garden and Patio',
+                                  'isLeaf' => 1,
+                                  'Name' => 'Home & Garden / Lawn & Garden / Garden and Patio',
+                                  'Parent' => '139'
+                                },
+                       '198' => {
+                                  'Path' => 'Home & Garden / Small Appliances / Misc. Appliances',
+                                  'isLeaf' => 1,
+                                  'Name' => 'Home & Garden / Small Appliances / Misc. Appliances',
+                                  'Parent' => '198'
+                                },
+                       '129' => {
+                                  'Path' => 'Flowers & Gifts / Flowers & Plants / Flowers',
+                                  'isLeaf' => 1,
+                                  'Name' => 'Flowers & Gifts / Flowers & Plants / Flowers',
+                                  'Parent' => '129'
+                                },
+                       '327' => {
+                                  'Path' => 'Electronics / Telephones / Telephones',
+                                  'isLeaf' => 1,
+                                  'Name' => 'Electronics / Telephones / Telephones',
+                                  'Parent' => '327'
+                                },
+                       '320' => {
+                                  'Path' => 'Sports & Outdoors / Individual Sports / Surfing',
+                                  'isLeaf' => 1,
+                                  'Name' => 'Sports & Outdoors / Individual Sports / Surfing',
+                                  'Parent' => '320'
+                                },
+                       '280' => {
+                                  'Path' => 'Sports & Outdoors / Individual Sports / Running',
+                                  'isLeaf' => 1,
+                                  'Name' => 'Sports & Outdoors / Individual Sports / Running',
+                                  'Parent' => '280'
+                                },
+                       '273' => {
+                                  'Path' => 'Home & Garden / Home Décor / Remodeling and Decor',
+                                  'isLeaf' => 1,
+                                  'Name' => 'Home & Garden / Home Décor / Remodeling and Decor',
+                                  'Parent' => '273'
+                                },
+                       '236' => {
+                                  'Path' => 'Tools & Hardware / Tools & Hardware / Tools and Hardware Accessories',
+                                  'isLeaf' => 1,
+                                  'Name' => 'Tools & Hardware / Tools & Hardware / Tools and Hardware Accessories',
+                                  'Parent' => '236'
+                                },
+                       '202' => {
+                                  'Path' => 'Arts & Entertainment / Movies / Movies',
+                                  'isLeaf' => 1,
+                                  'Name' => 'Arts & Entertainment / Movies / Movies',
+                                  'Parent' => '202'
+                                },
+                       '168' => {
+                                  'Path' => 'Arts & Entertainment / Music / Jazz',
+                                  'isLeaf' => 1,
+                                  'Name' => 'Arts & Entertainment / Music / Jazz',
+                                  'Parent' => '168'
+                                },
+                       '249' => {
+                                  'Path' => 'Home & Garden / Furniture / Patio Furniture',
+                                  'isLeaf' => 1,
+                                  'Name' => 'Home & Garden / Furniture / Patio Furniture',
+                                  'Parent' => '249'
+                                },
+                       '218' => {
+                                  'Path' => 'Home & Garden / Lawn & Garden / Ornaments',
+                                  'isLeaf' => 1,
+                                  'Name' => 'Home & Garden / Lawn & Garden / Ornaments',
+                                  'Parent' => '218'
+                                },
+                       '361' => {
+                                  'Path' => 'Tools & Hardware / Tools & Hardware / Woodworking and Carpentry Tools',
+                                  'isLeaf' => 1,
+                                  'Name' => 'Tools & Hardware / Tools & Hardware / Woodworking and Carpentry Tools',
+                                  'Parent' => '361'
+                                },
+                       '135' => {
+                                  'Path' => 'Home & Garden / Furniture / Furniture Sets',
+                                  'isLeaf' => 1,
+                                  'Name' => 'Home & Garden / Furniture / Furniture Sets',
+                                  'Parent' => '135'
+                                },
+                       '184' => {
+                                  'Path' => 'Tools & Hardware / Home Improvement / Lumber and Wood Products',
+                                  'isLeaf' => 1,
+                                  'Name' => 'Tools & Hardware / Home Improvement / Lumber and Wood Products',
+                                  'Parent' => '184'
+                                },
+                       '348' => {
+                                  'Path' => 'Jewelry / Watches / Watches',
+                                  'isLeaf' => 1,
+                                  'Name' => 'Jewelry / Watches / Watches',
+                                  'Parent' => '348'
+                                },
+                       '145' => {
+                                  'Path' => 'Tools & Hardware / Tools & Hardware / Hand Tools',
+                                  'isLeaf' => 1,
+                                  'Name' => 'Tools & Hardware / Tools & Hardware / Hand Tools',
+                                  'Parent' => '145'
+                                },
+                       '49' => {
+                                 'Path' => 'Tools & Hardware / Home Improvement / Building Materials',
+                                 'isLeaf' => 1,
+                                 'Name' => 'Tools & Hardware / Home Improvement / Building Materials',
+                                 'Parent' => '49'
+                               },
+                       '178' => {
+                                  'Path' => 'Arts & Entertainment / Music / Latin',
+                                  'isLeaf' => 1,
+                                  'Name' => 'Arts & Entertainment / Music / Latin',
+                                  'Parent' => '178'
+                                },
+                       '285' => {
+                                  'Path' => 'Arts & Entertainment / Books / Science Fiction',
+                                  'isLeaf' => 1,
+                                  'Name' => 'Arts & Entertainment / Books / Science Fiction',
+                                  'Parent' => '285'
+                                },
+                       '140' => {
+                                  'Path' => 'Tools & Hardware / Tools & Hardware / Generators and Air Tools',
+                                  'isLeaf' => 1,
+                                  'Name' => 'Tools & Hardware / Tools & Hardware / Generators and Air Tools',
+                                  'Parent' => '140'
+                                },
+                       '124' => {
+                                  'Path' => 'Sports & Outdoors / Outdoor & Recreation / First Aid',
+                                  'isLeaf' => 1,
+                                  'Name' => 'Sports & Outdoors / Outdoor & Recreation / First Aid',
+                                  'Parent' => '124'
+                                },
+                       '104' => {
+                                  'Path' => 'Tools & Hardware / Tools & Hardware / Drills',
+                                  'isLeaf' => 1,
+                                  'Name' => 'Tools & Hardware / Tools & Hardware / Drills',
+                                  'Parent' => '104'
+                                },
+                       '131' => {
+                                  'Path' => 'Arts & Entertainment / Music / Folk',
+                                  'isLeaf' => 1,
+                                  'Name' => 'Arts & Entertainment / Music / Folk',
+                                  'Parent' => '131'
+                                },
+                       '181' => {
+                                  'Path' => 'Home & Garden / Bed & Bath / Linens and Bedding',
+                                  'isLeaf' => 1,
+                                  'Name' => 'Home & Garden / Bed & Bath / Linens and Bedding',
+                                  'Parent' => '181'
+                                },
+                       '234' => {
+                                  'Path' => 'Sports & Outdoors / Outdoor & Recreation / Sports and Outdoor Equipment Accessories',
+                                  'isLeaf' => 1,
+                                  'Name' => 'Sports & Outdoors / Outdoor & Recreation / Sports and Outdoor Equipment Accessories',
+                                  'Parent' => '234'
+                                },
+                       '307' => {
+                                  'Path' => 'Flowers & Gifts / Food & Wine / Specialty Foods',
+                                  'isLeaf' => 1,
+                                  'Name' => 'Flowers & Gifts / Food & Wine / Specialty Foods',
+                                  'Parent' => '307'
+                                },
+                       '314' => {
+                                  'Path' => 'Tools & Hardware / Home Improvement / Stone and Masonry',
+                                  'isLeaf' => 1,
+                                  'Name' => 'Tools & Hardware / Home Improvement / Stone and Masonry',
+                                  'Parent' => '314'
+                                },
+                       '154' => {
+                                  'Path' => 'Arts & Entertainment / Hobbies & Collectibles / Hobbies',
+                                  'isLeaf' => 1,
+                                  'Name' => 'Arts & Entertainment / Hobbies & Collectibles / Hobbies',
+                                  'Parent' => '154'
+                                },
+                       '23' => {
+                                 'Path' => 'Arts & Entertainment / Books / Audiobooks',
+                                 'isLeaf' => 1,
+                                 'Name' => 'Arts & Entertainment / Books / Audiobooks',
+                                 'Parent' => '23'
+                               },
+                       '96' => {
+                                 'Path' => 'Electronics / Computers / Desktop',
+                                 'isLeaf' => 1,
+                                 'Name' => 'Electronics / Computers / Desktop',
+                                 'Parent' => '96'
+                               },
+                       '364' => {
+                                  'Path' => 'Office / Office Supplies / Writing Utensils',
+                                  'isLeaf' => 1,
+                                  'Name' => 'Office / Office Supplies / Writing Utensils',
+                                  'Parent' => '364'
+                                },
+                       '355' => {
+                                  'Path' => 'Apparel / Clothing / Coats and Jackets - Women',
+                                  'isLeaf' => 1,
+                                  'Name' => 'Apparel / Clothing / Coats and Jackets - Women',
+                                  'Parent' => '355'
+                                },
+                       '159' => {
+                                  'Path' => 'Sports & Outdoors / Individual Sports / Hunting and Fishing',
+                                  'isLeaf' => 1,
+                                  'Name' => 'Sports & Outdoors / Individual Sports / Hunting and Fishing',
+                                  'Parent' => '159'
+                                },
+                       '326' => {
+                                  'Path' => 'Sports & Outdoors / Individual Sports / Team Uniforms',
+                                  'isLeaf' => 1,
+                                  'Name' => 'Sports & Outdoors / Individual Sports / Team Uniforms',
+                                  'Parent' => '326'
+                                },
+                       '160' => {
+                                  'Path' => 'Sports & Outdoors / Outdoor & Recreation / Hydration',
+                                  'isLeaf' => 1,
+                                  'Name' => 'Sports & Outdoors / Outdoor & Recreation / Hydration',
+                                  'Parent' => '160'
+                                },
+                       '47' => {
+                                 'Path' => 'Home & Garden / Small Appliances / Breadmakers',
+                                 'isLeaf' => 1,
+                                 'Name' => 'Home & Garden / Small Appliances / Breadmakers',
+                                 'Parent' => '47'
+                               },
+                       '8' => {
+                                'Path' => 'Apparel / Clothing / Underwear and Socks and Hosiery - Other',
+                                'isLeaf' => 1,
+                                'Name' => 'Apparel / Clothing / Underwear and Socks and Hosiery - Other',
+                                'Parent' => '8'
+                              },
+                       '98' => {
+                                 'Path' => 'Arts & Entertainment / Movies / Documentary',
+                                 'isLeaf' => 1,
+                                 'Name' => 'Arts & Entertainment / Movies / Documentary',
+                                 'Parent' => '98'
+                               },
+                       '37' => {
+                                 'Path' => 'Home & Garden / Lawn & Garden / Birdfeeders and Birdhouses',
+                                 'isLeaf' => 1,
+                                 'Name' => 'Home & Garden / Lawn & Garden / Birdfeeders and Birdhouses',
+                                 'Parent' => '37'
+                               },
+                       '335' => {
+                                  'Path' => 'Sports & Outdoors / Individual Sports / Track and Field',
+                                  'isLeaf' => 1,
+                                  'Name' => 'Sports & Outdoors / Individual Sports / Track and Field',
+                                  'Parent' => '335'
+                                },
+                       '43' => {
+                                 'Path' => 'Home & Garden / Furniture / Bookcases and Shelves',
+                                 'isLeaf' => 1,
+                                 'Name' => 'Home & Garden / Furniture / Bookcases and Shelves',
+                                 'Parent' => '43'
+                               },
+                       '270' => {
+                                  'Path' => 'Home & Garden / Large Appliances / Refrigerators and Freezers',
+                                  'isLeaf' => 1,
+                                  'Name' => 'Home & Garden / Large Appliances / Refrigerators and Freezers',
+                                  'Parent' => '270'
+                                },
+                       '5' => {
+                                'Path' => 'Apparel / Clothing / Shorts, Pants and Jeans - Other',
+                                'isLeaf' => 1,
+                                'Name' => 'Apparel / Clothing / Shorts, Pants and Jeans - Other',
+                                'Parent' => '5'
+                              },
+                       '195' => {
+                                  'Path' => 'Apparel / Clothing / Sleepwear - Men',
+                                  'isLeaf' => 1,
+                                  'Name' => 'Apparel / Clothing / Sleepwear - Men',
+                                  'Parent' => '195'
+                                },
+                       '288' => {
+                                  'Path' => 'Arts & Entertainment / Arts & Crafts Supplies / Sculpture',
+                                  'isLeaf' => 1,
+                                  'Name' => 'Arts & Entertainment / Arts & Crafts Supplies / Sculpture',
+                                  'Parent' => '288'
+                                },
+                       '193' => {
+                                  'Path' => 'Apparel / Clothing / Shorts, Pants and Jeans - Men',
+                                  'isLeaf' => 1,
+                                  'Name' => 'Apparel / Clothing / Shorts, Pants and Jeans - Men',
+                                  'Parent' => '193'
+                                },
+                       '180' => {
+                                  'Path' => 'Home & Garden / Home Décor / Lighting',
+                                  'isLeaf' => 1,
+                                  'Name' => 'Home & Garden / Home Décor / Lighting',
+                                  'Parent' => '180'
+                                },
+                       '324' => {
+                                  'Path' => 'Office / Office Furniture / Tables',
+                                  'isLeaf' => 1,
+                                  'Name' => 'Office / Office Furniture / Tables',
+                                  'Parent' => '324'
+                                },
+                       '244' => {
+                                  'Path' => 'Sports & Outdoors / Individual Sports / Paintball',
+                                  'isLeaf' => 1,
+                                  'Name' => 'Sports & Outdoors / Individual Sports / Paintball',
+                                  'Parent' => '244'
+                                },
+                       '162' => {
+                                  'Path' => 'Sports & Outdoors / Individual Sports / Ice Skating',
+                                  'isLeaf' => 1,
+                                  'Name' => 'Sports & Outdoors / Individual Sports / Ice Skating',
+                                  'Parent' => '162'
+                                },
+                       '351' => {
+                                  'Path' => 'Arts & Entertainment / Movies / Westerns',
+                                  'isLeaf' => 1,
+                                  'Name' => 'Arts & Entertainment / Movies / Westerns',
+                                  'Parent' => '351'
+                                },
+                       '240' => {
+                                  'Path' => 'Arts & Entertainment / Books / Outdoors and Nature',
+                                  'isLeaf' => 1,
+                                  'Name' => 'Arts & Entertainment / Books / Outdoors and Nature',
+                                  'Parent' => '240'
+                                },
+                       '334' => {
+                                  'Path' => 'Arts & Entertainment / Toys / Toys and Games - Other',
+                                  'isLeaf' => 1,
+                                  'Name' => 'Arts & Entertainment / Toys / Toys and Games - Other',
+                                  'Parent' => '334'
+                                },
+                       '61' => {
+                                 'Path' => 'Office / Office Furniture / Chairs',
+                                 'isLeaf' => 1,
+                                 'Name' => 'Office / Office Furniture / Chairs',
+                                 'Parent' => '61'
+                               },
+                       '230' => {
+                                  'Path' => 'Jewelry / Jewelry / Jewelry Accessories',
+                                  'isLeaf' => 1,
+                                  'Name' => 'Jewelry / Jewelry / Jewelry Accessories',
+                                  'Parent' => '230'
+                                },
+                       '115' => {
+                                  'Path' => 'Arts & Entertainment / Movies / Family',
+                                  'isLeaf' => 1,
+                                  'Name' => 'Arts & Entertainment / Movies / Family',
+                                  'Parent' => '115'
+                                },
+                       '377' => {
+                                  'Path' => 'Baby / Baby Care / Baby Care',
+                                  'isLeaf' => 1,
+                                  'Name' => 'Baby / Baby Care / Baby Care',
+                                  'Parent' => '377'
+                                },
+                       '103' => {
+                                  'Path' => 'Home & Garden / Furniture / Dressers',
+                                  'isLeaf' => 1,
+                                  'Name' => 'Home & Garden / Furniture / Dressers',
+                                  'Parent' => '103'
+                                },
+                       '201' => {
+                                  'Path' => 'Electronics / Monitors / Monitors and Projectors',
+                                  'isLeaf' => 1,
+                                  'Name' => 'Electronics / Monitors / Monitors and Projectors',
+                                  'Parent' => '201'
+                                },
+                       '379' => {
+                                  'Path' => 'Electronics / Portable Audio / Portable Audio',
+                                  'isLeaf' => 1,
+                                  'Name' => 'Electronics / Portable Audio / Portable Audio',
+                                  'Parent' => '379'
+                                },
+                       '113' => {
+                                  'Path' => 'Sports & Outdoors / Individual Sports / Equestrian',
+                                  'isLeaf' => 1,
+                                  'Name' => 'Sports & Outdoors / Individual Sports / Equestrian',
+                                  'Parent' => '113'
+                                },
+                       '152' => {
+                                  'Path' => 'Arts & Entertainment / Music / Hip Hop',
+                                  'isLeaf' => 1,
+                                  'Name' => 'Arts & Entertainment / Music / Hip Hop',
+                                  'Parent' => '152'
+                                },
+                       '189' => {
+                                  'Path' => 'Arts & Entertainment / Books / Memoirs and Biographies',
+                                  'isLeaf' => 1,
+                                  'Name' => 'Arts & Entertainment / Books / Memoirs and Biographies',
+                                  'Parent' => '189'
+                                },
+                       '342' => {
+                                  'Path' => 'Home & Garden / Small Appliances / Vacuums and Floor Cleaners',
+                                  'isLeaf' => 1,
+                                  'Name' => 'Home & Garden / Small Appliances / Vacuums and Floor Cleaners',
+                                  'Parent' => '342'
+                                },
+                       '91' => {
+                                 'Path' => 'Arts & Entertainment / Music / Dance and DJ',
+                                 'isLeaf' => 1,
+                                 'Name' => 'Arts & Entertainment / Music / Dance and DJ',
+                                 'Parent' => '91'
+                               },
+                       '266' => {
+                                  'Path' => 'Arts & Entertainment / Books / Puzzles',
+                                  'isLeaf' => 1,
+                                  'Name' => 'Arts & Entertainment / Books / Puzzles',
+                                  'Parent' => '266'
+                                },
+                       '295' => {
+                                  'Path' => 'Sports & Outdoors / Individual Sports / Skateboarding',
+                                  'isLeaf' => 1,
+                                  'Name' => 'Sports & Outdoors / Individual Sports / Skateboarding',
+                                  'Parent' => '295'
+                                },
+                       '107' => {
+                                  'Path' => 'Arts & Entertainment / Movies / Educational and Instructional',
+                                  'isLeaf' => 1,
+                                  'Name' => 'Arts & Entertainment / Movies / Educational and Instructional',
+                                  'Parent' => '107'
+                                },
+                       '87' => {
+                                 'Path' => 'Health & Beauty / Cosmetics / Cosmetics',
+                                 'isLeaf' => 1,
+                                 'Name' => 'Health & Beauty / Cosmetics / Cosmetics',
+                                 'Parent' => '87'
+                               },
+                       '77' => {
+                                 'Path' => 'Arts & Entertainment / Hobbies & Collectibles / Collectibles',
+                                 'isLeaf' => 1,
+                                 'Name' => 'Arts & Entertainment / Hobbies & Collectibles / Collectibles',
+                                 'Parent' => '77'
+                               },
+                       '174' => {
+                                  'Path' => 'Electronics / Desktop Accessories / Keyboards and Input Devices',
+                                  'isLeaf' => 1,
+                                  'Name' => 'Electronics / Desktop Accessories / Keyboards and Input Devices',
+                                  'Parent' => '174'
+                                },
+                       '221' => {
+                                  'Path' => 'Arts & Entertainment / Other Arts & Entertainment / Arts and Entertainment - Other',
+                                  'isLeaf' => 1,
+                                  'Name' => 'Arts & Entertainment / Other Arts & Entertainment / Arts and Entertainment - Other',
+                                  'Parent' => '221'
+                                },
+                       '39' => {
+                                 'Path' => 'Arts & Entertainment / Music / Blues',
+                                 'isLeaf' => 1,
+                                 'Name' => 'Arts & Entertainment / Music / Blues',
+                                 'Parent' => '39'
+                               },
+                       '64' => {
+                                 'Path' => 'Apparel / Shoes / Footwear - Children',
+                                 'isLeaf' => 1,
+                                 'Name' => 'Apparel / Shoes / Footwear - Children',
+                                 'Parent' => '64'
+                               },
+                       '97' => {
+                                 'Path' => 'Arts & Entertainment / Books / Diet and Health',
+                                 'isLeaf' => 1,
+                                 'Name' => 'Arts & Entertainment / Books / Diet and Health',
+                                 'Parent' => '97'
+                               },
+                       '12' => {
+                                 'Path' => 'Arts & Entertainment / Hobbies & Collectibles / Antiques',
+                                 'isLeaf' => 1,
+                                 'Name' => 'Arts & Entertainment / Hobbies & Collectibles / Antiques',
+                                 'Parent' => '12'
+                               },
+                       '41' => {
+                                 'Path' => 'Sports & Outdoors / Individual Sports / Boating and Waterskiing',
+                                 'isLeaf' => 1,
+                                 'Name' => 'Sports & Outdoors / Individual Sports / Boating and Waterskiing',
+                                 'Parent' => '41'
+                               },
+                       '52' => {
+                                 'Path' => 'Arts & Entertainment / Books / Business and Money',
+                                 'isLeaf' => 1,
+                                 'Name' => 'Arts & Entertainment / Books / Business and Money',
+                                 'Parent' => '52'
+                               },
+                       '312' => {
+                                  'Path' => 'Arts & Entertainment / Hobbies & Collectibles / Stamps',
+                                  'isLeaf' => 1,
+                                  'Name' => 'Arts & Entertainment / Hobbies & Collectibles / Stamps',
+                                  'Parent' => '312'
+                                },
+                       '302' => {
+                                  'Path' => 'Sports & Outdoors / Individual Sports / Soccer',
+                                  'isLeaf' => 1,
+                                  'Name' => 'Sports & Outdoors / Individual Sports / Soccer',
+                                  'Parent' => '302'
+                                },
+                       '229' => {
+                                  'Path' => 'Home & Garden / Lawn & Garden / Home and Garden - Other',
+                                  'isLeaf' => 1,
+                                  'Name' => 'Home & Garden / Lawn & Garden / Home and Garden - Other',
+                                  'Parent' => '229'
+                                },
+                       '45' => {
+                                 'Path' => 'Sports & Outdoors / Individual Sports / Bowling',
+                                 'isLeaf' => 1,
+                                 'Name' => 'Sports & Outdoors / Individual Sports / Bowling',
+                                 'Parent' => '45'
+                               },
+                       '260' => {
+                                  'Path' => 'Arts & Entertainment / Music / Pop',
+                                  'isLeaf' => 1,
+                                  'Name' => 'Arts & Entertainment / Music / Pop',
+                                  'Parent' => '260'
+                                },
+                       '237' => {
+                                  'Path' => 'Tools & Hardware / Tools & Hardware / Tools and Hardware - Other',
+                                  'isLeaf' => 1,
+                                  'Name' => 'Tools & Hardware / Tools & Hardware / Tools and Hardware - Other',
+                                  'Parent' => '237'
+                                },
+                       '309' => {
+                                  'Path' => 'Sports & Outdoors / Fitness Equipment / Sports and Outdoor Equipment',
+                                  'isLeaf' => 1,
+                                  'Name' => 'Sports & Outdoors / Fitness Equipment / Sports and Outdoor Equipment',
+                                  'Parent' => '309'
+                                },
+                       '188' => {
+                                  'Path' => 'Apparel / Clothing / Maternity',
+                                  'isLeaf' => 1,
+                                  'Name' => 'Apparel / Clothing / Maternity',
+                                  'Parent' => '188'
+                                },
+                       '68' => {
+                                 'Path' => 'Apparel / Clothing / Sleepwear - Children',
+                                 'isLeaf' => 1,
+                                 'Name' => 'Apparel / Clothing / Sleepwear - Children',
+                                 'Parent' => '68'
+                               },
+                       '315' => {
+                                  'Path' => 'Tools & Hardware / Tools & Hardware / Storage and Tool Boxes',
+                                  'isLeaf' => 1,
+                                  'Name' => 'Tools & Hardware / Tools & Hardware / Storage and Tool Boxes',
+                                  'Parent' => '315'
+                                },
+                       '1' => {
+                                'Path' => 'Electronics / Camera Accessories / Accessories',
+                                'isLeaf' => 1,
+                                'Name' => 'Electronics / Camera Accessories / Accessories',
+                                'Parent' => '1'
+                              },
+                       '136' => {
+                                  'Path' => 'Home & Garden / Furniture / Furniture',
+                                  'isLeaf' => 1,
+                                  'Name' => 'Home & Garden / Furniture / Furniture',
+                                  'Parent' => '136'
+                                },
+                       '116' => {
+                                  'Path' => 'Jewelry / Jewelry / Fashion and Costume Jewelry',
+                                  'isLeaf' => 1,
+                                  'Name' => 'Jewelry / Jewelry / Fashion and Costume Jewelry',
+                                  'Parent' => '116'
+                                },
+                       '338' => {
+                                  'Path' => 'Arts & Entertainment / Books / Travel',
+                                  'isLeaf' => 1,
+                                  'Name' => 'Arts & Entertainment / Books / Travel',
+                                  'Parent' => '338'
+                                },
+                       '144' => {
+                                  'Path' => 'Health & Beauty / Personal Care / Hair and Nail Care',
+                                  'isLeaf' => 1,
+                                  'Name' => 'Health & Beauty / Personal Care / Hair and Nail Care',
+                                  'Parent' => '144'
+                                },
+                       '100' => {
+                                  'Path' => 'Arts & Entertainment / Toys / Dolls and Plush Toys',
+                                  'isLeaf' => 1,
+                                  'Name' => 'Arts & Entertainment / Toys / Dolls and Plush Toys',
+                                  'Parent' => '100'
+                                },
+                       '380' => {
+                                  'Path' => 'Electronics / Communication Accessories / Communications Accessories',
+                                  'isLeaf' => 1,
+                                  'Name' => 'Electronics / Communication Accessories / Communications Accessories',
+                                  'Parent' => '380'
+                                },
+                       '222' => {
+                                  'Path' => 'Electronics / Other Electronics / Electronics Accessories',
+                                  'isLeaf' => 1,
+                                  'Name' => 'Electronics / Other Electronics / Electronics Accessories',
+                                  'Parent' => '222'
+                                },
+                       '300' => {
+                                  'Path' => 'Sports & Outdoors / Individual Sports / Snowboarding',
+                                  'isLeaf' => 1,
+                                  'Name' => 'Sports & Outdoors / Individual Sports / Snowboarding',
+                                  'Parent' => '300'
+                                },
+                       '25' => {
+                                 'Path' => 'Automotive / Automotive / Auto Parts',
+                                 'isLeaf' => 1,
+                                 'Name' => 'Automotive / Automotive / Auto Parts',
+                                 'Parent' => '25'
+                               },
+                       '286' => {
+                                  'Path' => 'Arts & Entertainment / Hobbies & Collectibles / Scrapbooking and Paper Crafts',
+                                  'isLeaf' => 1,
+                                  'Name' => 'Arts & Entertainment / Hobbies & Collectibles / Scrapbooking and Paper Crafts',
+                                  'Parent' => '286'
+                                },
+                       '120' => {
+                                  'Path' => 'Arts & Entertainment / Hobbies & Collectibles / Figurines and Miniatures',
+                                  'isLeaf' => 1,
+                                  'Name' => 'Arts & Entertainment / Hobbies & Collectibles / Figurines and Miniatures',
+                                  'Parent' => '120'
+                                },
+                       '381' => {
+                                  'Path' => 'Electronics / Desktop Accessories / Desktop Accessories',
+                                  'isLeaf' => 1,
+                                  'Name' => 'Electronics / Desktop Accessories / Desktop Accessories',
+                                  'Parent' => '381'
+                                },
+                       '305' => {
+                                  'Path' => 'Electronics / Software / Software',
+                                  'isLeaf' => 1,
+                                  'Name' => 'Electronics / Software / Software',
+                                  'Parent' => '305'
+                                },
+                       '308' => {
+                                  'Path' => 'Tools & Hardware / Tools & Hardware / Specialty Tools',
+                                  'isLeaf' => 1,
+                                  'Name' => 'Tools & Hardware / Tools & Hardware / Specialty Tools',
+                                  'Parent' => '308'
+                                },
+                       '254' => {
+                                  'Path' => 'Health & Beauty / Health Aids / Pharmacy',
+                                  'isLeaf' => 1,
+                                  'Name' => 'Health & Beauty / Health Aids / Pharmacy',
+                                  'Parent' => '254'
+                                },
+                       '177' => {
+                                  'Path' => 'Electronics / Computers / Laptop',
+                                  'isLeaf' => 1,
+                                  'Name' => 'Electronics / Computers / Laptop',
+                                  'Parent' => '177'
+                                },
+                       '373' => {
+                                  'Path' => 'Baby / Strollers / Strollers',
+                                  'isLeaf' => 1,
+                                  'Name' => 'Baby / Strollers / Strollers',
+                                  'Parent' => '373'
+                                },
+                       '217' => {
+                                  'Path' => 'Sports & Outdoors / Outdoor & Recreation / Orienteering and Misc. Equipment',
+                                  'isLeaf' => 1,
+                                  'Name' => 'Sports & Outdoors / Outdoor & Recreation / Orienteering and Misc. Equipment',
+                                  'Parent' => '217'
+                                },
+                       '328' => {
+                                  'Path' => 'Electronics / TVs / Televisions',
+                                  'isLeaf' => 1,
+                                  'Name' => 'Electronics / TVs / Televisions',
+                                  'Parent' => '328'
+                                },
+                       '239' => {
+                                  'Path' => 'Sports & Outdoors / Outdoor & Recreation / Outdoor Recreation',
+                                  'isLeaf' => 1,
+                                  'Name' => 'Sports & Outdoors / Outdoor & Recreation / Outdoor Recreation',
+                                  'Parent' => '239'
+                                },
+                       '122' => {
+                                  'Path' => 'Jewelry / Jewelry / Fine Jewelry and Wedding Rings',
+                                  'isLeaf' => 1,
+                                  'Name' => 'Jewelry / Jewelry / Fine Jewelry and Wedding Rings',
+                                  'Parent' => '122'
+                                },
+                       '143' => {
+                                  'Path' => 'Home & Garden / Lawn & Garden / Greenhouses',
+                                  'isLeaf' => 1,
+                                  'Name' => 'Home & Garden / Lawn & Garden / Greenhouses',
+                                  'Parent' => '143'
+                                },
+                       '205' => {
+                                  'Path' => 'Arts & Entertainment / Music / Music',
+                                  'isLeaf' => 1,
+                                  'Name' => 'Arts & Entertainment / Music / Music',
+                                  'Parent' => '205'
+                                },
+                       '158' => {
+                                  'Path' => 'Arts & Entertainment / Movies / Horror',
+                                  'isLeaf' => 1,
+                                  'Name' => 'Arts & Entertainment / Movies / Horror',
+                                  'Parent' => '158'
+                                },
+                       '22' => {
+                                 'Path' => 'Arts & Entertainment / Hobbies & Collectibles / Astronomy and Science',
+                                 'isLeaf' => 1,
+                                 'Name' => 'Arts & Entertainment / Hobbies & Collectibles / Astronomy and Science',
+                                 'Parent' => '22'
+                               },
+                       '269' => {
+                                  'Path' => 'Arts & Entertainment / Books / Reference',
+                                  'isLeaf' => 1,
+                                  'Name' => 'Arts & Entertainment / Books / Reference',
+                                  'Parent' => '269'
+                                },
+                       '42' => {
+                                 'Path' => 'Automotive / Automotive / Body Repair and Customization',
+                                 'isLeaf' => 1,
+                                 'Name' => 'Automotive / Automotive / Body Repair and Customization',
+                                 'Parent' => '42'
+                               },
+                       '281' => {
+                                  'Path' => 'Sports & Outdoors / Outdoor & Recreation / Safety and First Aid',
+                                  'isLeaf' => 1,
+                                  'Name' => 'Sports & Outdoors / Outdoor & Recreation / Safety and First Aid',
+                                  'Parent' => '281'
+                                },
+                       '46' => {
+                                 'Path' => 'Sports & Outdoors / Individual Sports / Boxing and Martial Arts',
+                                 'isLeaf' => 1,
+                                 'Name' => 'Sports & Outdoors / Individual Sports / Boxing and Martial Arts',
+                                 'Parent' => '46'
+                               },
+                       '235' => {
+                                  'Path' => 'Sports & Outdoors / Outdoor & Recreation / Sports and Outdoor Equipment - Other',
+                                  'isLeaf' => 1,
+                                  'Name' => 'Sports & Outdoors / Outdoor & Recreation / Sports and Outdoor Equipment - Other',
+                                  'Parent' => '235'
+                                },
+                       '301' => {
+                                  'Path' => 'Sports & Outdoors / Individual Sports / Snowshoeing',
+                                  'isLeaf' => 1,
+                                  'Name' => 'Sports & Outdoors / Individual Sports / Snowshoeing',
+                                  'Parent' => '301'
+                                },
+                       '6' => {
+                                'Path' => 'Apparel / Clothing / Shirts and Tops - Other',
+                                'isLeaf' => 1,
+                                'Name' => 'Apparel / Clothing / Shirts and Tops - Other',
+                                'Parent' => '6'
+                              },
+                       '36' => {
+                                 'Path' => 'Apparel / Accessories / Belts',
+                                 'isLeaf' => 1,
+                                 'Name' => 'Apparel / Accessories / Belts',
+                                 'Parent' => '36'
+                               },
+                       '213' => {
+                                  'Path' => 'Health & Beauty / Health Aids / Nutritional Supplements and Wellness Products',
+                                  'isLeaf' => 1,
+                                  'Name' => 'Health & Beauty / Health Aids / Nutritional Supplements and Wellness Products',
+                                  'Parent' => '213'
+                                },
+                       '94' => {
+                                 'Path' => 'Home & Garden / Furniture / Desks and Workstations',
+                                 'isLeaf' => 1,
+                                 'Name' => 'Home & Garden / Furniture / Desks and Workstations',
+                                 'Parent' => '94'
+                               },
+                       '51' => {
+                                 'Path' => 'Tools & Hardware / Tools & Hardware / Building Tools',
+                                 'isLeaf' => 1,
+                                 'Name' => 'Tools & Hardware / Tools & Hardware / Building Tools',
+                                 'Parent' => '51'
+                               },
+                       '362' => {
+                                  'Path' => 'Sports & Outdoors / Individual Sports / Wrestling',
+                                  'isLeaf' => 1,
+                                  'Name' => 'Sports & Outdoors / Individual Sports / Wrestling',
+                                  'Parent' => '362'
+                                },
+                       '317' => {
+                                  'Path' => 'Apparel / Sunglasses / Sunglasses',
+                                  'isLeaf' => 1,
+                                  'Name' => 'Apparel / Sunglasses / Sunglasses',
+                                  'Parent' => '317'
+                                },
+                       '265' => {
+                                  'Path' => 'Sports & Outdoors / Individual Sports / Protective Gear',
+                                  'isLeaf' => 1,
+                                  'Name' => 'Sports & Outdoors / Individual Sports / Protective Gear',
+                                  'Parent' => '265'
+                                },
+                       '296' => {
+                                  'Path' => 'Sports & Outdoors / Individual Sports / Skiing',
+                                  'isLeaf' => 1,
+                                  'Name' => 'Sports & Outdoors / Individual Sports / Skiing',
+                                  'Parent' => '296'
+                                },
+                       '132' => {
+                                  'Path' => 'Sports & Outdoors / Individual Sports / Football and Rugby',
+                                  'isLeaf' => 1,
+                                  'Name' => 'Sports & Outdoors / Individual Sports / Football and Rugby',
+                                  'Parent' => '132'
+                                },
+                       '171' => {
+                                  'Path' => 'Jewelry / Jewelry / Jewelry Boxes and Music Boxes',
+                                  'isLeaf' => 1,
+                                  'Name' => 'Jewelry / Jewelry / Jewelry Boxes and Music Boxes',
+                                  'Parent' => '171'
+                                },
+                       '200' => {
+                                  'Path' => 'Arts & Entertainment / Music / Miscellaneous',
+                                  'isLeaf' => 1,
+                                  'Name' => 'Arts & Entertainment / Music / Miscellaneous',
+                                  'Parent' => '200'
+                                },
+                       '18' => {
+                                 'Path' => 'Arts & Entertainment / Arts & Crafts Supplies / Art Supplies',
+                                 'isLeaf' => 1,
+                                 'Name' => 'Arts & Entertainment / Arts & Crafts Supplies / Art Supplies',
+                                 'Parent' => '18'
+                               },
+                       '376' => {
+                                  'Path' => 'Baby / Baby Carriers / Baby Carriers',
+                                  'isLeaf' => 1,
+                                  'Name' => 'Baby / Baby Carriers / Baby Carriers',
+                                  'Parent' => '376'
+                                },
+                       '125' => {
+                                  'Path' => 'Sports & Outdoors / Fitness Equipment / Fitness Accessories',
+                                  'isLeaf' => 1,
+                                  'Name' => 'Sports & Outdoors / Fitness Equipment / Fitness Accessories',
+                                  'Parent' => '125'
+                                },
+                       '329' => {
+                                  'Path' => 'Sports & Outdoors / Individual Sports / Tennis and Racquet Sports',
+                                  'isLeaf' => 1,
+                                  'Name' => 'Sports & Outdoors / Individual Sports / Tennis and Racquet Sports',
+                                  'Parent' => '329'
+                                },
+                       '44' => {
+                                 'Path' => 'Arts & Entertainment / Books / Books',
+                                 'isLeaf' => 1,
+                                 'Name' => 'Arts & Entertainment / Books / Books',
+                                 'Parent' => '44'
+                               },
+                       '190' => {
+                                  'Path' => 'Electronics / Desktop Accessories / Memory',
+                                  'isLeaf' => 1,
+                                  'Name' => 'Electronics / Desktop Accessories / Memory',
+                                  'Parent' => '190'
+                                },
+                       '272' => {
+                                  'Path' => 'Arts & Entertainment / Music / Religious',
+                                  'isLeaf' => 1,
+                                  'Name' => 'Arts & Entertainment / Music / Religious',
+                                  'Parent' => '272'
+                                },
+                       '161' => {
+                                  'Path' => 'Sports & Outdoors / Individual Sports / Ice Hockey',
+                                  'isLeaf' => 1,
+                                  'Name' => 'Sports & Outdoors / Individual Sports / Ice Hockey',
+                                  'Parent' => '161'
+                                },
+                       '95' => {
+                                 'Path' => 'Office / Office Furniture / Desks and Workstations',
+                                 'isLeaf' => 1,
+                                 'Name' => 'Office / Office Furniture / Desks and Workstations',
+                                 'Parent' => '95'
+                               },
+                       '298' => {
+                                  'Path' => 'Apparel / Clothing / Skirts and Dresses - All',
+                                  'isLeaf' => 1,
+                                  'Name' => 'Apparel / Clothing / Skirts and Dresses - All',
+                                  'Parent' => '298'
+                                },
+                       '313' => {
+                                  'Path' => 'Electronics / Home Audio / Stereos and Receivers and Speakers',
+                                  'isLeaf' => 1,
+                                  'Name' => 'Electronics / Home Audio / Stereos and Receivers and Speakers',
+                                  'Parent' => '313'
+                                },
+                       '20' => {
+                                 'Path' => 'Arts & Entertainment / Books / Arts and Photography',
+                                 'isLeaf' => 1,
+                                 'Name' => 'Arts & Entertainment / Books / Arts and Photography',
+                                 'Parent' => '20'
+                               },
+                       '231' => {
+                                  'Path' => 'Jewelry / Jewelry / Jewelry - Other',
+                                  'isLeaf' => 1,
+                                  'Name' => 'Jewelry / Jewelry / Jewelry - Other',
+                                  'Parent' => '231'
+                                },
+                       '243' => {
+                                  'Path' => 'Home & Garden / Home Décor / Paint and Stain',
+                                  'isLeaf' => 1,
+                                  'Name' => 'Home & Garden / Home Décor / Paint and Stain',
+                                  'Parent' => '243'
+                                },
+                       '109' => {
+                                  'Path' => 'Tools & Hardware / Home Improvement / Electrical',
+                                  'isLeaf' => 1,
+                                  'Name' => 'Tools & Hardware / Home Improvement / Electrical',
+                                  'Parent' => '109'
+                                },
+                       '151' => {
+                                  'Path' => 'Health & Beauty / Personal Care / Health and Safety',
+                                  'isLeaf' => 1,
+                                  'Name' => 'Health & Beauty / Personal Care / Health and Safety',
+                                  'Parent' => '151'
+                                },
+                       '148' => {
+                                  'Path' => 'Apparel / Accessories / Hats and Caps',
+                                  'isLeaf' => 1,
+                                  'Name' => 'Apparel / Accessories / Hats and Caps',
+                                  'Parent' => '148'
+                                },
+                       '343' => {
+                                  'Path' => 'Electronics / Cameras / Video and Security Cameras',
+                                  'isLeaf' => 1,
+                                  'Name' => 'Electronics / Cameras / Video and Security Cameras',
+                                  'Parent' => '343'
+                                },
+                       '287' => {
+                                  'Path' => 'Tools & Hardware / Tools & Hardware / Screwdrivers and Nail Guns',
+                                  'isLeaf' => 1,
+                                  'Name' => 'Tools & Hardware / Tools & Hardware / Screwdrivers and Nail Guns',
+                                  'Parent' => '287'
+                                },
+                       '78' => {
+                                 'Path' => 'Arts & Entertainment / Movies / Comedy',
+                                 'isLeaf' => 1,
+                                 'Name' => 'Arts & Entertainment / Movies / Comedy',
+                                 'Parent' => '78'
+                               },
+                       '294' => {
+                                  'Path' => 'Tools & Hardware / Home Improvement / Siding and Wall Coverings',
+                                  'isLeaf' => 1,
+                                  'Name' => 'Tools & Hardware / Home Improvement / Siding and Wall Coverings',
+                                  'Parent' => '294'
+                                },
+                       '349' => {
+                                  'Path' => 'Sports & Outdoors / Fitness Equipment / Weightlifting and Cardio Equipment',
+                                  'isLeaf' => 1,
+                                  'Name' => 'Sports & Outdoors / Fitness Equipment / Weightlifting and Cardio Equipment',
+                                  'Parent' => '349'
+                                },
+                       '106' => {
+                                  'Path' => 'Arts & Entertainment / Books / Education and Textbooks',
+                                  'isLeaf' => 1,
+                                  'Name' => 'Arts & Entertainment / Books / Education and Textbooks',
+                                  'Parent' => '106'
+                                },
+                       '157' => {
+                                  'Path' => 'Arts & Entertainment / Books / Home and Garden',
+                                  'isLeaf' => 1,
+                                  'Name' => 'Arts & Entertainment / Books / Home and Garden',
+                                  'Parent' => '157'
+                                },
+                       '275' => {
+                                  'Path' => 'Sports & Outdoors / Individual Sports / Rock and Ice Climbing',
+                                  'isLeaf' => 1,
+                                  'Name' => 'Sports & Outdoors / Individual Sports / Rock and Ice Climbing',
+                                  'Parent' => '275'
+                                },
+                       '65' => {
+                                 'Path' => 'Arts & Entertainment / Music / Children',
+                                 'isLeaf' => 1,
+                                 'Name' => 'Arts & Entertainment / Music / Children',
+                                 'Parent' => '65'
+                               },
+                       '197' => {
+                                  'Path' => 'Arts & Entertainment / Movies / Military and War',
+                                  'isLeaf' => 1,
+                                  'Name' => 'Arts & Entertainment / Movies / Military and War',
+                                  'Parent' => '197'
+                                },
+                       '203' => {
+                                  'Path' => 'Arts & Entertainment / Musical Instruments / Musical Instruments and Performing Accessories',
+                                  'isLeaf' => 1,
+                                  'Name' => 'Arts & Entertainment / Musical Instruments / Musical Instruments and Performing Accessories',
+                                  'Parent' => '203'
+                                },
+                       '261' => {
+                                  'Path' => 'Electronics / Car Audio / Car Audio',
+                                  'isLeaf' => 1,
+                                  'Name' => 'Electronics / Car Audio / Car Audio',
+                                  'Parent' => '261'
+                                },
+                       '138' => {
+                                  'Path' => 'Electronics / Electronic Devices / Gadgets',
+                                  'isLeaf' => 1,
+                                  'Name' => 'Electronics / Electronic Devices / Gadgets',
+                                  'Parent' => '138'
+                                },
+                       '137' => {
+                                  'Path' => 'Office / Office Furniture / Furniture',
+                                  'isLeaf' => 1,
+                                  'Name' => 'Office / Office Furniture / Furniture',
+                                  'Parent' => '137'
+                                },
+                       '60' => {
+                                 'Path' => 'Electronics / Cellular Phones / Cellular Phones',
+                                 'isLeaf' => 1,
+                                 'Name' => 'Electronics / Cellular Phones / Cellular Phones',
+                                 'Parent' => '60'
+                               },
+                       '321' => {
+                                  'Path' => 'Sports & Outdoors / Individual Sports / Swimming',
+                                  'isLeaf' => 1,
+                                  'Name' => 'Sports & Outdoors / Individual Sports / Swimming',
+                                  'Parent' => '321'
+                                },
+                       '86' => {
+                                 'Path' => 'Home & Garden / Home Décor / Cookware',
+                                 'isLeaf' => 1,
+                                 'Name' => 'Home & Garden / Home Décor / Cookware',
+                                 'Parent' => '86'
+                               },
+                       '284' => {
+                                  'Path' => 'Arts & Entertainment / Books / Science and Nature',
+                                  'isLeaf' => 1,
+                                  'Name' => 'Arts & Entertainment / Books / Science and Nature',
+                                  'Parent' => '284'
+                                },
+                       '247' => {
+                                  'Path' => 'Office / Office Supplies / Paper and Copier and Fax Supplies',
+                                  'isLeaf' => 1,
+                                  'Name' => 'Office / Office Supplies / Paper and Copier and Fax Supplies',
+                                  'Parent' => '247'
+                                },
+                       '204' => {
+                                  'Path' => 'Arts & Entertainment / Movies / Musicals',
+                                  'isLeaf' => 1,
+                                  'Name' => 'Arts & Entertainment / Movies / Musicals',
+                                  'Parent' => '204'
+                                },
+                       '165' => {
+                                  'Path' => 'Sports & Outdoors / Outdoor & Recreation / Insect and Wildlife Repellants',
+                                  'isLeaf' => 1,
+                                  'Name' => 'Sports & Outdoors / Outdoor & Recreation / Insect and Wildlife Repellants',
+                                  'Parent' => '165'
+                                },
+                       '289' => {
+                                  'Path' => 'Tools & Hardware / Tools & Hardware / Sealers and Adhesives',
+                                  'isLeaf' => 1,
+                                  'Name' => 'Tools & Hardware / Tools & Hardware / Sealers and Adhesives',
+                                  'Parent' => '289'
+                                },
+                       '346' => {
+                                  'Path' => 'Home & Garden / Small Appliances / Waffle Irons',
+                                  'isLeaf' => 1,
+                                  'Name' => 'Home & Garden / Small Appliances / Waffle Irons',
+                                  'Parent' => '346'
+                                },
+                       '17' => {
+                                 'Path' => 'Home & Garden / Furniture / Armoires and Entertainment Systems',
+                                 'isLeaf' => 1,
+                                 'Name' => 'Home & Garden / Furniture / Armoires and Entertainment Systems',
+                                 'Parent' => '17'
+                               },
+                       '2' => {
+                                'Path' => 'Arts & Entertainment / Movies / Action and Adventure',
+                                'isLeaf' => 1,
+                                'Name' => 'Arts & Entertainment / Movies / Action and Adventure',
+                                'Parent' => '2'
+                              },
+                       '186' => {
+                                  'Path' => 'Health & Beauty / Personal Care / Makeup and Beauty',
+                                  'isLeaf' => 1,
+                                  'Name' => 'Health & Beauty / Personal Care / Makeup and Beauty',
+                                  'Parent' => '186'
+                                },
+                       '110' => {
+                                  'Path' => 'Arts & Entertainment / Video Consoles & Accessories / Video Consoles and Accessories',
+                                  'isLeaf' => 1,
+                                  'Name' => 'Arts & Entertainment / Video Consoles & Accessories / Video Consoles and Accessories',
+                                  'Parent' => '110'
+                                },
+                       '82' => {
+                                 'Path' => 'Arts & Entertainment / Books / Computer and Technology',
+                                 'isLeaf' => 1,
+                                 'Name' => 'Arts & Entertainment / Books / Computer and Technology',
+                                 'Parent' => '82'
+                               },
+                       '333' => {
+                                  'Path' => 'Home & Garden / Bed & Bath / Towels and Bath Accessories',
+                                  'isLeaf' => 1,
+                                  'Name' => 'Home & Garden / Bed & Bath / Towels and Bath Accessories',
+                                  'Parent' => '333'
+                                },
+                       '228' => {
+                                  'Path' => 'Home & Garden / Lawn & Garden / Home and Garden Accessories',
+                                  'isLeaf' => 1,
+                                  'Name' => 'Home & Garden / Lawn & Garden / Home and Garden Accessories',
+                                  'Parent' => '228'
+                                },
+                       '323' => {
+                                  'Path' => 'Home & Garden / Furniture / Tables',
+                                  'isLeaf' => 1,
+                                  'Name' => 'Home & Garden / Furniture / Tables',
+                                  'Parent' => '323'
+                                },
+                       '268' => {
+                                  'Path' => 'Arts & Entertainment / Musical Instruments / Recording Equipment',
+                                  'isLeaf' => 1,
+                                  'Name' => 'Arts & Entertainment / Musical Instruments / Recording Equipment',
+                                  'Parent' => '268'
+                                },
+                       '112' => {
+                                  'Path' => 'Automotive / Automotive / Engine and Tire Repair',
+                                  'isLeaf' => 1,
+                                  'Name' => 'Automotive / Automotive / Engine and Tire Repair',
+                                  'Parent' => '112'
+                                },
+                       '69' => {
+                                 'Path' => 'Apparel / Clothing / Underwear and Socks and Hosiery - Children',
+                                 'isLeaf' => 1,
+                                 'Name' => 'Apparel / Clothing / Underwear and Socks and Hosiery - Children',
+                                 'Parent' => '69'
+                               },
+                       '345' => {
+                                  'Path' => 'Sports & Outdoors / Individual Sports / Volleyball',
+                                  'isLeaf' => 1,
+                                  'Name' => 'Sports & Outdoors / Individual Sports / Volleyball',
+                                  'Parent' => '345'
+                                },
+                       '319' => {
+                                  'Path' => 'Health & Beauty / Health Aids / Support and Mobility Aids',
+                                  'isLeaf' => 1,
+                                  'Name' => 'Health & Beauty / Health Aids / Support and Mobility Aids',
+                                  'Parent' => '319'
+                                },
+                       '191' => {
+                                  'Path' => 'Apparel / Clothing / Coats and Jackets - Men',
+                                  'isLeaf' => 1,
+                                  'Name' => 'Apparel / Clothing / Coats and Jackets - Men',
+                                  'Parent' => '191'
+                                },
+                       '172' => {
+                                  'Path' => 'Tools & Hardware / Tools & Hardware / Job Site Safety and Ergonomics',
+                                  'isLeaf' => 1,
+                                  'Name' => 'Tools & Hardware / Tools & Hardware / Job Site Safety and Ergonomics',
+                                  'Parent' => '172'
+                                },
+                       '224' => {
+                                  'Path' => 'Flowers & Gifts / Gifts / Flowers and Gifts Accessories',
+                                  'isLeaf' => 1,
+                                  'Name' => 'Flowers & Gifts / Gifts / Flowers and Gifts Accessories',
+                                  'Parent' => '224'
+                                },
+                       '187' => {
+                                  'Path' => 'Health & Beauty / Personal Care / Massage and Relaxation',
+                                  'isLeaf' => 1,
+                                  'Name' => 'Health & Beauty / Personal Care / Massage and Relaxation',
+                                  'Parent' => '187'
+                                },
+                       '223' => {
+                                  'Path' => 'Electronics / Other Electronics / Electronics - Other',
+                                  'isLeaf' => 1,
+                                  'Name' => 'Electronics / Other Electronics / Electronics - Other',
+                                  'Parent' => '223'
+                                },
+                       '282' => {
+                                  'Path' => 'Health & Beauty / Health Aids / Safety and Self Defense Products',
+                                  'isLeaf' => 1,
+                                  'Name' => 'Health & Beauty / Health Aids / Safety and Self Defense Products',
+                                  'Parent' => '282'
+                                },
+                       '262' => {
+                                  'Path' => 'Tools & Hardware / Tools & Hardware / Power Tools',
+                                  'isLeaf' => 1,
+                                  'Name' => 'Tools & Hardware / Tools & Hardware / Power Tools',
+                                  'Parent' => '262'
+                                },
+                       '121' => {
+                                  'Path' => 'Office / Office Furniture / File Cabinets',
+                                  'isLeaf' => 1,
+                                  'Name' => 'Office / Office Furniture / File Cabinets',
+                                  'Parent' => '121'
+                                },
+                       '79' => {
+                                 'Path' => 'Arts & Entertainment / Music / Comedy',
+                                 'isLeaf' => 1,
+                                 'Name' => 'Arts & Entertainment / Music / Comedy',
+                                 'Parent' => '79'
+                               },
+                       '212' => {
+                                  'Path' => 'Arts & Entertainment / Books / Nonfiction',
+                                  'isLeaf' => 1,
+                                  'Name' => 'Arts & Entertainment / Books / Nonfiction',
+                                  'Parent' => '212'
+                                },
+                       '344' => {
+                                  'Path' => 'Health & Beauty / Personal Care / Vision Products',
+                                  'isLeaf' => 1,
+                                  'Name' => 'Health & Beauty / Personal Care / Vision Products',
+                                  'Parent' => '344'
+                                },
+                       '352' => {
+                                  'Path' => 'Arts & Entertainment / Musical Instruments / Wind Instruments',
+                                  'isLeaf' => 1,
+                                  'Name' => 'Arts & Entertainment / Musical Instruments / Wind Instruments',
+                                  'Parent' => '352'
+                                },
+                       '126' => {
+                                  'Path' => 'Arts & Entertainment / Movies / Fitness and Health',
+                                  'isLeaf' => 1,
+                                  'Name' => 'Arts & Entertainment / Movies / Fitness and Health',
+                                  'Parent' => '126'
+                                },
+                       '238' => {
+                                  'Path' => 'Home & Garden / Large Appliances / Outdoor Grills',
+                                  'isLeaf' => 1,
+                                  'Name' => 'Home & Garden / Large Appliances / Outdoor Grills',
+                                  'Parent' => '238'
+                                },
+                       '251' => {
+                                  'Path' => 'Sports & Outdoors / Fitness Equipment / Pedometers and Heart Rate Monitors and Watches',
+                                  'isLeaf' => 1,
+                                  'Name' => 'Sports & Outdoors / Fitness Equipment / Pedometers and Heart Rate Monitors and Watches',
+                                  'Parent' => '251'
+                                },
+                       '253' => {
+                                  'Path' => 'Pets / Pets / Pets',
+                                  'isLeaf' => 1,
+                                  'Name' => 'Pets / Pets / Pets',
+                                  'Parent' => '253'
+                                },
+                       '279' => {
+                                  'Path' => 'Home & Garden / Home Décor / Rugs and Carpet',
+                                  'isLeaf' => 1,
+                                  'Name' => 'Home & Garden / Home Décor / Rugs and Carpet',
+                                  'Parent' => '279'
+                                },
+                       '176' => {
+                                  'Path' => 'Tools & Hardware / Tools & Hardware / Landscape and Snow Removal',
+                                  'isLeaf' => 1,
+                                  'Name' => 'Tools & Hardware / Tools & Hardware / Landscape and Snow Removal',
+                                  'Parent' => '176'
+                                },
+                       '209' => {
+                                  'Path' => 'Tools & Hardware / Tools & Hardware / Nails and Screws and Fasteners',
+                                  'isLeaf' => 1,
+                                  'Name' => 'Tools & Hardware / Tools & Hardware / Nails and Screws and Fasteners',
+                                  'Parent' => '209'
+                                },
+                       '357' => {
+                                  'Path' => 'Apparel / Clothing / Shorts, Pants and Jeans - Women',
+                                  'isLeaf' => 1,
+                                  'Name' => 'Apparel / Clothing / Shorts, Pants and Jeans - Women',
+                                  'Parent' => '357'
+                                },
+                       '216' => {
+                                  'Path' => 'Office / Office Supplies / Organizers and Planners',
+                                  'isLeaf' => 1,
+                                  'Name' => 'Office / Office Supplies / Organizers and Planners',
+                                  'Parent' => '216'
+                                },
+                       '372' => {
+                                  'Path' => 'Arts & Entertainment / Video Games / Video Games',
+                                  'isLeaf' => 1,
+                                  'Name' => 'Arts & Entertainment / Video Games / Video Games',
+                                  'Parent' => '372'
+                                },
+                       '117' => {
+                                  'Path' => 'Arts & Entertainment / Books / Fiction and Literature',
+                                  'isLeaf' => 1,
+                                  'Name' => 'Arts & Entertainment / Books / Fiction and Literature',
+                                  'Parent' => '117'
+                                },
+                       '170' => {
+                                  'Path' => 'Arts & Entertainment / Hobbies & Collectibles / Jewelry and Beadwork',
+                                  'isLeaf' => 1,
+                                  'Name' => 'Arts & Entertainment / Hobbies & Collectibles / Jewelry and Beadwork',
+                                  'Parent' => '170'
+                                },
+                       '33' => {
+                                 'Path' => 'Home & Garden / Bed & Bath / Bed and Bath',
+                                 'isLeaf' => 1,
+                                 'Name' => 'Home & Garden / Bed & Bath / Bed and Bath',
+                                 'Parent' => '33'
+                               },
+                       '63' => {
+                                 'Path' => 'Apparel / Clothing / Coats and Jackets - Children',
+                                 'isLeaf' => 1,
+                                 'Name' => 'Apparel / Clothing / Coats and Jackets - Children',
+                                 'Parent' => '63'
+                               },
+                       '7' => {
+                                'Path' => 'Apparel / Clothing / Sleepwear - Other',
+                                'isLeaf' => 1,
+                                'Name' => 'Apparel / Clothing / Sleepwear - Other',
+                                'Parent' => '7'
+                              },
+                       '227' => {
+                                  'Path' => 'Health & Beauty / Personal Care / Health and Beauty - Other',
+                                  'isLeaf' => 1,
+                                  'Name' => 'Health & Beauty / Personal Care / Health and Beauty - Other',
+                                  'Parent' => '227'
+                                },
+                       '26' => {
+                                 'Path' => 'Automotive / Automotive / Automotive - Other',
+                                 'isLeaf' => 1,
+                                 'Name' => 'Automotive / Automotive / Automotive - Other',
+                                 'Parent' => '26'
+                               },
+                       '80' => {
+                                 'Path' => 'Arts & Entertainment / Books / Comics and Graphic Novels and Anime',
+                                 'isLeaf' => 1,
+                                 'Name' => 'Arts & Entertainment / Books / Comics and Graphic Novels and Anime',
+                                 'Parent' => '80'
+                               },
+                       '336' => {
+                                  'Path' => 'Arts & Entertainment / Hobbies & Collectibles / Trading Cards',
+                                  'isLeaf' => 1,
+                                  'Name' => 'Arts & Entertainment / Hobbies & Collectibles / Trading Cards',
+                                  'Parent' => '336'
+                                },
+                       '99' => {
+                                 'Path' => 'Sports & Outdoors / Dog Sledding / Dog Sledding',
+                                 'isLeaf' => 1,
+                                 'Name' => 'Sports & Outdoors / Dog Sledding / Dog Sledding',
+                                 'Parent' => '99'
+                               },
+                       '179' => {
+                                  'Path' => 'Home & Garden / Lawn & Garden / Lawn and Garden Care',
+                                  'isLeaf' => 1,
+                                  'Name' => 'Home & Garden / Lawn & Garden / Lawn and Garden Care',
+                                  'Parent' => '179'
+                                },
+                       '72' => {
+                                 'Path' => 'Home & Garden / Bed & Bath / Cleaning Supplies',
+                                 'isLeaf' => 1,
+                                 'Name' => 'Home & Garden / Bed & Bath / Cleaning Supplies',
+                                 'Parent' => '72'
+                               },
+                       '383' => {
+                                  'Path' => 'Office / Ink & Toner / Ink and Toner',
+                                  'isLeaf' => 1,
+                                  'Name' => 'Office / Ink & Toner / Ink and Toner',
+                                  'Parent' => '383'
+                                },
+                       '264' => {
+                                  'Path' => 'Electronics / Printers / Printers and Fax Machines',
+                                  'isLeaf' => 1,
+                                  'Name' => 'Electronics / Printers / Printers and Fax Machines',
+                                  'Parent' => '264'
+                                },
+                       '255' => {
+                                  'Path' => 'Arts & Entertainment / Books / Philosophy',
+                                  'isLeaf' => 1,
+                                  'Name' => 'Arts & Entertainment / Books / Philosophy',
+                                  'Parent' => '255'
+                                },
+                       '297' => {
+                                  'Path' => 'Health & Beauty / Personal Care / Skin Care and Bath and Body',
+                                  'isLeaf' => 1,
+                                  'Name' => 'Health & Beauty / Personal Care / Skin Care and Bath and Body',
+                                  'Parent' => '297'
+                                },
+                       '359' => {
+                                  'Path' => 'Apparel / Clothing / Sleepwear - Women',
+                                  'isLeaf' => 1,
+                                  'Name' => 'Apparel / Clothing / Sleepwear - Women',
+                                  'Parent' => '359'
+                                },
+                       '182' => {
+                                  'Path' => 'Jewelry / Jewelry / Loose Gems and Beads',
+                                  'isLeaf' => 1,
+                                  'Name' => 'Jewelry / Jewelry / Loose Gems and Beads',
+                                  'Parent' => '182'
+                                },
+                       '108' => {
+                                  'Path' => 'Tools & Hardware / Tools & Hardware / Electrical Tools',
+                                  'isLeaf' => 1,
+                                  'Name' => 'Tools & Hardware / Tools & Hardware / Electrical Tools',
+                                  'Parent' => '108'
+                                },
+                       '277' => {
+                                  'Path' => 'Arts & Entertainment / Books / Romance',
+                                  'isLeaf' => 1,
+                                  'Name' => 'Arts & Entertainment / Books / Romance',
+                                  'Parent' => '277'
+                                },
+                       '92' => {
+                                 'Path' => 'Electronics / Hardware / Data Storage',
+                                 'isLeaf' => 1,
+                                 'Name' => 'Electronics / Hardware / Data Storage',
+                                 'Parent' => '92'
+                               },
+                       '232' => {
+                                  'Path' => 'Office / Office Supplies / Office Accessories',
+                                  'isLeaf' => 1,
+                                  'Name' => 'Office / Office Supplies / Office Accessories',
+                                  'Parent' => '232'
+                                },
+                       '10' => {
+                                 'Path' => 'Arts & Entertainment / Musical Instruments / Amplifiers',
+                                 'isLeaf' => 1,
+                                 'Name' => 'Arts & Entertainment / Musical Instruments / Amplifiers',
+                                 'Parent' => '10'
+                               },
+                       '225' => {
+                                  'Path' => 'Flowers & Gifts / Gifts / Flowers and Gifts - Other',
+                                  'isLeaf' => 1,
+                                  'Name' => 'Flowers & Gifts / Gifts / Flowers and Gifts - Other',
+                                  'Parent' => '225'
+                                },
+                       '330' => {
+                                  'Path' => 'Apparel / Accessories / Ties',
+                                  'isLeaf' => 1,
+                                  'Name' => 'Apparel / Accessories / Ties',
+                                  'Parent' => '330'
+                                },
+                       '207' => {
+                                  'Path' => 'Arts & Entertainment / Books / Mystery and Crime',
+                                  'isLeaf' => 1,
+                                  'Name' => 'Arts & Entertainment / Books / Mystery and Crime',
+                                  'Parent' => '207'
+                                },
+                       '142' => {
+                                  'Path' => 'Sports & Outdoors / Individual Sports / Golf',
+                                  'isLeaf' => 1,
+                                  'Name' => 'Sports & Outdoors / Individual Sports / Golf',
+                                  'Parent' => '142'
+                                },
+                       '263' => {
+                                  'Path' => 'Office / Office Supplies / Presentation Materials',
+                                  'isLeaf' => 1,
+                                  'Name' => 'Office / Office Supplies / Presentation Materials',
+                                  'Parent' => '263'
+                                },
+                       '167' => {
+                                  'Path' => 'Arts & Entertainment / Music / International',
+                                  'isLeaf' => 1,
+                                  'Name' => 'Arts & Entertainment / Music / International',
+                                  'Parent' => '167'
+                                },
+                       '48' => {
+                                 'Path' => 'Arts & Entertainment / Music / Broadway and Vocal',
+                                 'isLeaf' => 1,
+                                 'Name' => 'Arts & Entertainment / Music / Broadway and Vocal',
+                                 'Parent' => '48'
+                               },
+                       '360' => {
+                                  'Path' => 'Apparel / Clothing / Underwear and Socks and Hosiery - Women',
+                                  'isLeaf' => 1,
+                                  'Name' => 'Apparel / Clothing / Underwear and Socks and Hosiery - Women',
+                                  'Parent' => '360'
+                                },
+                       '290' => {
+                                  'Path' => 'Arts & Entertainment / Books / Self Improvement',
+                                  'isLeaf' => 1,
+                                  'Name' => 'Arts & Entertainment / Books / Self Improvement',
+                                  'Parent' => '290'
+                                },
+                       '123' => {
+                                  'Path' => 'Health & Beauty / Health Aids / First Aid Kits and Supplies',
+                                  'isLeaf' => 1,
+                                  'Name' => 'Health & Beauty / Health Aids / First Aid Kits and Supplies',
+                                  'Parent' => '123'
+                                },
+                       '149' => {
+                                  'Path' => 'Electronics / Audio Accessories / Headphones and Accessories',
+                                  'isLeaf' => 1,
+                                  'Name' => 'Electronics / Audio Accessories / Headphones and Accessories',
+                                  'Parent' => '149'
+                                },
+                       '304' => {
+                                  'Path' => 'Home & Garden / Furniture / Sofas and Chairs',
+                                  'isLeaf' => 1,
+                                  'Name' => 'Home & Garden / Furniture / Sofas and Chairs',
+                                  'Parent' => '304'
+                                },
+                       '50' => {
+                                 'Path' => 'Arts & Entertainment / Toys / Building Sets and Blocks and Models',
+                                 'isLeaf' => 1,
+                                 'Name' => 'Arts & Entertainment / Toys / Building Sets and Blocks and Models',
+                                 'Parent' => '50'
+                               },
+                       '210' => {
+                                  'Path' => 'Electronics / Hardware / Networking and Wireless',
+                                  'isLeaf' => 1,
+                                  'Name' => 'Electronics / Hardware / Networking and Wireless',
+                                  'Parent' => '210'
+                                },
+                       '258' => {
+                                  'Path' => 'Home & Garden / Home Décor / Plumbing Fixtures',
+                                  'isLeaf' => 1,
+                                  'Name' => 'Home & Garden / Home Décor / Plumbing Fixtures',
+                                  'Parent' => '258'
+                                },
+                       '173' => {
+                                  'Path' => 'Arts & Entertainment / Musical Instruments / Keyboard Instruments',
+                                  'isLeaf' => 1,
+                                  'Name' => 'Arts & Entertainment / Musical Instruments / Keyboard Instruments',
+                                  'Parent' => '173'
+                                },
+                       '56' => {
+                                 'Path' => 'Electronics / Cameras / Cameras',
+                                 'isLeaf' => 1,
+                                 'Name' => 'Electronics / Cameras / Cameras',
+                                 'Parent' => '56'
+                               },
+                       '66' => {
+                                 'Path' => 'Apparel / Clothing / Shorts, Pants and Jeans - Children',
+                                 'isLeaf' => 1,
+                                 'Name' => 'Apparel / Clothing / Shorts, Pants and Jeans - Children',
+                                 'Parent' => '66'
+                               },
+                       '54' => {
+                                 'Path' => 'Electronics / Desktop Accessories / Cables and Accessories',
+                                 'isLeaf' => 1,
+                                 'Name' => 'Electronics / Desktop Accessories / Cables and Accessories',
+                                 'Parent' => '54'
+                               },
+                       '274' => {
+                                  'Path' => 'Arts & Entertainment / Music / Rhythm and Blues',
+                                  'isLeaf' => 1,
+                                  'Name' => 'Arts & Entertainment / Music / Rhythm and Blues',
+                                  'Parent' => '274'
+                                },
+                       '365' => {
+                                  'Path' => 'Sports & Outdoors / Fitness Equipment / Yoga and Pilates Equipment',
+                                  'isLeaf' => 1,
+                                  'Name' => 'Sports & Outdoors / Fitness Equipment / Yoga and Pilates Equipment',
+                                  'Parent' => '365'
+                                },
+                       '306' => {
+                                  'Path' => 'Arts & Entertainment / Music / Soundtracks',
+                                  'isLeaf' => 1,
+                                  'Name' => 'Arts & Entertainment / Music / Soundtracks',
+                                  'Parent' => '306'
+                                },
+                       '70' => {
+                                 'Path' => 'Home & Garden / Home Décor / China and Flatware',
+                                 'isLeaf' => 1,
+                                 'Name' => 'Home & Garden / Home Décor / China and Flatware',
+                                 'Parent' => '70'
+                               },
+                       '322' => {
+                                  'Path' => 'Home & Garden / Home Décor / Tablecloths and Napkins',
+                                  'isLeaf' => 1,
+                                  'Name' => 'Home & Garden / Home Décor / Tablecloths and Napkins',
+                                  'Parent' => '322'
+                                },
+                       '353' => {
+                                  'Path' => 'Home & Garden / Home Décor / Window Treatments',
+                                  'isLeaf' => 1,
+                                  'Name' => 'Home & Garden / Home Décor / Window Treatments',
+                                  'Parent' => '353'
+                                },
+                       '166' => {
+                                  'Path' => 'Arts & Entertainment / Movies / International',
+                                  'isLeaf' => 1,
+                                  'Name' => 'Arts & Entertainment / Movies / International',
+                                  'Parent' => '166'
+                                },
+                       '375' => {
+                                  'Path' => 'Baby / Car Seats / Car Seats',
+                                  'isLeaf' => 1,
+                                  'Name' => 'Baby / Car Seats / Car Seats',
+                                  'Parent' => '375'
+                                },
+                       '88' => {
+                                 'Path' => 'Arts & Entertainment / Music / Country and Western',
+                                 'isLeaf' => 1,
+                                 'Name' => 'Arts & Entertainment / Music / Country and Western',
+                                 'Parent' => '88'
+                               },
+                       '141' => {
+                                  'Path' => 'Apparel / Accessories / Gloves',
+                                  'isLeaf' => 1,
+                                  'Name' => 'Apparel / Accessories / Gloves',
+                                  'Parent' => '141'
+                                },
+                       '30' => {
+                                 'Path' => 'Sports & Outdoors / Individual Sports / Basketball',
+                                 'isLeaf' => 0,
+                                 'Name' => 'Sports & Outdoors / Individual Sports / Basketball',
+                                 'Parent' => '30'
+                               },
+                       '252' => {
+                                  'Path' => 'Arts & Entertainment / Musical Instruments / Percussion Instruments',
+                                  'isLeaf' => 1,
+                                  'Name' => 'Arts & Entertainment / Musical Instruments / Percussion Instruments',
+                                  'Parent' => '252'
+                                },
+                       '28' => {
+                                 'Path' => 'Home & Garden / Home Décor / Barware and Stemware',
+                                 'isLeaf' => 1,
+                                 'Name' => 'Home & Garden / Home Décor / Barware and Stemware',
+                                 'Parent' => '28'
+                               },
+                       '75' => {
+                                 'Path' => 'Home & Garden / Small Appliances / Coffemakers',
+                                 'isLeaf' => 1,
+                                 'Name' => 'Home & Garden / Small Appliances / Coffemakers',
+                                 'Parent' => '75'
+                               },
+                       '134' => {
+                                  'Path' => 'Health & Beauty / Fragrance / Fragrance',
+                                  'isLeaf' => 1,
+                                  'Name' => 'Health & Beauty / Fragrance / Fragrance',
+                                  'Parent' => '134'
+                                },
+                       '40' => {
+                                 'Path' => 'Arts & Entertainment / Toys / Board Games',
+                                 'isLeaf' => 1,
+                                 'Name' => 'Arts & Entertainment / Toys / Board Games',
+                                 'Parent' => '40'
+                               },
+                       '310' => {
+                                  'Path' => 'Arts & Entertainment / Books / Sports',
+                                  'isLeaf' => 1,
+                                  'Name' => 'Arts & Entertainment / Books / Sports',
+                                  'Parent' => '310'
+                                },
+                       '283' => {
+                                  'Path' => 'Tools & Hardware / Tools & Hardware / Saws and Accessories',
+                                  'isLeaf' => 1,
+                                  'Name' => 'Tools & Hardware / Tools & Hardware / Saws and Accessories',
+                                  'Parent' => '283'
+                                },
+                       '250' => {
+                                  'Path' => 'Electronics / PDAs / PDAs',
+                                  'isLeaf' => 1,
+                                  'Name' => 'Electronics / PDAs / PDAs',
+                                  'Parent' => '250'
+                                },
+                       '192' => {
+                                  'Path' => 'Apparel / Shoes / Footwear - Men',
+                                  'isLeaf' => 1,
+                                  'Name' => 'Apparel / Shoes / Footwear - Men',
+                                  'Parent' => '192'
+                                },
+                       '59' => {
+                                 'Path' => 'Automotive / Automotive / Car and Truck Accessories',
+                                 'isLeaf' => 1,
+                                 'Name' => 'Automotive / Automotive / Car and Truck Accessories',
+                                 'Parent' => '59'
+                               },
+                       '215' => {
+                                  'Path' => 'Arts & Entertainment / Music / Opera',
+                                  'isLeaf' => 1,
+                                  'Name' => 'Arts & Entertainment / Music / Opera',
+                                  'Parent' => '215'
+                                },
+                       '278' => {
+                                  'Path' => 'Sports & Outdoors / Individual Sports / Rowing',
+                                  'isLeaf' => 1,
+                                  'Name' => 'Sports & Outdoors / Individual Sports / Rowing',
+                                  'Parent' => '278'
+                                },
+                       '271' => {
+                                  'Path' => 'Arts & Entertainment / Books / Religion and Spirituality',
+                                  'isLeaf' => 1,
+                                  'Name' => 'Arts & Entertainment / Books / Religion and Spirituality',
+                                  'Parent' => '271'
+                                },
+                       '130' => {
+                                  'Path' => 'Office / Office Supplies / Folders and Binders',
+                                  'isLeaf' => 1,
+                                  'Name' => 'Office / Office Supplies / Folders and Binders',
+                                  'Parent' => '130'
+                                },
+                       '155' => {
+                                  'Path' => 'Sports & Outdoors / Individual Sports / Hockey',
+                                  'isLeaf' => 1,
+                                  'Name' => 'Sports & Outdoors / Individual Sports / Hockey',
+                                  'Parent' => '155'
+                                },
+                       '53' => {
+                                 'Path' => 'Tools & Hardware / Home Improvement / Cabinets and Trim',
+                                 'isLeaf' => 1,
+                                 'Name' => 'Tools & Hardware / Home Improvement / Cabinets and Trim',
+                                 'Parent' => '53'
+                               },
+                       '245' => {
+                                  'Path' => 'Arts & Entertainment / Arts & Crafts Supplies / Paintings and Photos and Prints',
+                                  'isLeaf' => 1,
+                                  'Name' => 'Arts & Entertainment / Arts & Crafts Supplies / Paintings and Photos and Prints',
+                                  'Parent' => '245'
+                                },
+                       '267' => {
+                                  'Path' => 'Electronics / Radio Communications / Radio Communications and Scanners',
+                                  'isLeaf' => 1,
+                                  'Name' => 'Electronics / Radio Communications / Radio Communications and Scanners',
+                                  'Parent' => '267'
+                                },
+                       '354' => {
+                                  'Path' => 'Sports & Outdoors / Individual Sports / Winter Recreation',
+                                  'isLeaf' => 1,
+                                  'Name' => 'Sports & Outdoors / Individual Sports / Winter Recreation',
+                                  'Parent' => '354'
+                                },
+                       '318' => {
+                                  'Path' => 'Office / Office Supplies / Supplies',
+                                  'isLeaf' => 1,
+                                  'Name' => 'Office / Office Supplies / Supplies',
+                                  'Parent' => '318'
+                                },
+                       '105' => {
+                                  'Path' => 'Electronics / DVD Players & VCRs / DVD Players and VCRs',
+                                  'isLeaf' => 1,
+                                  'Name' => 'Electronics / DVD Players & VCRs / DVD Players and VCRs',
+                                  'Parent' => '105'
+                                },
+                       '257' => {
+                                  'Path' => 'Tools & Hardware / Home Improvement / Plumbing and Heating',
+                                  'isLeaf' => 1,
+                                  'Name' => 'Tools & Hardware / Home Improvement / Plumbing and Heating',
+                                  'Parent' => '257'
+                                },
+                       '85' => {
+                                 'Path' => 'Arts & Entertainment / Books / Cooking and Wine',
+                                 'isLeaf' => 1,
+                                 'Name' => 'Arts & Entertainment / Books / Cooking and Wine',
+                                 'Parent' => '85'
+                               },
+                       '3' => {
+                                'Path' => 'Apparel / Clothing / Coats and Jackets - Other',
+                                'isLeaf' => 1,
+                                'Name' => 'Apparel / Clothing / Coats and Jackets - Other',
+                                'Parent' => '3'
+                              },
+                       '185' => {
+                                  'Path' => 'Office / Office Supplies / Mailroom and Shipping Supplies',
+                                  'isLeaf' => 1,
+                                  'Name' => 'Office / Office Supplies / Mailroom and Shipping Supplies',
+                                  'Parent' => '185'
+                                },
+                       '248' => {
+                                  'Path' => 'Arts & Entertainment / Books / Parenting and Families',
+                                  'isLeaf' => 1,
+                                  'Name' => 'Arts & Entertainment / Books / Parenting and Families',
+                                  'Parent' => '248'
+                                },
+                       '146' => {
+                                  'Path' => 'Apparel / Accessories / Handbags and Day Packs',
+                                  'isLeaf' => 1,
+                                  'Name' => 'Apparel / Accessories / Handbags and Day Packs',
+                                  'Parent' => '146'
+                                },
+                       '9' => {
+                                'Path' => 'Arts & Entertainment / Music / Alternative',
+                                'isLeaf' => 1,
+                                'Name' => 'Arts & Entertainment / Music / Alternative',
+                                'Parent' => '9'
+                              },
+                       '38' => {
+                                 'Path' => 'Home & Garden / Small Appliances / Blenders and Food Processors',
+                                 'isLeaf' => 1,
+                                 'Name' => 'Home & Garden / Small Appliances / Blenders and Food Processors',
+                                 'Parent' => '38'
+                               },
+                       '356' => {
+                                  'Path' => 'Apparel / Shoes / Footwear - Women',
+                                  'isLeaf' => 1,
+                                  'Name' => 'Apparel / Shoes / Footwear - Women',
+                                  'Parent' => '356'
+                                },
+                       '4' => {
+                                'Path' => 'Apparel / Shoes / Footwear - Other',
+                                'isLeaf' => 1,
+                                'Name' => 'Apparel / Shoes / Footwear - Other',
+                                'Parent' => '4'
+                              },
+                       '34' => {
+                                 'Path' => 'Home & Garden / Furniture / Beds',
+                                 'isLeaf' => 1,
+                                 'Name' => 'Home & Garden / Furniture / Beds',
+                                 'Parent' => '34'
+                               },
+                       '164' => {
+                                  'Path' => 'Sports & Outdoors / Individual Sports / Individual Sports',
+                                  'isLeaf' => 1,
+                                  'Name' => 'Sports & Outdoors / Individual Sports / Individual Sports',
+                                  'Parent' => '164'
+                                },
+                       '196' => {
+                                  'Path' => 'Apparel / Clothing / Underwear and Socks and Hosiery - Men',
+                                  'isLeaf' => 1,
+                                  'Name' => 'Apparel / Clothing / Underwear and Socks and Hosiery - Men',
+                                  'Parent' => '196'
+                                },
+                       '242' => {
+                                  'Path' => 'Office / Office Supplies / Pads and Notebooks',
+                                  'isLeaf' => 1,
+                                  'Name' => 'Office / Office Supplies / Pads and Notebooks',
+                                  'Parent' => '242'
+                                }
+                     }
+        };

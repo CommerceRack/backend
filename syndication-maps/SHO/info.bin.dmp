@@ -1,0 +1,3088 @@
+$VAR1 = {
+          '_TREE' => {
+                       '0' => [
+                                '100',
+                                '101',
+                                '102',
+                                '103',
+                                '104',
+                                '105',
+                                '106',
+                                '107',
+                                '108',
+                                '109',
+                                '110',
+                                '111',
+                                '112',
+                                '113',
+                                '114',
+                                '115',
+                                '116',
+                                '117',
+                                '118',
+                                '119',
+                                '120',
+                                '121',
+                                '122',
+                                '123',
+                                '124',
+                                '125',
+                                '126',
+                                '127',
+                                '128',
+                                '129',
+                                '130',
+                                '131',
+                                '132',
+                                '133',
+                                '134',
+                                '135',
+                                '136',
+                                '137',
+                                '138',
+                                '139',
+                                '140',
+                                '141',
+                                '142',
+                                '143',
+                                '144',
+                                '145',
+                                '146',
+                                '147',
+                                '148',
+                                '149',
+                                '150',
+                                '151',
+                                '152',
+                                '153',
+                                '154',
+                                '155',
+                                '156',
+                                '157',
+                                '158',
+                                '159',
+                                '160',
+                                '161',
+                                '162',
+                                '163',
+                                '164',
+                                '165',
+                                '166',
+                                '167',
+                                '168',
+                                '169',
+                                '170',
+                                '171',
+                                '172',
+                                '173',
+                                '174',
+                                '175',
+                                '176',
+                                '177',
+                                '178',
+                                '179',
+                                '180',
+                                '181',
+                                '182',
+                                '183',
+                                '184',
+                                '185',
+                                '186',
+                                '187',
+                                '188',
+                                '189',
+                                '190',
+                                '191',
+                                '192',
+                                '193',
+                                '194',
+                                '195',
+                                '196',
+                                '197',
+                                '198',
+                                '199',
+                                '200',
+                                '201',
+                                '202',
+                                '203',
+                                '204',
+                                '205',
+                                '206',
+                                '207',
+                                '208',
+                                '209',
+                                '210',
+                                '211',
+                                '212',
+                                '213',
+                                '214',
+                                '215',
+                                '216',
+                                '217',
+                                '218',
+                                '219',
+                                '220',
+                                '221',
+                                '222',
+                                '223',
+                                '224',
+                                '225',
+                                '226',
+                                '227',
+                                '228',
+                                '229',
+                                '230',
+                                '231',
+                                '232',
+                                '233',
+                                '234',
+                                '235',
+                                '236',
+                                '237',
+                                '238',
+                                '239',
+                                '240',
+                                '241',
+                                '242',
+                                '243',
+                                '244',
+                                '245',
+                                '246',
+                                '247',
+                                '248',
+                                '249',
+                                '250',
+                                '251',
+                                '252',
+                                '253',
+                                '254',
+                                '255',
+                                '256',
+                                '257',
+                                '258',
+                                '259',
+                                '260',
+                                '261',
+                                '262',
+                                '263',
+                                '264',
+                                '265',
+                                '266',
+                                '267',
+                                '268',
+                                '269',
+                                '270',
+                                '271',
+                                '272',
+                                '273',
+                                '274',
+                                '275',
+                                '276',
+                                '277',
+                                '278',
+                                '279',
+                                '280',
+                                '281',
+                                '282',
+                                '283',
+                                '284',
+                                '285',
+                                '286',
+                                '287',
+                                '288',
+                                '289',
+                                '290',
+                                '291',
+                                '292',
+                                '293',
+                                '294',
+                                '295',
+                                '296',
+                                '297',
+                                '298',
+                                '299',
+                                '300',
+                                '301',
+                                '302',
+                                '303',
+                                '304',
+                                '305',
+                                '306',
+                                '307',
+                                '308',
+                                '309',
+                                '310',
+                                '311',
+                                '312',
+                                '313',
+                                '314',
+                                '315',
+                                '316',
+                                '317',
+                                '318',
+                                '319',
+                                '320',
+                                '321',
+                                '322',
+                                '323',
+                                '324',
+                                '325',
+                                '326',
+                                '327',
+                                '328',
+                                '329',
+                                '330',
+                                '331',
+                                '332',
+                                '333',
+                                '334',
+                                '335',
+                                '336',
+                                '337',
+                                '338',
+                                '339',
+                                '340',
+                                '341',
+                                '342',
+                                '343',
+                                '344',
+                                '345',
+                                '346',
+                                '347',
+                                '348',
+                                '349',
+                                '350',
+                                '351',
+                                '352',
+                                '353',
+                                '354',
+                                '355',
+                                '356',
+                                '357',
+                                '358',
+                                '359',
+                                '360',
+                                '361',
+                                '362',
+                                '363',
+                                '364',
+                                '365',
+                                '366',
+                                '367',
+                                '368',
+                                '369',
+                                '370',
+                                '371',
+                                '372',
+                                '373',
+                                '374',
+                                '375',
+                                '376',
+                                '377',
+                                '378',
+                                '379',
+                                '380',
+                                '381',
+                                '382',
+                                '383',
+                                '384',
+                                '385',
+                                '386',
+                                '387',
+                                '388',
+                                '389',
+                                '390',
+                                '391',
+                                '392',
+                                '393',
+                                '394',
+                                '395',
+                                '396',
+                                '397',
+                                '398',
+                                '399',
+                                '400',
+                                '401',
+                                '402',
+                                '403',
+                                '404',
+                                '405',
+                                '406',
+                                '407',
+                                '408',
+                                '409',
+                                '410',
+                                '411',
+                                '412',
+                                '413',
+                                '414',
+                                '415',
+                                '416',
+                                '417',
+                                '418',
+                                '419',
+                                '420',
+                                '421',
+                                '422',
+                                '423',
+                                '424',
+                                '425',
+                                '426',
+                                '427',
+                                '428',
+                                '429',
+                                '430',
+                                '431',
+                                '432',
+                                '433',
+                                '434',
+                                '435',
+                                '436',
+                                '437',
+                                '438',
+                                '439',
+                                '440',
+                                '441',
+                                '442',
+                                '443',
+                                '444',
+                                '445',
+                                '446',
+                                '447',
+                                '448',
+                                '449',
+                                '450',
+                                '451',
+                                '452',
+                                '453',
+                                '454',
+                                '455',
+                                '456',
+                                '457',
+                                '458',
+                                '459',
+                                '460',
+                                '461',
+                                '462',
+                                '463',
+                                '464',
+                                '465',
+                                '466',
+                                '467',
+                                '468',
+                                '469',
+                                '470',
+                                '471',
+                                '472',
+                                '473',
+                                '474',
+                                '475',
+                                '476',
+                                '477',
+                                '478',
+                                '479',
+                                '480',
+                                '481',
+                                '482',
+                                '483',
+                                '484',
+                                '485',
+                                '486',
+                                '487',
+                                '488',
+                                '489',
+                                '490',
+                                '491',
+                                '492',
+                                '493',
+                                '494',
+                                '495',
+                                '496',
+                                '497',
+                                '498',
+                                '499',
+                                '500',
+                                '501',
+                                '502',
+                                '503',
+                                '504',
+                                '505',
+                                '506',
+                                '507',
+                                '508',
+                                '509',
+                                '510',
+                                '511',
+                                '512',
+                                '513',
+                                '514',
+                                '515',
+                                '516',
+                                '517',
+                                '518',
+                                '519',
+                                '520',
+                                '521',
+                                '522',
+                                '523',
+                                '524',
+                                '525',
+                                '526',
+                                '527',
+                                '528',
+                                '529',
+                                '530',
+                                '531',
+                                '532',
+                                '533',
+                                '534',
+                                '535',
+                                '536',
+                                '537',
+                                '538',
+                                '539'
+                              ]
+                     },
+          '_INFO' => {
+                       '127' => {
+                                  'Path' => 'Cars/New Cars',
+                                  'isLeaf' => 1,
+                                  'Name' => 'Cars/New Cars',
+                                  'Parent' => '127'
+                                },
+                       '276' => {
+                                  'Path' => 'Electronics/Car Audio and Radar Detectors/Radio Scanners',
+                                  'isLeaf' => 1,
+                                  'Name' => 'Electronics/Car Audio and Radar Detectors/Radio Scanners',
+                                  'Parent' => '276'
+                                },
+                       '118' => {
+                                  'Path' => 'Bags & Luggage/Briefcases & Business',
+                                  'isLeaf' => 1,
+                                  'Name' => 'Bags & Luggage/Briefcases & Business',
+                                  'Parent' => '118'
+                                },
+                       '206' => {
+                                  'Path' => 'Computers/PDAs and Portable Hardware/PDA Accessories',
+                                  'isLeaf' => 1,
+                                  'Name' => 'Computers/PDAs and Portable Hardware/PDA Accessories',
+                                  'Parent' => '206'
+                                },
+                       '443' => {
+                                  'Path' => 'Home & Garden/Kitchen/Kitchen Electrics/Juicers ',
+                                  'isLeaf' => 1,
+                                  'Name' => 'Home & Garden/Kitchen/Kitchen Electrics/Juicers ',
+                                  'Parent' => '443'
+                                },
+                       '102' => {
+                                  'Path' => 'Music',
+                                  'isLeaf' => 1,
+                                  'Name' => 'Music',
+                                  'Parent' => '102'
+                                },
+                       '331' => {
+                                  'Path' => 'Electronics/Phones & Answering Machines/Answering machines',
+                                  'isLeaf' => 1,
+                                  'Name' => 'Electronics/Phones & Answering Machines/Answering machines',
+                                  'Parent' => '331'
+                                },
+                       '358' => {
+                                  'Path' => 'Electronics/TV and Video/Remote Controls',
+                                  'isLeaf' => 1,
+                                  'Name' => 'Electronics/TV and Video/Remote Controls',
+                                  'Parent' => '358'
+                                },
+                       '520' => {
+                                  'Path' => 'Video Games/Accessories/GameCube Accessories',
+                                  'isLeaf' => 1,
+                                  'Name' => 'Video Games/Accessories/GameCube Accessories',
+                                  'Parent' => '520'
+                                },
+                       '532' => {
+                                  'Path' => 'Video Games/N Gage Games',
+                                  'isLeaf' => 1,
+                                  'Name' => 'Video Games/N Gage Games',
+                                  'Parent' => '532'
+                                },
+                       '233' => {
+                                  'Path' => 'Computers/Storage and Media/Tape Drives',
+                                  'isLeaf' => 1,
+                                  'Name' => 'Computers/Storage and Media/Tape Drives',
+                                  'Parent' => '233'
+                                },
+                       '512' => {
+                                  'Path' => 'Sport and Outdoor',
+                                  'isLeaf' => 1,
+                                  'Name' => 'Sport and Outdoor',
+                                  'Parent' => '512'
+                                },
+                       '437' => {
+                                  'Path' => 'Home & Garden/Kitchen/Kitchen Electrics/Crock Pots and Slow Cookers ',
+                                  'isLeaf' => 1,
+                                  'Name' => 'Home & Garden/Kitchen/Kitchen Electrics/Crock Pots and Slow Cookers ',
+                                  'Parent' => '437'
+                                },
+                       '194' => {
+                                  'Path' => 'Computers/Networking/Hubs & Switches',
+                                  'isLeaf' => 1,
+                                  'Name' => 'Computers/Networking/Hubs & Switches',
+                                  'Parent' => '194'
+                                },
+                       '259' => {
+                                  'Path' => 'Electronics/Cameras and Photography/Tripods',
+                                  'isLeaf' => 1,
+                                  'Name' => 'Electronics/Cameras and Photography/Tripods',
+                                  'Parent' => '259'
+                                },
+                       '463' => {
+                                  'Path' => 'Kids & Family/Baby Care/Baby Activity',
+                                  'isLeaf' => 1,
+                                  'Name' => 'Kids & Family/Baby Care/Baby Activity',
+                                  'Parent' => '463'
+                                },
+                       '368' => {
+                                  'Path' => 'Electronics/TV/Video/Direct View Televisions',
+                                  'isLeaf' => 1,
+                                  'Name' => 'Electronics/TV/Video/Direct View Televisions',
+                                  'Parent' => '368'
+                                },
+                       '424' => {
+                                  'Path' => 'Home & Garden/Home Accessories/Bedding',
+                                  'isLeaf' => 1,
+                                  'Name' => 'Home & Garden/Home Accessories/Bedding',
+                                  'Parent' => '424'
+                                },
+                       '458' => {
+                                  'Path' => 'Jewelry & Watches/Sunglasses',
+                                  'isLeaf' => 1,
+                                  'Name' => 'Jewelry & Watches/Sunglasses',
+                                  'Parent' => '458'
+                                },
+                       '517' => {
+                                  'Path' => 'Video Games/Accessories/Dreamcast Accessories',
+                                  'isLeaf' => 1,
+                                  'Name' => 'Video Games/Accessories/Dreamcast Accessories',
+                                  'Parent' => '517'
+                                },
+                       '220' => {
+                                  'Path' => 'Computers/Scanners/Scanners',
+                                  'isLeaf' => 1,
+                                  'Name' => 'Computers/Scanners/Scanners',
+                                  'Parent' => '220'
+                                },
+                       '451' => {
+                                  'Path' => 'Home & Garden/Kitchen/Kitchen Electrics/Waffle Makers    ',
+                                  'isLeaf' => 1,
+                                  'Name' => 'Home & Garden/Kitchen/Kitchen Electrics/Waffle Makers    ',
+                                  'Parent' => '451'
+                                },
+                       '316' => {
+                                  'Path' => 'Electronics/Optics/Night Vision',
+                                  'isLeaf' => 1,
+                                  'Name' => 'Electronics/Optics/Night Vision',
+                                  'Parent' => '316'
+                                },
+                       '454' => {
+                                  'Path' => 'Home & Garden/Patio Accessories/Grills and Smokers',
+                                  'isLeaf' => 1,
+                                  'Name' => 'Home & Garden/Patio Accessories/Grills and Smokers',
+                                  'Parent' => '454'
+                                },
+                       '163' => {
+                                  'Path' => 'Computers/Computer Memory/Video Memory',
+                                  'isLeaf' => 1,
+                                  'Name' => 'Computers/Computer Memory/Video Memory',
+                                  'Parent' => '163'
+                                },
+                       '395' => {
+                                  'Path' => 'Home and Garden/Craft Supplies',
+                                  'isLeaf' => 1,
+                                  'Name' => 'Home and Garden/Craft Supplies',
+                                  'Parent' => '395'
+                                },
+                       '175' => {
+                                  'Path' => 'Computers/Input Devices/Graphic Tablets and Mice',
+                                  'isLeaf' => 1,
+                                  'Name' => 'Computers/Input Devices/Graphic Tablets and Mice',
+                                  'Parent' => '175'
+                                },
+                       '492' => {
+                                  'Path' => 'Large Appliances/Washing Machines',
+                                  'isLeaf' => 1,
+                                  'Name' => 'Large Appliances/Washing Machines',
+                                  'Parent' => '492'
+                                },
+                       '208' => {
+                                  'Path' => 'Computers/Performance Upgrades/Graphics Cards',
+                                  'isLeaf' => 1,
+                                  'Name' => 'Computers/Performance Upgrades/Graphics Cards',
+                                  'Parent' => '208'
+                                },
+                       '347' => {
+                                  'Path' => 'Electronics/Portable Electronics/Optical Accessories',
+                                  'isLeaf' => 1,
+                                  'Name' => 'Electronics/Portable Electronics/Optical Accessories',
+                                  'Parent' => '347'
+                                },
+                       '511' => {
+                                  'Path' => 'Spirits',
+                                  'isLeaf' => 1,
+                                  'Name' => 'Spirits',
+                                  'Parent' => '511'
+                                },
+                       '434' => {
+                                  'Path' => 'Home & Garden/Kitchen/Kitchen Electrics/Accessories ',
+                                  'isLeaf' => 1,
+                                  'Name' => 'Home & Garden/Kitchen/Kitchen Electrics/Accessories ',
+                                  'Parent' => '434'
+                                },
+                       '292' => {
+                                  'Path' => 'Electronics/Communications/Telephone Accessories',
+                                  'isLeaf' => 1,
+                                  'Name' => 'Electronics/Communications/Telephone Accessories',
+                                  'Parent' => '292'
+                                },
+                       '325' => {
+                                  'Path' => 'Electronics/Personal Audio/MP3 Accessories',
+                                  'isLeaf' => 1,
+                                  'Name' => 'Electronics/Personal Audio/MP3 Accessories',
+                                  'Parent' => '325'
+                                },
+                       '378' => {
+                                  'Path' => 'Flowers and Plants',
+                                  'isLeaf' => 1,
+                                  'Name' => 'Flowers and Plants',
+                                  'Parent' => '378'
+                                },
+                       '350' => {
+                                  'Path' => 'Electronics/Portable Electronics/Personal CD Players',
+                                  'isLeaf' => 1,
+                                  'Name' => 'Electronics/Portable Electronics/Personal CD Players',
+                                  'Parent' => '350'
+                                },
+                       '291' => {
+                                  'Path' => 'Electronics/Communications/Phones',
+                                  'isLeaf' => 1,
+                                  'Name' => 'Electronics/Communications/Phones',
+                                  'Parent' => '291'
+                                },
+                       '374' => {
+                                  'Path' => 'Electronics/TV/Video/TV Accessories',
+                                  'isLeaf' => 1,
+                                  'Name' => 'Electronics/TV/Video/TV Accessories',
+                                  'Parent' => '374'
+                                },
+                       '114' => {
+                                  'Path' => 'Appliances/Vacuum Cleaners Accessories',
+                                  'isLeaf' => 1,
+                                  'Name' => 'Appliances/Vacuum Cleaners Accessories',
+                                  'Parent' => '114'
+                                },
+                       '199' => {
+                                  'Path' => 'Computers/Networking/Print Servers',
+                                  'isLeaf' => 1,
+                                  'Name' => 'Computers/Networking/Print Servers',
+                                  'Parent' => '199'
+                                },
+                       '442' => {
+                                  'Path' => 'Home & Garden/Kitchen/Kitchen Electrics/Indoor Grills ',
+                                  'isLeaf' => 1,
+                                  'Name' => 'Home & Garden/Kitchen/Kitchen Electrics/Indoor Grills ',
+                                  'Parent' => '442'
+                                },
+                       '226' => {
+                                  'Path' => 'Computers/Storage and Media/DVD Drives',
+                                  'isLeaf' => 1,
+                                  'Name' => 'Computers/Storage and Media/DVD Drives',
+                                  'Parent' => '226'
+                                },
+                       '429' => {
+                                  'Path' => 'Home & Garden/Home Accessories/Window Treatments',
+                                  'isLeaf' => 1,
+                                  'Name' => 'Home & Garden/Home Accessories/Window Treatments',
+                                  'Parent' => '429'
+                                },
+                       '153' => {
+                                  'Path' => 'Computers/Computer Accessories/Scanner Accessories',
+                                  'isLeaf' => 1,
+                                  'Name' => 'Computers/Computer Accessories/Scanner Accessories',
+                                  'Parent' => '153'
+                                },
+                       '211' => {
+                                  'Path' => 'Computers/Performance Upgrades/Sound Cards',
+                                  'isLeaf' => 1,
+                                  'Name' => 'Computers/Performance Upgrades/Sound Cards',
+                                  'Parent' => '211'
+                                },
+                       '431' => {
+                                  'Path' => 'Home & Garden/Kitchen/Coffee & Espresso Makers',
+                                  'isLeaf' => 1,
+                                  'Name' => 'Home & Garden/Kitchen/Coffee & Espresso Makers',
+                                  'Parent' => '431'
+                                },
+                       '527' => {
+                                  'Path' => 'Video Games/Classic Consoles Games',
+                                  'isLeaf' => 1,
+                                  'Name' => 'Video Games/Classic Consoles Games',
+                                  'Parent' => '527'
+                                },
+                       '337' => {
+                                  'Path' => 'Electronics/Phones &  Clocks/Cellular Phones',
+                                  'isLeaf' => 1,
+                                  'Name' => 'Electronics/Phones &  Clocks/Cellular Phones',
+                                  'Parent' => '337'
+                                },
+                       '382' => {
+                                  'Path' => 'Food and Drinks',
+                                  'isLeaf' => 1,
+                                  'Name' => 'Food and Drinks',
+                                  'Parent' => '382'
+                                },
+                       '101' => {
+                                  'Path' => 'Books',
+                                  'isLeaf' => 1,
+                                  'Name' => 'Books',
+                                  'Parent' => '101'
+                                },
+                       '409' => {
+                                  'Path' => 'Home and Garden/Small Appliances/Microwave Ovens',
+                                  'isLeaf' => 1,
+                                  'Name' => 'Home and Garden/Small Appliances/Microwave Ovens',
+                                  'Parent' => '409'
+                                },
+                       '340' => {
+                                  'Path' => 'Electronics/Portable Electronics/Binoculars',
+                                  'isLeaf' => 1,
+                                  'Name' => 'Electronics/Portable Electronics/Binoculars',
+                                  'Parent' => '340'
+                                },
+                       '311' => {
+                                  'Path' => 'Electronics/Home Audio/Turntables',
+                                  'isLeaf' => 1,
+                                  'Name' => 'Electronics/Home Audio/Turntables',
+                                  'Parent' => '311'
+                                },
+                       '241' => {
+                                  'Path' => 'Cosmetics',
+                                  'isLeaf' => 1,
+                                  'Name' => 'Cosmetics',
+                                  'Parent' => '241'
+                                },
+                       '139' => {
+                                  'Path' => 'Computers/Components/Motherboards',
+                                  'isLeaf' => 1,
+                                  'Name' => 'Computers/Components/Motherboards',
+                                  'Parent' => '139'
+                                },
+                       '198' => {
+                                  'Path' => 'Computers/Networking/Other Network Devices',
+                                  'isLeaf' => 1,
+                                  'Name' => 'Computers/Networking/Other Network Devices',
+                                  'Parent' => '198'
+                                },
+                       '129' => {
+                                  'Path' => 'Cars/Used Cars',
+                                  'isLeaf' => 1,
+                                  'Name' => 'Cars/Used Cars',
+                                  'Parent' => '129'
+                                },
+                       '389' => {
+                                  'Path' => 'Health & Beauty/Health Aids/Blood Pressure Kits',
+                                  'isLeaf' => 1,
+                                  'Name' => 'Health & Beauty/Health Aids/Blood Pressure Kits',
+                                  'Parent' => '389'
+                                },
+                       '489' => {
+                                  'Path' => 'Large Appliances/Ovens',
+                                  'isLeaf' => 1,
+                                  'Name' => 'Large Appliances/Ovens',
+                                  'Parent' => '489'
+                                },
+                       '327' => {
+                                  'Path' => 'Electronics/Personal Audio/Personal Audio   Mini Disc Player',
+                                  'isLeaf' => 1,
+                                  'Name' => 'Electronics/Personal Audio/Personal Audio   Mini Disc Player',
+                                  'Parent' => '327'
+                                },
+                       '495' => {
+                                  'Path' => 'Musical Instruments',
+                                  'isLeaf' => 1,
+                                  'Name' => 'Musical Instruments',
+                                  'Parent' => '495'
+                                },
+                       '320' => {
+                                  'Path' => 'Electronics/Optics/Telescopes',
+                                  'isLeaf' => 1,
+                                  'Name' => 'Electronics/Optics/Telescopes',
+                                  'Parent' => '320'
+                                },
+                       '280' => {
+                                  'Path' => 'Electronics/Car Audio & Radar Detectors/Car Audio Equalizers',
+                                  'isLeaf' => 1,
+                                  'Name' => 'Electronics/Car Audio & Radar Detectors/Car Audio Equalizers',
+                                  'Parent' => '280'
+                                },
+                       '418' => {
+                                  'Path' => 'Home and Garden/Small Appliances/Waffle Makers',
+                                  'isLeaf' => 1,
+                                  'Name' => 'Home and Garden/Small Appliances/Waffle Makers',
+                                  'Parent' => '418'
+                                },
+                       '273' => {
+                                  'Path' => 'Electronics/Car Audio and Radar Detectors/CB Radios',
+                                  'isLeaf' => 1,
+                                  'Name' => 'Electronics/Car Audio and Radar Detectors/CB Radios',
+                                  'Parent' => '273'
+                                },
+                       '236' => {
+                                  'Path' => 'Computers/Systems/PC Desktops',
+                                  'isLeaf' => 1,
+                                  'Name' => 'Computers/Systems/PC Desktops',
+                                  'Parent' => '236'
+                                },
+                       '471' => {
+                                  'Path' => 'Large Appliances/Appliance Accessories/Dishwasher Accessories',
+                                  'isLeaf' => 1,
+                                  'Name' => 'Large Appliances/Appliance Accessories/Dishwasher Accessories',
+                                  'Parent' => '471'
+                                },
+                       '168' => {
+                                  'Path' => 'Computers/Hardware/PC Desktops',
+                                  'isLeaf' => 1,
+                                  'Name' => 'Computers/Hardware/PC Desktops',
+                                  'Parent' => '168'
+                                },
+                       '202' => {
+                                  'Path' => 'Computers/Networking/Routers',
+                                  'isLeaf' => 1,
+                                  'Name' => 'Computers/Networking/Routers',
+                                  'Parent' => '202'
+                                },
+                       '218' => {
+                                  'Path' => 'Computers/Power Equipment/UPS Systems Devices',
+                                  'isLeaf' => 1,
+                                  'Name' => 'Computers/Power Equipment/UPS Systems Devices',
+                                  'Parent' => '218'
+                                },
+                       '249' => {
+                                  'Path' => 'Electronics/Cameras and Photography/Camera Lenses',
+                                  'isLeaf' => 1,
+                                  'Name' => 'Electronics/Cameras and Photography/Camera Lenses',
+                                  'Parent' => '249'
+                                },
+                       '361' => {
+                                  'Path' => 'Electronics/TV and Video/Standard Televisions',
+                                  'isLeaf' => 1,
+                                  'Name' => 'Electronics/TV and Video/Standard Televisions',
+                                  'Parent' => '361'
+                                },
+                       '465' => {
+                                  'Path' => 'Kids & Family/Baby Care/Child Bedding',
+                                  'isLeaf' => 1,
+                                  'Name' => 'Kids & Family/Baby Care/Child Bedding',
+                                  'Parent' => '465'
+                                },
+                       '135' => {
+                                  'Path' => 'Computers/Accessories & Supplies/Multimedia Audio Speakers',
+                                  'isLeaf' => 1,
+                                  'Name' => 'Computers/Accessories & Supplies/Multimedia Audio Speakers',
+                                  'Parent' => '135'
+                                },
+                       '184' => {
+                                  'Path' => 'Computers/Memory/Read-Only Memory ',
+                                  'isLeaf' => 1,
+                                  'Name' => 'Computers/Memory/Read-Only Memory ',
+                                  'Parent' => '184'
+                                },
+                       '348' => {
+                                  'Path' => 'Electronics/Portable Electronics/Personal Audio - Mini Disc Player',
+                                  'isLeaf' => 1,
+                                  'Name' => 'Electronics/Portable Electronics/Personal Audio - Mini Disc Player',
+                                  'Parent' => '348'
+                                },
+                       '145' => {
+                                  'Path' => 'Computers/Components/System Power Supplies',
+                                  'isLeaf' => 1,
+                                  'Name' => 'Computers/Components/System Power Supplies',
+                                  'Parent' => '145'
+                                },
+                       '178' => {
+                                  'Path' => 'Computers/Input Devices/Web Cameras',
+                                  'isLeaf' => 1,
+                                  'Name' => 'Computers/Input Devices/Web Cameras',
+                                  'Parent' => '178'
+                                },
+                       '140' => {
+                                  'Path' => 'Computers/Components/PC Cases',
+                                  'isLeaf' => 1,
+                                  'Name' => 'Computers/Components/PC Cases',
+                                  'Parent' => '140'
+                                },
+                       '285' => {
+                                  'Path' => 'Electronics/Car Audio & Radar Detectors/Radar Detectors',
+                                  'isLeaf' => 1,
+                                  'Name' => 'Electronics/Car Audio & Radar Detectors/Radar Detectors',
+                                  'Parent' => '285'
+                                },
+                       '104' => {
+                                  'Path' => 'Appliances/Clothes Dryers',
+                                  'isLeaf' => 1,
+                                  'Name' => 'Appliances/Clothes Dryers',
+                                  'Parent' => '104'
+                                },
+                       '124' => {
+                                  'Path' => 'Cars/Car Manuals (Coming Soon)',
+                                  'isLeaf' => 1,
+                                  'Name' => 'Cars/Car Manuals (Coming Soon)',
+                                  'Parent' => '124'
+                                },
+                       '131' => {
+                                  'Path' => 'Computers/Accessories & Supplies/Cables & Connectors',
+                                  'isLeaf' => 1,
+                                  'Name' => 'Computers/Accessories & Supplies/Cables & Connectors',
+                                  'Parent' => '131'
+                                },
+                       '181' => {
+                                  'Path' => 'Computers/Memory/Flash Memory ',
+                                  'isLeaf' => 1,
+                                  'Name' => 'Computers/Memory/Flash Memory ',
+                                  'Parent' => '181'
+                                },
+                       '412' => {
+                                  'Path' => 'Home and Garden/Small Appliances/Popcorn Makers',
+                                  'isLeaf' => 1,
+                                  'Name' => 'Home and Garden/Small Appliances/Popcorn Makers',
+                                  'Parent' => '412'
+                                },
+                       '234' => {
+                                  'Path' => 'Computers/Storage and Media/Zip and Other Drives',
+                                  'isLeaf' => 1,
+                                  'Name' => 'Computers/Storage and Media/Zip and Other Drives',
+                                  'Parent' => '234'
+                                },
+                       '385' => {
+                                  'Path' => 'Garden',
+                                  'isLeaf' => 1,
+                                  'Name' => 'Garden',
+                                  'Parent' => '385'
+                                },
+                       '502' => {
+                                  'Path' => 'Office/Office Machines/Shredders',
+                                  'isLeaf' => 1,
+                                  'Name' => 'Office/Office Machines/Shredders',
+                                  'Parent' => '502'
+                                },
+                       '307' => {
+                                  'Path' => 'Electronics/Home Audio/Home Theater Speakers and Subwoofers',
+                                  'isLeaf' => 1,
+                                  'Name' => 'Electronics/Home Audio/Home Theater Speakers and Subwoofers',
+                                  'Parent' => '307'
+                                },
+                       '314' => {
+                                  'Path' => 'Electronics/Home Theater/Large TV - 34 Inches or greater',
+                                  'isLeaf' => 1,
+                                  'Name' => 'Electronics/Home Theater/Large TV - 34 Inches or greater',
+                                  'Parent' => '314'
+                                },
+                       '154' => {
+                                  'Path' => 'Computers/Computer Accessories/Surge Suppressors',
+                                  'isLeaf' => 1,
+                                  'Name' => 'Computers/Computer Accessories/Surge Suppressors',
+                                  'Parent' => '154'
+                                },
+                       '364' => {
+                                  'Path' => 'Electronics/TV and Video/VCRs',
+                                  'isLeaf' => 1,
+                                  'Name' => 'Electronics/TV and Video/VCRs',
+                                  'Parent' => '364'
+                                },
+                       '388' => {
+                                  'Path' => 'Health and Beauty/Shavers',
+                                  'isLeaf' => 1,
+                                  'Name' => 'Health and Beauty/Shavers',
+                                  'Parent' => '388'
+                                },
+                       '355' => {
+                                  'Path' => 'Electronics/TV and Video/DVD Players',
+                                  'isLeaf' => 1,
+                                  'Name' => 'Electronics/TV and Video/DVD Players',
+                                  'Parent' => '355'
+                                },
+                       '159' => {
+                                  'Path' => 'Computers/Computer Memory/Flash Memory',
+                                  'isLeaf' => 1,
+                                  'Name' => 'Computers/Computer Memory/Flash Memory',
+                                  'Parent' => '159'
+                                },
+                       '479' => {
+                                  'Path' => 'Large Appliances/Appliance Accessories/Washer and Dryer Accessories',
+                                  'isLeaf' => 1,
+                                  'Name' => 'Large Appliances/Appliance Accessories/Washer and Dryer Accessories',
+                                  'Parent' => '479'
+                                },
+                       '486' => {
+                                  'Path' => 'Large Appliances/Kitchen Cooktops',
+                                  'isLeaf' => 1,
+                                  'Name' => 'Large Appliances/Kitchen Cooktops',
+                                  'Parent' => '486'
+                                },
+                       '326' => {
+                                  'Path' => 'Electronics/Personal Audio/MP3 and Digital Media Players',
+                                  'isLeaf' => 1,
+                                  'Name' => 'Electronics/Personal Audio/MP3 and Digital Media Players',
+                                  'Parent' => '326'
+                                },
+                       '160' => {
+                                  'Path' => 'Computers/Computer Memory/Memory Adapters',
+                                  'isLeaf' => 1,
+                                  'Name' => 'Computers/Computer Memory/Memory Adapters',
+                                  'Parent' => '160'
+                                },
+                       '509' => {
+                                  'Path' => 'Software',
+                                  'isLeaf' => 1,
+                                  'Name' => 'Software',
+                                  'Parent' => '509'
+                                },
+                       '367' => {
+                                  'Path' => 'Electronics/TV/Video/Digital TV Recorders',
+                                  'isLeaf' => 1,
+                                  'Name' => 'Electronics/TV/Video/Digital TV Recorders',
+                                  'Parent' => '367'
+                                },
+                       '335' => {
+                                  'Path' => 'Electronics/Phones & Answering Machines/Telephone Accessories',
+                                  'isLeaf' => 1,
+                                  'Name' => 'Electronics/Phones & Answering Machines/Telephone Accessories',
+                                  'Parent' => '335'
+                                },
+                       '270' => {
+                                  'Path' => 'Electronics/Car Audio and Radar Detectors/Car Audio Equalizers',
+                                  'isLeaf' => 1,
+                                  'Name' => 'Electronics/Car Audio and Radar Detectors/Car Audio Equalizers',
+                                  'Parent' => '270'
+                                },
+                       '195' => {
+                                  'Path' => 'Computers/Networking/Network Accessories',
+                                  'isLeaf' => 1,
+                                  'Name' => 'Computers/Networking/Network Accessories',
+                                  'Parent' => '195'
+                                },
+                       '485' => {
+                                  'Path' => 'Large Appliances/Humidifiers',
+                                  'isLeaf' => 1,
+                                  'Name' => 'Large Appliances/Humidifiers',
+                                  'Parent' => '485'
+                                },
+                       '391' => {
+                                  'Path' => 'Health & Beauty/Health Aids/Personal Health',
+                                  'isLeaf' => 1,
+                                  'Name' => 'Health & Beauty/Health Aids/Personal Health',
+                                  'Parent' => '391'
+                                },
+                       '538' => {
+                                  'Path' => 'Watches',
+                                  'isLeaf' => 1,
+                                  'Name' => 'Watches',
+                                  'Parent' => '538'
+                                },
+                       '524' => {
+                                  'Path' => 'Video Games/Accessories/PlayStation 2 Accessories',
+                                  'isLeaf' => 1,
+                                  'Name' => 'Video Games/Accessories/PlayStation 2 Accessories',
+                                  'Parent' => '524'
+                                },
+                       '523' => {
+                                  'Path' => 'Video Games/Accessories/PlayStation 1  Accessories',
+                                  'isLeaf' => 1,
+                                  'Name' => 'Video Games/Accessories/PlayStation 1  Accessories',
+                                  'Parent' => '523'
+                                },
+                       '193' => {
+                                  'Path' => 'Computers/Networking/Firewalls',
+                                  'isLeaf' => 1,
+                                  'Name' => 'Computers/Networking/Firewalls',
+                                  'Parent' => '193'
+                                },
+                       '288' => {
+                                  'Path' => 'Electronics/Communications/Answering Machines',
+                                  'isLeaf' => 1,
+                                  'Name' => 'Electronics/Communications/Answering Machines',
+                                  'Parent' => '288'
+                                },
+                       '460' => {
+                                  'Path' => 'Kids and Family/Car Seats',
+                                  'isLeaf' => 1,
+                                  'Name' => 'Kids and Family/Car Seats',
+                                  'Parent' => '460'
+                                },
+                       '119' => {
+                                  'Path' => 'Bags & Luggage/Luggage & Duffles',
+                                  'isLeaf' => 1,
+                                  'Name' => 'Bags & Luggage/Luggage & Duffles',
+                                  'Parent' => '119'
+                                },
+                       '180' => {
+                                  'Path' => 'Computers/Memory/Cache Memory',
+                                  'isLeaf' => 1,
+                                  'Name' => 'Computers/Memory/Cache Memory',
+                                  'Parent' => '180'
+                                },
+                       '324' => {
+                                  'Path' => 'Electronics/Personal Audio/Headsets',
+                                  'isLeaf' => 1,
+                                  'Name' => 'Electronics/Personal Audio/Headsets',
+                                  'Parent' => '324'
+                                },
+                       '453' => {
+                                  'Path' => 'Home & Garden/Kitchen/Kitchen Tools',
+                                  'isLeaf' => 1,
+                                  'Name' => 'Home & Garden/Kitchen/Kitchen Tools',
+                                  'Parent' => '453'
+                                },
+                       '521' => {
+                                  'Path' => 'Video Games/Accessories/N Gage Accessories',
+                                  'isLeaf' => 1,
+                                  'Name' => 'Video Games/Accessories/N Gage Accessories',
+                                  'Parent' => '521'
+                                },
+                       '244' => {
+                                  'Path' => 'Electronics/Cameras/35mm SLR Cameras',
+                                  'isLeaf' => 1,
+                                  'Name' => 'Electronics/Cameras/35mm SLR Cameras',
+                                  'Parent' => '244'
+                                },
+                       '162' => {
+                                  'Path' => 'Computers/Computer Memory/Read Only Memory (ROM)',
+                                  'isLeaf' => 1,
+                                  'Name' => 'Computers/Computer Memory/Read Only Memory (ROM)',
+                                  'Parent' => '162'
+                                },
+                       '433' => {
+                                  'Path' => 'Home & Garden/Kitchen/Cutlery',
+                                  'isLeaf' => 1,
+                                  'Name' => 'Home & Garden/Kitchen/Cutlery',
+                                  'Parent' => '433'
+                                },
+                       '351' => {
+                                  'Path' => 'Electronics/Portable Electronics/Personal Radios',
+                                  'isLeaf' => 1,
+                                  'Name' => 'Electronics/Portable Electronics/Personal Radios',
+                                  'Parent' => '351'
+                                },
+                       '410' => {
+                                  'Path' => 'Home and Garden/Small Appliances/Mixers',
+                                  'isLeaf' => 1,
+                                  'Name' => 'Home and Garden/Small Appliances/Mixers',
+                                  'Parent' => '410'
+                                },
+                       '240' => {
+                                  'Path' => 'Computers/Systems/Workstations',
+                                  'isLeaf' => 1,
+                                  'Name' => 'Computers/Systems/Workstations',
+                                  'Parent' => '240'
+                                },
+                       '246' => {
+                                  'Path' => 'Electronics/Cameras and Photography/APS 35mm Point and Shoot Cameras',
+                                  'isLeaf' => 1,
+                                  'Name' => 'Electronics/Cameras and Photography/APS 35mm Point and Shoot Cameras',
+                                  'Parent' => '246'
+                                },
+                       '334' => {
+                                  'Path' => 'Electronics/Phones & Answering Machines/Phones',
+                                  'isLeaf' => 1,
+                                  'Name' => 'Electronics/Phones & Answering Machines/Phones',
+                                  'Parent' => '334'
+                                },
+                       '440' => {
+                                  'Path' => 'Home & Garden/Kitchen/Kitchen Electrics/Food Processors ',
+                                  'isLeaf' => 1,
+                                  'Name' => 'Home & Garden/Kitchen/Kitchen Electrics/Food Processors ',
+                                  'Parent' => '440'
+                                },
+                       '488' => {
+                                  'Path' => 'Large Appliances/Kitchen Ranges',
+                                  'isLeaf' => 1,
+                                  'Name' => 'Large Appliances/Kitchen Ranges',
+                                  'Parent' => '488'
+                                },
+                       '230' => {
+                                  'Path' => 'Computers/Storage and Media/Removable media',
+                                  'isLeaf' => 1,
+                                  'Name' => 'Computers/Storage and Media/Removable media',
+                                  'Parent' => '230'
+                                },
+                       '115' => {
+                                  'Path' => 'Appliances/Vacuums',
+                                  'isLeaf' => 1,
+                                  'Name' => 'Appliances/Vacuums',
+                                  'Parent' => '115'
+                                },
+                       '299' => {
+                                  'Path' => 'Electronics/Home Audio/Home Audio Accessories',
+                                  'isLeaf' => 1,
+                                  'Name' => 'Electronics/Home Audio/Home Audio Accessories',
+                                  'Parent' => '299'
+                                },
+                       '377' => {
+                                  'Path' => 'Event Tickets (Coming Soon)',
+                                  'isLeaf' => 1,
+                                  'Name' => 'Event Tickets (Coming Soon)',
+                                  'Parent' => '377'
+                                },
+                       '430' => {
+                                  'Path' => 'Home & Garden/Kitchen/Bakeware',
+                                  'isLeaf' => 1,
+                                  'Name' => 'Home & Garden/Kitchen/Bakeware',
+                                  'Parent' => '430'
+                                },
+                       '447' => {
+                                  'Path' => 'Home & Garden/Kitchen/Kitchen Electrics/Rice Cookers and Steamers ',
+                                  'isLeaf' => 1,
+                                  'Name' => 'Home & Garden/Kitchen/Kitchen Electrics/Rice Cookers and Steamers ',
+                                  'Parent' => '447'
+                                },
+                       '103' => {
+                                  'Path' => 'Appliances/Air Conditioners',
+                                  'isLeaf' => 1,
+                                  'Name' => 'Appliances/Air Conditioners',
+                                  'Parent' => '103'
+                                },
+                       '201' => {
+                                  'Path' => 'Computers/Networking/Repeatres',
+                                  'isLeaf' => 1,
+                                  'Name' => 'Computers/Networking/Repeatres',
+                                  'Parent' => '201'
+                                },
+                       '536' => {
+                                  'Path' => 'Video Games/Video Game Consoles',
+                                  'isLeaf' => 1,
+                                  'Name' => 'Video Games/Video Game Consoles',
+                                  'Parent' => '536'
+                                },
+                       '379' => {
+                                  'Path' => 'Flowers & Gifts/Flowers Baskets & Gifts/Chocolates & Sweets',
+                                  'isLeaf' => 1,
+                                  'Name' => 'Flowers & Gifts/Flowers Baskets & Gifts/Chocolates & Sweets',
+                                  'Parent' => '379'
+                                },
+                       '415' => {
+                                  'Path' => 'Home and Garden/Small Appliances/Specialty Electrics',
+                                  'isLeaf' => 1,
+                                  'Name' => 'Home and Garden/Small Appliances/Specialty Electrics',
+                                  'Parent' => '415'
+                                },
+                       '423' => {
+                                  'Path' => 'Home & Garden/Home Accessories/Bathroom Accessories',
+                                  'isLeaf' => 1,
+                                  'Name' => 'Home & Garden/Home Accessories/Bathroom Accessories',
+                                  'Parent' => '423'
+                                },
+                       '113' => {
+                                  'Path' => 'Appliances/Sewing Machines',
+                                  'isLeaf' => 1,
+                                  'Name' => 'Appliances/Sewing Machines',
+                                  'Parent' => '113'
+                                },
+                       '152' => {
+                                  'Path' => 'Computers/Computer Accessories/Printer Accessories',
+                                  'isLeaf' => 1,
+                                  'Name' => 'Computers/Computer Accessories/Printer Accessories',
+                                  'Parent' => '152'
+                                },
+                       '189' => {
+                                  'Path' => 'Computers/Networking',
+                                  'isLeaf' => 1,
+                                  'Name' => 'Computers/Networking',
+                                  'Parent' => '189'
+                                },
+                       '342' => {
+                                  'Path' => 'Electronics/Portable Electronics/GPS Accessories',
+                                  'isLeaf' => 1,
+                                  'Name' => 'Electronics/Portable Electronics/GPS Accessories',
+                                  'Parent' => '342'
+                                },
+                       '452' => {
+                                  'Path' => 'Home & Garden/Kitchen/Kitchen Tableware ',
+                                  'isLeaf' => 1,
+                                  'Name' => 'Home & Garden/Kitchen/Kitchen Tableware ',
+                                  'Parent' => '452'
+                                },
+                       '266' => {
+                                  'Path' => 'Electronics/Cameras/Photographic Film',
+                                  'isLeaf' => 1,
+                                  'Name' => 'Electronics/Cameras/Photographic Film',
+                                  'Parent' => '266'
+                                },
+                       '295' => {
+                                  'Path' => 'Electronics/Handheld Electronics/GPS Devices',
+                                  'isLeaf' => 1,
+                                  'Name' => 'Electronics/Handheld Electronics/GPS Devices',
+                                  'Parent' => '295'
+                                },
+                       '341' => {
+                                  'Path' => 'Electronics/Portable Electronics/Boomboxes',
+                                  'isLeaf' => 1,
+                                  'Name' => 'Electronics/Portable Electronics/Boomboxes',
+                                  'Parent' => '341'
+                                },
+                       '480' => {
+                                  'Path' => 'Large Appliances/Dehumidifiers',
+                                  'isLeaf' => 1,
+                                  'Name' => 'Large Appliances/Dehumidifiers',
+                                  'Parent' => '480'
+                                },
+                       '107' => {
+                                  'Path' => 'Appliances/Irons',
+                                  'isLeaf' => 1,
+                                  'Name' => 'Appliances/Irons',
+                                  'Parent' => '107'
+                                },
+                       '438' => {
+                                  'Path' => 'Home & Garden/Kitchen/Kitchen Electrics/Deep Fryers ',
+                                  'isLeaf' => 1,
+                                  'Name' => 'Home & Garden/Kitchen/Kitchen Electrics/Deep Fryers ',
+                                  'Parent' => '438'
+                                },
+                       '535' => {
+                                  'Path' => 'Video Games/PlayStation 2 Games',
+                                  'isLeaf' => 1,
+                                  'Name' => 'Video Games/PlayStation 2 Games',
+                                  'Parent' => '535'
+                                },
+                       '467' => {
+                                  'Path' => 'Kitchen',
+                                  'isLeaf' => 1,
+                                  'Name' => 'Kitchen',
+                                  'Parent' => '467'
+                                },
+                       '174' => {
+                                  'Path' => 'Computers/Input Devices/Graphics Tablets and Mice ',
+                                  'isLeaf' => 1,
+                                  'Name' => 'Computers/Input Devices/Graphics Tablets and Mice ',
+                                  'Parent' => '174'
+                                },
+                       '474' => {
+                                  'Path' => 'Large Appliances/Appliance Accessories/Microwave Oven Accessories',
+                                  'isLeaf' => 1,
+                                  'Name' => 'Large Appliances/Appliance Accessories/Microwave Oven Accessories',
+                                  'Parent' => '474'
+                                },
+                       '481' => {
+                                  'Path' => 'Large Appliances/Dishwashers',
+                                  'isLeaf' => 1,
+                                  'Name' => 'Large Appliances/Dishwashers',
+                                  'Parent' => '481'
+                                },
+                       '214' => {
+                                  'Path' => 'Computers/Personal Organizers/Personal Organizers',
+                                  'isLeaf' => 1,
+                                  'Name' => 'Computers/Personal Organizers/Personal Organizers',
+                                  'Parent' => '214'
+                                },
+                       '444' => {
+                                  'Path' => 'Home & Garden/Kitchen/Kitchen Electrics/Mixers ',
+                                  'isLeaf' => 1,
+                                  'Name' => 'Home & Garden/Kitchen/Kitchen Electrics/Mixers ',
+                                  'Parent' => '444'
+                                },
+                       '508' => {
+                                  'Path' => 'Restaurants (Coming Soon)',
+                                  'isLeaf' => 1,
+                                  'Name' => 'Restaurants (Coming Soon)',
+                                  'Parent' => '508'
+                                },
+                       '422' => {
+                                  'Path' => 'Home & Garden/Home Accessories/Air Purifiers',
+                                  'isLeaf' => 1,
+                                  'Name' => 'Home & Garden/Home Accessories/Air Purifiers',
+                                  'Parent' => '422'
+                                },
+                       '221' => {
+                                  'Path' => 'Computers/Storage and Media/CD and DVD Burners',
+                                  'isLeaf' => 1,
+                                  'Name' => 'Computers/Storage and Media/CD and DVD Burners',
+                                  'Parent' => '221'
+                                },
+                       '417' => {
+                                  'Path' => 'Home and Garden/Small Appliances/Toasters',
+                                  'isLeaf' => 1,
+                                  'Name' => 'Home and Garden/Small Appliances/Toasters',
+                                  'Parent' => '417'
+                                },
+                       '302' => {
+                                  'Path' => 'Electronics/Home Audio/Home Audio CD Players',
+                                  'isLeaf' => 1,
+                                  'Name' => 'Electronics/Home Audio/Home Audio CD Players',
+                                  'Parent' => '302'
+                                },
+                       '312' => {
+                                  'Path' => 'Electronics/Home Theater/Home Theater Complete Systems',
+                                  'isLeaf' => 1,
+                                  'Name' => 'Electronics/Home Theater/Home Theater Complete Systems',
+                                  'Parent' => '312'
+                                },
+                       '229' => {
+                                  'Path' => 'Computers/Storage and Media/Network Storage',
+                                  'isLeaf' => 1,
+                                  'Name' => 'Computers/Storage and Media/Network Storage',
+                                  'Parent' => '229'
+                                },
+                       '260' => {
+                                  'Path' => 'Electronics/Cameras/Camera Lenses',
+                                  'isLeaf' => 1,
+                                  'Name' => 'Electronics/Cameras/Camera Lenses',
+                                  'Parent' => '260'
+                                },
+                       '405' => {
+                                  'Path' => 'Home and Garden/Small Appliances/Indoor Grills and Sandwich Makers',
+                                  'isLeaf' => 1,
+                                  'Name' => 'Home and Garden/Small Appliances/Indoor Grills and Sandwich Makers',
+                                  'Parent' => '405'
+                                },
+                       '507' => {
+                                  'Path' => 'Pets',
+                                  'isLeaf' => 1,
+                                  'Name' => 'Pets',
+                                  'Parent' => '507'
+                                },
+                       '237' => {
+                                  'Path' => 'Computers/Systems/PC Notebooks',
+                                  'isLeaf' => 1,
+                                  'Name' => 'Computers/Systems/PC Notebooks',
+                                  'Parent' => '237'
+                                },
+                       '370' => {
+                                  'Path' => 'Electronics/TV/Video/Flat Panel Televisions',
+                                  'isLeaf' => 1,
+                                  'Name' => 'Electronics/TV/Video/Flat Panel Televisions',
+                                  'Parent' => '370'
+                                },
+                       '503' => {
+                                  'Path' => 'Office/Office Machines/Typewriters',
+                                  'isLeaf' => 1,
+                                  'Name' => 'Office/Office Machines/Typewriters',
+                                  'Parent' => '503'
+                                },
+                       '309' => {
+                                  'Path' => 'Electronics/Home Audio/Microphones',
+                                  'isLeaf' => 1,
+                                  'Name' => 'Electronics/Home Audio/Microphones',
+                                  'Parent' => '309'
+                                },
+                       '188' => {
+                                  'Path' => 'Computers/Monitors/Monitors',
+                                  'isLeaf' => 1,
+                                  'Name' => 'Computers/Monitors/Monitors',
+                                  'Parent' => '188'
+                                },
+                       '315' => {
+                                  'Path' => 'Electronics/Optics/Binoculars',
+                                  'isLeaf' => 1,
+                                  'Name' => 'Electronics/Optics/Binoculars',
+                                  'Parent' => '315'
+                                },
+                       '402' => {
+                                  'Path' => 'Home and Garden/Small Appliances/Electric Skillets and Woks',
+                                  'isLeaf' => 1,
+                                  'Name' => 'Home and Garden/Small Appliances/Electric Skillets and Woks',
+                                  'Parent' => '402'
+                                },
+                       '116' => {
+                                  'Path' => 'Appliances/Washing Machines',
+                                  'isLeaf' => 1,
+                                  'Name' => 'Appliances/Washing Machines',
+                                  'Parent' => '116'
+                                },
+                       '136' => {
+                                  'Path' => 'Computers/Accessories & Supplies/Multimedia Kits',
+                                  'isLeaf' => 1,
+                                  'Name' => 'Computers/Accessories & Supplies/Multimedia Kits',
+                                  'Parent' => '136'
+                                },
+                       '506' => {
+                                  'Path' => 'Personal Care',
+                                  'isLeaf' => 1,
+                                  'Name' => 'Personal Care',
+                                  'Parent' => '506'
+                                },
+                       '416' => {
+                                  'Path' => 'Home and Garden/Small Appliances/Toaster Ovens',
+                                  'isLeaf' => 1,
+                                  'Name' => 'Home and Garden/Small Appliances/Toaster Ovens',
+                                  'Parent' => '416'
+                                },
+                       '144' => {
+                                  'Path' => 'Computers/Components/System Cooling ',
+                                  'isLeaf' => 1,
+                                  'Name' => 'Computers/Components/System Cooling ',
+                                  'Parent' => '144'
+                                },
+                       '338' => {
+                                  'Path' => 'Electronics/Phones &  Clocks/Clock Radios',
+                                  'isLeaf' => 1,
+                                  'Name' => 'Electronics/Phones &  Clocks/Clock Radios',
+                                  'Parent' => '338'
+                                },
+                       '100' => {
+                                  'Path' => 'Movies',
+                                  'isLeaf' => 1,
+                                  'Name' => 'Movies',
+                                  'Parent' => '100'
+                                },
+                       '380' => {
+                                  'Path' => 'Flowers & Gifts/Flowers Baskets & Gifts/Gifts & Gift Baskets',
+                                  'isLeaf' => 1,
+                                  'Name' => 'Flowers & Gifts/Flowers Baskets & Gifts/Gifts & Gift Baskets',
+                                  'Parent' => '380'
+                                },
+                       '222' => {
+                                  'Path' => 'Computers/Storage and Media/CD ROM Drives',
+                                  'isLeaf' => 1,
+                                  'Name' => 'Computers/Storage and Media/CD ROM Drives',
+                                  'Parent' => '222'
+                                },
+                       '300' => {
+                                  'Path' => 'Electronics/Home Audio/Home Audio Amplifiers and Preamps',
+                                  'isLeaf' => 1,
+                                  'Name' => 'Electronics/Home Audio/Home Audio Amplifiers and Preamps',
+                                  'Parent' => '300'
+                                },
+                       '120' => {
+                                  'Path' => 'Boats and Boating Accessories/Boating Accessories (Coming Soon)',
+                                  'isLeaf' => 1,
+                                  'Name' => 'Boats and Boating Accessories/Boating Accessories (Coming Soon)',
+                                  'Parent' => '120'
+                                },
+                       '286' => {
+                                  'Path' => 'Electronics/Car Audio & Radar Detectors/Radio Scanners',
+                                  'isLeaf' => 1,
+                                  'Name' => 'Electronics/Car Audio & Radar Detectors/Radio Scanners',
+                                  'Parent' => '286'
+                                },
+                       '484' => {
+                                  'Path' => 'Large Appliances/Grills and Smokers',
+                                  'isLeaf' => 1,
+                                  'Name' => 'Large Appliances/Grills and Smokers',
+                                  'Parent' => '484'
+                                },
+                       '305' => {
+                                  'Path' => 'Electronics/Home Audio/Home Audio Mini Disc Players',
+                                  'isLeaf' => 1,
+                                  'Name' => 'Electronics/Home Audio/Home Audio Mini Disc Players',
+                                  'Parent' => '305'
+                                },
+                       '381' => {
+                                  'Path' => 'Flowers & Plants',
+                                  'isLeaf' => 1,
+                                  'Name' => 'Flowers & Plants',
+                                  'Parent' => '381'
+                                },
+                       '308' => {
+                                  'Path' => 'Electronics/Home Audio/Home Theater Systems',
+                                  'isLeaf' => 1,
+                                  'Name' => 'Electronics/Home Audio/Home Theater Systems',
+                                  'Parent' => '308'
+                                },
+                       '254' => {
+                                  'Path' => 'Electronics/Cameras and Photography/Medium Format Cameras',
+                                  'isLeaf' => 1,
+                                  'Name' => 'Electronics/Cameras and Photography/Medium Format Cameras',
+                                  'Parent' => '254'
+                                },
+                       '392' => {
+                                  'Path' => 'Health & Beauty/Nutrition',
+                                  'isLeaf' => 1,
+                                  'Name' => 'Health & Beauty/Nutrition',
+                                  'Parent' => '392'
+                                },
+                       '177' => {
+                                  'Path' => 'Computers/Input Devices/PC Gaming Devices',
+                                  'isLeaf' => 1,
+                                  'Name' => 'Computers/Input Devices/PC Gaming Devices',
+                                  'Parent' => '177'
+                                },
+                       '496' => {
+                                  'Path' => 'Nutrition',
+                                  'isLeaf' => 1,
+                                  'Name' => 'Nutrition',
+                                  'Parent' => '496'
+                                },
+                       '373' => {
+                                  'Path' => 'Electronics/TV/Video/Satellite TV ',
+                                  'isLeaf' => 1,
+                                  'Name' => 'Electronics/TV/Video/Satellite TV ',
+                                  'Parent' => '373'
+                                },
+                       '217' => {
+                                  'Path' => 'Computers/Power Equipment/Surge Suppressors',
+                                  'isLeaf' => 1,
+                                  'Name' => 'Computers/Power Equipment/Surge Suppressors',
+                                  'Parent' => '217'
+                                },
+                       '328' => {
+                                  'Path' => 'Electronics/Personal Audio/Personal Cassette Players',
+                                  'isLeaf' => 1,
+                                  'Name' => 'Electronics/Personal Audio/Personal Cassette Players',
+                                  'Parent' => '328'
+                                },
+                       '239' => {
+                                  'Path' => 'Computers/Systems/Servers',
+                                  'isLeaf' => 1,
+                                  'Name' => 'Computers/Systems/Servers',
+                                  'Parent' => '239'
+                                },
+                       '122' => {
+                                  'Path' => 'Boats and Boating Accessories/Marine Electronics (Coming Soon)',
+                                  'isLeaf' => 1,
+                                  'Name' => 'Boats and Boating Accessories/Marine Electronics (Coming Soon)',
+                                  'Parent' => '122'
+                                },
+                       '143' => {
+                                  'Path' => 'Computers/Components/System Cooling',
+                                  'isLeaf' => 1,
+                                  'Name' => 'Computers/Components/System Cooling',
+                                  'Parent' => '143'
+                                },
+                       '205' => {
+                                  'Path' => 'Computers/Networking/Wireless Access Points',
+                                  'isLeaf' => 1,
+                                  'Name' => 'Computers/Networking/Wireless Access Points',
+                                  'Parent' => '205'
+                                },
+                       '158' => {
+                                  'Path' => 'Computers/Computer Memory/Cache Memory',
+                                  'isLeaf' => 1,
+                                  'Name' => 'Computers/Computer Memory/Cache Memory',
+                                  'Parent' => '158'
+                                },
+                       '269' => {
+                                  'Path' => 'Electronics/Car Audio and Radar Detectors/Car Audio CD Changers',
+                                  'isLeaf' => 1,
+                                  'Name' => 'Electronics/Car Audio and Radar Detectors/Car Audio CD Changers',
+                                  'Parent' => '269'
+                                },
+                       '281' => {
+                                  'Path' => 'Electronics/Car Audio & Radar Detectors/Car Audio Speakers and Subwoofers',
+                                  'isLeaf' => 1,
+                                  'Name' => 'Electronics/Car Audio & Radar Detectors/Car Audio Speakers and Subwoofers',
+                                  'Parent' => '281'
+                                },
+                       '464' => {
+                                  'Path' => 'Kids & Family/Baby Care/Baby Travel Accessories',
+                                  'isLeaf' => 1,
+                                  'Name' => 'Kids & Family/Baby Care/Baby Travel Accessories',
+                                  'Parent' => '464'
+                                },
+                       '363' => {
+                                  'Path' => 'Electronics/TV and Video/TV Combos',
+                                  'isLeaf' => 1,
+                                  'Name' => 'Electronics/TV and Video/TV Combos',
+                                  'Parent' => '363'
+                                },
+                       '399' => {
+                                  'Path' => 'Home and Garden/Small Appliances/Crock Pots and Slow Cookers',
+                                  'isLeaf' => 1,
+                                  'Name' => 'Home and Garden/Small Appliances/Crock Pots and Slow Cookers',
+                                  'Parent' => '399'
+                                },
+                       '235' => {
+                                  'Path' => 'Computers/Systems/PC Cases',
+                                  'isLeaf' => 1,
+                                  'Name' => 'Computers/Systems/PC Cases',
+                                  'Parent' => '235'
+                                },
+                       '301' => {
+                                  'Path' => 'Electronics/Home Audio/Home Audio Amplifiers/Preamps',
+                                  'isLeaf' => 1,
+                                  'Name' => 'Electronics/Home Audio/Home Audio Amplifiers/Preamps',
+                                  'Parent' => '301'
+                                },
+                       '436' => {
+                                  'Path' => 'Home & Garden/Kitchen/Kitchen Electrics/Bread Machines ',
+                                  'isLeaf' => 1,
+                                  'Name' => 'Home & Garden/Kitchen/Kitchen Electrics/Bread Machines ',
+                                  'Parent' => '436'
+                                },
+                       '213' => {
+                                  'Path' => 'Computers/Personal Organizers/Personal Organizer Accessories',
+                                  'isLeaf' => 1,
+                                  'Name' => 'Computers/Personal Organizers/Personal Organizer Accessories',
+                                  'Parent' => '213'
+                                },
+                       '183' => {
+                                  'Path' => 'Computers/Memory/Random Access Memory ',
+                                  'isLeaf' => 1,
+                                  'Name' => 'Computers/Memory/Random Access Memory ',
+                                  'Parent' => '183'
+                                },
+                       '497' => {
+                                  'Path' => 'Office/Office Machines/Calculators',
+                                  'isLeaf' => 1,
+                                  'Name' => 'Office/Office Machines/Calculators',
+                                  'Parent' => '497'
+                                },
+                       '518' => {
+                                  'Path' => 'Video Games/Accessories/Game Boy Advance Accessories',
+                                  'isLeaf' => 1,
+                                  'Name' => 'Video Games/Accessories/Game Boy Advance Accessories',
+                                  'Parent' => '518'
+                                },
+                       '456' => {
+                                  'Path' => 'Home & Garden/Patio Accessories/Outdoor Enhancements',
+                                  'isLeaf' => 1,
+                                  'Name' => 'Home & Garden/Patio Accessories/Outdoor Enhancements',
+                                  'Parent' => '456'
+                                },
+                       '472' => {
+                                  'Path' => 'Large Appliances/Appliance Accessories/Grills and Smokers Accessories',
+                                  'isLeaf' => 1,
+                                  'Name' => 'Large Appliances/Appliance Accessories/Grills and Smokers Accessories',
+                                  'Parent' => '472'
+                                },
+                       '362' => {
+                                  'Path' => 'Electronics/TV and Video/TV Accessories',
+                                  'isLeaf' => 1,
+                                  'Name' => 'Electronics/TV and Video/TV Accessories',
+                                  'Parent' => '362'
+                                },
+                       '439' => {
+                                  'Path' => 'Home & Garden/Kitchen/Kitchen Electrics/Electric Skillets and Woks ',
+                                  'isLeaf' => 1,
+                                  'Name' => 'Home & Garden/Kitchen/Kitchen Electrics/Electric Skillets and Woks ',
+                                  'Parent' => '439'
+                                },
+                       '265' => {
+                                  'Path' => 'Electronics/Cameras/Photographic Accessories',
+                                  'isLeaf' => 1,
+                                  'Name' => 'Electronics/Cameras/Photographic Accessories',
+                                  'Parent' => '265'
+                                },
+                       '296' => {
+                                  'Path' => 'Electronics/Home Audio/Audio and Video Media',
+                                  'isLeaf' => 1,
+                                  'Name' => 'Electronics/Home Audio/Audio and Video Media',
+                                  'Parent' => '296'
+                                },
+                       '317' => {
+                                  'Path' => 'Electronics/Optics/Optics Accessories',
+                                  'isLeaf' => 1,
+                                  'Name' => 'Electronics/Optics/Optics Accessories',
+                                  'Parent' => '317'
+                                },
+                       '169' => {
+                                  'Path' => 'Computers/Hardware/PC Laptops',
+                                  'isLeaf' => 1,
+                                  'Name' => 'Computers/Hardware/PC Laptops',
+                                  'Parent' => '169'
+                                },
+                       '132' => {
+                                  'Path' => 'Computers/Accessories & Supplies/Desk Accessories',
+                                  'isLeaf' => 1,
+                                  'Name' => 'Computers/Accessories & Supplies/Desk Accessories',
+                                  'Parent' => '132'
+                                },
+                       '411' => {
+                                  'Path' => 'Home and Garden/Small Appliances/Pasta Makers',
+                                  'isLeaf' => 1,
+                                  'Name' => 'Home and Garden/Small Appliances/Pasta Makers',
+                                  'Parent' => '411'
+                                },
+                       '171' => {
+                                  'Path' => 'Computers/Hardware/Scanners',
+                                  'isLeaf' => 1,
+                                  'Name' => 'Computers/Hardware/Scanners',
+                                  'Parent' => '171'
+                                },
+                       '493' => {
+                                  'Path' => 'Luggage',
+                                  'isLeaf' => 1,
+                                  'Name' => 'Luggage',
+                                  'Parent' => '493'
+                                },
+                       '478' => {
+                                  'Path' => 'Large Appliances/Appliance Accessories/Vacuum Cleaner Accessories',
+                                  'isLeaf' => 1,
+                                  'Name' => 'Large Appliances/Appliance Accessories/Vacuum Cleaner Accessories',
+                                  'Parent' => '478'
+                                },
+                       '384' => {
+                                  'Path' => 'Furniture',
+                                  'isLeaf' => 1,
+                                  'Name' => 'Furniture',
+                                  'Parent' => '384'
+                                },
+                       '398' => {
+                                  'Path' => 'Home and Garden/Small Appliances/Coffee and Espresso Makers',
+                                  'isLeaf' => 1,
+                                  'Name' => 'Home and Garden/Small Appliances/Coffee and Espresso Makers',
+                                  'Parent' => '398'
+                                },
+                       '386' => {
+                                  'Path' => 'Gifts and Gift Baskets',
+                                  'isLeaf' => 1,
+                                  'Name' => 'Gifts and Gift Baskets',
+                                  'Parent' => '386'
+                                },
+                       '407' => {
+                                  'Path' => 'Home and Garden/Small Appliances/Juicers',
+                                  'isLeaf' => 1,
+                                  'Name' => 'Home and Garden/Small Appliances/Juicers',
+                                  'Parent' => '407'
+                                },
+                       '537' => {
+                                  'Path' => 'Video Games/Xbox Games',
+                                  'isLeaf' => 1,
+                                  'Name' => 'Video Games/Xbox Games',
+                                  'Parent' => '537'
+                                },
+                       '445' => {
+                                  'Path' => 'Home & Garden/Kitchen/Kitchen Electrics/Pasta Makers ',
+                                  'isLeaf' => 1,
+                                  'Name' => 'Home & Garden/Kitchen/Kitchen Electrics/Pasta Makers ',
+                                  'Parent' => '445'
+                                },
+                       '200' => {
+                                  'Path' => 'Computers/Networking/Remote Access Servers',
+                                  'isLeaf' => 1,
+                                  'Name' => 'Computers/Networking/Remote Access Servers',
+                                  'Parent' => '200'
+                                },
+                       '366' => {
+                                  'Path' => 'Electronics/TV/Video/Camcorders',
+                                  'isLeaf' => 1,
+                                  'Name' => 'Electronics/TV/Video/Camcorders',
+                                  'Parent' => '366'
+                                },
+                       '376' => {
+                                  'Path' => 'Electronics/TV/Video/VCRs',
+                                  'isLeaf' => 1,
+                                  'Name' => 'Electronics/TV/Video/VCRs',
+                                  'Parent' => '376'
+                                },
+                       '125' => {
+                                  'Path' => 'Cars/Motorcycles (Coming Soon)',
+                                  'isLeaf' => 1,
+                                  'Name' => 'Cars/Motorcycles (Coming Soon)',
+                                  'Parent' => '125'
+                                },
+                       '522' => {
+                                  'Path' => 'Video Games/Accessories/Nintendo 64  Accessories',
+                                  'isLeaf' => 1,
+                                  'Name' => 'Video Games/Accessories/Nintendo 64  Accessories',
+                                  'Parent' => '522'
+                                },
+                       '329' => {
+                                  'Path' => 'Electronics/Personal Audio/Personal CD Players',
+                                  'isLeaf' => 1,
+                                  'Name' => 'Electronics/Personal Audio/Personal CD Players',
+                                  'Parent' => '329'
+                                },
+                       '525' => {
+                                  'Path' => 'Video Games/Accessories/Xbox  Accessories',
+                                  'isLeaf' => 1,
+                                  'Name' => 'Video Games/Accessories/Xbox  Accessories',
+                                  'Parent' => '525'
+                                },
+                       '272' => {
+                                  'Path' => 'Electronics/Car Audio and Radar Detectors/Car Theater',
+                                  'isLeaf' => 1,
+                                  'Name' => 'Electronics/Car Audio and Radar Detectors/Car Theater',
+                                  'Parent' => '272'
+                                },
+                       '190' => {
+                                  'Path' => 'Computers/Networking/Bridges',
+                                  'isLeaf' => 1,
+                                  'Name' => 'Computers/Networking/Bridges',
+                                  'Parent' => '190'
+                                },
+                       '161' => {
+                                  'Path' => 'Computers/Computer Memory/Random Access Memory (RAM)',
+                                  'isLeaf' => 1,
+                                  'Name' => 'Computers/Computer Memory/Random Access Memory (RAM)',
+                                  'Parent' => '161'
+                                },
+                       '298' => {
+                                  'Path' => 'Electronics/Home Audio/Audio Video Shelf Systems',
+                                  'isLeaf' => 1,
+                                  'Name' => 'Electronics/Home Audio/Audio Video Shelf Systems',
+                                  'Parent' => '298'
+                                },
+                       '400' => {
+                                  'Path' => 'Home and Garden/Small Appliances/Deep Fryers',
+                                  'isLeaf' => 1,
+                                  'Name' => 'Home and Garden/Small Appliances/Deep Fryers',
+                                  'Parent' => '400'
+                                },
+                       '534' => {
+                                  'Path' => 'Video Games/PlayStation 1 Games',
+                                  'isLeaf' => 1,
+                                  'Name' => 'Video Games/PlayStation 1 Games',
+                                  'Parent' => '534'
+                                },
+                       '313' => {
+                                  'Path' => 'Electronics/Home Theater/Home Theater Speakers and Subwoofers',
+                                  'isLeaf' => 1,
+                                  'Name' => 'Electronics/Home Theater/Home Theater Speakers and Subwoofers',
+                                  'Parent' => '313'
+                                },
+                       '243' => {
+                                  'Path' => 'Electronics/Cameras/35mm Point & Shoot / APS Cameras',
+                                  'isLeaf' => 1,
+                                  'Name' => 'Electronics/Cameras/35mm Point & Shoot / APS Cameras',
+                                  'Parent' => '243'
+                                },
+                       '231' => {
+                                  'Path' => 'Computers/Storage and Media/Removable Media',
+                                  'isLeaf' => 1,
+                                  'Name' => 'Computers/Storage and Media/Removable Media',
+                                  'Parent' => '231'
+                                },
+                       '109' => {
+                                  'Path' => 'Appliances/Kitchen Ranges',
+                                  'isLeaf' => 1,
+                                  'Name' => 'Appliances/Kitchen Ranges',
+                                  'Parent' => '109'
+                                },
+                       '151' => {
+                                  'Path' => 'Computers/Computer Accessories/Monitor Accessories',
+                                  'isLeaf' => 1,
+                                  'Name' => 'Computers/Computer Accessories/Monitor Accessories',
+                                  'Parent' => '151'
+                                },
+                       '529' => {
+                                  'Path' => 'Video Games/Game Boy Advance Games',
+                                  'isLeaf' => 1,
+                                  'Name' => 'Video Games/Game Boy Advance Games',
+                                  'Parent' => '529'
+                                },
+                       '148' => {
+                                  'Path' => 'Computers/Computer Accessories/Computer Speakers',
+                                  'isLeaf' => 1,
+                                  'Name' => 'Computers/Computer Accessories/Computer Speakers',
+                                  'Parent' => '148'
+                                },
+                       '343' => {
+                                  'Path' => 'Electronics/Portable Electronics/GPS devices',
+                                  'isLeaf' => 1,
+                                  'Name' => 'Electronics/Portable Electronics/GPS devices',
+                                  'Parent' => '343'
+                                },
+                       '504' => {
+                                  'Path' => 'Office/Office Machines/Voice Recorders and Transcribers',
+                                  'isLeaf' => 1,
+                                  'Name' => 'Office/Office Machines/Voice Recorders and Transcribers',
+                                  'Parent' => '504'
+                                },
+                       '468' => {
+                                  'Path' => 'Large Appliances/Air Conditioners',
+                                  'isLeaf' => 1,
+                                  'Name' => 'Large Appliances/Air Conditioners',
+                                  'Parent' => '468'
+                                },
+                       '287' => {
+                                  'Path' => 'Electronics/Communications/2 Way Radios',
+                                  'isLeaf' => 1,
+                                  'Name' => 'Electronics/Communications/2 Way Radios',
+                                  'Parent' => '287'
+                                },
+                       '441' => {
+                                  'Path' => 'Home & Garden/Kitchen/Kitchen Electrics/Ice Cream Makers ',
+                                  'isLeaf' => 1,
+                                  'Name' => 'Home & Garden/Kitchen/Kitchen Electrics/Ice Cream Makers ',
+                                  'Parent' => '441'
+                                },
+                       '475' => {
+                                  'Path' => 'Large Appliances/Appliance Accessories/Range and Oven Accessories',
+                                  'isLeaf' => 1,
+                                  'Name' => 'Large Appliances/Appliance Accessories/Range and Oven Accessories',
+                                  'Parent' => '475'
+                                },
+                       '294' => {
+                                  'Path' => 'Electronics/Handheld Electronics/GPS Accessories',
+                                  'isLeaf' => 1,
+                                  'Name' => 'Electronics/Handheld Electronics/GPS Accessories',
+                                  'Parent' => '294'
+                                },
+                       '397' => {
+                                  'Path' => 'Home and Garden/Small Appliances/Bread Machines',
+                                  'isLeaf' => 1,
+                                  'Name' => 'Home and Garden/Small Appliances/Bread Machines',
+                                  'Parent' => '397'
+                                },
+                       '413' => {
+                                  'Path' => 'Home and Garden/Small Appliances/Rice Cookers and Steamers',
+                                  'isLeaf' => 1,
+                                  'Name' => 'Home and Garden/Small Appliances/Rice Cookers and Steamers',
+                                  'Parent' => '413'
+                                },
+                       '349' => {
+                                  'Path' => 'Electronics/Portable Electronics/Personal Cassette Players',
+                                  'isLeaf' => 1,
+                                  'Name' => 'Electronics/Portable Electronics/Personal Cassette Players',
+                                  'Parent' => '349'
+                                },
+                       '106' => {
+                                  'Path' => 'Appliances/Freezers',
+                                  'isLeaf' => 1,
+                                  'Name' => 'Appliances/Freezers',
+                                  'Parent' => '106'
+                                },
+                       '275' => {
+                                  'Path' => 'Electronics/Car Audio and Radar Detectors/Radar Detectors',
+                                  'isLeaf' => 1,
+                                  'Name' => 'Electronics/Car Audio and Radar Detectors/Radar Detectors',
+                                  'Parent' => '275'
+                                },
+                       '157' => {
+                                  'Path' => 'Computers/Computer Accessories/UPS Systems Devices',
+                                  'isLeaf' => 1,
+                                  'Name' => 'Computers/Computer Accessories/UPS Systems Devices',
+                                  'Parent' => '157'
+                                },
+                       '515' => {
+                                  'Path' => 'Toys',
+                                  'isLeaf' => 1,
+                                  'Name' => 'Toys',
+                                  'Parent' => '515'
+                                },
+                       '197' => {
+                                  'Path' => 'Computers/Networking/Network Cables',
+                                  'isLeaf' => 1,
+                                  'Name' => 'Computers/Networking/Network Cables',
+                                  'Parent' => '197'
+                                },
+                       '203' => {
+                                  'Path' => 'Computers/Networking/Serial Adapters',
+                                  'isLeaf' => 1,
+                                  'Name' => 'Computers/Networking/Serial Adapters',
+                                  'Parent' => '203'
+                                },
+                       '261' => {
+                                  'Path' => 'Electronics/Cameras/Digital Camera Accessories',
+                                  'isLeaf' => 1,
+                                  'Name' => 'Electronics/Cameras/Digital Camera Accessories',
+                                  'Parent' => '261'
+                                },
+                       '138' => {
+                                  'Path' => 'Computers/Components/Input Adapters',
+                                  'isLeaf' => 1,
+                                  'Name' => 'Computers/Components/Input Adapters',
+                                  'Parent' => '138'
+                                },
+                       '137' => {
+                                  'Path' => 'Computers/Components/Graphics Cards',
+                                  'isLeaf' => 1,
+                                  'Name' => 'Computers/Components/Graphics Cards',
+                                  'Parent' => '137'
+                                },
+                       '321' => {
+                                  'Path' => 'Electronics/Personal Audio/Boomboxes',
+                                  'isLeaf' => 1,
+                                  'Name' => 'Electronics/Personal Audio/Boomboxes',
+                                  'Parent' => '321'
+                                },
+                       '432' => {
+                                  'Path' => 'Home & Garden/Kitchen/Cookware',
+                                  'isLeaf' => 1,
+                                  'Name' => 'Home & Garden/Kitchen/Cookware',
+                                  'Parent' => '432'
+                                },
+                       '459' => {
+                                  'Path' => 'Kids and Family/Baby Carriers',
+                                  'isLeaf' => 1,
+                                  'Name' => 'Kids and Family/Baby Carriers',
+                                  'Parent' => '459'
+                                },
+                       '284' => {
+                                  'Path' => 'Electronics/Car Audio & Radar Detectors/In-Dash Receivers',
+                                  'isLeaf' => 1,
+                                  'Name' => 'Electronics/Car Audio & Radar Detectors/In-Dash Receivers',
+                                  'Parent' => '284'
+                                },
+                       '247' => {
+                                  'Path' => 'Electronics/Cameras and Photography/Camcorder Accessories',
+                                  'isLeaf' => 1,
+                                  'Name' => 'Electronics/Cameras and Photography/Camcorder Accessories',
+                                  'Parent' => '247'
+                                },
+                       '371' => {
+                                  'Path' => 'Electronics/TV/Video/Portable Televisions',
+                                  'isLeaf' => 1,
+                                  'Name' => 'Electronics/TV/Video/Portable Televisions',
+                                  'Parent' => '371'
+                                },
+                       '519' => {
+                                  'Path' => 'Video Games/Accessories/Game Boy Color Accessories',
+                                  'isLeaf' => 1,
+                                  'Name' => 'Video Games/Accessories/Game Boy Color Accessories',
+                                  'Parent' => '519'
+                                },
+                       '204' => {
+                                  'Path' => 'Computers/Networking/Transcievers',
+                                  'isLeaf' => 1,
+                                  'Name' => 'Computers/Networking/Transcievers',
+                                  'Parent' => '204'
+                                },
+                       '289' => {
+                                  'Path' => 'Electronics/Communications/Cellular Accessories',
+                                  'isLeaf' => 1,
+                                  'Name' => 'Electronics/Communications/Cellular Accessories',
+                                  'Parent' => '289'
+                                },
+                       '165' => {
+                                  'Path' => 'Computers/Hardware/Mac Laptops',
+                                  'isLeaf' => 1,
+                                  'Name' => 'Computers/Hardware/Mac Laptops',
+                                  'Parent' => '165'
+                                },
+                       '346' => {
+                                  'Path' => 'Electronics/Portable Electronics/MP3 -Digital Audio Players',
+                                  'isLeaf' => 1,
+                                  'Name' => 'Electronics/Portable Electronics/MP3 -Digital Audio Players',
+                                  'Parent' => '346'
+                                },
+                       '435' => {
+                                  'Path' => 'Home & Garden/Kitchen/Kitchen Electrics/Blenders ',
+                                  'isLeaf' => 1,
+                                  'Name' => 'Home & Garden/Kitchen/Kitchen Electrics/Blenders ',
+                                  'Parent' => '435'
+                                },
+                       '401' => {
+                                  'Path' => 'Home and Garden/Small Appliances/Electric Kettles',
+                                  'isLeaf' => 1,
+                                  'Name' => 'Home and Garden/Small Appliances/Electric Kettles',
+                                  'Parent' => '401'
+                                },
+                       '427' => {
+                                  'Path' => 'Home & Garden/Home Accessories/Humidifiers',
+                                  'isLeaf' => 1,
+                                  'Name' => 'Home & Garden/Home Accessories/Humidifiers',
+                                  'Parent' => '427'
+                                },
+                       '186' => {
+                                  'Path' => 'Computers/Modems',
+                                  'isLeaf' => 1,
+                                  'Name' => 'Computers/Modems',
+                                  'Parent' => '186'
+                                },
+                       '110' => {
+                                  'Path' => 'Appliances/Microwave Ovens',
+                                  'isLeaf' => 1,
+                                  'Name' => 'Appliances/Microwave Ovens',
+                                  'Parent' => '110'
+                                },
+                       '147' => {
+                                  'Path' => 'Computers/Computer Accessories/Cartridges and Toners',
+                                  'isLeaf' => 1,
+                                  'Name' => 'Computers/Computer Accessories/Cartridges and Toners',
+                                  'Parent' => '147'
+                                },
+                       '333' => {
+                                  'Path' => 'Electronics/Phones & Answering Machines/Conference Phones',
+                                  'isLeaf' => 1,
+                                  'Name' => 'Electronics/Phones & Answering Machines/Conference Phones',
+                                  'Parent' => '333'
+                                },
+                       '339' => {
+                                  'Path' => 'Electronics/Portable Electronics/2-way Radios',
+                                  'isLeaf' => 1,
+                                  'Name' => 'Electronics/Portable Electronics/2-way Radios',
+                                  'Parent' => '339'
+                                },
+                       '228' => {
+                                  'Path' => 'Computers/Storage and Media/Hard Drives',
+                                  'isLeaf' => 1,
+                                  'Name' => 'Computers/Storage and Media/Hard Drives',
+                                  'Parent' => '228'
+                                },
+                       '323' => {
+                                  'Path' => 'Electronics/Personal Audio/Headphones',
+                                  'isLeaf' => 1,
+                                  'Name' => 'Electronics/Personal Audio/Headphones',
+                                  'Parent' => '323'
+                                },
+                       '268' => {
+                                  'Path' => 'Electronics/Car Audio and Radar Detectors/Car Audio Amplifiers',
+                                  'isLeaf' => 1,
+                                  'Name' => 'Electronics/Car Audio and Radar Detectors/Car Audio Amplifiers',
+                                  'Parent' => '268'
+                                },
+                       '531' => {
+                                  'Path' => 'Video Games/GameCube Games',
+                                  'isLeaf' => 1,
+                                  'Name' => 'Video Games/GameCube Games',
+                                  'Parent' => '531'
+                                },
+                       '345' => {
+                                  'Path' => 'Electronics/Portable Electronics/MP3 Accessories',
+                                  'isLeaf' => 1,
+                                  'Name' => 'Electronics/Portable Electronics/MP3 Accessories',
+                                  'Parent' => '345'
+                                },
+                       '112' => {
+                                  'Path' => 'Appliances/Refrigerators',
+                                  'isLeaf' => 1,
+                                  'Name' => 'Appliances/Refrigerators',
+                                  'Parent' => '112'
+                                },
+                       '319' => {
+                                  'Path' => 'Electronics/Optics/Spotting Scopes',
+                                  'isLeaf' => 1,
+                                  'Name' => 'Electronics/Optics/Spotting Scopes',
+                                  'Parent' => '319'
+                                },
+                       '191' => {
+                                  'Path' => 'Computers/Networking/Concentrators and Multiplexers',
+                                  'isLeaf' => 1,
+                                  'Name' => 'Computers/Networking/Concentrators and Multiplexers',
+                                  'Parent' => '191'
+                                },
+                       '172' => {
+                                  'Path' => 'Computers/Hardware/Servers',
+                                  'isLeaf' => 1,
+                                  'Name' => 'Computers/Hardware/Servers',
+                                  'Parent' => '172'
+                                },
+                       '224' => {
+                                  'Path' => 'Computers/Storage and Media/Drive Cases',
+                                  'isLeaf' => 1,
+                                  'Name' => 'Computers/Storage and Media/Drive Cases',
+                                  'Parent' => '224'
+                                },
+                       '187' => {
+                                  'Path' => 'Computers/Monitors/Monitor Accessories',
+                                  'isLeaf' => 1,
+                                  'Name' => 'Computers/Monitors/Monitor Accessories',
+                                  'Parent' => '187'
+                                },
+                       '223' => {
+                                  'Path' => 'Computers/Storage and Media/CD-ROM Drives',
+                                  'isLeaf' => 1,
+                                  'Name' => 'Computers/Storage and Media/CD-ROM Drives',
+                                  'Parent' => '223'
+                                },
+                       '404' => {
+                                  'Path' => 'Home and Garden/Small Appliances/Ice Cream Makers',
+                                  'isLeaf' => 1,
+                                  'Name' => 'Home and Garden/Small Appliances/Ice Cream Makers',
+                                  'Parent' => '404'
+                                },
+                       '516' => {
+                                  'Path' => 'Travel Reservations (Coming Soon)',
+                                  'isLeaf' => 1,
+                                  'Name' => 'Travel Reservations (Coming Soon)',
+                                  'Parent' => '516'
+                                },
+                       '446' => {
+                                  'Path' => 'Home & Garden/Kitchen/Kitchen Electrics/Popcorn Makers ',
+                                  'isLeaf' => 1,
+                                  'Name' => 'Home & Garden/Kitchen/Kitchen Electrics/Popcorn Makers ',
+                                  'Parent' => '446'
+                                },
+                       '282' => {
+                                  'Path' => 'Electronics/Car Audio & Radar Detectors/Car Theater',
+                                  'isLeaf' => 1,
+                                  'Name' => 'Electronics/Car Audio & Radar Detectors/Car Theater',
+                                  'Parent' => '282'
+                                },
+                       '262' => {
+                                  'Path' => 'Electronics/Cameras/Digital Cameras',
+                                  'isLeaf' => 1,
+                                  'Name' => 'Electronics/Cameras/Digital Cameras',
+                                  'Parent' => '262'
+                                },
+                       '420' => {
+                                  'Path' => 'Home Furnishing',
+                                  'isLeaf' => 1,
+                                  'Name' => 'Home Furnishing',
+                                  'Parent' => '420'
+                                },
+                       '121' => {
+                                  'Path' => 'Boats and Boating Accessories/Boats (Coming Soon)',
+                                  'isLeaf' => 1,
+                                  'Name' => 'Boats and Boating Accessories/Boats (Coming Soon)',
+                                  'Parent' => '121'
+                                },
+                       '212' => {
+                                  'Path' => 'Computers/Performance Upgrades/TV/Video Capture Cards',
+                                  'isLeaf' => 1,
+                                  'Name' => 'Computers/Performance Upgrades/TV/Video Capture Cards',
+                                  'Parent' => '212'
+                                },
+                       '352' => {
+                                  'Path' => 'Electronics/Portable Electronics/Rangefinders',
+                                  'isLeaf' => 1,
+                                  'Name' => 'Electronics/Portable Electronics/Rangefinders',
+                                  'Parent' => '352'
+                                },
+                       '344' => {
+                                  'Path' => 'Electronics/Portable Electronics/Headphones',
+                                  'isLeaf' => 1,
+                                  'Name' => 'Electronics/Portable Electronics/Headphones',
+                                  'Parent' => '344'
+                                },
+                       '487' => {
+                                  'Path' => 'Large Appliances/Kitchen Hoods',
+                                  'isLeaf' => 1,
+                                  'Name' => 'Large Appliances/Kitchen Hoods',
+                                  'Parent' => '487'
+                                },
+                       '494' => {
+                                  'Path' => 'Magazines/Magazine Subscriptions',
+                                  'isLeaf' => 1,
+                                  'Name' => 'Magazines/Magazine Subscriptions',
+                                  'Parent' => '494'
+                                },
+                       '126' => {
+                                  'Path' => 'Cars/Motorsports Parts and Accessories (Coming Soon)',
+                                  'isLeaf' => 1,
+                                  'Name' => 'Cars/Motorsports Parts and Accessories (Coming Soon)',
+                                  'Parent' => '126'
+                                },
+                       '238' => {
+                                  'Path' => 'Computers/Systems/Personal Computers/Mac',
+                                  'isLeaf' => 1,
+                                  'Name' => 'Computers/Systems/Personal Computers/Mac',
+                                  'Parent' => '238'
+                                },
+                       '251' => {
+                                  'Path' => 'Electronics/Cameras and Photography/Digital Cameras',
+                                  'isLeaf' => 1,
+                                  'Name' => 'Electronics/Cameras and Photography/Digital Cameras',
+                                  'Parent' => '251'
+                                },
+                       '426' => {
+                                  'Path' => 'Home & Garden/Home Accessories/Fans and Accessories',
+                                  'isLeaf' => 1,
+                                  'Name' => 'Home & Garden/Home Accessories/Fans and Accessories',
+                                  'Parent' => '426'
+                                },
+                       '369' => {
+                                  'Path' => 'Electronics/TV/Video/DVD Players',
+                                  'isLeaf' => 1,
+                                  'Name' => 'Electronics/TV/Video/DVD Players',
+                                  'Parent' => '369'
+                                },
+                       '253' => {
+                                  'Path' => 'Electronics/Cameras and Photography/Instant Cameras',
+                                  'isLeaf' => 1,
+                                  'Name' => 'Electronics/Cameras and Photography/Instant Cameras',
+                                  'Parent' => '253'
+                                },
+                       '279' => {
+                                  'Path' => 'Electronics/Car Audio & Radar Detectors/Car Audio CD Changers',
+                                  'isLeaf' => 1,
+                                  'Name' => 'Electronics/Car Audio & Radar Detectors/Car Audio CD Changers',
+                                  'Parent' => '279'
+                                },
+                       '176' => {
+                                  'Path' => 'Computers/Input Devices/Keyboards',
+                                  'isLeaf' => 1,
+                                  'Name' => 'Computers/Input Devices/Keyboards',
+                                  'Parent' => '176'
+                                },
+                       '448' => {
+                                  'Path' => 'Home & Garden/Kitchen/Kitchen Electrics/Specialty Electrics ',
+                                  'isLeaf' => 1,
+                                  'Name' => 'Home & Garden/Kitchen/Kitchen Electrics/Specialty Electrics ',
+                                  'Parent' => '448'
+                                },
+                       '209' => {
+                                  'Path' => 'Computers/Performance Upgrades/Motherboards',
+                                  'isLeaf' => 1,
+                                  'Name' => 'Computers/Performance Upgrades/Motherboards',
+                                  'Parent' => '209'
+                                },
+                       '483' => {
+                                  'Path' => 'Large Appliances/Freezers',
+                                  'isLeaf' => 1,
+                                  'Name' => 'Large Appliances/Freezers',
+                                  'Parent' => '483'
+                                },
+                       '498' => {
+                                  'Path' => 'Office/Office Machines/Copiers',
+                                  'isLeaf' => 1,
+                                  'Name' => 'Office/Office Machines/Copiers',
+                                  'Parent' => '498'
+                                },
+                       '256' => {
+                                  'Path' => 'Electronics/Cameras and Photography/Photographic Film',
+                                  'isLeaf' => 1,
+                                  'Name' => 'Electronics/Cameras and Photography/Photographic Film',
+                                  'Parent' => '256'
+                                },
+                       '216' => {
+                                  'Path' => 'Computers/Power Equipment/Power Adapters',
+                                  'isLeaf' => 1,
+                                  'Name' => 'Computers/Power Equipment/Power Adapters',
+                                  'Parent' => '216'
+                                },
+                       '357' => {
+                                  'Path' => 'Electronics/TV and Video/Portable Televisions',
+                                  'isLeaf' => 1,
+                                  'Name' => 'Electronics/TV and Video/Portable Televisions',
+                                  'Parent' => '357'
+                                },
+                       '117' => {
+                                  'Path' => 'Baby Care',
+                                  'isLeaf' => 1,
+                                  'Name' => 'Baby Care',
+                                  'Parent' => '117'
+                                },
+                       '372' => {
+                                  'Path' => 'Electronics/TV/Video/Remote Controls',
+                                  'isLeaf' => 1,
+                                  'Name' => 'Electronics/TV/Video/Remote Controls',
+                                  'Parent' => '372'
+                                },
+                       '170' => {
+                                  'Path' => 'Computers/Hardware/Printers',
+                                  'isLeaf' => 1,
+                                  'Name' => 'Computers/Hardware/Printers',
+                                  'Parent' => '170'
+                                },
+                       '428' => {
+                                  'Path' => 'Home & Garden/Home Accessories/Water Treatments',
+                                  'isLeaf' => 1,
+                                  'Name' => 'Home & Garden/Home Accessories/Water Treatments',
+                                  'Parent' => '428'
+                                },
+                       '455' => {
+                                  'Path' => 'Home & Garden/Patio Accessories/Outdoor Cooking',
+                                  'isLeaf' => 1,
+                                  'Name' => 'Home & Garden/Patio Accessories/Outdoor Cooking',
+                                  'Parent' => '455'
+                                },
+                       '227' => {
+                                  'Path' => 'Computers/Storage and Media/Floppy Drives',
+                                  'isLeaf' => 1,
+                                  'Name' => 'Computers/Storage and Media/Floppy Drives',
+                                  'Parent' => '227'
+                                },
+                       '336' => {
+                                  'Path' => 'Electronics/Phones &  Clocks/Cellular Accessories',
+                                  'isLeaf' => 1,
+                                  'Name' => 'Electronics/Phones &  Clocks/Cellular Accessories',
+                                  'Parent' => '336'
+                                },
+                       '457' => {
+                                  'Path' => 'Jewelry',
+                                  'isLeaf' => 1,
+                                  'Name' => 'Jewelry',
+                                  'Parent' => '457'
+                                },
+                       '179' => {
+                                  'Path' => 'Computers/Mac Hardware/Notebooks Mac',
+                                  'isLeaf' => 1,
+                                  'Name' => 'Computers/Mac Hardware/Notebooks Mac',
+                                  'Parent' => '179'
+                                },
+                       '526' => {
+                                  'Path' => 'Video Games/Classic Console Accessories',
+                                  'isLeaf' => 1,
+                                  'Name' => 'Video Games/Classic Console Accessories',
+                                  'Parent' => '526'
+                                },
+                       '383' => {
+                                  'Path' => 'Fragrance',
+                                  'isLeaf' => 1,
+                                  'Name' => 'Fragrance',
+                                  'Parent' => '383'
+                                },
+                       '264' => {
+                                  'Path' => 'Electronics/Cameras/Medium Format Cameras',
+                                  'isLeaf' => 1,
+                                  'Name' => 'Electronics/Cameras/Medium Format Cameras',
+                                  'Parent' => '264'
+                                },
+                       '255' => {
+                                  'Path' => 'Electronics/Cameras and Photography/Photographic Accessories',
+                                  'isLeaf' => 1,
+                                  'Name' => 'Electronics/Cameras and Photography/Photographic Accessories',
+                                  'Parent' => '255'
+                                },
+                       '500' => {
+                                  'Path' => 'Office/Office Machines/Fax Machines',
+                                  'isLeaf' => 1,
+                                  'Name' => 'Office/Office Machines/Fax Machines',
+                                  'Parent' => '500'
+                                },
+                       '297' => {
+                                  'Path' => 'Electronics/Home Audio/Audio Shelf Systems',
+                                  'isLeaf' => 1,
+                                  'Name' => 'Electronics/Home Audio/Audio Shelf Systems',
+                                  'Parent' => '297'
+                                },
+                       '359' => {
+                                  'Path' => 'Electronics/TV and Video/Satellite TV',
+                                  'isLeaf' => 1,
+                                  'Name' => 'Electronics/TV and Video/Satellite TV',
+                                  'Parent' => '359'
+                                },
+                       '533' => {
+                                  'Path' => 'Video Games/Nintendo 64 Games',
+                                  'isLeaf' => 1,
+                                  'Name' => 'Video Games/Nintendo 64 Games',
+                                  'Parent' => '533'
+                                },
+                       '182' => {
+                                  'Path' => 'Computers/Memory/Memory Adapter',
+                                  'isLeaf' => 1,
+                                  'Name' => 'Computers/Memory/Memory Adapter',
+                                  'Parent' => '182'
+                                },
+                       '108' => {
+                                  'Path' => 'Appliances/Kitchen Cooktops',
+                                  'isLeaf' => 1,
+                                  'Name' => 'Appliances/Kitchen Cooktops',
+                                  'Parent' => '108'
+                                },
+                       '277' => {
+                                  'Path' => 'Electronics/Car Audio & Radar Detectors/Car Audio Accessories',
+                                  'isLeaf' => 1,
+                                  'Name' => 'Electronics/Car Audio & Radar Detectors/Car Audio Accessories',
+                                  'Parent' => '277'
+                                },
+                       '232' => {
+                                  'Path' => 'Computers/Storage and Media/Storage Controllers',
+                                  'isLeaf' => 1,
+                                  'Name' => 'Computers/Storage and Media/Storage Controllers',
+                                  'Parent' => '232'
+                                },
+                       '414' => {
+                                  'Path' => 'Home and Garden/Small Appliances/Sewing Machines',
+                                  'isLeaf' => 1,
+                                  'Name' => 'Home and Garden/Small Appliances/Sewing Machines',
+                                  'Parent' => '414'
+                                },
+                       '462' => {
+                                  'Path' => 'Kids and Family/Strollers',
+                                  'isLeaf' => 1,
+                                  'Name' => 'Kids and Family/Strollers',
+                                  'Parent' => '462'
+                                },
+                       '477' => {
+                                  'Path' => 'Large Appliances/Appliance Accessories/Sewing Machine Accessories',
+                                  'isLeaf' => 1,
+                                  'Name' => 'Large Appliances/Appliance Accessories/Sewing Machine Accessories',
+                                  'Parent' => '477'
+                                },
+                       '225' => {
+                                  'Path' => 'Computers/Storage and Media/Drive Cases ',
+                                  'isLeaf' => 1,
+                                  'Name' => 'Computers/Storage and Media/Drive Cases ',
+                                  'Parent' => '225'
+                                },
+                       '330' => {
+                                  'Path' => 'Electronics/Personal Audio/Personal Radios',
+                                  'isLeaf' => 1,
+                                  'Name' => 'Electronics/Personal Audio/Personal Radios',
+                                  'Parent' => '330'
+                                },
+                       '142' => {
+                                  'Path' => 'Computers/Components/Sound Cards',
+                                  'isLeaf' => 1,
+                                  'Name' => 'Computers/Components/Sound Cards',
+                                  'Parent' => '142'
+                                },
+                       '207' => {
+                                  'Path' => 'Computers/PDAs and Portable Hardware/PDAs',
+                                  'isLeaf' => 1,
+                                  'Name' => 'Computers/PDAs and Portable Hardware/PDAs',
+                                  'Parent' => '207'
+                                },
+                       '263' => {
+                                  'Path' => 'Electronics/Cameras/Instant Cameras',
+                                  'isLeaf' => 1,
+                                  'Name' => 'Electronics/Cameras/Instant Cameras',
+                                  'Parent' => '263'
+                                },
+                       '167' => {
+                                  'Path' => 'Computers/Hardware/Network Terminals',
+                                  'isLeaf' => 1,
+                                  'Name' => 'Computers/Hardware/Network Terminals',
+                                  'Parent' => '167'
+                                },
+                       '394' => {
+                                  'Path' => 'Health & Beauty/Shavers',
+                                  'isLeaf' => 1,
+                                  'Name' => 'Health & Beauty/Shavers',
+                                  'Parent' => '394'
+                                },
+                       '505' => {
+                                  'Path' => 'Office Supplies',
+                                  'isLeaf' => 1,
+                                  'Name' => 'Office Supplies',
+                                  'Parent' => '505'
+                                },
+                       '360' => {
+                                  'Path' => 'Electronics/TV and Video/Security Systems and Surveillance',
+                                  'isLeaf' => 1,
+                                  'Name' => 'Electronics/TV and Video/Security Systems and Surveillance',
+                                  'Parent' => '360'
+                                },
+                       '514' => {
+                                  'Path' => 'Tools and Hardware',
+                                  'isLeaf' => 1,
+                                  'Name' => 'Tools and Hardware',
+                                  'Parent' => '514'
+                                },
+                       '419' => {
+                                  'Path' => 'Home and Garden/Tools and Hardware',
+                                  'isLeaf' => 1,
+                                  'Name' => 'Home and Garden/Tools and Hardware',
+                                  'Parent' => '419'
+                                },
+                       '133' => {
+                                  'Path' => 'Computers/Accessories & Supplies/I/O Adapters',
+                                  'isLeaf' => 1,
+                                  'Name' => 'Computers/Accessories & Supplies/I/O Adapters',
+                                  'Parent' => '133'
+                                },
+                       '290' => {
+                                  'Path' => 'Electronics/Communications/Cellular Phones',
+                                  'isLeaf' => 1,
+                                  'Name' => 'Electronics/Communications/Cellular Phones',
+                                  'Parent' => '290'
+                                },
+                       '513' => {
+                                  'Path' => 'Sunglasses',
+                                  'isLeaf' => 1,
+                                  'Name' => 'Sunglasses',
+                                  'Parent' => '513'
+                                },
+                       '123' => {
+                                  'Path' => 'Cars/Automotive Parts and Accessories',
+                                  'isLeaf' => 1,
+                                  'Name' => 'Cars/Automotive Parts and Accessories',
+                                  'Parent' => '123'
+                                },
+                       '149' => {
+                                  'Path' => 'Computers/Computer Accessories/Desk Accessories',
+                                  'isLeaf' => 1,
+                                  'Name' => 'Computers/Computer Accessories/Desk Accessories',
+                                  'Parent' => '149'
+                                },
+                       '304' => {
+                                  'Path' => 'Electronics/Home Audio/Home Audio Equalizers',
+                                  'isLeaf' => 1,
+                                  'Name' => 'Electronics/Home Audio/Home Audio Equalizers',
+                                  'Parent' => '304'
+                                },
+                       '476' => {
+                                  'Path' => 'Large Appliances/Appliance Accessories/Refrigerator and Freezer Accessories',
+                                  'isLeaf' => 1,
+                                  'Name' => 'Large Appliances/Appliance Accessories/Refrigerator and Freezer Accessories',
+                                  'Parent' => '476'
+                                },
+                       '210' => {
+                                  'Path' => 'Computers/Performance Upgrades/Processors',
+                                  'isLeaf' => 1,
+                                  'Name' => 'Computers/Performance Upgrades/Processors',
+                                  'Parent' => '210'
+                                },
+                       '406' => {
+                                  'Path' => 'Home and Garden/Small Appliances/Irons',
+                                  'isLeaf' => 1,
+                                  'Name' => 'Home and Garden/Small Appliances/Irons',
+                                  'Parent' => '406'
+                                },
+                       '258' => {
+                                  'Path' => 'Electronics/Cameras and Photography/Teleconverters',
+                                  'isLeaf' => 1,
+                                  'Name' => 'Electronics/Cameras and Photography/Teleconverters',
+                                  'Parent' => '258'
+                                },
+                       '396' => {
+                                  'Path' => 'Home and Garden/Small Appliances/Blenders',
+                                  'isLeaf' => 1,
+                                  'Name' => 'Home and Garden/Small Appliances/Blenders',
+                                  'Parent' => '396'
+                                },
+                       '482' => {
+                                  'Path' => 'Large Appliances/Dryers',
+                                  'isLeaf' => 1,
+                                  'Name' => 'Large Appliances/Dryers',
+                                  'Parent' => '482'
+                                },
+                       '173' => {
+                                  'Path' => 'Computers/Hardware/Workstations',
+                                  'isLeaf' => 1,
+                                  'Name' => 'Computers/Hardware/Workstations',
+                                  'Parent' => '173'
+                                },
+                       '510' => {
+                                  'Path' => 'Software/Computer Games',
+                                  'isLeaf' => 1,
+                                  'Name' => 'Software/Computer Games',
+                                  'Parent' => '510'
+                                },
+                       '393' => {
+                                  'Path' => 'Health & Beauty/Personal Care',
+                                  'isLeaf' => 1,
+                                  'Name' => 'Health & Beauty/Personal Care',
+                                  'Parent' => '393'
+                                },
+                       '499' => {
+                                  'Path' => 'Office/Office Machines/Electronic Dictionaries and Translators',
+                                  'isLeaf' => 1,
+                                  'Name' => 'Office/Office Machines/Electronic Dictionaries and Translators',
+                                  'Parent' => '499'
+                                },
+                       '530' => {
+                                  'Path' => 'Video Games/Game Boy Color Games',
+                                  'isLeaf' => 1,
+                                  'Name' => 'Video Games/Game Boy Color Games',
+                                  'Parent' => '530'
+                                },
+                       '449' => {
+                                  'Path' => 'Home & Garden/Kitchen/Kitchen Electrics/Toaster Ovens ',
+                                  'isLeaf' => 1,
+                                  'Name' => 'Home & Garden/Kitchen/Kitchen Electrics/Toaster Ovens ',
+                                  'Parent' => '449'
+                                },
+                       '293' => {
+                                  'Path' => 'Electronics/Electronic Dictionaries & Translators',
+                                  'isLeaf' => 1,
+                                  'Name' => 'Electronics/Electronic Dictionaries & Translators',
+                                  'Parent' => '293'
+                                },
+                       '274' => {
+                                  'Path' => 'Electronics/Car Audio and Radar Detectors/In Dash Receivers',
+                                  'isLeaf' => 1,
+                                  'Name' => 'Electronics/Car Audio and Radar Detectors/In Dash Receivers',
+                                  'Parent' => '274'
+                                },
+                       '365' => {
+                                  'Path' => 'Electronics/TV/Video/Camcorder Accessories',
+                                  'isLeaf' => 1,
+                                  'Name' => 'Electronics/TV/Video/Camcorder Accessories',
+                                  'Parent' => '365'
+                                },
+                       '306' => {
+                                  'Path' => 'Electronics/Home Audio/Home Audio Receivers',
+                                  'isLeaf' => 1,
+                                  'Name' => 'Electronics/Home Audio/Home Audio Receivers',
+                                  'Parent' => '306'
+                                },
+                       '470' => {
+                                  'Path' => 'Large Appliances/Appliance Accessories/Air Conditioner Accessories',
+                                  'isLeaf' => 1,
+                                  'Name' => 'Large Appliances/Appliance Accessories/Air Conditioner Accessories',
+                                  'Parent' => '470'
+                                },
+                       '322' => {
+                                  'Path' => 'Electronics/Personal Audio/Clock Radios',
+                                  'isLeaf' => 1,
+                                  'Name' => 'Electronics/Personal Audio/Clock Radios',
+                                  'Parent' => '322'
+                                },
+                       '469' => {
+                                  'Path' => 'Large Appliances/Air Purifiers',
+                                  'isLeaf' => 1,
+                                  'Name' => 'Large Appliances/Air Purifiers',
+                                  'Parent' => '469'
+                                },
+                       '353' => {
+                                  'Path' => 'Electronics/Portable Electronics/Telescopes',
+                                  'isLeaf' => 1,
+                                  'Name' => 'Electronics/Portable Electronics/Telescopes',
+                                  'Parent' => '353'
+                                },
+                       '166' => {
+                                  'Path' => 'Computers/Hardware/Monitors',
+                                  'isLeaf' => 1,
+                                  'Name' => 'Computers/Hardware/Monitors',
+                                  'Parent' => '166'
+                                },
+                       '375' => {
+                                  'Path' => 'Electronics/TV/Video/TV / VCR / DVD Combos',
+                                  'isLeaf' => 1,
+                                  'Name' => 'Electronics/TV/Video/TV / VCR / DVD Combos',
+                                  'Parent' => '375'
+                                },
+                       '141' => {
+                                  'Path' => 'Computers/Components/Processors',
+                                  'isLeaf' => 1,
+                                  'Name' => 'Computers/Components/Processors',
+                                  'Parent' => '141'
+                                },
+                       '128' => {
+                                  'Path' => 'Cars/Tires (Coming Soon)',
+                                  'isLeaf' => 1,
+                                  'Name' => 'Cars/Tires (Coming Soon)',
+                                  'Parent' => '128'
+                                },
+                       '403' => {
+                                  'Path' => 'Home and Garden/Small Appliances/Food Processors',
+                                  'isLeaf' => 1,
+                                  'Name' => 'Home and Garden/Small Appliances/Food Processors',
+                                  'Parent' => '403'
+                                },
+                       '252' => {
+                                  'Path' => 'Electronics/Cameras and Photography/Flashes',
+                                  'isLeaf' => 1,
+                                  'Name' => 'Electronics/Cameras and Photography/Flashes',
+                                  'Parent' => '252'
+                                },
+                       '466' => {
+                                  'Path' => 'Kids & Family/Baby Care/Child Health and Hygiene',
+                                  'isLeaf' => 1,
+                                  'Name' => 'Kids & Family/Baby Care/Child Health and Hygiene',
+                                  'Parent' => '466'
+                                },
+                       '310' => {
+                                  'Path' => 'Electronics/Home Audio/Tape Decks',
+                                  'isLeaf' => 1,
+                                  'Name' => 'Electronics/Home Audio/Tape Decks',
+                                  'Parent' => '310'
+                                },
+                       '283' => {
+                                  'Path' => 'Electronics/Car Audio & Radar Detectors/CB Radios',
+                                  'isLeaf' => 1,
+                                  'Name' => 'Electronics/Car Audio & Radar Detectors/CB Radios',
+                                  'Parent' => '283'
+                                },
+                       '156' => {
+                                  'Path' => 'Computers/Computer Accessories/UPS Accessories',
+                                  'isLeaf' => 1,
+                                  'Name' => 'Computers/Computer Accessories/UPS Accessories',
+                                  'Parent' => '156'
+                                },
+                       '134' => {
+                                  'Path' => 'Computers/Accessories & Supplies/Laptop Accessories',
+                                  'isLeaf' => 1,
+                                  'Name' => 'Computers/Accessories & Supplies/Laptop Accessories',
+                                  'Parent' => '134'
+                                },
+                       '303' => {
+                                  'Path' => 'Electronics/Home Audio/Home Audio CD Players/ Changers/Recorders',
+                                  'isLeaf' => 1,
+                                  'Name' => 'Electronics/Home Audio/Home Audio CD Players/ Changers/Recorders',
+                                  'Parent' => '303'
+                                },
+                       '250' => {
+                                  'Path' => 'Electronics/Cameras and Photography/Digital Camera Accessories',
+                                  'isLeaf' => 1,
+                                  'Name' => 'Electronics/Cameras and Photography/Digital Camera Accessories',
+                                  'Parent' => '250'
+                                },
+                       '192' => {
+                                  'Path' => 'Computers/Networking/Expansion Modules',
+                                  'isLeaf' => 1,
+                                  'Name' => 'Computers/Networking/Expansion Modules',
+                                  'Parent' => '192'
+                                },
+                       '421' => {
+                                  'Path' => 'Home & Garden/Garden',
+                                  'isLeaf' => 1,
+                                  'Name' => 'Home & Garden/Garden',
+                                  'Parent' => '421'
+                                },
+                       '215' => {
+                                  'Path' => 'Computers/Power Equipment/Batteries & Power Equipment',
+                                  'isLeaf' => 1,
+                                  'Name' => 'Computers/Power Equipment/Batteries & Power Equipment',
+                                  'Parent' => '215'
+                                },
+                       '501' => {
+                                  'Path' => 'Office/Office Machines/Multimedia Projectors',
+                                  'isLeaf' => 1,
+                                  'Name' => 'Office/Office Machines/Multimedia Projectors',
+                                  'Parent' => '501'
+                                },
+                       '450' => {
+                                  'Path' => 'Home & Garden/Kitchen/Kitchen Electrics/Toasters ',
+                                  'isLeaf' => 1,
+                                  'Name' => 'Home & Garden/Kitchen/Kitchen Electrics/Toasters ',
+                                  'Parent' => '450'
+                                },
+                       '278' => {
+                                  'Path' => 'Electronics/Car Audio & Radar Detectors/Car Audio Amplifiers',
+                                  'isLeaf' => 1,
+                                  'Name' => 'Electronics/Car Audio & Radar Detectors/Car Audio Amplifiers',
+                                  'Parent' => '278'
+                                },
+                       '490' => {
+                                  'Path' => 'Large Appliances/Refrigerators',
+                                  'isLeaf' => 1,
+                                  'Name' => 'Large Appliances/Refrigerators',
+                                  'Parent' => '490'
+                                },
+                       '150' => {
+                                  'Path' => 'Computers/Computer Accessories/Laptop Accessories',
+                                  'isLeaf' => 1,
+                                  'Name' => 'Computers/Computer Accessories/Laptop Accessories',
+                                  'Parent' => '150'
+                                },
+                       '271' => {
+                                  'Path' => 'Electronics/Car Audio and Radar Detectors/Car Audio Speakers and Subwoofers',
+                                  'isLeaf' => 1,
+                                  'Name' => 'Electronics/Car Audio and Radar Detectors/Car Audio Speakers and Subwoofers',
+                                  'Parent' => '271'
+                                },
+                       '155' => {
+                                  'Path' => 'Computers/Computer Accessories/System Power Supplies',
+                                  'isLeaf' => 1,
+                                  'Name' => 'Computers/Computer Accessories/System Power Supplies',
+                                  'Parent' => '155'
+                                },
+                       '130' => {
+                                  'Path' => 'Clothing',
+                                  'isLeaf' => 1,
+                                  'Name' => 'Clothing',
+                                  'Parent' => '130'
+                                },
+                       '387' => {
+                                  'Path' => 'Health Aids',
+                                  'isLeaf' => 1,
+                                  'Name' => 'Health Aids',
+                                  'Parent' => '387'
+                                },
+                       '245' => {
+                                  'Path' => 'Electronics/Cameras and Photography/35mm SLR Cameras',
+                                  'isLeaf' => 1,
+                                  'Name' => 'Electronics/Cameras and Photography/35mm SLR Cameras',
+                                  'Parent' => '245'
+                                },
+                       '267' => {
+                                  'Path' => 'Electronics/Car Audio and Radar Detectors/Car Audio Accessories',
+                                  'isLeaf' => 1,
+                                  'Name' => 'Electronics/Car Audio and Radar Detectors/Car Audio Accessories',
+                                  'Parent' => '267'
+                                },
+                       '491' => {
+                                  'Path' => 'Large Appliances/Vacuums',
+                                  'isLeaf' => 1,
+                                  'Name' => 'Large Appliances/Vacuums',
+                                  'Parent' => '491'
+                                },
+                       '354' => {
+                                  'Path' => 'Electronics/TV and Video/Digital TV Recorders',
+                                  'isLeaf' => 1,
+                                  'Name' => 'Electronics/TV and Video/Digital TV Recorders',
+                                  'Parent' => '354'
+                                },
+                       '219' => {
+                                  'Path' => 'Computers/Printers/Printers',
+                                  'isLeaf' => 1,
+                                  'Name' => 'Computers/Printers/Printers',
+                                  'Parent' => '219'
+                                },
+                       '461' => {
+                                  'Path' => 'Kids and Family/Cribs',
+                                  'isLeaf' => 1,
+                                  'Name' => 'Kids and Family/Cribs',
+                                  'Parent' => '461'
+                                },
+                       '318' => {
+                                  'Path' => 'Electronics/Optics/Rangefinders',
+                                  'isLeaf' => 1,
+                                  'Name' => 'Electronics/Optics/Rangefinders',
+                                  'Parent' => '318'
+                                },
+                       '257' => {
+                                  'Path' => 'Electronics/Cameras and Photography/Single Use Cameras',
+                                  'isLeaf' => 1,
+                                  'Name' => 'Electronics/Cameras and Photography/Single Use Cameras',
+                                  'Parent' => '257'
+                                },
+                       '105' => {
+                                  'Path' => 'Appliances/Dishwashers',
+                                  'isLeaf' => 1,
+                                  'Name' => 'Appliances/Dishwashers',
+                                  'Parent' => '105'
+                                },
+                       '473' => {
+                                  'Path' => 'Large Appliances/Appliance Accessories/Humidifier, Dehumidifier and Air Purifier Accessories',
+                                  'isLeaf' => 1,
+                                  'Name' => 'Large Appliances/Appliance Accessories/Humidifier, Dehumidifier and Air Purifier Accessories',
+                                  'Parent' => '473'
+                                },
+                       '185' => {
+                                  'Path' => 'Computers/Memory/Video Memory',
+                                  'isLeaf' => 1,
+                                  'Name' => 'Computers/Memory/Video Memory',
+                                  'Parent' => '185'
+                                },
+                       '332' => {
+                                  'Path' => 'Electronics/Phones & Answering Machines/Caller ID',
+                                  'isLeaf' => 1,
+                                  'Name' => 'Electronics/Phones & Answering Machines/Caller ID',
+                                  'Parent' => '332'
+                                },
+                       '248' => {
+                                  'Path' => 'Electronics/Cameras and Photography/Camcorders',
+                                  'isLeaf' => 1,
+                                  'Name' => 'Electronics/Cameras and Photography/Camcorders',
+                                  'Parent' => '248'
+                                },
+                       '390' => {
+                                  'Path' => 'Health & Beauty/Health Aids/Home Test Kits',
+                                  'isLeaf' => 1,
+                                  'Name' => 'Health & Beauty/Health Aids/Home Test Kits',
+                                  'Parent' => '390'
+                                },
+                       '146' => {
+                                  'Path' => 'Computers/Computer Accessories/Cables and Connectors',
+                                  'isLeaf' => 1,
+                                  'Name' => 'Computers/Computer Accessories/Cables and Connectors',
+                                  'Parent' => '146'
+                                },
+                       '111' => {
+                                  'Path' => 'Appliances/Ovens (Gas & Electric)',
+                                  'isLeaf' => 1,
+                                  'Name' => 'Appliances/Ovens (Gas & Electric)',
+                                  'Parent' => '111'
+                                },
+                       '425' => {
+                                  'Path' => 'Home & Garden/Home Accessories/Dehumidifiers',
+                                  'isLeaf' => 1,
+                                  'Name' => 'Home & Garden/Home Accessories/Dehumidifiers',
+                                  'Parent' => '425'
+                                },
+                       '356' => {
+                                  'Path' => 'Electronics/TV and Video/Flat Panel Televisions',
+                                  'isLeaf' => 1,
+                                  'Name' => 'Electronics/TV and Video/Flat Panel Televisions',
+                                  'Parent' => '356'
+                                },
+                       '408' => {
+                                  'Path' => 'Home and Garden/Small Appliances/Kitchen Electrics Accessories',
+                                  'isLeaf' => 1,
+                                  'Name' => 'Home and Garden/Small Appliances/Kitchen Electrics Accessories',
+                                  'Parent' => '408'
+                                },
+                       '528' => {
+                                  'Path' => 'Video Games/Dreamcast Games',
+                                  'isLeaf' => 1,
+                                  'Name' => 'Video Games/Dreamcast Games',
+                                  'Parent' => '528'
+                                },
+                       '164' => {
+                                  'Path' => 'Computers/Hardware/Mac Desktops',
+                                  'isLeaf' => 1,
+                                  'Name' => 'Computers/Hardware/Mac Desktops',
+                                  'Parent' => '164'
+                                },
+                       '196' => {
+                                  'Path' => 'Computers/Networking/Network Adapters',
+                                  'isLeaf' => 1,
+                                  'Name' => 'Computers/Networking/Network Adapters',
+                                  'Parent' => '196'
+                                },
+                       '539' => {
+                                  'Path' => 'Wine',
+                                  'isLeaf' => 1,
+                                  'Name' => 'Wine',
+                                  'Parent' => '539'
+                                },
+                       '242' => {
+                                  'Path' => 'Electronics/Calculators',
+                                  'isLeaf' => 1,
+                                  'Name' => 'Electronics/Calculators',
+                                  'Parent' => '242'
+                                }
+                     }
+        };

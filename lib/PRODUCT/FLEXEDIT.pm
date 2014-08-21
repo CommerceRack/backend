@@ -434,6 +434,11 @@ sub is_valid {
 #'usr1rp:max_price' => { 'type'=>'currency', 'sku'=>1, 'title'=>'User Repricing Max Price' },
 #'usr1rp:state'=> { 'db'=>'USR1RP_IS', 'type'=>'rpstate', 'sku'=>1 },
 
+'g:custom_label_0' => { 'title' => 'Google Product Feeds Custom Label #1', 'type'=>'textbox' },
+'g:custom_label_1' => { 'title' => 'Google Product Feeds Custom Label #2', 'type'=>'textbox' },
+'g:custom_label_2' => { 'title' => 'Google Product Feeds Custom Label #3', 'type'=>'textbox' },
+'g:custom_label_3' => { 'title' => 'Google Product Feeds Custom Label #4', 'type'=>'textbox' },
+'g:custom_label_5' => { 'title' => 'Google Product Feeds Custom Label #5', 'type'=>'textbox' },
 'adwords:prefer_for_query' =>  { 'title' => 'One tag/term per line', 'type' => 'textarea' },
 'adwords:grouping' =>  { 'title' => 'Adwords Grouping', 'type' => 'textbox', hint=>'http://www.google.com/support/merchants/bin/answer.py?answer=188479' },
 'adwords:labels' =>  { 'title' => 'Adwords Labels', 'type' => 'textbox', hint=>'One per line.' },

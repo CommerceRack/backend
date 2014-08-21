@@ -1,0 +1,17 @@
+##
+updating categories
+- mv all_cats.csv all_cats20071129.csv
+
+- replace store identifier (ie category) csv files
+-- Computer_Software.csv, Home.csv, etc
+-- filenames are used in UI display 
+--- Computer_Software.csv => Computer Software
+
+- run convert_csv.pl on all category csv files
+-- ex: ./convert_csv.pl Computer_Software.csv
+-- outputs to all_cats.csv
+
+- run csv_to_syn.pl to create info.bin
+-- ./csv_to_syn.pl all_cats.csv 
+
+- push info.bin file to production

@@ -4,7 +4,7 @@ use lib "/backend/lib";
 use Storable;
 use strict;
 
-$SYNDICATION::CATEGORIES::PATH = "/httpd/static/syndication/"; 
+$SYNDICATION::CATEGORIES::PATH = "/backend/syndication-maps/"; 
 
 
 ##

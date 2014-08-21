@@ -1,0 +1,57 @@
+[
+	{
+	'header'=>'SKU',
+	'@try'=>['%PRODUCTID'],
+	},
+	{ 
+	'header'=>'IMAGEURL',
+	'@format'=>['imageurl?h=400&w=400'],
+	'@try'=>['zoovy:prod_thumb','zoovy:prod_image1',''],
+	},
+
+	{
+	'header'=>'TITLE',
+	'@try'=>['zoovy:sku_name','zoovy:prod_name'],
+	'@format'=>['htmlstrip'],
+	'@validation'=>['not-blank'],
+	},
+	{
+	'header'=>'PRICE',
+	'@format'=>['currency'],
+	'@try'=>['zoovy:base_price'],
+	'@validation'=>['positive-number'],
+	},
+	{
+	'header'=>'CURRENCY',
+	'@try'=>['%CONSTANT:USD'],
+	},
+	{
+	'header'=>'ACTIVE',
+	'@try'=>['%CONSTANT:1'],
+	},
+	{
+	'header'=>'ITEMURL',
+	'@try'=>['zoovy:link'],
+	},
+	{
+	'header'=>'CATEGORY',
+	'@try'=>['navcat:meta',''],
+	},
+	{
+	'header'=>'KEYWORDS',
+	'@try'=>['zoovy:keywords',''],
+	},
+	{
+	'header'=>'REPLACEMENTSKU',
+	'@try'=>[''],
+	},
+	{
+	'header'=>'INSTOCK',
+	'@try'=>['%IN_STOCK'],
+	},
+	{
+	'header'=>'VIRTUALPARENTCODE',
+	'@try'=>[''],
+	},
+]
+

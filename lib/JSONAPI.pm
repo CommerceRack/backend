@@ -13842,6 +13842,7 @@ sub adminProject {
 				SECRET=>'secret',
 				GITHUB_REPO=>$REPO,
 				GITHUB_BRANCH=>$BRANCH,
+				GITHUB_TXLOG=>'',
 				TYPE=>$TYPE,
 				},sql=>1);
 			print STDERR $pstmt."\n";

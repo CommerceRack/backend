@@ -1,0 +1,284 @@
+topCat_id	TopCat_id	TopCatname	firstCat_id	firstCatname
+37195	Accessories	37196	Printer/Plotter Accessories	
+29810	Backup	29832	Storage Software	
+29811	Business	29830	Accounting Software	
+29811	Business	37290	Application Server Software	
+29811	Business	37291	Business Solution Suite Software	
+29811	Business	37292	CRM Software	
+29811	Business	29855	Database Software	
+29811	Business	37197	Ecommerce Software	
+29811	Business	29869	Fax & OCR Document Imaging	
+29811	Business	29875	Forms generator, Designer	
+29811	Business	29878	General Business	
+29811	Business	37198	Human Resources Software	
+29811	Business	37199	Learning Management Software	
+29811	Business	37200	Middleware Software	
+29811	Business	37201	Portal Software	
+29811	Business	37202	Process Management Software	
+29811	Business	29914	Project & Time Management	
+29811	Business	37293	Project Management Software	
+29811	Business	37203	Server Suite Software	
+29811	Business	29921	Spreadsheet Software	
+29811	Business	29922	Statistic Software	
+29811	Business	29923	Suites & Integrated Software	
+29811	Business	29924	Tax Software	
+29811	Business	29928	Voice Recognition Software	
+29811	Business	29929	WordProcessor Software	
+37255	Business Solution Software			
+29812	Communications Software	37294	Communication Software Suites	
+29812	Communications Software	29842	E-Mail Software 	
+29812	Communications Software	37204	Faxing Software	
+29812	Communications Software	37205	Messaging/Collab Server Software	
+29812	Communications Software	29847	Mobile/Synchronization Software	
+29812	Communications Software	29844	Phone System Software	
+29812	Communications Software	29843	Remote Access Software	
+29812	Communications Software	45551	Telephony Software	
+29812	Communications Software	37295	Terminal/Host Emulation Software	
+29812	Communications Software	37206	Thin Client Software	
+29812	Communications Software	29846	Video Conferencing Software	
+29812	Communications Software	29845	Voice Mail System Software	
+37256	Data Management Software	37321	Document/ Info Management Software	
+37256	Data Management Software	37322	Forms Design Software	
+37256	Data Management Software	37323	PDF Creation & Management Software	
+37256	Data Management Software	37324	Report Creation Software	
+37257	Developer Software	45559	Courseware Development	
+37257	Developer Software	45560	Database Development	
+29813	Developer Tools	29884	Application Development	
+29813	Developer Tools	29882	Courseware Development	
+29813	Developer Tools	29885	Database Development	
+29813	Developer Tools	29887	Developer Suites	
+29813	Developer Tools	37296	Flow-charting/Diagramming Software	
+29813	Developer Tools	37297	Internet/Web Development	
+29813	Developer Tools	29886	Object Libraries	
+29813	Developer Tools	29883	Programming Languages/Compilers	
+29813	Developer Tools	37298	Version Management Software	
+37192	Digital Imaging Software	37308	CAD/CAM Software	
+37192	Digital Imaging Software	37309	Clip Art Software	
+37192	Digital Imaging Software	37211	Color Matching Software	
+37192	Digital Imaging Software	37212	Creative Printing Software	
+37192	Digital Imaging Software	37310	Imaging Suite Software	
+37192	Digital Imaging Software	37311	Multimedia Player Software	
+37192	Digital Imaging Software	37312	Photo Editing/Album Software	
+37192	Digital Imaging Software	37313	Video/Audio Editing Software	
+37192	Digital Imaging Software	37314	Voice Dictation/Recognition Softw	
+37258	Education Software	37325	Art & Music Learning Software	
+37258	Education Software	37326	Bundled Education Software	
+37258	Education Software	37327	Computer Science Software	
+37258	Education Software	37328	Creativity Software	
+37258	Education Software	37329	Critical Thinking Software	
+37258	Education Software	37330	Electronic Book Software	
+37258	Education Software	37331	Foreign Language Software	
+37258	Education Software	37332	Geography Software	
+37258	Education Software	37333	History/News Software	
+37258	Education Software	37334	Language Arts Software	
+37258	Education Software	37335	Literature Software	
+37258	Education Software	37336	Math Software	
+37258	Education Software	37337	Multi-subject Software	
+37258	Education Software	37338	Reading Software	
+37258	Education Software	37339	Science Software	
+37258	Education Software	37340	Spelling Software	
+37258	Education Software	37341	Study Skills Software	
+37258	Education Software	37342	Teacher Resource Software	
+37258	Education Software	37343	Typing Software	
+37258	Education Software	37344	Writing Software	
+29814	Educational	29840	Computer Based Training	
+29814	Educational	29841	Computer Based Training	
+29814	Educational	29864	Education & Edutainment Software	
+29814	Educational	29915	Reference & Information Software	
+29814	Educational	29918	Self Study Videos	
+29814	Educational	29919	Self-Study Books	
+29814	Educational	29920	Self-Study Videos	
+29815	Entertainment	29877	Family/Action/Adventure Game Software	
+29815	Entertainment	29836	Personal Interest Software	
+29816	ESD Software	29894	Accounting - ESD	
+29816	ESD Software	29903	Back-Up - ESD	
+29816	ESD Software	29937	Business	
+29816	ESD Software	29933	Communications - ESD	
+29816	ESD Software	29889	Database - ESD	
+29816	ESD Software	29902	Designer - ESD	
+29816	ESD Software	29901	Education - ESD	
+29816	ESD Software	29892	Email - ESD	
+29816	ESD Software	29936	Entertainment - ESD	
+29816	ESD Software	29890	Fax/Scanning - ESD	
+29816	ESD Software	29899	File Conversion/Transfer - ESD	
+29816	ESD Software	29930	General Utilities - ESD	
+29816	ESD Software	29931	Graphics - ESD	
+29816	ESD Software	29934	Internet - ESD	
+29816	ESD Software	29932	KnowledgeWare - ESD	
+29816	ESD Software	29898	Languages - ESD	
+29816	ESD Software	29893	Multimedia - ESD	
+29816	ESD Software	29906	Network Mgmt Utility - ESD	
+29816	ESD Software	29897	Operating System - ESD	
+29816	ESD Software	29896	Project/Time Mgmt - ESD	
+29816	ESD Software	29900	Reference/Information - ESD	
+29816	ESD Software	29905	Screen Saver - ESD	
+29816	ESD Software	29904	Security - ESD	
+29816	ESD Software	29895	Tax - ESD	
+29816	ESD Software	29935	Virus - ESD	
+29817	Finance Software	29854	Enterprise Resource Planning (ERP) Software	
+29817	Finance Software	29858	Personal Finance Software	
+37259	Game Software	37345	Action/Adventure Game Software	
+37259	Game Software	45561	Adventure Game Software	
+37259	Game Software	37346	Card/Casino Game Software	
+37259	Game Software	45562	Children's Game Software	
+37259	Game Software	37347	Family/Children's Game Software	
+37259	Game Software	37348	Fighting Game Software	
+37259	Game Software	37349	First Person Shooter Game Software	
+37259	Game Software	37350	Other Game Software	
+37259	Game Software	45563	Role Play/Fantasy Game Software	
+37259	Game Software	37351	Role Playing Game Software	
+37259	Game Software	37352	Simulation Game Software	
+37259	Game Software	37353	Sports Game Software	
+37259	Game Software	37354	Strategy Game Software	
+29818	General Business Applications	29863	Calendar/Contact Management	
+29818	General Business Applications	29868	CD Labeling Software	
+29818	General Business Applications	29866	Customer Relationship Mangement (CRM) Software	
+29818	General Business Applications	29870	Document Management	
+29818	General Business Applications	29867	Flow-charting Software	
+29818	General Business Applications	29862	Presentation Software	
+29819	Graphics and Pres	29834	CAD Software	
+29819	Graphics and Pres	29838	Clip Art, Symbol, Image Libraries	
+29819	Graphics and Pres	29856	Desktop Publishing Software	
+29819	Graphics and Pres	29874	Font Software	
+29819	Graphics and Pres	29881	Graphics & Presentation Graphics	
+29820	Graphics/Multimedia Software	29849	Animation Software	
+29820	Graphics/Multimedia Software	29848	Digital Imaging Software	
+29820	Graphics/Multimedia Software	29850	Draw/Paint Software	
+29820	Graphics/Multimedia Software	29851	OCR & Scanning Software	
+29820	Graphics/Multimedia Software	29853	Photo Editing Software	
+29820	Graphics/Multimedia Software	29852	Video Authoring/Delivery Software	
+29821	Internet & Comm	29839	Communications Software	
+29821	Internet & Comm	29865	Email, Groupware & video conference	
+29821	Internet & Comm	45552	Internet Appliance Software	
+29821	Internet & Comm	45553	Internet Browser Software	
+29821	Internet & Comm	45554	Internet Publishing Software	
+29821	Internet & Comm	29891	Internet Software	
+29821	Internet & Comm	45555	Internet Suites	
+29821	Internet & Comm	45556	Internet/Web Server Software	
+29821	Internet & Comm	45557	Intranet Software	
+29821	Internet & Comm	29925	Telephony Software	
+37193	IT Management Software	37315	Application Management/Monitoring Software	
+37193	IT Management Software	37316	Clustering Software	
+37193	IT Management Software	37317	Help Desk Software	
+37193	IT Management Software	37318	IT Asset Management Software	
+37193	IT Management Software	37319	Network Analysis Software	
+37193	IT Management Software	37320	Network Management/Monitoring Software	
+37193	IT Management Software	37213	UPS Management Software	
+29822	Multi Media	29835	CD accessories	
+29822	Multi Media	29837	CDROM Towers	
+29822	Multi Media	29908	Multimedia Software	
+45550	Network Software	45568	Network Monitoring Software	
+29823	New Releases	29888	New Releases	
+37260	Office Productivity Software	37355	Integrated Office Suites	
+37260	Office Productivity Software	37356	Labeling Software	
+37260	Office Productivity Software	37357	Wordprocessor Software & Add-ons	
+29824	Operating System Software	37299	IBM Operating System Software	
+29824	Operating System Software	29876	Linux O/S	
+29824	Operating System Software	37300	Linux Operating System Software	
+29824	Operating System Software	29873	Mac O/S	
+29824	Operating System Software	37301	Mac Operating System Software	
+29824	Operating System Software	37302	Netware Operating System	
+29824	Operating System Software	29879	Network O/S	
+29824	Operating System Software	37208	Unix Operating System Software	
+29824	Operating System Software	29872	Windows O/S	
+29824	Operating System Software	37303	Windows Operating System Software	
+29825	OS Software	29911	Operating System Software	
+37267	Personal Interest Software	37268	Astrology Software	
+37267	Personal Interest Software	37269	Auto/Transportation Software	
+37267	Personal Interest Software	37270	Bible/Religion Software	
+37267	Personal Interest Software	37271	Bundled Personal Interest Software	
+37267	Personal Interest Software	45567	Buying Guide Software	
+37267	Personal Interest Software	37272	Buying/Selling Software	
+37267	Personal Interest Software	37273	Cooking Software	
+37267	Personal Interest Software	37274	Cultural Software	
+37267	Personal Interest Software	37275	Gardening Software	
+37267	Personal Interest Software	37276	Genealogy Software	
+37267	Personal Interest Software	37277	Greeting Card Software	
+37267	Personal Interest Software	37278	Health/Nutrition Software	
+37267	Personal Interest Software	37279	Home Design/Repair Software	
+37267	Personal Interest Software	37280	Lottery Software	
+37267	Personal Interest Software	37281	Movies	
+37267	Personal Interest Software	37282	Music/Sound Software	
+37267	Personal Interest Software	37283	Parenting Software	
+37267	Personal Interest Software	37284	Personal Improvement Software	
+37267	Personal Interest Software	37285	Personal Organizer Software	
+37267	Personal Interest Software	37286	Pet Knowledge Software	
+37267	Personal Interest Software	37287	Sport Knowledge Software	
+37267	Personal Interest Software	37288	Travel Software	
+37267	Personal Interest Software	37289	Wedding Software	
+37261	Phone Systems, Phones & Components			
+37194	POS, AIDC & Barcode Software	37214	Barcode Labeling Software	
+37194	POS, AIDC & Barcode Software	37215	Card Printing Software	
+37194	POS, AIDC & Barcode Software	37216	Credit Card Transaction Software	
+37194	POS, AIDC & Barcode Software	37217	Data Collection & Tracking Software	
+37194	POS, AIDC & Barcode Software	37218	Inventory Control Software	
+37194	POS, AIDC & Barcode Software	37219	Payment Transaction Software	
+37194	POS, AIDC & Barcode Software	37220	POS Management Software	
+37194	POS, AIDC & Barcode Software	37221	Sales/Inventory Reporting Software	
+29826	Programming	29913	Programming Languages	
+37262	Reference Software	37358	Almanac Software	
+37262	Reference Software	37359	Bundles/Reference Suites	
+37262	Reference Software	37360	Business/Career/Resume Development Software	
+37262	Reference Software	37361	College Handbook Software	
+37262	Reference Software	37362	Dictionary Software	
+37262	Reference Software	37363	Encyclopedia Software	
+37262	Reference Software	37364	Internet Reference Software	
+37262	Reference Software	37365	Language Translation Software	
+37262	Reference Software	37366	Legal Software	
+37262	Reference Software	37367	Map/Atlas Software	
+37262	Reference Software	37368	Medical Software	
+37262	Reference Software	37369	Phone Directory Software	
+37262	Reference Software	37370	Statistics Software	
+37262	Reference Software	37371	Technical Reference Software	
+37262	Reference Software	37372	Test Preparation Software	
+37263	Security Software	37373	Access Control Software	
+37263	Security Software	37374	Anti-Spam Software	
+37263	Security Software	37375	Authentication Software	
+37263	Security Software	37376	Bandwidth Management Software	
+37263	Security Software	45564	Client-Based Virus Protection	
+37263	Security Software	37377	Content Filtering/Management Softw	
+37263	Security Software	37378	Encryption Software	
+37263	Security Software	37379	Firewall/VPN Software	
+37263	Security Software	37380	Intrusion Detection (IDS) Software	
+37263	Security Software	37381	Regulation Compliance Software	
+37263	Security Software	37382	Security Management Software	
+37263	Security Software	37383	Security Suite Software	
+37263	Security Software	45565	Server/Gateway/Email-Based Virus Protection Software	
+37263	Security Software	37384	Surveillance Software	
+37263	Security Software	37385	Virus Protection Software	
+37263	Security Software	37386	Vulnerability Assessment Software	
+29827	Storage Software	29859	Disk Copy/Migration Software	
+29827	Storage Software	29860	Drive Recording/Management Software	
+29827	Storage Software	37304	File Recovery Software	
+29827	Storage Software	29861	Storage Management Software	
+29827	Storage Software	37209	Virtual Drive Software	
+29828	Tax & Finance	37305	Accounting/Billing Software	
+29828	Tax & Finance	37306	ERP Software	
+29828	Tax & Finance	29831	Finance Software	
+29828	Tax & Finance	37307	Financial Suite Software	
+29828	Tax & Finance	37207	Payroll Software	
+37186	Training	37187	Application Training	
+37186	Training	37188	Business Development Training	
+37186	Training	37189	Certification Training 	
+37186	Training	37190	Programming & Development Training	
+37186	Training	37191	Technology Training	
+29829	Utilities	29833	Back-up Software	
+29829	Utilities	29857	Diagnostic Software	
+29829	Utilities	29871	File Conversion & File Transfer	
+29829	Utilities	29880	General Utility Software	
+29829	Utilities	29907	Menu Software & Desktop Organizer	
+29829	Utilities	29909	Multimedia Software	
+29829	Utilities	29910	Network Management Utility	
+29829	Utilities	29912	Printer Utility Software	
+29829	Utilities	29916	Screen Saver Software	
+29829	Utilities	29917	Security Sofware	
+29829	Utilities	29926	Terminal Emulation Software	
+29829	Utilities	29927	Virus Detection Software	
+37264	Utility Software	37387	File Conversion Software	
+37264	Utility Software	37388	File/Internet Sharing Software	
+37264	Utility Software	37389	O/S Management & Partitioning Softw	
+37264	Utility Software	45566	Printer Utility Software	
+37264	Utility Software	37390	System Optimization Software	
+37264	Utility Software	37391	Utility Suites	
+37265	Video & Audio Conferencing Equipment			
+37266	Voice Mail & Fax Equipment			

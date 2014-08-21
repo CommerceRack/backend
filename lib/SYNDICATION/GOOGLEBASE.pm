@@ -443,6 +443,24 @@ as <g:product_type></g:product_type>
 
 
 
+	if (not $plm->can_proceed()) {
+		my @LABELS = ();
+      ## add merchant-defined labels
+
+      #my ($LEGACY_LABEL) = split(/[,\n]+/,$P->fetch('adwords:labels'));
+      #$LABELS[0] = $LEGACY_LABEL;
+      #$LABELS[1] = $P->fetch('zoovy:prod_folder');
+      #$LABELS[2] = $P->fetch('zoovy:prod_mfg');
+      #$LABELS[3] = $P->fetch('zoovy:prod_brand');
+
+      foreach my $i (0..4) {
+         my $attrib = $self->get(".custom_label_$i\_attrib") || "g:custom_label_$i";
+         my ($DATA) = $P->get($attrib);
+         next if (not defined $DATA);
+         push @{$arrayref}, [ "g:custom_label_$i", $DATA ];
+         }
+		}
+
 =pod
 
 [[SUBSECTION]SPECIAL BEHAVIOR: Adwords Labels (g:adwords_labels)]
