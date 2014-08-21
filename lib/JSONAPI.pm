@@ -17421,7 +17421,7 @@ sub platformInfo {
 	$R{'api-max-version'} = $JSONAPI::VERSION;
 	$R{'api-min-version'} = $JSONAPI::VERSION_MINIMUM;
 	$R{'api-our-version'} = $self->apiversion();
-	$R{'db-version'} = &ZOOVY::myrelease($self->username());
+	## $R{'db-version'} = &ZOOVY::myrelease($self->username());
 	## $R{'cluster'} = &ZOOVY::resolve_cluster($self->username());
 	$R{'mid'} = &ZOOVY::resolve_mid($self->username());
 	
