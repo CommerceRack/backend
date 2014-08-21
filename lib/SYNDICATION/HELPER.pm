@@ -14,7 +14,7 @@ sub get_headers {
 	my ($dst) = @_;
 
 	use File::Slurp;
-	open F, "</httpd/static/syndication/$dst/mapping.dmp";
+	open F, "</backend/syndication-maps/$dst/mapping.dmp";
 	my $data = ''; while (<F>) { 
 		next if ($_ =~ /^[\s]*#/);	 #skip comments in file
 		$data .= $_; 

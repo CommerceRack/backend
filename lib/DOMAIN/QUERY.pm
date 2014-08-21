@@ -233,6 +233,7 @@ sub rebuild_cache {
 			$HKEY{'vip.public'} = $CFG->get("$CHKOUT","vip.public") || $REF{'vip.public'};
 			foreach my $key (sort keys %HKEY) {
 				next if (substr($key,0,1) eq '_');
+				next if (not defined $HKEY{$key});
 				$redis->hset(lc("domain+$CHKOUT"),$key,$HKEY{$key});
 				}
 

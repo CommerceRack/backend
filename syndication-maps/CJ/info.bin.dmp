@@ -1,0 +1,22 @@
+$VAR1 = {
+          '_TREE' => {
+                       '0' => [
+                                '0',
+                                '1'
+                              ]
+                     },
+          '_INFO' => {
+                       '1' => {
+                                'Path' => 'Enable',
+                                'isLeaf' => 1,
+                                'Name' => 'Enable',
+                                'Parent' => '1'
+                              },
+                       '0' => {
+                                'Path' => 'Disable',
+                                'isLeaf' => 1,
+                                'Name' => 'Disable',
+                                'Parent' => '0'
+                              }
+                     }
+        };

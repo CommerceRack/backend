@@ -1,0 +1,197 @@
+$VAR1 = [
+          {
+            '@format' => [
+                           'htmlstrip',
+                           'wikistrip',
+                           'stripunicode'
+                         ],
+            '@validation' => [
+                               'not-blank'
+                             ],
+            '@try' => [
+                        'gbase:prod_name',
+                        '%TITLE_WITH_OPTIONS',
+                        'zoovy:prod_name'
+                      ],
+            'header' => 'title'
+          },
+          {
+            '@format' => [
+                           'htmlstrip',
+                           'wikistrip',
+                           'stripunicode',
+                           'trim?bytes=1000'
+                         ],
+            '@validation' => [
+                               'not-blank'
+                             ],
+            '@try' => [
+                        'gbase:prod_desc',
+                        'zoovy:prod_desc'
+                      ],
+            'header' => 'description'
+          },
+          {
+            '@try' => [
+                        'zoovy:link2'
+                      ],
+            'header' => 'link'
+          },
+          {
+            '@format' => [
+                           'imageurl'
+                         ],
+            '@try' => [
+                        'zoovy:prod_thumb',
+                        'zoovy:prod_image1',
+                        ''
+                      ],
+            'header' => 'g:image_link'
+          },
+          {
+            '@try' => [
+                        '%PRODUCTID'
+                      ],
+            'header' => 'guid'
+          },
+          {
+            '@try' => [
+                        '%CONSTANT:USD'
+                      ],
+            'header' => 'g:currency'
+          },
+          {
+            '@validation' => [
+                               'positive-number'
+                             ],
+            '@try' => [
+                        'gbase:base_price',
+                        'zoovy:base_price'
+                      ],
+            'header' => 'g:price'
+          },
+          {
+            '@try' => [
+                        'zoovy:prod_publisher'
+                      ],
+            '@skip' => [
+                         'if-blank'
+                       ],
+            'header' => 'g:publisher'
+          },
+          {
+            '@try' => [
+                        'zoovy:prod_condition',
+                        '%CONSTANT:new'
+                      ],
+            'header' => 'g:condition'
+          },
+          {
+            '@format' => [
+                           'lookup-category',
+                           'replace?this=%2F&with=%3E'
+                         ],
+            '@try' => [
+                        'gbase:product_type',
+                        'navcat:meta'
+                      ],
+            '@skip' => [
+                         'if-blank'
+                       ],
+            'header' => 'g:product_type'
+          },
+          {
+            '@try' => [
+                        'zoovy:prod_rating',
+                        '%CONSTANT:5'
+                      ],
+            '@skip' => [
+                         'if-blank'
+                       ],
+            'header' => 'g:rating'
+          },
+          {
+            '@try' => [
+                        'zoovy:prod_brand',
+                        'zoovy:prod_mfg'
+                      ],
+            '@skip' => [
+                         'if-blank'
+                       ],
+            'header' => 'g:brand'
+          },
+          {
+            '@try' => [
+                        'zoovy:prod_mfg'
+                      ],
+            '@skip' => [
+                         'if-blank',
+                         'same-as-previous-header:g:brand'
+                       ],
+            'header' => 'g:manufacturer'
+          },
+          {
+            '@try' => [
+                        'zoovy:prod_mfgid'
+                      ],
+            '@skip' => [
+                         'if-blank'
+                       ],
+            'header' => 'g:mpn'
+          },
+          {
+            '@try' => [
+                        'zoovy:prod_partnum',
+                        'zoovy:prod_mfgid'
+                      ],
+            '@skip' => [
+                         'if-blank'
+                       ],
+            'header' => 'g:model_number'
+          },
+          {
+            '@validation' => [
+                               'not-blank'
+                             ],
+            '@try' => [
+                        'gbase:prod_upc',
+                        'zoovy:prod_upc',
+                        'zoovy:prod_fakeupc'
+                      ],
+            '@skip' => [
+                         'if-blank'
+                       ],
+            'header' => 'g:upc'
+          },
+          {
+            '@try' => [
+                        'zoovy:prod_isbn'
+                      ],
+            '@skip' => [
+                         'if-blank'
+                       ],
+            'header' => 'g:isbn'
+          },
+          {
+            '@try' => [
+                        '%G_SIZE'
+                      ],
+            '@skip' => [
+                         'if-blank'
+                       ],
+            'header' => 'g:size'
+          },
+          {
+            '@format' => [
+                           'weight-in-lbs-number-only'
+                         ],
+            '@try' => [
+                        'zoovy:ship_weight',
+                        'zoovy:base_weight'
+                      ],
+            '@skip' => [
+                         'if-blank'
+                       ],
+            'header' => 'g:weight'
+          }
+        ];

@@ -336,27 +336,6 @@ sub platformify {
 	}
 
 
-##
-##	 returns the release the user is on so we know which database tables, syntax, etc. to use
-##
-sub myrelease {
-	my ($USERNAME) = @_;
-
-	if (defined $ZOOVY::RELEASE_CACHE{$USERNAME}) {
- 		return($ZOOVY::RELEASE_CACHE{$USERNAME});
-		}
-
-	my $RELEASE = 0;
-	# my ($USERPATH) = &ZOOVY::resolve_userpath($USERNAME);
-	# if (&ZOOVY::servername() eq 'dev') { $USERPATH =~ s/endor/pop/; }
-	# if (-f "$USERPATH/dbpasswd") { $RELEASE = 201339; }
-	my ($pref) = &ZOOVY::platformify($USERNAME);
-	$RELEASE = $pref->{'release'} || '201301';
-
-	$ZOOVY::RELEASE_CACHE{$USERNAME} = $RELEASE;
-	return( $ZOOVY::RELEASE_CACHE{$USERNAME} );	
-	}
-	
 
 
 ###############################################################################
@@ -1407,14 +1386,8 @@ sub getRedis {
 ##
 sub resolve_lookup_tb {
 	my ($USERNAME,$MID) = @_;
-
-	if (&ZOOVY::myrelease($USERNAME)>201338) { return("SKU_LOOKUP"); }
-	if (int($MID)==0) { ($MID) = &ZOOVY::resolve_mid($USERNAME); }
-
-	my $TBMID = $MID;
-	if ($MID%10000>0) { $TBMID = $MID -($MID % 10000); }		
-	my $NEWTB = 'SKU_LOOKUP_'.$TBMID;	
-	return($NEWTB);
+	
+	return("SKU_LOOKUP");
 	}
 
 
@@ -1995,20 +1968,10 @@ sub servername {
 ##
 sub resolve_product_tb {
 	my ($USERNAME,$MID) = @_;
-
-	if (&ZOOVY::myrelease($USERNAME)>201338) { return("PRODUCTS"); }
-
-	if (not defined $MID) { $MID = &ZOOVY::resolve_mid($USERNAME); }
-
-	if ($MID == 53062) { return('PRODUCTS_REDFORD'); }
-	if ($MID == 60001) { return('PRODUCTS_BAREFOOTTESS'); }
-
-	if (defined $MID) {
-		## if we pass an MID then use that to resolve the table.
-		if ($MID%1000>0) { $MID = $MID -($MID % 1000); }		
-		return('PRODUCTS_'.$MID);
-		}
 	
+	## we: used to do something fancy fancy here
+
+	return("PRODUCTS");
 	}
 
 

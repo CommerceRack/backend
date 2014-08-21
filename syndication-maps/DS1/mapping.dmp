@@ -1,0 +1,22 @@
+[
+	{
+	'header'=>'SKU',
+	'@try'=>['%PRODUCTID'],
+	},
+	{
+	'header'=>'Price',
+	'@try'=>['zoovy:base_price'],
+	'@validation'=>['positive-number'],
+	},
+	{
+	'header'=>'Cost',
+	'@try'=>['zoovy:base_cost'],
+	'@validation'=>['positive-number'],
+	},
+	{ 
+	'header'=>'Image',
+	'@format'=>['imageurl?h=400&w=400'],
+	'@try'=>['zoovy:prod_image1',''],
+	},
+]
+

@@ -1,0 +1,1382 @@
+$VAR1 = [
+          [
+            '141',
+            'Apparel / Accessories / Gloves'
+          ],
+          [
+            '146',
+            'Apparel / Accessories / Handbags and Day Packs'
+          ],
+          [
+            '148',
+            'Apparel / Accessories / Hats and Caps'
+          ],
+          [
+            '330',
+            'Apparel / Accessories / Ties'
+          ],
+          [
+            '36',
+            'Apparel / Accessories / Belts'
+          ],
+          [
+            '188',
+            'Apparel / Clothing / Maternity'
+          ],
+          [
+            '191',
+            'Apparel / Clothing / Coats and Jackets - Men'
+          ],
+          [
+            '193',
+            'Apparel / Clothing / Shorts, Pants and Jeans - Men'
+          ],
+          [
+            '194',
+            'Apparel / Clothing / Shirts and Tops - Men'
+          ],
+          [
+            '195',
+            'Apparel / Clothing / Sleepwear - Men'
+          ],
+          [
+            '196',
+            'Apparel / Clothing / Underwear and Socks and Hosiery - Men'
+          ],
+          [
+            '5',
+            'Apparel / Clothing / Shorts, Pants and Jeans - Other'
+          ],
+          [
+            '6',
+            'Apparel / Clothing / Shirts and Tops - Other'
+          ],
+          [
+            '298',
+            'Apparel / Clothing / Skirts and Dresses - All'
+          ],
+          [
+            '7',
+            'Apparel / Clothing / Sleepwear - Other'
+          ],
+          [
+            '3',
+            'Apparel / Clothing / Coats and Jackets - Other'
+          ],
+          [
+            '8',
+            'Apparel / Clothing / Underwear and Socks and Hosiery - Other'
+          ],
+          [
+            '355',
+            'Apparel / Clothing / Coats and Jackets - Women'
+          ],
+          [
+            '357',
+            'Apparel / Clothing / Shorts, Pants and Jeans - Women'
+          ],
+          [
+            '358',
+            'Apparel / Clothing / Shirts and Tops - Women'
+          ],
+          [
+            '359',
+            'Apparel / Clothing / Sleepwear - Women'
+          ],
+          [
+            '360',
+            'Apparel / Clothing / Underwear and Socks and Hosiery - Women'
+          ],
+          [
+            '63',
+            'Apparel / Clothing / Coats and Jackets - Children'
+          ],
+          [
+            '66',
+            'Apparel / Clothing / Shorts, Pants and Jeans - Children'
+          ],
+          [
+            '67',
+            'Apparel / Clothing / Shirts and Tops - Children'
+          ],
+          [
+            '68',
+            'Apparel / Clothing / Sleepwear - Children'
+          ],
+          [
+            '69',
+            'Apparel / Clothing / Underwear and Socks and Hosiery - Children'
+          ],
+          [
+            '192',
+            'Apparel / Shoes / Footwear - Men'
+          ],
+          [
+            '356',
+            'Apparel / Shoes / Footwear - Women'
+          ],
+          [
+            '4',
+            'Apparel / Shoes / Footwear - Other'
+          ],
+          [
+            '64',
+            'Apparel / Shoes / Footwear - Children'
+          ],
+          [
+            '317',
+            'Apparel / Sunglasses / Sunglasses'
+          ],
+          [
+            '18',
+            'Arts & Entertainment / Arts & Crafts Supplies / Art Supplies'
+          ],
+          [
+            '245',
+            'Arts & Entertainment / Arts & Crafts Supplies / Paintings and Photos and Prints'
+          ],
+          [
+            '288',
+            'Arts & Entertainment / Arts & Crafts Supplies / Sculpture'
+          ],
+          [
+            '106',
+            'Arts & Entertainment / Books / Education and Textbooks'
+          ],
+          [
+            '117',
+            'Arts & Entertainment / Books / Fiction and Literature'
+          ],
+          [
+            '153',
+            'Arts & Entertainment / Books / History'
+          ],
+          [
+            '157',
+            'Arts & Entertainment / Books / Home and Garden'
+          ],
+          [
+            '189',
+            'Arts & Entertainment / Books / Memoirs and Biographies'
+          ],
+          [
+            '20',
+            'Arts & Entertainment / Books / Arts and Photography'
+          ],
+          [
+            '206',
+            'Arts & Entertainment / Books / Music'
+          ],
+          [
+            '207',
+            'Arts & Entertainment / Books / Mystery and Crime'
+          ],
+          [
+            '212',
+            'Arts & Entertainment / Books / Nonfiction'
+          ],
+          [
+            '23',
+            'Arts & Entertainment / Books / Audiobooks'
+          ],
+          [
+            '240',
+            'Arts & Entertainment / Books / Outdoors and Nature'
+          ],
+          [
+            '248',
+            'Arts & Entertainment / Books / Parenting and Families'
+          ],
+          [
+            '255',
+            'Arts & Entertainment / Books / Philosophy'
+          ],
+          [
+            '266',
+            'Arts & Entertainment / Books / Puzzles'
+          ],
+          [
+            '269',
+            'Arts & Entertainment / Books / Reference'
+          ],
+          [
+            '271',
+            'Arts & Entertainment / Books / Religion and Spirituality'
+          ],
+          [
+            '277',
+            'Arts & Entertainment / Books / Romance'
+          ],
+          [
+            '284',
+            'Arts & Entertainment / Books / Science and Nature'
+          ],
+          [
+            '285',
+            'Arts & Entertainment / Books / Science Fiction'
+          ],
+          [
+            '290',
+            'Arts & Entertainment / Books / Self Improvement'
+          ],
+          [
+            '310',
+            'Arts & Entertainment / Books / Sports'
+          ],
+          [
+            '338',
+            'Arts & Entertainment / Books / Travel'
+          ],
+          [
+            '44',
+            'Arts & Entertainment / Books / Books'
+          ],
+          [
+            '52',
+            'Arts & Entertainment / Books / Business and Money'
+          ],
+          [
+            '55',
+            'Arts & Entertainment / Books / Calendars'
+          ],
+          [
+            '62',
+            'Arts & Entertainment / Books / Children'
+          ],
+          [
+            '80',
+            'Arts & Entertainment / Books / Comics and Graphic Novels and Anime'
+          ],
+          [
+            '82',
+            'Arts & Entertainment / Books / Computer and Technology'
+          ],
+          [
+            '85',
+            'Arts & Entertainment / Books / Cooking and Wine'
+          ],
+          [
+            '97',
+            'Arts & Entertainment / Books / Diet and Health'
+          ],
+          [
+            '12',
+            'Arts & Entertainment / Hobbies & Collectibles / Antiques'
+          ],
+          [
+            '120',
+            'Arts & Entertainment / Hobbies & Collectibles / Figurines and Miniatures'
+          ],
+          [
+            '154',
+            'Arts & Entertainment / Hobbies & Collectibles / Hobbies'
+          ],
+          [
+            '170',
+            'Arts & Entertainment / Hobbies & Collectibles / Jewelry and Beadwork'
+          ],
+          [
+            '22',
+            'Arts & Entertainment / Hobbies & Collectibles / Astronomy and Science'
+          ],
+          [
+            '286',
+            'Arts & Entertainment / Hobbies & Collectibles / Scrapbooking and Paper Crafts'
+          ],
+          [
+            '291',
+            'Arts & Entertainment / Hobbies & Collectibles / Sewing and Needlework'
+          ],
+          [
+            '312',
+            'Arts & Entertainment / Hobbies & Collectibles / Stamps'
+          ],
+          [
+            '336',
+            'Arts & Entertainment / Hobbies & Collectibles / Trading Cards'
+          ],
+          [
+            '337',
+            'Arts & Entertainment / Hobbies & Collectibles / Trains and Models'
+          ],
+          [
+            '35',
+            'Arts & Entertainment / Hobbies & Collectibles / Beer and Wine Making'
+          ],
+          [
+            '58',
+            'Arts & Entertainment / Hobbies & Collectibles / Candle and Soap Making'
+          ],
+          [
+            '76',
+            'Arts & Entertainment / Hobbies & Collectibles / Coins'
+          ],
+          [
+            '77',
+            'Arts & Entertainment / Hobbies & Collectibles / Collectibles'
+          ],
+          [
+            '102',
+            'Arts & Entertainment / Movies / Drama'
+          ],
+          [
+            '107',
+            'Arts & Entertainment / Movies / Educational and Instructional'
+          ],
+          [
+            '11',
+            'Arts & Entertainment / Movies / Animation'
+          ],
+          [
+            '115',
+            'Arts & Entertainment / Movies / Family'
+          ],
+          [
+            '126',
+            'Arts & Entertainment / Movies / Fitness and Health'
+          ],
+          [
+            '158',
+            'Arts & Entertainment / Movies / Horror'
+          ],
+          [
+            '163',
+            'Arts & Entertainment / Movies / Independent'
+          ],
+          [
+            '166',
+            'Arts & Entertainment / Movies / International'
+          ],
+          [
+            '197',
+            'Arts & Entertainment / Movies / Military and War'
+          ],
+          [
+            '2',
+            'Arts & Entertainment / Movies / Action and Adventure'
+          ],
+          [
+            '202',
+            'Arts & Entertainment / Movies / Movies'
+          ],
+          [
+            '204',
+            'Arts & Entertainment / Movies / Musicals'
+          ],
+          [
+            '208',
+            'Arts & Entertainment / Movies / Mystery and Suspense'
+          ],
+          [
+            '311',
+            'Arts & Entertainment / Movies / Sports'
+          ],
+          [
+            '351',
+            'Arts & Entertainment / Movies / Westerns'
+          ],
+          [
+            '78',
+            'Arts & Entertainment / Movies / Comedy'
+          ],
+          [
+            '98',
+            'Arts & Entertainment / Movies / Documentary'
+          ],
+          [
+            '131',
+            'Arts & Entertainment / Music / Folk'
+          ],
+          [
+            '152',
+            'Arts & Entertainment / Music / Hip Hop'
+          ],
+          [
+            '167',
+            'Arts & Entertainment / Music / International'
+          ],
+          [
+            '168',
+            'Arts & Entertainment / Music / Jazz'
+          ],
+          [
+            '178',
+            'Arts & Entertainment / Music / Latin'
+          ],
+          [
+            '200',
+            'Arts & Entertainment / Music / Miscellaneous'
+          ],
+          [
+            '205',
+            'Arts & Entertainment / Music / Music'
+          ],
+          [
+            '211',
+            'Arts & Entertainment / Music / New Age'
+          ],
+          [
+            '215',
+            'Arts & Entertainment / Music / Opera'
+          ],
+          [
+            '260',
+            'Arts & Entertainment / Music / Pop'
+          ],
+          [
+            '272',
+            'Arts & Entertainment / Music / Religious'
+          ],
+          [
+            '274',
+            'Arts & Entertainment / Music / Rhythm and Blues'
+          ],
+          [
+            '276',
+            'Arts & Entertainment / Music / Rock'
+          ],
+          [
+            '306',
+            'Arts & Entertainment / Music / Soundtracks'
+          ],
+          [
+            '39',
+            'Arts & Entertainment / Music / Blues'
+          ],
+          [
+            '48',
+            'Arts & Entertainment / Music / Broadway and Vocal'
+          ],
+          [
+            '65',
+            'Arts & Entertainment / Music / Children'
+          ],
+          [
+            '71',
+            'Arts & Entertainment / Music / Classical'
+          ],
+          [
+            '79',
+            'Arts & Entertainment / Music / Comedy'
+          ],
+          [
+            '88',
+            'Arts & Entertainment / Music / Country and Western'
+          ],
+          [
+            '9',
+            'Arts & Entertainment / Music / Alternative'
+          ],
+          [
+            '91',
+            'Arts & Entertainment / Music / Dance and DJ'
+          ],
+          [
+            '10',
+            'Arts & Entertainment / Musical Instruments / Amplifiers'
+          ],
+          [
+            '173',
+            'Arts & Entertainment / Musical Instruments / Keyboard Instruments'
+          ],
+          [
+            '203',
+            'Arts & Entertainment / Musical Instruments / Musical Instruments and Performing Accessories'
+          ],
+          [
+            '252',
+            'Arts & Entertainment / Musical Instruments / Percussion Instruments'
+          ],
+          [
+            '268',
+            'Arts & Entertainment / Musical Instruments / Recording Equipment'
+          ],
+          [
+            '316',
+            'Arts & Entertainment / Musical Instruments / Stringed Instruments'
+          ],
+          [
+            '352',
+            'Arts & Entertainment / Musical Instruments / Wind Instruments'
+          ],
+          [
+            '220',
+            'Arts & Entertainment / Other Arts & Entertainment / Arts and Entertainment Accessories'
+          ],
+          [
+            '221',
+            'Arts & Entertainment / Other Arts & Entertainment / Arts and Entertainment - Other'
+          ],
+          [
+            '292',
+            'Arts & Entertainment / Sheet Music / Sheet Music'
+          ],
+          [
+            '100',
+            'Arts & Entertainment / Toys / Dolls and Plush Toys'
+          ],
+          [
+            '334',
+            'Arts & Entertainment / Toys / Toys and Games - Other'
+          ],
+          [
+            '40',
+            'Arts & Entertainment / Toys / Board Games'
+          ],
+          [
+            '50',
+            'Arts & Entertainment / Toys / Building Sets and Blocks and Models'
+          ],
+          [
+            '110',
+            'Arts & Entertainment / Video Consoles & Accessories / Video Consoles and Accessories'
+          ],
+          [
+            '372',
+            'Arts & Entertainment / Video Games / Video Games'
+          ],
+          [
+            '112',
+            'Automotive / Automotive / Engine and Tire Repair'
+          ],
+          [
+            '25',
+            'Automotive / Automotive / Auto Parts'
+          ],
+          [
+            '26',
+            'Automotive / Automotive / Automotive - Other'
+          ],
+          [
+            '42',
+            'Automotive / Automotive / Body Repair and Customization'
+          ],
+          [
+            '59',
+            'Automotive / Automotive / Car and Truck Accessories'
+          ],
+          [
+            '377',
+            'Baby / Baby Care / Baby Care'
+          ],
+          [
+            '376',
+            'Baby / Baby Carriers / Baby Carriers'
+          ],
+          [
+            '375',
+            'Baby / Car Seats / Car Seats'
+          ],
+          [
+            '374',
+            'Baby / Cribs / Cribs'
+          ],
+          [
+            '378',
+            'Baby / Other Baby / Other Baby'
+          ],
+          [
+            '373',
+            'Baby / Strollers / Strollers'
+          ],
+          [
+            '149',
+            'Electronics / Audio Accessories / Headphones and Accessories'
+          ],
+          [
+            '1',
+            'Electronics / Camera Accessories / Accessories'
+          ],
+          [
+            '343',
+            'Electronics / Cameras / Video and Security Cameras'
+          ],
+          [
+            '56',
+            'Electronics / Cameras / Cameras'
+          ],
+          [
+            '261',
+            'Electronics / Car Audio / Car Audio'
+          ],
+          [
+            '60',
+            'Electronics / Cellular Phones / Cellular Phones'
+          ],
+          [
+            '380',
+            'Electronics / Communication Accessories / Communications Accessories'
+          ],
+          [
+            '177',
+            'Electronics / Computers / Laptop'
+          ],
+          [
+            '96',
+            'Electronics / Computers / Desktop'
+          ],
+          [
+            '174',
+            'Electronics / Desktop Accessories / Keyboards and Input Devices'
+          ],
+          [
+            '190',
+            'Electronics / Desktop Accessories / Memory'
+          ],
+          [
+            '381',
+            'Electronics / Desktop Accessories / Desktop Accessories'
+          ],
+          [
+            '54',
+            'Electronics / Desktop Accessories / Cables and Accessories'
+          ],
+          [
+            '105',
+            'Electronics / DVD Players & VCRs / DVD Players and VCRs'
+          ],
+          [
+            '138',
+            'Electronics / Electronic Devices / Gadgets'
+          ],
+          [
+            '210',
+            'Electronics / Hardware / Networking and Wireless'
+          ],
+          [
+            '92',
+            'Electronics / Hardware / Data Storage'
+          ],
+          [
+            '313',
+            'Electronics / Home Audio / Stereos and Receivers and Speakers'
+          ],
+          [
+            '382',
+            'Electronics / Laptop Accessories / Laptop Accessories'
+          ],
+          [
+            '201',
+            'Electronics / Monitors / Monitors and Projectors'
+          ],
+          [
+            '222',
+            'Electronics / Other Electronics / Electronics Accessories'
+          ],
+          [
+            '223',
+            'Electronics / Other Electronics / Electronics - Other'
+          ],
+          [
+            '250',
+            'Electronics / PDAs / PDAs'
+          ],
+          [
+            '379',
+            'Electronics / Portable Audio / Portable Audio'
+          ],
+          [
+            '264',
+            'Electronics / Printers / Printers and Fax Machines'
+          ],
+          [
+            '267',
+            'Electronics / Radio Communications / Radio Communications and Scanners'
+          ],
+          [
+            '305',
+            'Electronics / Software / Software'
+          ],
+          [
+            '327',
+            'Electronics / Telephones / Telephones'
+          ],
+          [
+            '328',
+            'Electronics / TVs / Televisions'
+          ],
+          [
+            '129',
+            'Flowers & Gifts / Flowers & Plants / Flowers'
+          ],
+          [
+            '307',
+            'Flowers & Gifts / Food & Wine / Specialty Foods'
+          ],
+          [
+            '224',
+            'Flowers & Gifts / Gifts / Flowers and Gifts Accessories'
+          ],
+          [
+            '225',
+            'Flowers & Gifts / Gifts / Flowers and Gifts - Other'
+          ],
+          [
+            '87',
+            'Health & Beauty / Cosmetics / Cosmetics'
+          ],
+          [
+            '134',
+            'Health & Beauty / Fragrance / Fragrance'
+          ],
+          [
+            '123',
+            'Health & Beauty / Health Aids / First Aid Kits and Supplies'
+          ],
+          [
+            '213',
+            'Health & Beauty / Health Aids / Nutritional Supplements and Wellness Products'
+          ],
+          [
+            '254',
+            'Health & Beauty / Health Aids / Pharmacy'
+          ],
+          [
+            '282',
+            'Health & Beauty / Health Aids / Safety and Self Defense Products'
+          ],
+          [
+            '319',
+            'Health & Beauty / Health Aids / Support and Mobility Aids'
+          ],
+          [
+            '114',
+            'Health & Beauty / Personal Care / Eyeglasses'
+          ],
+          [
+            '144',
+            'Health & Beauty / Personal Care / Hair and Nail Care'
+          ],
+          [
+            '151',
+            'Health & Beauty / Personal Care / Health and Safety'
+          ],
+          [
+            '186',
+            'Health & Beauty / Personal Care / Makeup and Beauty'
+          ],
+          [
+            '187',
+            'Health & Beauty / Personal Care / Massage and Relaxation'
+          ],
+          [
+            '226',
+            'Health & Beauty / Personal Care / Health and Beauty Accessories'
+          ],
+          [
+            '227',
+            'Health & Beauty / Personal Care / Health and Beauty - Other'
+          ],
+          [
+            '297',
+            'Health & Beauty / Personal Care / Skin Care and Bath and Body'
+          ],
+          [
+            '344',
+            'Health & Beauty / Personal Care / Vision Products'
+          ],
+          [
+            '84',
+            'Health & Beauty / Personal Care / Contact Lenses'
+          ],
+          [
+            '93',
+            'Health & Beauty / Personal Care / Dental and Oral Care'
+          ],
+          [
+            '181',
+            'Home & Garden / Bed & Bath / Linens and Bedding'
+          ],
+          [
+            '33',
+            'Home & Garden / Bed & Bath / Bed and Bath'
+          ],
+          [
+            '333',
+            'Home & Garden / Bed & Bath / Towels and Bath Accessories'
+          ],
+          [
+            '72',
+            'Home & Garden / Bed & Bath / Cleaning Supplies'
+          ],
+          [
+            '103',
+            'Home & Garden / Furniture / Dressers'
+          ],
+          [
+            '135',
+            'Home & Garden / Furniture / Furniture Sets'
+          ],
+          [
+            '136',
+            'Home & Garden / Furniture / Furniture'
+          ],
+          [
+            '17',
+            'Home & Garden / Furniture / Armoires and Entertainment Systems'
+          ],
+          [
+            '199',
+            'Home & Garden / Furniture / Misc. Furniture'
+          ],
+          [
+            '249',
+            'Home & Garden / Furniture / Patio Furniture'
+          ],
+          [
+            '304',
+            'Home & Garden / Furniture / Sofas and Chairs'
+          ],
+          [
+            '323',
+            'Home & Garden / Furniture / Tables'
+          ],
+          [
+            '34',
+            'Home & Garden / Furniture / Beds'
+          ],
+          [
+            '43',
+            'Home & Garden / Furniture / Bookcases and Shelves'
+          ],
+          [
+            '94',
+            'Home & Garden / Furniture / Desks and Workstations'
+          ],
+          [
+            '127',
+            'Home & Garden / Home Décor / Flooring'
+          ],
+          [
+            '175',
+            'Home & Garden / Home Décor / Kitchen and Dining'
+          ],
+          [
+            '180',
+            'Home & Garden / Home Décor / Lighting'
+          ],
+          [
+            '243',
+            'Home & Garden / Home Décor / Paint and Stain'
+          ],
+          [
+            '258',
+            'Home & Garden / Home Décor / Plumbing Fixtures'
+          ],
+          [
+            '273',
+            'Home & Garden / Home Décor / Remodeling and Decor'
+          ],
+          [
+            '279',
+            'Home & Garden / Home Décor / Rugs and Carpet'
+          ],
+          [
+            '28',
+            'Home & Garden / Home Décor / Barware and Stemware'
+          ],
+          [
+            '322',
+            'Home & Garden / Home Décor / Tablecloths and Napkins'
+          ],
+          [
+            '353',
+            'Home & Garden / Home Décor / Window Treatments'
+          ],
+          [
+            '70',
+            'Home & Garden / Home Décor / China and Flatware'
+          ],
+          [
+            '86',
+            'Home & Garden / Home Décor / Cookware'
+          ],
+          [
+            '89',
+            'Home & Garden / Home Décor / Cushions and Home Accents'
+          ],
+          [
+            '238',
+            'Home & Garden / Large Appliances / Outdoor Grills'
+          ],
+          [
+            '241',
+            'Home & Garden / Large Appliances / Ovens'
+          ],
+          [
+            '270',
+            'Home & Garden / Large Appliances / Refrigerators and Freezers'
+          ],
+          [
+            '139',
+            'Home & Garden / Lawn & Garden / Garden and Patio'
+          ],
+          [
+            '143',
+            'Home & Garden / Lawn & Garden / Greenhouses'
+          ],
+          [
+            '179',
+            'Home & Garden / Lawn & Garden / Lawn and Garden Care'
+          ],
+          [
+            '218',
+            'Home & Garden / Lawn & Garden / Ornaments'
+          ],
+          [
+            '228',
+            'Home & Garden / Lawn & Garden / Home and Garden Accessories'
+          ],
+          [
+            '229',
+            'Home & Garden / Lawn & Garden / Home and Garden - Other'
+          ],
+          [
+            '37',
+            'Home & Garden / Lawn & Garden / Birdfeeders and Birdhouses'
+          ],
+          [
+            '198',
+            'Home & Garden / Small Appliances / Misc. Appliances'
+          ],
+          [
+            '331',
+            'Home & Garden / Small Appliances / Toasters'
+          ],
+          [
+            '342',
+            'Home & Garden / Small Appliances / Vacuums and Floor Cleaners'
+          ],
+          [
+            '346',
+            'Home & Garden / Small Appliances / Waffle Irons'
+          ],
+          [
+            '347',
+            'Home & Garden / Small Appliances / Washing Machines and Dryers'
+          ],
+          [
+            '38',
+            'Home & Garden / Small Appliances / Blenders and Food Processors'
+          ],
+          [
+            '47',
+            'Home & Garden / Small Appliances / Breadmakers'
+          ],
+          [
+            '75',
+            'Home & Garden / Small Appliances / Coffemakers'
+          ],
+          [
+            '116',
+            'Jewelry / Jewelry / Fashion and Costume Jewelry'
+          ],
+          [
+            '122',
+            'Jewelry / Jewelry / Fine Jewelry and Wedding Rings'
+          ],
+          [
+            '171',
+            'Jewelry / Jewelry / Jewelry Boxes and Music Boxes'
+          ],
+          [
+            '182',
+            'Jewelry / Jewelry / Loose Gems and Beads'
+          ],
+          [
+            '230',
+            'Jewelry / Jewelry / Jewelry Accessories'
+          ],
+          [
+            '231',
+            'Jewelry / Jewelry / Jewelry - Other'
+          ],
+          [
+            '348',
+            'Jewelry / Watches / Watches'
+          ],
+          [
+            '383',
+            'Office / Ink & Toner / Ink and Toner'
+          ],
+          [
+            '121',
+            'Office / Office Furniture / File Cabinets'
+          ],
+          [
+            '137',
+            'Office / Office Furniture / Furniture'
+          ],
+          [
+            '16',
+            'Office / Office Furniture / Armoires and Bookcases and Shelving'
+          ],
+          [
+            '324',
+            'Office / Office Furniture / Tables'
+          ],
+          [
+            '61',
+            'Office / Office Furniture / Chairs'
+          ],
+          [
+            '95',
+            'Office / Office Furniture / Desks and Workstations'
+          ],
+          [
+            '130',
+            'Office / Office Supplies / Folders and Binders'
+          ],
+          [
+            '185',
+            'Office / Office Supplies / Mailroom and Shipping Supplies'
+          ],
+          [
+            '216',
+            'Office / Office Supplies / Organizers and Planners'
+          ],
+          [
+            '232',
+            'Office / Office Supplies / Office Accessories'
+          ],
+          [
+            '233',
+            'Office / Office Supplies / Office - Other'
+          ],
+          [
+            '242',
+            'Office / Office Supplies / Pads and Notebooks'
+          ],
+          [
+            '247',
+            'Office / Office Supplies / Paper and Copier and Fax Supplies'
+          ],
+          [
+            '263',
+            'Office / Office Supplies / Presentation Materials'
+          ],
+          [
+            '318',
+            'Office / Office Supplies / Supplies'
+          ],
+          [
+            '364',
+            'Office / Office Supplies / Writing Utensils'
+          ],
+          [
+            '253',
+            'Pets / Pets / Pets'
+          ],
+          [
+            '99',
+            'Sports & Outdoors / Dog Sledding / Dog Sledding'
+          ],
+          [
+            '125',
+            'Sports & Outdoors / Fitness Equipment / Fitness Accessories'
+          ],
+          [
+            '251',
+            'Sports & Outdoors / Fitness Equipment / Pedometers and Heart Rate Monitors and Watches'
+          ],
+          [
+            '309',
+            'Sports & Outdoors / Fitness Equipment / Sports and Outdoor Equipment'
+          ],
+          [
+            '349',
+            'Sports & Outdoors / Fitness Equipment / Weightlifting and Cardio Equipment'
+          ],
+          [
+            '365',
+            'Sports & Outdoors / Fitness Equipment / Yoga and Pilates Equipment'
+          ],
+          [
+            '113',
+            'Sports & Outdoors / Individual Sports / Equestrian'
+          ],
+          [
+            '118',
+            'Sports & Outdoors / Individual Sports / Field Hockey'
+          ],
+          [
+            '132',
+            'Sports & Outdoors / Individual Sports / Football and Rugby'
+          ],
+          [
+            '142',
+            'Sports & Outdoors / Individual Sports / Golf'
+          ],
+          [
+            '155',
+            'Sports & Outdoors / Individual Sports / Hockey'
+          ],
+          [
+            '159',
+            'Sports & Outdoors / Individual Sports / Hunting and Fishing'
+          ],
+          [
+            '161',
+            'Sports & Outdoors / Individual Sports / Ice Hockey'
+          ],
+          [
+            '162',
+            'Sports & Outdoors / Individual Sports / Ice Skating'
+          ],
+          [
+            '164',
+            'Sports & Outdoors / Individual Sports / Individual Sports'
+          ],
+          [
+            '244',
+            'Sports & Outdoors / Individual Sports / Paintball'
+          ],
+          [
+            '265',
+            'Sports & Outdoors / Individual Sports / Protective Gear'
+          ],
+          [
+            '275',
+            'Sports & Outdoors / Individual Sports / Rock and Ice Climbing'
+          ],
+          [
+            '278',
+            'Sports & Outdoors / Individual Sports / Rowing'
+          ],
+          [
+            '280',
+            'Sports & Outdoors / Individual Sports / Running'
+          ],
+          [
+            '29',
+            'Sports & Outdoors / Individual Sports / Baseball and Softball'
+          ],
+          [
+            '295',
+            'Sports & Outdoors / Individual Sports / Skateboarding'
+          ],
+          [
+            '296',
+            'Sports & Outdoors / Individual Sports / Skiing'
+          ],
+          [
+            '30',
+            'Sports & Outdoors / Individual Sports / Basketball'
+          ],
+          [
+            '300',
+            'Sports & Outdoors / Individual Sports / Snowboarding'
+          ],
+          [
+            '301',
+            'Sports & Outdoors / Individual Sports / Snowshoeing'
+          ],
+          [
+            '302',
+            'Sports & Outdoors / Individual Sports / Soccer'
+          ],
+          [
+            '31',
+            'Sports & Outdoors / Individual Sports / Basketball'
+          ],
+          [
+            '320',
+            'Sports & Outdoors / Individual Sports / Surfing'
+          ],
+          [
+            '321',
+            'Sports & Outdoors / Individual Sports / Swimming'
+          ],
+          [
+            '325',
+            'Sports & Outdoors / Individual Sports / Team Sports'
+          ],
+          [
+            '326',
+            'Sports & Outdoors / Individual Sports / Team Uniforms'
+          ],
+          [
+            '329',
+            'Sports & Outdoors / Individual Sports / Tennis and Racquet Sports'
+          ],
+          [
+            '335',
+            'Sports & Outdoors / Individual Sports / Track and Field'
+          ],
+          [
+            '345',
+            'Sports & Outdoors / Individual Sports / Volleyball'
+          ],
+          [
+            '354',
+            'Sports & Outdoors / Individual Sports / Winter Recreation'
+          ],
+          [
+            '362',
+            'Sports & Outdoors / Individual Sports / Wrestling'
+          ],
+          [
+            '41',
+            'Sports & Outdoors / Individual Sports / Boating and Waterskiing'
+          ],
+          [
+            '45',
+            'Sports & Outdoors / Individual Sports / Bowling'
+          ],
+          [
+            '46',
+            'Sports & Outdoors / Individual Sports / Boxing and Martial Arts'
+          ],
+          [
+            '90',
+            'Sports & Outdoors / Individual Sports / Cycling'
+          ],
+          [
+            '124',
+            'Sports & Outdoors / Outdoor & Recreation / First Aid'
+          ],
+          [
+            '160',
+            'Sports & Outdoors / Outdoor & Recreation / Hydration'
+          ],
+          [
+            '165',
+            'Sports & Outdoors / Outdoor & Recreation / Insect and Wildlife Repellants'
+          ],
+          [
+            '217',
+            'Sports & Outdoors / Outdoor & Recreation / Orienteering and Misc. Equipment'
+          ],
+          [
+            '234',
+            'Sports & Outdoors / Outdoor & Recreation / Sports and Outdoor Equipment Accessories'
+          ],
+          [
+            '235',
+            'Sports & Outdoors / Outdoor & Recreation / Sports and Outdoor Equipment - Other'
+          ],
+          [
+            '239',
+            'Sports & Outdoors / Outdoor & Recreation / Outdoor Recreation'
+          ],
+          [
+            '281',
+            'Sports & Outdoors / Outdoor & Recreation / Safety and First Aid'
+          ],
+          [
+            '57',
+            'Sports & Outdoors / Outdoor & Recreation / Camping Gear'
+          ],
+          [
+            '73',
+            'Sports & Outdoors / Outdoor & Recreation / Climbing and Hiking'
+          ],
+          [
+            '101',
+            'Tools & Hardware / Home Improvement / Doors and Windows'
+          ],
+          [
+            '109',
+            'Tools & Hardware / Home Improvement / Electrical'
+          ],
+          [
+            '184',
+            'Tools & Hardware / Home Improvement / Lumber and Wood Products'
+          ],
+          [
+            '257',
+            'Tools & Hardware / Home Improvement / Plumbing and Heating'
+          ],
+          [
+            '294',
+            'Tools & Hardware / Home Improvement / Siding and Wall Coverings'
+          ],
+          [
+            '314',
+            'Tools & Hardware / Home Improvement / Stone and Masonry'
+          ],
+          [
+            '49',
+            'Tools & Hardware / Home Improvement / Building Materials'
+          ],
+          [
+            '53',
+            'Tools & Hardware / Home Improvement / Cabinets and Trim'
+          ],
+          [
+            '104',
+            'Tools & Hardware / Tools & Hardware / Drills'
+          ],
+          [
+            '108',
+            'Tools & Hardware / Tools & Hardware / Electrical Tools'
+          ],
+          [
+            '140',
+            'Tools & Hardware / Tools & Hardware / Generators and Air Tools'
+          ],
+          [
+            '145',
+            'Tools & Hardware / Tools & Hardware / Hand Tools'
+          ],
+          [
+            '172',
+            'Tools & Hardware / Tools & Hardware / Job Site Safety and Ergonomics'
+          ],
+          [
+            '176',
+            'Tools & Hardware / Tools & Hardware / Landscape and Snow Removal'
+          ],
+          [
+            '209',
+            'Tools & Hardware / Tools & Hardware / Nails and Screws and Fasteners'
+          ],
+          [
+            '236',
+            'Tools & Hardware / Tools & Hardware / Tools and Hardware Accessories'
+          ],
+          [
+            '237',
+            'Tools & Hardware / Tools & Hardware / Tools and Hardware - Other'
+          ],
+          [
+            '259',
+            'Tools & Hardware / Tools & Hardware / Plumbing Tools'
+          ],
+          [
+            '262',
+            'Tools & Hardware / Tools & Hardware / Power Tools'
+          ],
+          [
+            '283',
+            'Tools & Hardware / Tools & Hardware / Saws and Accessories'
+          ],
+          [
+            '287',
+            'Tools & Hardware / Tools & Hardware / Screwdrivers and Nail Guns'
+          ],
+          [
+            '289',
+            'Tools & Hardware / Tools & Hardware / Sealers and Adhesives'
+          ],
+          [
+            '308',
+            'Tools & Hardware / Tools & Hardware / Specialty Tools'
+          ],
+          [
+            '315',
+            'Tools & Hardware / Tools & Hardware / Storage and Tool Boxes'
+          ],
+          [
+            '350',
+            'Tools & Hardware / Tools & Hardware / Welding'
+          ],
+          [
+            '361',
+            'Tools & Hardware / Tools & Hardware / Woodworking and Carpentry Tools'
+          ],
+          [
+            '51',
+            'Tools & Hardware / Tools & Hardware / Building Tools'
+          ]
+        ];

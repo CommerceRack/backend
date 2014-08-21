@@ -27,6 +27,9 @@ use XML::LibXSLT;
 use XML::LibXML;
 use Data::Dumper;
 
+use File::Temp;
+use Net::uwsgi;
+
 
 %SUPPLIER::JOBS::TASKS = (
 	'TRACKING'=> \&SUPPLIER::JOBS::TRACKING,
@@ -1026,7 +1029,14 @@ sub PROCESS {
 				$olm->pooshmsg("SUCCESS|+$ORDER_CONNECTOR Email sent (BODY was ".length($BODY)." bytes)"); 
 				}
 			}
-		elsif (($ORDER_CONNECTOR eq 'API') || ($ORDER_CONNECTOR eq 'FTP') || ($ORDER_CONNECTOR eq 'AMZSQS')) {
+		elsif (
+			($ORDER_CONNECTOR eq 'API') || 
+			($ORDER_CONNECTOR eq 'FTP') || 
+			($ORDER_CONNECTOR eq 'UWSGISPOOL') || 
+			($ORDER_CONNECTOR eq 'REDISQUEUE') || 
+			($ORDER_CONNECTOR eq 'SHELL') || 
+			($ORDER_CONNECTOR eq 'AMZSQS')
+			) {
 			print STDERR "Dispatching order to API\n";
 
 			## populate order contents
@@ -1076,6 +1086,15 @@ sub PROCESS {
 			if ($ORDER_CONNECTOR eq 'FTP') {
 				$URL = $S->fetch_property('.order.ftp_url');
 				}
+			elsif ($ORDER_CONNECTOR eq 'UWSGISPOOL') {
+				$URL = sprintf("uwsgispool://%s",$S->fetch_property('.order.uwsgi_spool'));
+				}
+			elsif ($ORDER_CONNECTOR eq 'REDISQUEUE') {
+				$URL = sprintf("redisqueue://%s",$S->fetch_property('.order.redis_queue'));
+				}
+			elsif ($ORDER_CONNECTOR eq 'SHELL') {
+				$URL = sprintf("shell://%s",$S->fetch_property('.order.shell_path'));
+				}
 			elsif ($ORDER_CONNECTOR eq 'API') {
 				# ($URL) = $S->fetch_property('.api.orderurl');	## NOT REFERENCED
 				($URL) = $S->fetch_property('.order.api_url');
@@ -1098,6 +1117,23 @@ sub PROCESS {
 				}
 			elsif ($scheme eq '') {
 				$olm->pooshmsg("ERROR|+order api url has no scheme  - nothing to do here.");
+				}
+			elsif ($scheme eq 'UWSGISPOOL') {
+				my ($queue) = $S->fetch_property('.order.uwsgi_spool'); ## ex: 'localhost:3031'
+				Net::uwsgi::uwsgi_spool($queue, {'body'=>$body});
+				}
+			elsif ($scheme eq 'REDISQUEUE') {
+				my ($queue) = $S->fetch_property('.order.redis_queue');
+				my ($redis) = &ZOOVY::getRedis($USERNAME,2);
+				$redis->lpush($queue,$body);
+				}
+			elsif ($scheme eq 'SHELL') {
+				my $script = $S->fetch_property('.order.shell_path');
+				my ($fh, $filename) = File::Temp::tempfile();
+				open F, ">/tmp/foo";
+				print F $body;
+				close F;
+				system("$script $filename");
 				}
 			elsif ($scheme eq 'SQS') {
 				require Amazon::SQS::Simple;

@@ -531,6 +531,15 @@ rpm --install MySQL-client-5.6.20-1.el6.x86_64.rpm MySQL-devel-5.6.20-1.el6.x86_
 	MySQL-shared-compat-5.6.20-1.el6.x86_64.rpm
 
 service mysql start
+rm /usr/my.cnf
+cat >> /etc/my.cnf
+datadir=/tank/mysql
+innodb_use_native_aio=0
+log-bin=mysql-bin
+server-id=1
+sql_mode=NO_ENGINE_SUBSTITUTION
+^D
+
 
 
 ## s3fs
@@ -901,3 +910,5 @@ echo 8192 61000 > /proc/sys/net/ipv4/ip_local_port_range
 
 
 
+##
+gitolite

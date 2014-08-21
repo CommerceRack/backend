@@ -1,0 +1,672 @@
+[
+	# Category
+	#		All	
+	#		While we make the final match, you must suggest a category for your item. 
+	#		It is generally best to use your own descriptive website categories when classifying the offers in your feed.  	
+	#		No	String	
+	#		To see our category guidelines, click here.	
+	#		Good=Home > Bed and Bath >Bathroom > Bathtubs Bad=Gifts>Halloween	Required
+	{ 
+	'header'=>'Category',
+	'@validation'=>[],
+	'@try'=>['amzpa:category','navcat:bc','']
+	},
+	# Title
+	#		All	
+	#		Indicates the product name. 
+	#		Your title should be descriptive and accurate.  It should be between 4-8 words long and include information like Brand, Model, Manufacturer, Model Number, Product Name and Defining features.	Yes	String	An alphanumeric string; 100 characters maximum. To avoid an error, do not include any of the following: HTML tags, hard returns, quotation marks or any special characters. Some examples of special characters not to use are *, $, &,+.	Good=Samsung LN52A550 52-Inch 1080p LCD HDTV Bad=Rack Coat,2HK Ce	Required
+	{ 
+	'header'=>'Title',
+	'@try'=>['amzpa:prod_name','zoovy:prod_name'],
+	'@validation'=>['not-blank'],
+	},
+	# Link
+	#		All	
+	#		This is an extremely important field, since this will be the URL that directs customers to the product on your Web site. 
+	#			Yes	URL	The URL must be fully-formed and valid. Be sure to include http:// on your links.	Good=http://www.companyname.com/products/item.htm Bad=www.companyname.com/item.htm	Required
+	{ 
+	'header'=>'Link',
+	'@preprocess'=>[],
+	'@try'=>['zoovy:link2'],
+	},
+	# SKU
+	#		All	
+	#		A unique identifier for each product, assigned by you. 
+	#		After you have established a SKU for a product do not change it. 	No	String	An alphanumeric string; 40 characters maximum. SKUs are case sensitive	Good=1H3400 Bad=Duplicate SKUs or any SKU over 40 characters long	Required
+	{ 
+	'header'=>'SKU',
+	'@format'=>[],
+	'@try'=>['%PRODUCTID'],
+	},
+	# Price
+	#		All	
+	#		Indicates the price of your product (should reflect the price on your website).	
+	#		Yes	Number	List the product price in US dollars, without a $ sign, commas, text, or quotation marks. Do not include taxes, shipping costs, rebates, coupons, or bulk discounts. 	Good=59.95 or 1000.00 Bad=$6.50 or $3,760	Required
+	{ 
+	'header'=>'Price',
+	'@format'=>['currency'],
+	'@try'=>['amzpa:base_price','zoovy:base_price'],
+	'@validation'=>['positive-number'],
+	},
+	
+	#######################################################
+   ## strongly recommended
+
+	# Strongly Recommended Fields							
+	# Brand
+	#		All	
+	#		The product line name from the manufacturer.	
+	#		Yes	String	An alphanumeric string; 50 characters maximum. 	Polo, Bravia, Kleenex	Strongly Recommended
+	{ 
+	'header'=>'Brand', 
+	'@format'=>['textify'],
+	'@try'=>['zoovy:prod_brand','zoovy:prod_mfg',''],
+	},
+	# Department
+	#		Apparel	
+	#		Indicates the department in which the apparel product is found.	
+	#		No	String	An alphanumeric string; 50 characters maximum. 	
+	#		mens, womens, boys, teen-boys, unisex-adult	Strongly Recommended
+	{ 
+	'header'=>'Department',
+	'@format'=>['textify',],
+	'@try'=>['amzpa:dept',''],
+	},
+	# UPC
+	#		All	
+	#		Indicates your product's 12 digit UPC (Universal Product Number). 
+	#		 Providing a UPC will allow us to quickly determine if your product is unique and, if so, award it its own Detail Page.  Without a UPC we will try to match your listing to an existing product detail page.  If there is no match, we will create your listings but they will only show on similar related items.	No	Number	A number, 12 characters.  Include any leading zeros, do not remove or insert any characters or spaces. 	798888465012 or 068381012098	Strongly Recommended
+	{ 
+	'header'=>'UPC',
+	'@format'=>['textify',],
+	'@try'=>['zoovy:prod_upc',''],
+	},
+	# Image
+	#		All	
+	#		This will be the main image for your product. 
+	#		 In an Amazon test, we found that adding a good quality image to a detail page increased page views by >60% and orders by >25%. 	Yes	URL	Image pixel dimensions of at least 500 pixels on the longest side. A minimum of 1000 pixels on the longest side is preferred. Acceptable file formats are JPG and GIF. We do not accept redirects, URL must be fully-formed and valid (no spaces, and include the http://).  To view all image requirements click here.	http://www.companyname.com/image/125.main.jpg 	Strongly Recommended
+	{ 
+	'header'=>'Image',
+	'@format'=>['imageurl'],
+	'@try'=>['zoovy:prod_thumb','zoovy:prod_image1',''],
+	},
+	# Description
+	#		All	
+	#		The description should complement your title since it allows you to provide more details about your product.	
+	#		Yes	String	An alphanumeric string; 2,000 characters maximum. To avoid an error, do not include any of the following: HTML tags, hard returns, quotation marks or any special characters. Some examples of special characters not to use are *, $, &,+.	The new Worn Cherry and Worn Brown finishes give this classic model the look of a well-worn, well-loved instrument.	Strongly Recommended
+	{ 
+	'header'=>'Description',
+	'@format'=>['textify',],
+	'@try'=>['amzpa:prod_desc','zoovy:prod_desc',''],
+	},
+	# Manufacturer
+	#		All	
+	#		Enter the manufacturer. 
+	#		Do not use your store name in this field unless you are the manufacturer. This is a very important field because it is keyword searchable.	No	String	An alphanumeric string; 50 characters maximum. 	OLYMPUS, adidas	Strongly Recommended
+	# manufacturer
+	{ 
+	'header'=>'Manufacturer',
+	'@format'=>['textify',],
+	'@try'=>['zoovy:prod_mfg',''],
+	},
+	# Mfr part number
+	#		All	
+	#		If applicable, please submit the manufacturer's part number for the product. 
+	#		 For most products, this will be identical to the model number; however, some manufacturers distinguish part number from model number.	No	String	An alphanumeric string; 40 characters maximum.	SB-122	Strongly Recommended
+	{ 
+	'header'=>'Mfr part number',
+	'@format'=>['textify',],
+	'@try'=>['zoovy:prod_mfgid',''],
+	},
+
+   ## Recommended Fields
+	# 							
+	# Recommended Fields							
+	# Age	
+	#		All	
+	#		Use this field if you have a product that may vary by age. 	
+	#		No	Number	
+	#		A number, 12 characters maximum and only 2 digits allowed to the right of the decimal point. Default unit of measurement will be years.  Other accpeted unit is month, but you will have to inswer the word month along side your entry.	
+	#		3, 15 years, 9 months	Recommended
+	{ 
+	'header'=>'Age',
+	'@format'=>['textify',],
+	'@try'=>['yshop:age_group',''],
+	},
+	# Band material	
+	#		Jewelry	
+	#		Indicates the material used in the band of the product.	
+	#		No	String	
+	#		An alphanumeric string; 50 characters maximum. 	
+	#		leather, nylon, plastic	Recommended
+	{ 
+	'header'=>'Band material',
+	'@format'=>['textify'],
+	'@try'=>[''],
+	},
+	# Bullet point1	
+	#		All	
+	#		Brief descriptive text, regarding a specific aspect of the product. These will be displayed directly under, or next to, your product photo on the Detail Page, it is useful to put interesting information in these fields. Do not include the bullet points, they will be inserted automatically.	
+	#		Yes	String	
+	#		An alphanumeric string; 100 characters maximum length per bullet point. Please do not include an actual bullet point object, just the text used to describe your product. Note: Type 1 High ASCII characters (, , ., etc.) or other special characters are not supported.	
+	#		Pants feature front pleats, cuffed legs, and 2 back slit pockets with button closures	Recommended
+	{ 
+	'header'=>'Bullet point1',
+	'@format'=>['textify'],
+	'@try'=>[''],
+	},
+	# Bullet point2	
+	#		All	
+	#		Brief descriptive text, regarding a specific aspect of the product. These will be displayed directly under, or next to, your product photo on the Detail Page, it is useful to put interesting information in these fields. Do not include the bullet points, they will be inserted automatically.	
+	#		Yes	String	
+	#		An alphanumeric string; 100 characters maximum length per bullet point. Please do not include an actual bullet point object, just the text used to describe your product. Note: Type 1 High ASCII characters (, , ., etc.) or other special characters are not supported.	
+	#		Pants feature front pleats, cuffed legs, and 2 back slit pockets with button closures	Recommended
+	{ 
+	'header'=>'Bullet point2',
+	'@format'=>['textify',''],
+	'@try'=>[''],
+	},
+	# Bullet point3	
+	#		All	
+	#		Brief descriptive text, regarding a specific aspect of the product. These will be displayed directly under, or next to, your product photo on the Detail Page, it is useful to put interesting information in these fields. Do not include the bullet points, they will be inserted automatically.	
+	#		Yes	String	
+	#		An alphanumeric string; 100 characters maximum length per bullet point. Please do not include an actual bullet point object, just the text used to describe your product. Note: Type 1 High ASCII characters (, , ., etc.) or other special characters are not supported.	
+	#		Pants feature front pleats, cuffed legs, and 2 back slit pockets with button closures	Recommended
+	{ 
+	'header'=>'Bullet point3',
+	'@format'=>['textify',],
+	'@try'=>[''],
+	},
+	# Bullet point4	
+	#		All	
+	#		Brief descriptive text, regarding a specific aspect of the product. These will be displayed directly under, or next to, your product photo on the Detail Page, it is useful to put interesting information in these fields. Do not include the bullet points, they will be inserted automatically.	
+	#		Yes	String	
+	#		An alphanumeric string; 100 characters maximum length per bullet point. Please do not include an actual bullet point object, just the text used to describe your product. Note: Type 1 High ASCII characters (, , ., etc.) or other special characters are not supported.	
+	#		Pants feature front pleats, cuffed legs, and 2 back slit pockets with button closures	Recommended
+	{ 
+	'header'=>'Bullet point4',
+	'@format'=>['textify',],
+	'@try'=>[''],
+	},
+	# Bullet point5	
+	#		All	
+	#		Brief descriptive text, regarding a specific aspect of the product. These will be displayed directly under, or next to, your product photo on the Detail Page, it is useful to put interesting information in these fields. Do not include the bullet points, they will be inserted automatically.	
+	#		No	String	
+	#		An alphanumeric string; 100 characters maximum length per bullet point. Please do not include an actual bullet point object, just the text used to describe your product. Note: Type 1 High ASCII characters (, , ., etc.) or other special characters are not supported.	
+	#		Pants feature front pleats, cuffed legs, and 2 back slit pockets with button closures	Recommended
+	{ 
+	'header'=>'Bullet point5',
+	'@format'=>['textify',],
+	'@try'=>[''],
+	},
+	# Color	
+	#		Apparel, Baby, Beauty, HPC, Home, Sports	
+	#		Indicates the color of your product.	
+	#		No	String	
+	#		An alphanumeric string; 50 characters maximum. 	
+	#		Sage, Navy Blue, Cherry, Navy, Pine Green, Sunset peach, Red and White	Recommended
+	{ 
+	'header'=>'Color',
+	'@format'=>['textify',],
+	'@try'=>['amzpa:color',''],
+	},
+	# Color and finish	
+	#		Home	
+	#		Specifies the color and finish of your product.	
+	#		No	String	
+	#		An alphanumeric string; 50 characters maximum. 	
+	#		brass, gold, satin, venetian	Recommended
+	{ 
+	'header'=>'Color and finish',
+	'@format'=>['textify',],
+	'@try'=>['amzpa:colorfinish',''],
+	},
+	# Computer CPU speed	
+	#		Electronics Computers	
+	#		Speed of the included processor.	
+	#		No	Number	
+	#		A number, 12 characters maximum and only 2 digits allowed to the right of the decimal point. Default unit of measurement will be GHz.  Other accepted unit is MHz but you will have to insert that specific unit in your entry along side with the number.	
+	#		2.1, 2.8 GHz, 1495 MHz	Recommended
+	{ 
+	'header'=>'Computer CPU speed',
+	'@format'=>['textify',],
+	'@try'=>[''],
+	},
+	# Computer memory size	
+	#		Electronics Computers	
+	#		Indicates the size of the RAM included with the CE item.	
+	#		No	Number	
+	#		A number, 12 characters maximum and only 2 digits allowed to the right of the decimal point. Default unit of measurement will be GB.  Other accepted units are TB, MB, and KB but you will have to insert those specific units in your entry along side with the number.	
+	#		2, 4 GB, 1024 KB	Recommended
+	{ 
+	'header'=>'Computer memory size',
+	'@format'=>['textify',],
+	'@try'=>[''],
+	},
+	# Digital Camera Resolution	
+	#		Electronics	
+	#		Indicates the resolution for the photo-quality of the camera	
+	#		No	Number	
+	#		A number, 12 characters maximum and only 2 digits allowed to the right of the decimal point. Default unit of measurement will be MP.  We will also accept Pixels buy you will have to insert that along side your number. 	
+	#		6,7.2,10 MP, 6200000 Pixels	
+	{ 
+	'header'=>'Digital Camera Resolution',
+	'@format'=>['textify',],
+	'@try'=>[''],
+	},
+	# Display size	
+	#		Electronics	
+	#		Indicates the size of the display on your product. (must be provided in inches)	
+	#		No	Number	
+	#		A number, 12 characters maximum and only 2 digits allowed to the right of the decimal point. Unit of measurement must be inches, no other units will be accepted.	
+	#		2.5, 36, 52, 	Recommended
+	{ 
+	'header'=>'Display size',
+	'@format'=>['textify',],
+	'@try'=>[''],
+	},
+	# Display technology	
+	#		Electronics	
+	#		Indicates the display technology.	
+	#		No	String	
+	#		An alphanumeric string; 50 characters maximum. 	
+	#		laser, projection, CRT	Recommended
+	{ 
+	'header'=>'Display technology',
+	'@format'=>['textify',],
+	'@try'=>[''],
+	},
+	# Flash drive Size	
+	#		Electronics	
+	#		Indicates the memory size of the flash drive.	
+	#		No	Number	
+	#		A number, 12 characters maximum and only 2 digits allowed to the right of the decimal point. Default unit of measurement will be GB.  Other accepted units are TB, MB, and KB but you will have to insert those specific units in your entry along side with the number.	
+	#		2, 4 GB, 1024 KB	Recommended
+	{ 
+	'header'=>'Flash drive Size',
+	'@format'=>['textify',],
+	'@try'=>[''],
+	},
+	# Flavor	
+	#		HPC	
+	#		If your product varies by flavor, use this field to indicate the flavor of your product.	
+	#		No	String	
+	#		An alphanumeric string; 50 characters maximum. 	
+	#		Mint, Cinammon	Recommended
+	{ 
+	'header'=>'Flavor',
+	'@format'=>['textify',],
+	'@try'=>[''],
+	},
+	# Gender	
+	#		Baby, Jewelry, Sports, Toys	
+	#		Indicates the gender for which the product is intended	
+	#		No	String	
+	#		An alphanumeric string; 50 characters maximum. 	
+	#		men's, women's, boys, girls, unisex, kids'	Recommended
+	{ 
+	'header'=>'Gender',
+	'@format'=>['textify',],
+	'@try'=>['amzpa:gender',''],
+	},
+	# Hard disk size	
+	#		Electronics Computers	
+	#		The corresponding unit of measure for your hard drive(s).	
+	#		No	Number	
+	#		A number, 12 characters maximum and only 2 digits allowed to the right of the decimal point. Default unit of measurement will be GB.  Other accepted units are TB, MB, and KB but you will have to insert those specific units in your entry along side with the number.	
+	#		120, 250 GB, 1 TB	Recommended
+	{ 
+	'header'=>'Hard disk size',
+	'@format'=>['textify',],
+	'@try'=>[''],
+	},
+	# Height	
+	#		All	
+	#		Indicates the length of your product.  Values for width and length must also be present for it to be displayed on the Detail Page. If width and length cannot be provided, it is still recommended that Height be provided. 	
+	#		Yes	Number	
+	#		A number, 12 characters maximum and only 2 digits allowed to the right of the decimal point. Default unit of measurement will be inches. Other accepted units are MM, CM, M, and FT but you will have to insert those specific units in your entry along side with the number	
+	#		15, 12.5 inches, 3 FT	Recommended
+	{ 
+	'header'=>'Height',
+	'@format'=>['textify',],
+	'@try'=>[''],
+	},
+	# Included RAM size	
+	#		Electronics Computers	
+	#		Indicates the size of the RAM included with the CE item.	
+	#		No	Number	
+	#		A number, 12 characters maximum and only 2 digits allowed to the right of the decimal point. Default unit of measurement will be GB.  Other accepted units are TB, MB, and KB but you will have to insert those specific units in your entry along side with the number.	
+	#		1, 2 GB, 1024 KB	Recommended
+	{ 
+	'header'=>'Included RAM size',
+	'@format'=>['textify',],
+	'@try'=>[''],
+	},
+	# Item package quantity	
+	#		All	
+	#		The number of distinct items in the package.  For example, a six-pack of tree-shaped air fresheners would have an item-package-quantity of 6.	
+	#		No	Number	
+	#		A number, 12 characters maximum and only 2 digits allowed to the right of the decimal point. 	
+	#		6,12,24	Recommended
+	{ 
+	'header'=>'Item package quantity',
+	'@format'=>['textify','number'],
+	'@try'=>['zoovy:prod_pkgqty','%CONSTANT:1'],
+	'@validation'=>['not-blank','positive-number'],
+	},
+	{ 
+	'header'=>'Keywords1',
+	'@format'=>['textify',],
+	'@try'=>['amzpa:keyword1','%WORD1',''],
+	},
+	{ 
+	'header'=>'Keywords2',
+	'@format'=>['textify',],
+	'@try'=>['%WORD2',''],
+	},
+	{ 
+	'header'=>'Keywords3',
+	'@format'=>['textify',],
+	'@try'=>['%WORD3',''],
+	},
+	{ 
+	'header'=>'Keywords4',
+	'@format'=>['textify',],
+	'@try'=>['%WORD4',''],
+	},
+	{ 
+	'header'=>'Keywords5',
+	'@format'=>['textify',],
+	'@try'=>['%WORD5',''],
+	},
+	# League and Team	
+	#		Sports	
+	#		Indicates the league and team associated with your product. 	
+	#		No	String	
+	#		A free text string. 50 character limit on a single keyword.  	
+	#		NBA Indiana Pacers, NHL Detroit Red Wings, NFL Seattle Seahawks, MLS Seattle Sounders FC, English Premiership Manchester United	Recommended
+	{ 
+	'header'=>'League and Team',
+	'@format'=>['textify',],
+	'@try'=>[''],
+	},
+	# Length	
+	#		All 	
+	#		Indicates the length of your product.  Values for width and height must also be present for it to be displayed on the Detail Page. If width and height cannot be provided, it is still recommended that Length be provided. 	
+	#		Yes	Number	
+	#		A number, 12 characters maximum and only 2 digits allowed to the right of the decimal point. Default unit of measurement will be inches. Other accepted units are MM, CM, M, and FT but you will have to insert those specific units in your entry along side with the number	
+	#		15, 12.25 inches, 3.5 FT	Recommended
+	{ 
+	'header'=>'Length',
+	'@format'=>['textify',],
+	'@try'=>['zoovy:prod_length',''],
+	'@validation'=>[],
+	},
+	# Material	
+	#		Home	
+	#		Specifies what material the item is made of	
+	#		No	String	
+	#		An alphanumeric string; 50 characters maximum. 	
+	#		bamboo, cashmere, cherrywood, glass, cotton, steel	Recommended
+	{ 
+	'header'=>'Material',
+	'@format'=>['textify',],
+	'@try'=>[''],
+	},
+	# Maximum age	
+	#		Toys	
+	#		Indicate the maximum age recommended of the user, as determined by the merchant, for this product. 	
+	#		Yes	Number	
+	#		A number, 12 characters maximum.  Default will be months.	
+	#		50	Recommended
+	{ 
+	'header'=>'Maximum age',
+	'@format'=>['textify',],
+	'@try'=>[''],
+	},
+	# Memory Card Type	
+	#		Electronics	
+	#		Indicates the type of memory card used by your product.	
+	#		No	String	
+	#		An alphanumeric string; 50 characters maximum. 	
+	#		SD Memory Card, MicroSD, Memory Stick PRO	Recommended
+	{ 
+	'header'=>'Memory Card Type',
+	'@format'=>['textify',],
+	'@try'=>[''],
+	},
+	# Metal type	
+	#		Jewelry	
+	#		Indicates the type of metal used in your product.	
+	#			String	
+	#		An alphanumeric string; 50 characters maximum. 	
+	#		10-karat-gold, brass, gold, platinum-plated, titanium, tungsten	Recommended
+	{ 
+	'header'=>'Metal type',
+	'@format'=>['textify',],
+	'@try'=>[''],
+	},
+	# Minimum age	
+	#		Toys	
+	#		Indicates the minimum age recommended of the user, as determined by the merchant, for this product.	
+	#		Yes	Number	
+	#		A number, 12 characters maximum.  Default will be months.	
+	#		12	Recommended
+	{ 
+	'header'=>'Minimum age',
+	'@format'=>['textify',],
+	'@try'=>[''],
+	},
+	# Model Number	
+	#		All	
+	#		If applicable, please submit the model part number for the product. If the model part number is identical to the manufactuer part number then please enter it under the manufacturer part number as that field will take precedence.  	
+	#		No	String	
+	#		An alphanumeric string; 40 characters maximum.	
+	#		SB-122	Recommended
+	{ 
+	'header'=>'Model Number',
+	'@format'=>['textify',],
+	'@try'=>[''],
+	},
+	# Operating system	
+	#		Electronics Computers	
+	#		The computer operating system(s) the device or software is compatible with. 	
+	#		No	String	
+	#		An alphanumeric string; 50 characters maximum. 	
+	#		Mac OS X 10.4 (Tiger), Windows Vista Business, Windows XP	Recommended
+	{ 
+	'header'=>'Operating system',
+	'@format'=>['textify',],
+	'@try'=>[''],
+	},
+#	{ header=>'Optical zoom' },
+	# Other image-url1	
+	#		All	
+	#		The URL of another view of your product.  This will be shown on the detail page when the customer clicks through to see other views associated with the product.  For example, you can use this field to show the label information or packaging of your product.	
+	#		Yes	URL	
+	#		Image pixel dimensions of at least 500 pixels on the longest side. A minimum of 1000 pixels on the longest side is preferred. Acceptable file formats are JPG and GIF. We do not accept redirects, URL must be fully-formed and valid (no spaces, and include the http://).  To view all image requirements click here.	
+	#		http://www.companyname.com/images/1250.swatch.jpg	Recommended
+	{ 
+	'header'=>'Other image-url1',
+	'@format'=>['imageurl'],
+	'@try'=>['zoovy:prod_image1',''],
+	},
+	# Other image-url2	
+	#		All	
+	#		The URL of another view of your product.  This will be shown on the detail page when the customer clicks through to see other views associated with the product.  For example, you can use this field to show the label information or packaging of your product.	
+	#		Yes	URL	
+	#		Image pixel dimensions of at least 500 pixels on the longest side. A minimum of 1000 pixels on the longest side is preferred. Acceptable file formats are JPG and GIF. We do not accept redirects, URL must be fully-formed and valid (no spaces, and include the http://).  To view all image requirements click here.	
+	#		http://www.companyname.com/images/1250.swatch.jpg	Recommended
+	{ 
+	'header'=>'Other image-url2',
+	'@format'=>['imageurl'],
+	'@try'=>['zoovy:prod_image2',''],
+	},
+	{ 
+	'header'=>'Other image-url3',
+	'@format'=>['imageurl'],
+	'@try'=>['zoovy:prod_image3',''],
+	},
+	{ 
+	'header'=>'Other image-url4',
+	'@format'=>['imageurl'],
+	'@try'=>['zoovy:prod_image4',''],
+	},
+	{ 
+	'header'=>'Other image-url5',
+	'@format'=>['imageurl'],
+	'@try'=>['zoovy:prod_image5',''],
+	},
+	{ 
+	'header'=>'Other image-url6',
+	'@format'=>['imageurl'],
+	'@try'=>['zoovy:prod_image6',''],
+	},
+	{ 
+	'header'=>'Other image-url7',
+	'@format'=>['imageurl'],
+	'@try'=>['zoovy:prod_image7',''],
+	},
+	{ 
+	'header'=>'Other image-url8',
+	'@format'=>['imageurl'],
+	'@try'=>['zoovy:prod_image8',''],
+	},
+	# Screen Resolution	
+	#		Electronics	
+	#		Indicates the screen resolution.  Will be taken exclusively from the Title.	
+	#		No	From Title	
+	#		Will be taken exclusively from the Title.  Enter the screen resolution as part of your Title.	
+	#		1080p, 720p, 480i	Recommended
+	{ 
+	'header'=>'Screen Resolution',
+	'@format'=>['textify',],
+	'@try'=>[''],
+	},
+	# Ring size	
+	#		Jewelry	
+	#		Indicates the size of the ring	
+	#		No	Number	
+	#		A number, 12 characters maximum and only 2 digits allowed to the right of the decimal point. 	
+	#		5.5, 8, 9.5, 13	Recommended
+	{ 
+	'header'=>'Ring size',
+	'@format'=>['textify',],
+	'@try'=>[''],
+	},
+	# Scent	
+	#		Beauty	
+	#		If your product varies by scent, use this field to indicate the scent of your product	
+	#		No	String	
+	#		An alphanumeric string; 50 characters maximum. 	
+	#		Original, Citrus, April Fresh	Recommended
+	{ 
+	'header'=>'Scent',
+	'@format'=>['textify',],
+	'@try'=>[''],
+	},
+	# Shipping Weight	
+	#		All	
+	#		Use this field if you calculate shipping costs based on product weight. Enter shipping weight in pounds, and without commas.	
+	#		Yes	Number	
+	#		A number, 12 characters maximum and only 2 digits allowed to the right of the decimal point. 	
+	#		2.33, 100.00 	Recommended
+	## AMAZONPA defaults to LBS, smart_weight converts to OZ... added string "OZ" 20100714 - patti
+	{ 
+	'header'=>'Shipping Weight',
+	'@try'=>['zoovy:ship_weight','zoovy:base_weight',''],
+	'@format'=>['weight-in-oz'],
+	},
+	# Shipping Cost	
+	#		All	
+	#		Shipping included in the file OVERRIDES rules set in the shipping tool. This NUMERIC field should contain the lowest amount (in US$) a buyer would be required to pay to have ONLY one of that product shipped. If you have a flat rate, include that. If you have free shipping, enter 0.00. Do not use "$" or commas.	
+	#		Yes	Number	
+	#		A number, 12 characters maximum and only 2 digits allowed to the right of the decimal point. 	
+	#		5.00 or 9.99 	Recommended
+	{ 
+	'header'=>'Shipping Cost',
+	'@format'=>['textify','currency'],
+	'@try'=>['zoovy:ship_cost1',''],
+	},
+	# Size	
+	#		Apparel, Baby, Beauty, HPC, Home, Jewelry, Sports	
+	#		Indicates the size of your product.	
+	#		No	String	
+	#		An alphanumeric string; 50 characters maximum. Size is used for several categories, as such we will accept many values.	
+	#		2T, 6 months, Medium, XXX-Large, 28 DD, Stage 2 (12 - 17 Lbs.), Large Maternity, 29W x 28L, 15.5 - 39/40, 14 - 30/31 Trim, King Size	Recommended
+	{ 
+	'header'=>'Size',
+	'@format'=>['textify',],
+	'@try'=>[''],
+	},
+	# Size per pearl	
+	#		Jewelry	
+	#		Indicates the size per pearl (note that unit of measure is millimeter).	
+	#		Yes	String	
+	#		A number, 12 characters maximum and only 2 digits allowed to the right of the decimal point. Note that unit of measure must be millimeters. 	
+	#		6.5mm, 8.0mm, 13.5mm	Recommended
+	{ 
+	'header'=>'Size per pearl',
+	'@format'=>['textify',],
+	'@try'=>[''],
+	},
+	# Theme HPC 	
+	#		HPC	
+	#		Indicates a specific characteristic or theme (e.g. Homeopathetic, Organic)  of the Health and Personal Care product.  	
+	#		No	String	
+	#		An alphanumeric string; 50 characters maximum. 	
+	#		Cruelty Free, Homeopathic, Hypoallergenic, Travel Size	Recommended
+	{ 
+	'header'=>'Theme HPC ',
+	'@format'=>['textify',],
+	'@try'=>[''],
+	},
+	# Total Diamond Weight	
+	#		Jewelry	
+	#		Indicates the total diamond weight of the product.	
+	#		Yes	Number	
+	#		A number, 12 characters maximum and only 2 digits allowed to the right of the decimal point. Default unit of measurement will be GR. Other accepted units are KG, OZ, LB, Carats, and DWT but you will have to insert those specific units in your entry along side with the number.	
+	#		3.75, 4 GR, 2.5 Carats	Recommended
+	{ 
+	'header'=>'Total Diamond Weight',
+	'@format'=>['textify',],
+	'@try'=>[''],
+	},
+	# Watch movement	
+	#		Jewelry	
+	#		Indicate the movement type for the product.	
+	#		No	String	
+	#		An alphanumeric string; 50 characters maximum. 	
+	#		analog-quartz, automatic-self-wind, hybrid-quartz-automatic, solar	Recommended
+	{ 
+	'header'=>'Watch movement',
+	'@format'=>['textify',],
+	'@try'=>[''],
+	},
+	# Weight	
+	#		All 	
+	#		Indicates your product's weight. Should only be used if you are using 'Weight' as a variation theme. Do not use to specify weight for shipping calculation.	
+	#		Yes	Number	
+	#		A number, 12 characters maximum and only 2 digits allowed to the right of the decimal point. Default unit of measurement will be LB. Other accepted units are GR, KG, and OZ but you will have to insert those specific units in your entry along side with the number.	
+	#		20, 30.50 LB, 50 OZ	Recommended
+	## AMAZONPA defaults to LBS, smart_weight converts to OZ... added string "OZ" 20100714 - patti
+	{ 
+	'header'=>'Weight',
+	'@try'=>['zoovy:base_weight',''],
+	'@format'=>['weight-in-oz'],
+	},
+	# Width	
+	#		All 	
+	#		Indicates the width of your product.  Values for length and height must also be present for it to be displayed on the Detail Page. If length and height cannot be provided, it is still recommended that Width be provided. 	
+	#		Yes	Number	
+	#		A number, 12 characters maximum and only 2 digits allowed to the right of the decimal point. Default unit of measurement will be inches. Other accepted units are MM, CM, M, and FT but you will have to insert those specific units in your entry along side with the number.	
+	#		50.65, 25 inches, 3.5 FT	Recommended
+	{ 
+	'header'=>'Width',
+	'@format'=>['textify'],
+	'@try'=>['zoovy:prod_weight',''],
+	},
+]
+
+
+

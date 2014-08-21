@@ -484,7 +484,7 @@ sub finish {
 		Carp::cluck("BATCHJOB->finish status:$status\n");
 		$status = 'END';
 		}
-	$self->update('STATUS'=>$status,'STATUS_MSG'=>$statusMsg,'END_TS'=>&ZTOOLKIT::timestamp(time()));
+	$self->update('STATUS'=>$status,'STATUS_MSG'=>$statusMsg,'END_TS'=>&ZTOOLKIT::mysql_from_unixtime(time()));
 
 	my ($exec,$verb) = $self->execverb();
 	if (not $self->{'finished'}) {

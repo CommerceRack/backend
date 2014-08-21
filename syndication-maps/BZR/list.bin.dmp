@@ -1,0 +1,7142 @@
+$VAR1 = [
+          [
+            '13110101',
+            'Appliances\\Air Conditioners'
+          ],
+          [
+            '13050810',
+            'Appliances\\Air Purifiers'
+          ],
+          [
+            '100001258',
+            'Appliances\\Air Conditioner Accessories'
+          ],
+          [
+            '100001244',
+            'Appliances\\Air Purifier Accessories'
+          ],
+          [
+            '13050813',
+            'Appliances\\Coffee Maker Accessories'
+          ],
+          [
+            '100001240',
+            'Appliances\\Dishwasher Accessories'
+          ],
+          [
+            '100001242',
+            'Appliances\\Food Processor Accessories'
+          ],
+          [
+            '100001243',
+            'Appliances\\Heater Accessories'
+          ],
+          [
+            '100001260',
+            'Appliances\\Humidifier Accessories'
+          ],
+          [
+            '100001262',
+            'Appliances\\Miscellaneous Appliance Accessories'
+          ],
+          [
+            '100001254',
+            'Appliances\\Mixer Accessories'
+          ],
+          [
+            '100001239',
+            'Appliances\\Range & Oven Accessories'
+          ],
+          [
+            '100001241',
+            'Appliances\\Range Hood Accessories'
+          ],
+          [
+            '100001238',
+            'Appliances\\Refrigerator Accessories'
+          ],
+          [
+            '100001264',
+            'Appliances\\Vacuum Accessories'
+          ],
+          [
+            '100001256',
+            'Appliances\\Washer & Dryer Accessories'
+          ],
+          [
+            '13050809',
+            'Appliances\\Blenders'
+          ],
+          [
+            '13050801',
+            'Appliances\\Breadmakers'
+          ],
+          [
+            '13050811',
+            'Appliances\\Can Openers'
+          ],
+          [
+            '13050812',
+            'Appliances\\Coffee Grinders'
+          ],
+          [
+            '13050802',
+            'Appliances\\Coffee Makers'
+          ],
+          [
+            '100001384',
+            'Appliances\\Commercial Blenders'
+          ],
+          [
+            '100001386',
+            'Appliances\\Commercial Coffee Grinders'
+          ],
+          [
+            '100001375',
+            'Appliances\\Commercial Coffee Makers'
+          ],
+          [
+            '100001377',
+            'Appliances\\Commercial Deep Fryers'
+          ],
+          [
+            '100001376',
+            'Appliances\\Commercial Dishwashers'
+          ],
+          [
+            '100001387',
+            'Appliances\\Commercial Espresso Machines'
+          ],
+          [
+            '100001355',
+            'Appliances\\Commercial Freezers'
+          ],
+          [
+            '100001353',
+            'Appliances\\Commercial Mixers'
+          ],
+          [
+            '100001356',
+            'Appliances\\Commercial Ovens & Ranges'
+          ],
+          [
+            '100001354',
+            'Appliances\\Commercial Refrigerators'
+          ],
+          [
+            '100001385',
+            'Appliances\\Commercial Toaster Ovens'
+          ],
+          [
+            '13050814',
+            'Appliances\\Cooktops'
+          ],
+          [
+            '13050822',
+            'Appliances\\Crock Pots & Slow Cookers'
+          ],
+          [
+            '13050815',
+            'Appliances\\Deep Fryers'
+          ],
+          [
+            '13050816',
+            'Appliances\\Dehumidifiers'
+          ],
+          [
+            '13050906',
+            'Appliances\\Dishwashers'
+          ],
+          [
+            '18004400',
+            'Appliances\\Egg Cookers'
+          ],
+          [
+            '13110103',
+            'Appliances\\Electric Irons'
+          ],
+          [
+            '18005400',
+            'Appliances\\Electric Knife Sharpeners'
+          ],
+          [
+            '18005300',
+            'Appliances\\Electric Knives'
+          ],
+          [
+            '13050823',
+            'Appliances\\Electric Skillets & Woks'
+          ],
+          [
+            '13050803',
+            'Appliances\\Espresso Machines'
+          ],
+          [
+            '13110104',
+            'Appliances\\Fans'
+          ],
+          [
+            '100001538',
+            'Appliances\\Floor Cleaners'
+          ],
+          [
+            '18004600',
+            'Appliances\\Food Dehydrators'
+          ],
+          [
+            '100001415',
+            'Appliances\\Food Display'
+          ],
+          [
+            '13050808',
+            'Appliances\\Food Processors'
+          ],
+          [
+            '18004900',
+            'Appliances\\Food Slicers'
+          ],
+          [
+            '13050909',
+            'Appliances\\Freezers'
+          ],
+          [
+            '18005500',
+            'Appliances\\Garment Steamers'
+          ],
+          [
+            '13110108',
+            'Appliances\\Heaters'
+          ],
+          [
+            '13110102',
+            'Appliances\\Humidifiers'
+          ],
+          [
+            '13050817',
+            'Appliances\\Ice Cream Makers'
+          ],
+          [
+            '13050818',
+            'Appliances\\Indoor Grills'
+          ],
+          [
+            '100001358',
+            'Appliances\\Industrial Air Conditioners'
+          ],
+          [
+            '100001357',
+            'Appliances\\Industrial Fans'
+          ],
+          [
+            '13050804',
+            'Appliances\\Juicers'
+          ],
+          [
+            '18004500',
+            'Appliances\\Meat Grinders'
+          ],
+          [
+            '13050902',
+            'Appliances\\Microwave Ovens'
+          ],
+          [
+            '13110107',
+            'Appliances\\Miscellaneous Appliances'
+          ],
+          [
+            '13050805',
+            'Appliances\\Mixers'
+          ],
+          [
+            '100001359',
+            'Appliances\\Other Commercial Kitchen Appliances'
+          ],
+          [
+            '13050904',
+            'Appliances\\Ovens'
+          ],
+          [
+            '13050824',
+            'Appliances\\Pasta Makers'
+          ],
+          [
+            '13050825',
+            'Appliances\\Popcorn Makers'
+          ],
+          [
+            '13050819',
+            'Appliances\\Range Hoods'
+          ],
+          [
+            '13050903',
+            'Appliances\\Ranges'
+          ],
+          [
+            '13050901',
+            'Appliances\\Refrigerators'
+          ],
+          [
+            '13050826',
+            'Appliances\\Rice Cookers & Steamers'
+          ],
+          [
+            '18005700',
+            'Appliances\\Rotisseries'
+          ],
+          [
+            '18004800',
+            'Appliances\\Sandwich Makers'
+          ],
+          [
+            '13110105',
+            'Appliances\\Sewing Machines'
+          ],
+          [
+            '18005800',
+            'Appliances\\Snow Cone & Ice Shavers'
+          ],
+          [
+            '13050820',
+            'Appliances\\Tea Kettles'
+          ],
+          [
+            '13050827',
+            'Appliances\\Toaster Ovens'
+          ],
+          [
+            '13050806',
+            'Appliances\\Toasters'
+          ],
+          [
+            '18005000',
+            'Appliances\\Trash Compactors'
+          ],
+          [
+            '18004700',
+            'Appliances\\Vacuum Food Sealers'
+          ],
+          [
+            '13110106',
+            'Appliances\\Vacuums'
+          ],
+          [
+            '13050821',
+            'Appliances\\Waffle Makers'
+          ],
+          [
+            '100001463',
+            'Appliances\\Commercial Food Storage'
+          ],
+          [
+            '100001465',
+            'Appliances\\Warming Drawers'
+          ],
+          [
+            '13050907',
+            'Appliances\\Washers & Dryers'
+          ],
+          [
+            '18005600',
+            'Appliances\\Water Dispensers'
+          ],
+          [
+            '18004300',
+            'Appliances\\Water Filters'
+          ],
+          [
+            '18005100',
+            'Appliances\\Wine Cellars'
+          ],
+          [
+            '18004200',
+            'Appliances\\Yogurt Makers'
+          ],
+          [
+            '22000400',
+            'Automotive\\Automotive Accessories'
+          ],
+          [
+            '22000100',
+            'Automotive\\Automotive Care'
+          ],
+          [
+            '22000200',
+            'Automotive\\Automotive Parts'
+          ],
+          [
+            '22000300',
+            'Automotive\\Automotive Performance'
+          ],
+          [
+            '22000500',
+            'Automotive\\Automotive Repair Tools'
+          ],
+          [
+            '22000700',
+            'Automotive\\Automotive Tires'
+          ],
+          [
+            '22000600',
+            'Automotive\\Miscellaneous Automotive'
+          ],
+          [
+            '9976',
+            'Automotive\\Motorcycle Parts'
+          ],
+          [
+            '100000683',
+            'Baby and Kids\\Baby & Kids\' Hats'
+          ],
+          [
+            '100001753',
+            'Baby and Kids\\Baby & Kids\' Socks'
+          ],
+          [
+            '9794',
+            'Baby and Kids\\Baby Bibs & Burp Cloths'
+          ],
+          [
+            '10250400',
+            'Baby and Kids\\Diaper Bags'
+          ],
+          [
+            '100000051',
+            'Baby and Kids\\Kids\' Belts'
+          ],
+          [
+            '100000682',
+            'Baby and Kids\\Kids\' Gloves & Mittens'
+          ],
+          [
+            '100000684',
+            'Baby and Kids\\Kids\' Scarves'
+          ],
+          [
+            '100000050',
+            'Baby and Kids\\Kids\' Ties'
+          ],
+          [
+            '100001754',
+            'Baby and Kids\\Kids\' Underwear'
+          ],
+          [
+            '100001808',
+            'Baby and Kids\\Miscellaneous Baby & Kids\' Accessories'
+          ],
+          [
+            '13060203',
+            'Baby and Kids\\Baby Bedding'
+          ],
+          [
+            '13060202',
+            'Baby and Kids\\Kids\' Bedding'
+          ],
+          [
+            '13060201',
+            'Baby and Kids\\Miscellaneous Baby & Kids\' Bedding'
+          ],
+          [
+            '100001746',
+            'Baby and Kids\\Baby & Kids\' Dresses / Skirts'
+          ],
+          [
+            '100001745',
+            'Baby and Kids\\Baby & Kids\' Jeans'
+          ],
+          [
+            '100001747',
+            'Baby and Kids\\Baby & Kids\' Outerwear'
+          ],
+          [
+            '100001743',
+            'Baby and Kids\\Baby & Kids\' Pants'
+          ],
+          [
+            '9793',
+            'Baby and Kids\\Baby & Kids\' Sets'
+          ],
+          [
+            '100001744',
+            'Baby and Kids\\Baby & Kids\' Shorts'
+          ],
+          [
+            '100001752',
+            'Baby and Kids\\Baby & Kids\' Sleepwear'
+          ],
+          [
+            '100001756',
+            'Baby and Kids\\Baby & Kids\' Suits'
+          ],
+          [
+            '100001749',
+            'Baby and Kids\\Baby & Kids\' Sweaters'
+          ],
+          [
+            '100001750',
+            'Baby and Kids\\Baby & Kids\' Swimwear'
+          ],
+          [
+            '100001748',
+            'Baby and Kids\\Baby & Kids\' Tops'
+          ],
+          [
+            '10030400',
+            'Baby and Kids\\Infant Bodysuits'
+          ],
+          [
+            '100001751',
+            'Baby and Kids\\Miscellaneous Baby & Kids\' Clothes'
+          ],
+          [
+            '13060100',
+            'Baby and Kids\\Baby & Kids\' Furniture'
+          ],
+          [
+            '100001755',
+            'Baby and Kids\\Baby & Kids\' Shoes'
+          ],
+          [
+            '13090210',
+            'Baby and Kids\\Baby & Toddler Safety'
+          ],
+          [
+            '13090203',
+            'Baby and Kids\\Baby Bouncers & Rockers'
+          ],
+          [
+            '100001336',
+            'Baby and Kids\\Baby Carriers'
+          ],
+          [
+            '100001685',
+            'Baby and Kids\\Baby Bottle Accessories'
+          ],
+          [
+            '100001687',
+            'Baby and Kids\\Baby Bottle Sterilizers'
+          ],
+          [
+            '100001684',
+            'Baby and Kids\\Baby Bottles'
+          ],
+          [
+            '100001686',
+            'Baby and Kids\\Baby Formula Dispensers'
+          ],
+          [
+            '100001689',
+            'Baby and Kids\\Bottle & Food Warmers'
+          ],
+          [
+            '100001692',
+            'Baby and Kids\\Bottle Brushes'
+          ],
+          [
+            '100001691',
+            'Baby and Kids\\Bottle Drying Racks'
+          ],
+          [
+            '100001678',
+            'Baby and Kids\\Breast Feeding Accessories'
+          ],
+          [
+            '100001680',
+            'Baby and Kids\\Breast Pump Accessories'
+          ],
+          [
+            '100001679',
+            'Baby and Kids\\Breast Pumps'
+          ],
+          [
+            '100001693',
+            'Baby and Kids\\Infant Formula'
+          ],
+          [
+            '100001683',
+            'Baby and Kids\\Nursing Covers'
+          ],
+          [
+            '100001681',
+            'Baby and Kids\\Nursing Pillows'
+          ],
+          [
+            '100001682',
+            'Baby and Kids\\Nursing Stools'
+          ],
+          [
+            '100001690',
+            'Baby and Kids\\Solid Feeding'
+          ],
+          [
+            '100001688',
+            'Baby and Kids\\Trainer Cups'
+          ],
+          [
+            '13090204',
+            'Baby and Kids\\Baby Jumpers & Swings'
+          ],
+          [
+            '100001481',
+            'Baby and Kids\\Baby Monitors'
+          ],
+          [
+            '13090206',
+            'Baby and Kids\\Baby Play Yards'
+          ],
+          [
+            '13090205',
+            'Baby and Kids\\Baby Walkers & Entertainers'
+          ],
+          [
+            '100001489',
+            'Baby and Kids\\Baby Bath'
+          ],
+          [
+            '100001490',
+            'Baby and Kids\\Potty Training'
+          ],
+          [
+            '100001396',
+            'Baby and Kids\\Car Seat Accessories'
+          ],
+          [
+            '13090208',
+            'Baby and Kids\\Car Seats'
+          ],
+          [
+            '100001482',
+            'Baby and Kids\\Diapering'
+          ],
+          [
+            '13090202',
+            'Baby and Kids\\High Chairs / Boosters'
+          ],
+          [
+            '13090211',
+            'Baby and Kids\\Miscellaneous Baby Gear'
+          ],
+          [
+            '100001335',
+            'Baby and Kids\\Stroller Accessories'
+          ],
+          [
+            '13090201',
+            'Baby and Kids\\Strollers / Joggers'
+          ],
+          [
+            '100001670',
+            'Baby and Kids\\Aspirators'
+          ],
+          [
+            '100001669',
+            'Baby and Kids\\Baby Health & Grooming Kits'
+          ],
+          [
+            '100001667',
+            'Baby and Kids\\Children\'s Skin Care'
+          ],
+          [
+            '100001671',
+            'Baby and Kids\\Miscellaneous Children\'s Healthcare'
+          ],
+          [
+            '100001668',
+            'Baby and Kids\\Pacifiers'
+          ],
+          [
+            '10140600',
+            'Baby and Kids\\Maternity Bottoms'
+          ],
+          [
+            '10140100',
+            'Baby and Kids\\Maternity Dresses / Skirts'
+          ],
+          [
+            '10140300',
+            'Baby and Kids\\Maternity Intimate Apparel'
+          ],
+          [
+            '100001475',
+            'Baby and Kids\\Maternity Swimwear'
+          ],
+          [
+            '10140800',
+            'Baby and Kids\\Maternity Tops'
+          ],
+          [
+            '10141400',
+            'Baby and Kids\\Miscellaneous Maternity Clothes'
+          ],
+          [
+            '8081',
+            'Books\\Animal & Nature Books'
+          ],
+          [
+            '8009',
+            'Books\\Antiques & Collectibles Books'
+          ],
+          [
+            '8010',
+            'Books\\Architecture Books'
+          ],
+          [
+            '8011',
+            'Books\\Art Books'
+          ],
+          [
+            '8062',
+            'Books\\Arts & Entertainment Books'
+          ],
+          [
+            '8012',
+            'Books\\Biography Books'
+          ],
+          [
+            '8034',
+            'Books\\Body, Mind & Spirit Books'
+          ],
+          [
+            '8013',
+            'Books\\Business & Economics Books'
+          ],
+          [
+            '8073',
+            'Books\\Character Studies Books'
+          ],
+          [
+            '8027',
+            'Books\\Children\'s Fiction Books'
+          ],
+          [
+            '8055',
+            'Books\\Children\'s Non-fiction Books'
+          ],
+          [
+            '8099',
+            'Books\\Comic Books'
+          ],
+          [
+            '8015',
+            'Books\\Computer Books'
+          ],
+          [
+            '8063',
+            'Books\\Conflicts & Dualities Books'
+          ],
+          [
+            '8014',
+            'Books\\Cooking Books'
+          ],
+          [
+            '8016',
+            'Books\\Crafts & Hobbies Books'
+          ],
+          [
+            '8054',
+            'Books\\Current Events Books'
+          ],
+          [
+            '8064',
+            'Books\\Disasters Books'
+          ],
+          [
+            '8017',
+            'Books\\Drama Books'
+          ],
+          [
+            '8018',
+            'Books\\Education Books'
+          ],
+          [
+            '8065',
+            'Books\\Educational Fiction Books'
+          ],
+          [
+            '8067',
+            'Books\\Erotica Books'
+          ],
+          [
+            '8068',
+            'Books\\Family & Friendship Books'
+          ],
+          [
+            '8019',
+            'Books\\Family & Relationships Books'
+          ],
+          [
+            '8020',
+            'Books\\Foreign Language Study Books'
+          ],
+          [
+            '8021',
+            'Books\\Games Books'
+          ],
+          [
+            '8022',
+            'Books\\Gardening Books'
+          ],
+          [
+            '8023',
+            'Books\\Health & Fitness Books'
+          ],
+          [
+            '8078',
+            'Books\\Health Care & Medical Books'
+          ],
+          [
+            '8070',
+            'Books\\Historical Fiction Books'
+          ],
+          [
+            '8094',
+            'Books\\Historical Personages Books'
+          ],
+          [
+            '8024',
+            'Books\\History Books'
+          ],
+          [
+            '8087',
+            'Books\\Hobbies & Activities Books'
+          ],
+          [
+            '8093',
+            'Books\\Holidays Books'
+          ],
+          [
+            '8071',
+            'Books\\Holocaust Books'
+          ],
+          [
+            '8057',
+            'Books\\Horror Books'
+          ],
+          [
+            '8025',
+            'Books\\House & Home Books'
+          ],
+          [
+            '8072',
+            'Books\\Human Qualities & Behavior Books'
+          ],
+          [
+            '8026',
+            'Books\\Humor Books'
+          ],
+          [
+            '8074',
+            'Books\\Humorous Fiction Books'
+          ],
+          [
+            '8028',
+            'Books\\Language Arts Books'
+          ],
+          [
+            '8029',
+            'Books\\Law Books'
+          ],
+          [
+            '8075',
+            'Books\\Legal & Courtroom Books'
+          ],
+          [
+            '8030',
+            'Books\\Literary Criticism Books'
+          ],
+          [
+            '8066',
+            'Books\\Literature Books'
+          ],
+          [
+            '8077',
+            'Books\\Love, Relationships & Sex Books'
+          ],
+          [
+            '8005',
+            'Books\\Magazines & Newspapers'
+          ],
+          [
+            '8031',
+            'Books\\Mathematics Books'
+          ],
+          [
+            '8032',
+            'Books\\Medical Books'
+          ],
+          [
+            '8091',
+            'Books\\Military Fiction Books'
+          ],
+          [
+            '8098',
+            'Books\\Miscellaneous Books'
+          ],
+          [
+            '8095',
+            'Books\\Miscellaneous Fiction Books'
+          ],
+          [
+            '8096',
+            'Books\\Miscellaneous Non-Fiction Books'
+          ],
+          [
+            '8080',
+            'Books\\Money & Finance Books'
+          ],
+          [
+            '8053',
+            'Books\\Music Books'
+          ],
+          [
+            '8058',
+            'Books\\Mystery & Crime Books'
+          ],
+          [
+            '8033',
+            'Books\\Nature Books'
+          ],
+          [
+            '8083',
+            'Books\\Peoples & Cultures Books'
+          ],
+          [
+            '8035',
+            'Books\\Performing Arts Books'
+          ],
+          [
+            '8036',
+            'Books\\Pets Books'
+          ],
+          [
+            '8082',
+            'Books\\Philosophical Fiction Books'
+          ],
+          [
+            '8037',
+            'Books\\Philosophy Books'
+          ],
+          [
+            '8038',
+            'Books\\Photography Books'
+          ],
+          [
+            '8039',
+            'Books\\Poetry Books'
+          ],
+          [
+            '8040',
+            'Books\\Political Science Books'
+          ],
+          [
+            '8084',
+            'Books\\Politics Books'
+          ],
+          [
+            '8041',
+            'Books\\Psychology Books'
+          ],
+          [
+            '8042',
+            'Books\\Reference Books'
+          ],
+          [
+            '8043',
+            'Books\\Religion Books'
+          ],
+          [
+            '8076',
+            'Books\\Religions & Spirituality Books'
+          ],
+          [
+            '8059',
+            'Books\\Romance Books'
+          ],
+          [
+            '8086',
+            'Books\\Science & Technology Books'
+          ],
+          [
+            '8044',
+            'Books\\Science Books'
+          ],
+          [
+            '8060',
+            'Books\\Science Fiction & Fantasy Books'
+          ],
+          [
+            '8045',
+            'Books\\Self Help Books'
+          ],
+          [
+            '8069',
+            'Books\\Settings Books'
+          ],
+          [
+            '8046',
+            'Books\\Social Science Books'
+          ],
+          [
+            '8085',
+            'Books\\Society & Social Issues Books'
+          ],
+          [
+            '8088',
+            'Books\\Sports & Games Books'
+          ],
+          [
+            '8047',
+            'Books\\Sports & Recreation Books'
+          ],
+          [
+            '8089',
+            'Books\\Stages of Life Books'
+          ],
+          [
+            '8048',
+            'Books\\Study Aids Books'
+          ],
+          [
+            '8049',
+            'Books\\Technology Books'
+          ],
+          [
+            '8056',
+            'Books\\Thrillers Books'
+          ],
+          [
+            '8050',
+            'Books\\Transportation Books'
+          ],
+          [
+            '8052',
+            'Books\\Travel Books'
+          ],
+          [
+            '8090',
+            'Books\\Travel Fiction Books'
+          ],
+          [
+            '8051',
+            'Books\\True Crime Books'
+          ],
+          [
+            '8061',
+            'Books\\Westerns Books'
+          ],
+          [
+            '8092',
+            'Books\\Work & the Workplace Books'
+          ],
+          [
+            '10010100',
+            'Clothing and Accessories\\Backpacks'
+          ],
+          [
+            '10010200',
+            'Clothing and Accessories\\Briefcases'
+          ],
+          [
+            '10010300',
+            'Clothing and Accessories\\Computer Bags'
+          ],
+          [
+            '100000905',
+            'Clothing and Accessories\\Clutches'
+          ],
+          [
+            '100000903',
+            'Clothing and Accessories\\Satchels'
+          ],
+          [
+            '100000904',
+            'Clothing and Accessories\\Shoulder Bags'
+          ],
+          [
+            '100000902',
+            'Clothing and Accessories\\Totes'
+          ],
+          [
+            '100000869',
+            'Clothing and Accessories\\Carry-On Bags'
+          ],
+          [
+            '100000868',
+            'Clothing and Accessories\\Garment Bags'
+          ],
+          [
+            '100000866',
+            'Clothing and Accessories\\Luggage Accessories'
+          ],
+          [
+            '100000867',
+            'Clothing and Accessories\\Luggage Sets'
+          ],
+          [
+            '100000865',
+            'Clothing and Accessories\\Suitcases'
+          ],
+          [
+            '100000863',
+            'Clothing and Accessories\\Lunch Boxes & Bags'
+          ],
+          [
+            '100000864',
+            'Clothing and Accessories\\Messenger Bags'
+          ],
+          [
+            '10010900',
+            'Clothing and Accessories\\Sports Bags'
+          ],
+          [
+            '10010800',
+            'Clothing and Accessories\\Travel Accessories'
+          ],
+          [
+            '10011200',
+            'Clothing and Accessories\\Wallets'
+          ],
+          [
+            '10120100',
+            'Clothing and Accessories\\Men\'s Belts / Suspenders'
+          ],
+          [
+            '10120400',
+            'Clothing and Accessories\\Men\'s Gloves & Mittens'
+          ],
+          [
+            '9772',
+            'Clothing and Accessories\\Men\'s Handkerchiefs'
+          ],
+          [
+            '10120500',
+            'Clothing and Accessories\\Men\'s Hats'
+          ],
+          [
+            '9773',
+            'Clothing and Accessories\\Men\'s Scarves'
+          ],
+          [
+            '10120700',
+            'Clothing and Accessories\\Men\'s Socks'
+          ],
+          [
+            '10120800',
+            'Clothing and Accessories\\Men\'s Ties'
+          ],
+          [
+            '10121000',
+            'Clothing and Accessories\\Miscellaneous Men\'s Accessories'
+          ],
+          [
+            '9785',
+            'Clothing and Accessories\\Men\'s Hoodies & Sweatshirts'
+          ],
+          [
+            '9786',
+            'Clothing and Accessories\\Men\'s Track Jackets'
+          ],
+          [
+            '100001194',
+            'Clothing and Accessories\\Men\'s Sweatpants'
+          ],
+          [
+            '100001196',
+            'Clothing and Accessories\\Men\'s Workout Bottoms'
+          ],
+          [
+            '9776',
+            'Clothing and Accessories\\Men\'s Workout Sets'
+          ],
+          [
+            '10051300',
+            'Clothing and Accessories\\Men\'s Workout Tops'
+          ],
+          [
+            '10051500',
+            'Clothing and Accessories\\Miscellaneous Men\'s Activewear'
+          ],
+          [
+            '100000602',
+            'Clothing and Accessories\\Men\'s Coats'
+          ],
+          [
+            '100000605',
+            'Clothing and Accessories\\Men\'s Jackets'
+          ],
+          [
+            '100000604',
+            'Clothing and Accessories\\Men\'s Parkas'
+          ],
+          [
+            '100000603',
+            'Clothing and Accessories\\Men\'s Raincoats'
+          ],
+          [
+            '100000606',
+            'Clothing and Accessories\\Men\'s Vests'
+          ],
+          [
+            '100000954',
+            'Clothing and Accessories\\Men\'s Loose Fit Jeans'
+          ],
+          [
+            '100000953',
+            'Clothing and Accessories\\Men\'s Regular Fit Jeans'
+          ],
+          [
+            '100000952',
+            'Clothing and Accessories\\Men\'s Slim Fit Jeans'
+          ],
+          [
+            '100000955',
+            'Clothing and Accessories\\Other Men\'s Jeans'
+          ],
+          [
+            '100001141',
+            'Clothing and Accessories\\Men\'s Casual Pants'
+          ],
+          [
+            '100001140',
+            'Clothing and Accessories\\Men\'s Dress Pants'
+          ],
+          [
+            '100001219',
+            'Clothing and Accessories\\Other Men\'s Pants'
+          ],
+          [
+            '100001156',
+            'Clothing and Accessories\\Men\'s Casual Shirts'
+          ],
+          [
+            '100001155',
+            'Clothing and Accessories\\Men\'s Dress Shirts'
+          ],
+          [
+            '100001160',
+            'Clothing and Accessories\\Men\'s Polo Shirts'
+          ],
+          [
+            '10060600',
+            'Clothing and Accessories\\Men\'s Shorts'
+          ],
+          [
+            '100001170',
+            'Clothing and Accessories\\Men\'s Sportcoats & Blazers'
+          ],
+          [
+            '100001171',
+            'Clothing and Accessories\\Men\'s Suits'
+          ],
+          [
+            '10060800',
+            'Clothing and Accessories\\Men\'s Sweaters / Vests'
+          ],
+          [
+            '10061000',
+            'Clothing and Accessories\\Men\'s Swimwear'
+          ],
+          [
+            '10060900',
+            'Clothing and Accessories\\Men\'s T-Shirts'
+          ],
+          [
+            '10061100',
+            'Clothing and Accessories\\Miscellaneous Men\'s Clothing'
+          ],
+          [
+            '100000882',
+            'Clothing and Accessories\\Men\'s Athletic Shoes'
+          ],
+          [
+            '100000883',
+            'Clothing and Accessories\\Men\'s Athletic-Inspired Shoes'
+          ],
+          [
+            '100000884',
+            'Clothing and Accessories\\Men\'s Boat Shoes'
+          ],
+          [
+            '100000580',
+            'Clothing and Accessories\\Men\'s Boots'
+          ],
+          [
+            '100000880',
+            'Clothing and Accessories\\Men\'s Clogs'
+          ],
+          [
+            '100000885',
+            'Clothing and Accessories\\Men\'s Loafers'
+          ],
+          [
+            '100000887',
+            'Clothing and Accessories\\Men\'s Oxfords'
+          ],
+          [
+            '100000881',
+            'Clothing and Accessories\\Men\'s Sandals & Flip-Flops'
+          ],
+          [
+            '100000886',
+            'Clothing and Accessories\\Men\'s Slippers'
+          ],
+          [
+            '100000890',
+            'Clothing and Accessories\\Other Men\'s Shoes'
+          ],
+          [
+            '100001181',
+            'Clothing and Accessories\\Men\'s Pajamas & Loungewear'
+          ],
+          [
+            '100001180',
+            'Clothing and Accessories\\Men\'s Robes'
+          ],
+          [
+            '100001185',
+            'Clothing and Accessories\\Men\'s Underwear'
+          ],
+          [
+            '10160400',
+            'Clothing and Accessories\\Miscellaneous Specialty Apparel'
+          ],
+          [
+            '9975',
+            'Clothing and Accessories\\Motorcycle Apparel'
+          ],
+          [
+            '10160500',
+            'Clothing and Accessories\\Specialty Apparel / Accessories'
+          ],
+          [
+            '10160200',
+            'Clothing and Accessories\\Specialty T-Shirts'
+          ],
+          [
+            '10070000',
+            'Clothing and Accessories\\Sunglasses'
+          ],
+          [
+            '10130900',
+            'Clothing and Accessories\\Miscellaneous Women\'s Accessories'
+          ],
+          [
+            '10130800',
+            'Clothing and Accessories\\Women\'s Belts'
+          ],
+          [
+            '10130200',
+            'Clothing and Accessories\\Women\'s Gloves & Mittens'
+          ],
+          [
+            '9541',
+            'Clothing and Accessories\\Women\'s Handkerchiefs'
+          ],
+          [
+            '10130300',
+            'Clothing and Accessories\\Women\'s Hats'
+          ],
+          [
+            '10130500',
+            'Clothing and Accessories\\Women\'s Scarves / Shawls'
+          ],
+          [
+            '10130400',
+            'Clothing and Accessories\\Women\'s Socks / Hosiery'
+          ],
+          [
+            '10081700',
+            'Clothing and Accessories\\Miscellaneous Women\'s Activewear'
+          ],
+          [
+            '9780',
+            'Clothing and Accessories\\Sports Bras'
+          ],
+          [
+            '9778',
+            'Clothing and Accessories\\Women\'s Hoodies & Sweatshirts'
+          ],
+          [
+            '9779',
+            'Clothing and Accessories\\Women\'s Track Jackets'
+          ],
+          [
+            '100001187',
+            'Clothing and Accessories\\Women\'s Sweatpants'
+          ],
+          [
+            '100001197',
+            'Clothing and Accessories\\Women\'s Workout Bottoms'
+          ],
+          [
+            '9777',
+            'Clothing and Accessories\\Women\'s Workout Sets'
+          ],
+          [
+            '10081500',
+            'Clothing and Accessories\\Women\'s Workout Tops'
+          ],
+          [
+            '10091200',
+            'Clothing and Accessories\\Miscellaneous Women\'s Clothing'
+          ],
+          [
+            '8725',
+            'Clothing and Accessories\\Women\'s Blouses'
+          ],
+          [
+            '8288',
+            'Clothing and Accessories\\Bridal Dresses'
+          ],
+          [
+            '8290',
+            'Clothing and Accessories\\Casual & Work Dresses'
+          ],
+          [
+            '8289',
+            'Clothing and Accessories\\Cocktail Dresses'
+          ],
+          [
+            '8287',
+            'Clothing and Accessories\\Formal & Evening Dresses'
+          ],
+          [
+            '8291',
+            'Clothing and Accessories\\Prom Dresses'
+          ],
+          [
+            '100000946',
+            'Clothing and Accessories\\Other Women\'s Jeans'
+          ],
+          [
+            '100001236',
+            'Clothing and Accessories\\Women\'s Boyfriend Jeans'
+          ],
+          [
+            '100000945',
+            'Clothing and Accessories\\Women\'s Cropped Jeans'
+          ],
+          [
+            '100000943',
+            'Clothing and Accessories\\Women\'s Flare Jeans'
+          ],
+          [
+            '100000942',
+            'Clothing and Accessories\\Women\'s Skinny Jeans'
+          ],
+          [
+            '100000944',
+            'Clothing and Accessories\\Women\'s Wide-Leg Jeans'
+          ],
+          [
+            '100000590',
+            'Clothing and Accessories\\Women\'s Capes & Ponchos'
+          ],
+          [
+            '10090400',
+            'Clothing and Accessories\\Women\'s Jackets & Coats'
+          ],
+          [
+            '100000592',
+            'Clothing and Accessories\\Women\'s Parkas'
+          ],
+          [
+            '100000591',
+            'Clothing and Accessories\\Women\'s Raincoats'
+          ],
+          [
+            '100000594',
+            'Clothing and Accessories\\Women\'s Vests'
+          ],
+          [
+            '100001217',
+            'Clothing and Accessories\\Other Women\'s Pants'
+          ],
+          [
+            '100001142',
+            'Clothing and Accessories\\Women\'s Cropped Pants'
+          ],
+          [
+            '100001143',
+            'Clothing and Accessories\\Women\'s Flare Pants'
+          ],
+          [
+            '100001154',
+            'Clothing and Accessories\\Women\'s Leggings'
+          ],
+          [
+            '100001145',
+            'Clothing and Accessories\\Women\'s Skinny Pants'
+          ],
+          [
+            '100001144',
+            'Clothing and Accessories\\Women\'s Wide-Leg Pants'
+          ],
+          [
+            '8727',
+            'Clothing and Accessories\\Women\'s Polo Shirts'
+          ],
+          [
+            '8726',
+            'Clothing and Accessories\\Women\'s Shirts & Tops'
+          ],
+          [
+            '10091100',
+            'Clothing and Accessories\\Women\'s Shorts'
+          ],
+          [
+            '10090700',
+            'Clothing and Accessories\\Women\'s Skirts'
+          ],
+          [
+            '100001175',
+            'Clothing and Accessories\\Women\'s Blazers'
+          ],
+          [
+            '100001176',
+            'Clothing and Accessories\\Women\'s Suits'
+          ],
+          [
+            '100001163',
+            'Clothing and Accessories\\Women\'s Cardigans'
+          ],
+          [
+            '100001164',
+            'Clothing and Accessories\\Women\'s Sweater Vests'
+          ],
+          [
+            '100001162',
+            'Clothing and Accessories\\Women\'s Sweaters'
+          ],
+          [
+            '100001198',
+            'Clothing and Accessories\\Women\'s Cover-Ups'
+          ],
+          [
+            '100001200',
+            'Clothing and Accessories\\Women\'s One-Piece Swimwear'
+          ],
+          [
+            '100001199',
+            'Clothing and Accessories\\Women\'s Two-Piece Swimwear'
+          ],
+          [
+            '10091000',
+            'Clothing and Accessories\\Women\'s T-Shirts'
+          ],
+          [
+            '100001124',
+            'Clothing and Accessories\\Women\'s Tank Tops & Camisoles'
+          ],
+          [
+            '100000044',
+            'Clothing and Accessories\\Lingerie Sets'
+          ],
+          [
+            '10101400',
+            'Clothing and Accessories\\Miscellaneous Women\'s Lingerie'
+          ],
+          [
+            '10100300',
+            'Clothing and Accessories\\Women\'s Bras'
+          ],
+          [
+            '10100500',
+            'Clothing and Accessories\\Women\'s Camisoles'
+          ],
+          [
+            '100001186',
+            'Clothing and Accessories\\Women\'s Chemises'
+          ],
+          [
+            '10100700',
+            'Clothing and Accessories\\Women\'s Hosiery'
+          ],
+          [
+            '100001188',
+            'Clothing and Accessories\\Women\'s Nightgowns'
+          ],
+          [
+            '10101100',
+            'Clothing and Accessories\\Women\'s Pajamas'
+          ],
+          [
+            '10100900',
+            'Clothing and Accessories\\Women\'s Panties'
+          ],
+          [
+            '10101000',
+            'Clothing and Accessories\\Women\'s Robes'
+          ],
+          [
+            '10101200',
+            'Clothing and Accessories\\Women\'s Slimmers / Shapers'
+          ],
+          [
+            '100000925',
+            'Clothing and Accessories\\Other Women\'s Shoes'
+          ],
+          [
+            '100000921',
+            'Clothing and Accessories\\Women\'s Athletic Shoes'
+          ],
+          [
+            '100000918',
+            'Clothing and Accessories\\Women\'s Athletic-Inspired Shoes'
+          ],
+          [
+            '100000579',
+            'Clothing and Accessories\\Women\'s Boots'
+          ],
+          [
+            '100000920',
+            'Clothing and Accessories\\Women\'s Flats'
+          ],
+          [
+            '100000923',
+            'Clothing and Accessories\\Women\'s Mules & Clogs'
+          ],
+          [
+            '100000919',
+            'Clothing and Accessories\\Women\'s Pumps'
+          ],
+          [
+            '100000922',
+            'Clothing and Accessories\\Women\'s Sandals & Flip-Flops'
+          ],
+          [
+            '100000924',
+            'Clothing and Accessories\\Women\'s Slippers'
+          ],
+          [
+            '9282',
+            'Computers\\Computer Disks'
+          ],
+          [
+            '9284',
+            'Computers\\Computer Media Cleaning Kits'
+          ],
+          [
+            '9283',
+            'Computers\\Jewel Cases'
+          ],
+          [
+            '9278',
+            'Computers\\Other Blank Computer Media'
+          ],
+          [
+            '9315',
+            'Computers\\Recordable Blu-Ray'
+          ],
+          [
+            '9280',
+            'Computers\\Recordable CDs'
+          ],
+          [
+            '9279',
+            'Computers\\Recordable DVDs'
+          ],
+          [
+            '9281',
+            'Computers\\Tape Cartridges'
+          ],
+          [
+            '403',
+            'Computers\\CPUs & Computer Processor Upgrades'
+          ],
+          [
+            '9453',
+            'Computers\\Computer Adapter Travel Kits'
+          ],
+          [
+            '9454',
+            'Computers\\Computer Cable Adapters'
+          ],
+          [
+            '9455',
+            'Computers\\Computer Gender Adapters'
+          ],
+          [
+            '9458',
+            'Computers\\Ethernet Cables'
+          ],
+          [
+            '9457',
+            'Computers\\Firewire Cables'
+          ],
+          [
+            '9451',
+            'Computers\\Other Computer Cables & Adapters'
+          ],
+          [
+            '9456',
+            'Computers\\Parallel Cables'
+          ],
+          [
+            '9459',
+            'Computers\\SCSI Cables'
+          ],
+          [
+            '9452',
+            'Computers\\USB Cables'
+          ],
+          [
+            '9416',
+            'Computers\\Computer Towers'
+          ],
+          [
+            '9417',
+            'Computers\\Hard Drive Cases'
+          ],
+          [
+            '9418',
+            'Computers\\Server Racks'
+          ],
+          [
+            '406',
+            'Computers\\CD & DVD Drives'
+          ],
+          [
+            '9184',
+            'Computers\\Disk Drives'
+          ],
+          [
+            '9185',
+            'Computers\\Flash Drives'
+          ],
+          [
+            '410',
+            'Computers\\Hard Drives'
+          ],
+          [
+            '46009',
+            'Computers\\Memory Card Readers'
+          ],
+          [
+            '465',
+            'Computers\\Memory Cards'
+          ],
+          [
+            '9183',
+            'Computers\\Tape Drives'
+          ],
+          [
+            '492',
+            'Computers\\Computer Game Controllers'
+          ],
+          [
+            '303',
+            'Computers\\Computer Gaming Software'
+          ],
+          [
+            '9392',
+            'Computers\\Computer Headsets'
+          ],
+          [
+            '493',
+            'Computers\\Computer Keyboards'
+          ],
+          [
+            '9388',
+            'Computers\\Computer Mice'
+          ],
+          [
+            '9393',
+            'Computers\\Computer Microphones'
+          ],
+          [
+            '9391',
+            'Computers\\Computer Styluses'
+          ],
+          [
+            '9389',
+            'Computers\\Graphic Tablets'
+          ],
+          [
+            '9395',
+            'Computers\\Other Pointing Devices'
+          ],
+          [
+            '416',
+            'Computers\\Computer Monitors'
+          ],
+          [
+            '9102',
+            'Computers\\Monitor Arms & Mounts'
+          ],
+          [
+            '9101',
+            'Computers\\Monitor Glare Filters'
+          ],
+          [
+            '9103',
+            'Computers\\Monitor Privacy Protectors'
+          ],
+          [
+            '9100',
+            'Computers\\Monitor Stands'
+          ],
+          [
+            '9099',
+            'Computers\\Other Monitor Accessories'
+          ],
+          [
+            '9044',
+            'Computers\\Computer Power Supplies'
+          ],
+          [
+            '9086',
+            'Computers\\CD & DVD Printers'
+          ],
+          [
+            '9094',
+            'Computers\\Inkjet Cartridges'
+          ],
+          [
+            '9082',
+            'Computers\\Inkjet Printers'
+          ],
+          [
+            '9096',
+            'Computers\\Inkjet Refill Kits'
+          ],
+          [
+            '9087',
+            'Computers\\Label Printers'
+          ],
+          [
+            '9084',
+            'Computers\\Large Format & Commercial Printers'
+          ],
+          [
+            '9083',
+            'Computers\\Laser Printers'
+          ],
+          [
+            '9085',
+            'Computers\\Multifunction Printers'
+          ],
+          [
+            '9088',
+            'Computers\\Other Printer Accessories'
+          ],
+          [
+            '9040',
+            'Computers\\Photo Paper'
+          ],
+          [
+            '9039',
+            'Computers\\Photo Printers'
+          ],
+          [
+            '9089',
+            'Computers\\Printer Feeders & Trays'
+          ],
+          [
+            '9092',
+            'Computers\\Printer Fuser Units'
+          ],
+          [
+            '9091',
+            'Computers\\Printer Maintenance Kits'
+          ],
+          [
+            '9098',
+            'Computers\\Printer Ribbons'
+          ],
+          [
+            '9090',
+            'Computers\\Printer Stands'
+          ],
+          [
+            '9093',
+            'Computers\\Printheads'
+          ],
+          [
+            '9095',
+            'Computers\\Toner Cartridges'
+          ],
+          [
+            '9097',
+            'Computers\\Toner Refill Kits'
+          ],
+          [
+            '483',
+            'Computers\\Computer Speakers'
+          ],
+          [
+            '9296',
+            'Computers\\Barebones Systems'
+          ],
+          [
+            '9300',
+            'Computers\\Desktop Computer Cleaning Supplies'
+          ],
+          [
+            '461',
+            'Computers\\Desktop Computers'
+          ],
+          [
+            '9390',
+            'Computers\\Keyboard Trays'
+          ],
+          [
+            '9302',
+            'Computers\\Mouse Pads'
+          ],
+          [
+            '9301',
+            'Computers\\Other Desktop Computer Accessories'
+          ],
+          [
+            '9298',
+            'Computers\\Servers'
+          ],
+          [
+            '9299',
+            'Computers\\Terminal Stations'
+          ],
+          [
+            '9297',
+            'Computers\\Thin Clients'
+          ],
+          [
+            '9303',
+            'Computers\\Wrist Rests'
+          ],
+          [
+            '100000495',
+            'Computers\\Camera Accessory Kits'
+          ],
+          [
+            '100001508',
+            'Computers\\Camera Battery Grips'
+          ],
+          [
+            '9036',
+            'Computers\\Camera Cases'
+          ],
+          [
+            '9034',
+            'Computers\\Camera Flashes'
+          ],
+          [
+            '9033',
+            'Computers\\Camera Lens Caps'
+          ],
+          [
+            '9030',
+            'Computers\\Camera Lens Filters'
+          ],
+          [
+            '9027',
+            'Computers\\Camera Lenses'
+          ],
+          [
+            '9035',
+            'Computers\\Camera Underwater Housings'
+          ],
+          [
+            '9037',
+            'Computers\\Digital Camera Batteries'
+          ],
+          [
+            '9038',
+            'Computers\\Digital Camera Cables'
+          ],
+          [
+            '9032',
+            'Computers\\Digital Camera Chargers'
+          ],
+          [
+            '9043',
+            'Computers\\Other Camera Accessories'
+          ],
+          [
+            '9028',
+            'Computers\\Tripods & Monopods'
+          ],
+          [
+            '402',
+            'Computers\\Digital Cameras'
+          ],
+          [
+            '8958',
+            'Computers\\Children\'s Software'
+          ],
+          [
+            '8960',
+            'Computers\\Encyclopedia & Dictionary Software'
+          ],
+          [
+            '8961',
+            'Computers\\Foreign Language Software'
+          ],
+          [
+            '9023',
+            'Computers\\GPS Software'
+          ],
+          [
+            '9254',
+            'Computers\\General Educational Software'
+          ],
+          [
+            '100001205',
+            'Computers\\Medical Educational Software'
+          ],
+          [
+            '100001207',
+            'Computers\\Other Educational Software'
+          ],
+          [
+            '8956',
+            'Computers\\Training Software'
+          ],
+          [
+            '8957',
+            'Computers\\Typing Software'
+          ],
+          [
+            '100001206',
+            'Computers\\Writing Software'
+          ],
+          [
+            '405',
+            'Computers\\Graphics Cards'
+          ],
+          [
+            '460102',
+            'Computers\\Hardware & Software $60-$200'
+          ],
+          [
+            '460103',
+            'Computers\\Hardware & Software over $200'
+          ],
+          [
+            '460101',
+            'Computers\\Hardware & Software under $60'
+          ],
+          [
+            '9158',
+            'Computers\\Cooking Software'
+          ],
+          [
+            '100001212',
+            'Computers\\Family Tree Software'
+          ],
+          [
+            '9157',
+            'Computers\\Landscape & Home Design Software'
+          ],
+          [
+            '9156',
+            'Computers\\Maps & Travel Software'
+          ],
+          [
+            '100001213',
+            'Computers\\Other Hobbies & Home Software'
+          ],
+          [
+            '100001211',
+            'Computers\\Scrapbooking & Paper Craft Software'
+          ],
+          [
+            '480',
+            'Computers\\IO Controllers'
+          ],
+          [
+            '8911',
+            'Computers\\Miscellaneous Internet & Network Software'
+          ],
+          [
+            '8912',
+            'Computers\\Network Utilities'
+          ],
+          [
+            '8913',
+            'Computers\\Video Conferencing Software'
+          ],
+          [
+            '8914',
+            'Computers\\Web Design Software'
+          ],
+          [
+            '424',
+            'Computers\\Media Hubs'
+          ],
+          [
+            '100001563',
+            'Computers\\Extended Warranty Agreements'
+          ],
+          [
+            '100001562',
+            'Computers\\Temp Miscellaneous Software'
+          ],
+          [
+            '433',
+            'Computers\\Miscellaneous Storage Peripherals'
+          ],
+          [
+            '419',
+            'Computers\\Motherboards'
+          ],
+          [
+            '3',
+            '9,153 / Computers\\'
+          ],
+          [
+            '9150',
+            'Computers\\CAD Utilities'
+          ],
+          [
+            '9154',
+            'Computers\\Draw & Paint Software'
+          ],
+          [
+            '9041',
+            'Computers\\Image Editing Software'
+          ],
+          [
+            '9155',
+            'Computers\\Media Burning Software'
+          ],
+          [
+            '100001227',
+            'Computers\\Multimedia Software Bundles'
+          ],
+          [
+            '9152',
+            'Computers\\Music Creation & Recording Software'
+          ],
+          [
+            '100001226',
+            'Computers\\Text Editing Software'
+          ],
+          [
+            '9151',
+            'Computers\\Video Editing Software'
+          ],
+          [
+            '9328',
+            'Computers\\Cable & DSL Modems'
+          ],
+          [
+            '9324',
+            'Computers\\Media Converters'
+          ],
+          [
+            '497',
+            'Computers\\NIC'
+          ],
+          [
+            '9319',
+            'Computers\\Network Bridges'
+          ],
+          [
+            '9318',
+            'Computers\\Network Hubs'
+          ],
+          [
+            '9321',
+            'Computers\\Network Routers'
+          ],
+          [
+            '9320',
+            'Computers\\Network Switches'
+          ],
+          [
+            '9326',
+            'Computers\\Network Transceivers'
+          ],
+          [
+            '9323',
+            'Computers\\Other Networking Products'
+          ],
+          [
+            '9325',
+            'Computers\\Print Servers'
+          ],
+          [
+            '9327',
+            'Computers\\Server Appliances'
+          ],
+          [
+            '9322',
+            'Computers\\USB & Firewire Hubs'
+          ],
+          [
+            '8897',
+            'Computers\\Accounting Software'
+          ],
+          [
+            '100001223',
+            'Computers\\Communication Software'
+          ],
+          [
+            '100001222',
+            'Computers\\Job Search Software'
+          ],
+          [
+            '8898',
+            'Computers\\Office Suites'
+          ],
+          [
+            '100001224',
+            'Computers\\Office, Tax & Accounting Bundle Software'
+          ],
+          [
+            '100001225',
+            'Computers\\Other Office Software'
+          ],
+          [
+            '8899',
+            'Computers\\Project Management Software'
+          ],
+          [
+            '8901',
+            'Computers\\Publishing & Presentation Software'
+          ],
+          [
+            '9201',
+            'Computers\\Reporting Software'
+          ],
+          [
+            '9200',
+            'Computers\\Schedule & Contact Software'
+          ],
+          [
+            '8900',
+            'Computers\\Spreadsheet Software'
+          ],
+          [
+            '9199',
+            'Computers\\Tax Software'
+          ],
+          [
+            '9202',
+            'Computers\\Word Processing Software'
+          ],
+          [
+            '307',
+            'Computers\\Operating Systems'
+          ],
+          [
+            '9107',
+            'Computers\\Other PDA Accessories'
+          ],
+          [
+            '9108',
+            'Computers\\PDA Batteries'
+          ],
+          [
+            '9114',
+            'Computers\\PDA Cases'
+          ],
+          [
+            '9111',
+            'Computers\\PDA Chargers'
+          ],
+          [
+            '9115',
+            'Computers\\PDA Keyboards'
+          ],
+          [
+            '9112',
+            'Computers\\PDA Screen Protectors'
+          ],
+          [
+            '46020',
+            'Computers\\PDA Software'
+          ],
+          [
+            '9109',
+            'Computers\\PDA Stylus'
+          ],
+          [
+            '9113',
+            'Computers\\PDA Sync Cables'
+          ],
+          [
+            '9175',
+            'Computers\\Laptop Batteries'
+          ],
+          [
+            '462',
+            'Computers\\Laptop Computers'
+          ],
+          [
+            '9260',
+            'Computers\\Laptop Coolers'
+          ],
+          [
+            '9177',
+            'Computers\\Laptop Power Adapters'
+          ],
+          [
+            '9259',
+            'Computers\\Laptop Stands'
+          ],
+          [
+            '9258',
+            'Computers\\Other Laptop Accessories'
+          ],
+          [
+            '9261',
+            'Computers\\Port Replicators'
+          ],
+          [
+            '9257',
+            'Computers\\Tablet Computers'
+          ],
+          [
+            '9217',
+            'Computers\\Cassette Adapters'
+          ],
+          [
+            '100000808',
+            'Computers\\Digital Book Readers'
+          ],
+          [
+            '9222',
+            'Computers\\Headphone Splitters'
+          ],
+          [
+            '3',
+            '499 / Computers\\MP'
+          ],
+          [
+            '3',
+            '9,215 / Computers\\MP'
+          ],
+          [
+            '3',
+            '100,000,797 / Computers\\MP'
+          ],
+          [
+            '3',
+            '9,220 / Computers\\MP'
+          ],
+          [
+            '3',
+            '9,214 / Computers\\MP'
+          ],
+          [
+            '3',
+            '9,176 / Computers\\MP'
+          ],
+          [
+            '3',
+            '9,223 / Computers\\MP'
+          ],
+          [
+            '3',
+            '9,216 / Computers\\MP'
+          ],
+          [
+            '3',
+            '9,218 / Computers\\MP'
+          ],
+          [
+            '3',
+            '9,219 / Computers\\MP'
+          ],
+          [
+            '3',
+            '9,221 / Computers\\MP'
+          ],
+          [
+            '3',
+            '9,212 / Computers\\Other MP'
+          ],
+          [
+            '9277',
+            'Computers\\Surge Protectors'
+          ],
+          [
+            '9313',
+            'Computers\\UPSs'
+          ],
+          [
+            '8919',
+            'Computers\\Database Programming Software'
+          ],
+          [
+            '8920',
+            'Computers\\Programming Language Software'
+          ],
+          [
+            '9434',
+            'Computers\\Home Theater & Multimedia Projectors'
+          ],
+          [
+            '9426',
+            'Computers\\Other Projector Accessories'
+          ],
+          [
+            '9435',
+            'Computers\\Overhead Projectors'
+          ],
+          [
+            '9432',
+            'Computers\\Projector & Monitor Cables'
+          ],
+          [
+            '9433',
+            'Computers\\Projector Cases'
+          ],
+          [
+            '9431',
+            'Computers\\Projector Lenses'
+          ],
+          [
+            '9428',
+            'Computers\\Projector Mounts'
+          ],
+          [
+            '9430',
+            'Computers\\Projector Remote Controls'
+          ],
+          [
+            '9427',
+            'Computers\\Projector Replacement Lamps'
+          ],
+          [
+            '9429',
+            'Computers\\Projector Screens'
+          ],
+          [
+            '9436',
+            'Computers\\Slide Projectors'
+          ],
+          [
+            '407',
+            'Computers\\RAM & Memory Upgrades'
+          ],
+          [
+            '9130',
+            'Computers\\Film Scanners'
+          ],
+          [
+            '9129',
+            'Computers\\Fingerprint Scanners'
+          ],
+          [
+            '9127',
+            'Computers\\Flatbed Scanners'
+          ],
+          [
+            '9131',
+            'Computers\\Handheld Scanners'
+          ],
+          [
+            '9132',
+            'Computers\\Other Scanner Accessories'
+          ],
+          [
+            '9138',
+            'Computers\\Scanner Cradles & Chargers'
+          ],
+          [
+            '9134',
+            'Computers\\Scanner Document Feeders'
+          ],
+          [
+            '9136',
+            'Computers\\Scanner Endorsers'
+          ],
+          [
+            '9135',
+            'Computers\\Scanner Replacement Lamps'
+          ],
+          [
+            '9137',
+            'Computers\\Scanner Roller Kits'
+          ],
+          [
+            '9133',
+            'Computers\\Scanner Transparency Adapters'
+          ],
+          [
+            '9128',
+            'Computers\\Sheetfed Scanners'
+          ],
+          [
+            '463',
+            'Computers\\Sound Cards'
+          ],
+          [
+            '491',
+            'Computers\\System Cooling'
+          ],
+          [
+            '9241',
+            'Computers\\Antivirus & Security Software'
+          ],
+          [
+            '9242',
+            'Computers\\Diagnostic Software'
+          ],
+          [
+            '9244',
+            'Computers\\Performance Software'
+          ],
+          [
+            '9245',
+            'Computers\\Remote Management Software'
+          ],
+          [
+            '9246',
+            'Computers\\Screensavers'
+          ],
+          [
+            '9243',
+            'Computers\\System Backup Software'
+          ],
+          [
+            '423',
+            'Computers\\Video Editing / Capture Cards'
+          ],
+          [
+            '404',
+            'Computers\\WebCams'
+          ],
+          [
+            '5101',
+            'DVD\\Action & Adventure DVDs & Videos'
+          ],
+          [
+            '5102',
+            'DVD\\Children\'s DVDs & Videos'
+          ],
+          [
+            '5103',
+            'DVD\\Comedy DVDs & Videos'
+          ],
+          [
+            '5104',
+            'DVD\\Drama DVDs & Videos'
+          ],
+          [
+            '5106',
+            'DVD\\Foreign DVDs & Videos'
+          ],
+          [
+            '5107',
+            'DVD\\Horror / Suspense DVDs & Videos'
+          ],
+          [
+            '5117',
+            'DVD\\Mature DVDs & Videos'
+          ],
+          [
+            '5114',
+            'DVD\\Miscellaneous DVDs & Videos'
+          ],
+          [
+            '5108',
+            'DVD\\Music & Musicals DVDs & Videos'
+          ],
+          [
+            '5109',
+            'DVD\\Religious DVDs & Videos'
+          ],
+          [
+            '5110',
+            'DVD\\Sci-Fi DVDs & Videos'
+          ],
+          [
+            '5105',
+            'DVD\\Special Interest DVDs & Videos'
+          ],
+          [
+            '5111',
+            'DVD\\Sports & Fitness DVDs & Videos'
+          ],
+          [
+            '5116',
+            'DVD\\Westerns DVDs & Videos'
+          ],
+          [
+            '11680000',
+            'Electronics\\Answering Machines'
+          ],
+          [
+            '11510901',
+            'Electronics\\Audio / Video Cables & Adapters'
+          ],
+          [
+            '11510100',
+            'Electronics\\Audio Accessories'
+          ],
+          [
+            '11510902',
+            'Electronics\\Audio/Video Media'
+          ],
+          [
+            '11000100',
+            'Electronics\\Barcode Scanners'
+          ],
+          [
+            '100001400',
+            'Electronics\\Blu-Ray Disc Players'
+          ],
+          [
+            '11660000',
+            'Electronics\\Boomboxes'
+          ],
+          [
+            '11000200',
+            'Electronics\\CD Duplicators'
+          ],
+          [
+            '11080000',
+            'Electronics\\CD Players'
+          ],
+          [
+            '11090000',
+            'Electronics\\CD Recorders'
+          ],
+          [
+            '100000801',
+            'Electronics\\Camcorder Accessories'
+          ],
+          [
+            '100000798',
+            'Electronics\\Camcorder Batteries'
+          ],
+          [
+            '11140000',
+            'Electronics\\Camcorders'
+          ],
+          [
+            '197',
+            'Electronics\\Cameras'
+          ],
+          [
+            '20100',
+            'Electronics\\Car Alarms'
+          ],
+          [
+            '11820000',
+            'Electronics\\Car Amplifiers'
+          ],
+          [
+            '11950000',
+            'Electronics\\Car Audio / Video Accessories'
+          ],
+          [
+            '11840000',
+            'Electronics\\Car CD Changers'
+          ],
+          [
+            '11850000',
+            'Electronics\\Car CD/MP3 Players'
+          ],
+          [
+            '11830000',
+            'Electronics\\Car Cassette Players'
+          ],
+          [
+            '11860000',
+            'Electronics\\Car Crossovers'
+          ],
+          [
+            '11880000',
+            'Electronics\\Car DVD Players'
+          ],
+          [
+            '11870000',
+            'Electronics\\Car Equalizers'
+          ],
+          [
+            '11890000',
+            'Electronics\\Car Monitors'
+          ],
+          [
+            '11930000',
+            'Electronics\\Car Speakers'
+          ],
+          [
+            '11940000',
+            'Electronics\\Car Subwoofers'
+          ],
+          [
+            '11100900',
+            'Electronics\\Cash Registers & POS Equipment'
+          ],
+          [
+            '11720000',
+            'Electronics\\Cassette Decks'
+          ],
+          [
+            '8560',
+            'Electronics\\Bluetooth Headsets'
+          ],
+          [
+            '9766',
+            'Electronics\\Cell Phone Amplifiers'
+          ],
+          [
+            '9767',
+            'Electronics\\Cell Phone Antennas'
+          ],
+          [
+            '8543',
+            'Electronics\\Cell Phone Batteries'
+          ],
+          [
+            '8515',
+            'Electronics\\Cell Phone Cases'
+          ],
+          [
+            '8544',
+            'Electronics\\Cell Phone Chargers'
+          ],
+          [
+            '8589',
+            'Electronics\\Cell Phone Charms & Stickers'
+          ],
+          [
+            '9768',
+            'Electronics\\Cell Phone Data Connectivity'
+          ],
+          [
+            '8514',
+            'Electronics\\Cell Phone Face Plates & Covers'
+          ],
+          [
+            '8561',
+            'Electronics\\Cell Phone Handsfree Kits'
+          ],
+          [
+            '8583',
+            'Electronics\\Cell Phone Holsters & Clips'
+          ],
+          [
+            '8587',
+            'Electronics\\Cell Phone Keypads'
+          ],
+          [
+            '11580100',
+            'Electronics\\Cell Phones'
+          ],
+          [
+            '100001496',
+            'Electronics\\Smartphones'
+          ],
+          [
+            '11510700',
+            'Electronics\\Clock Radios'
+          ],
+          [
+            '11810000',
+            'Electronics\\Copiers'
+          ],
+          [
+            '11670000',
+            'Electronics\\Corded Telephones'
+          ],
+          [
+            '11590000',
+            'Electronics\\Cordless Phones'
+          ],
+          [
+            '11530000',
+            'Electronics\\DVD Players'
+          ],
+          [
+            '11990000',
+            'Electronics\\DVD/VCR Combos'
+          ],
+          [
+            '11540000',
+            'Electronics\\DVR'
+          ],
+          [
+            '11512002',
+            'Electronics\\Electronics $60-$200'
+          ],
+          [
+            '11510500',
+            'Electronics\\Electronics Cases & Bags'
+          ],
+          [
+            '11512003',
+            'Electronics\\Electronics over $200'
+          ],
+          [
+            '11512001',
+            'Electronics\\Electronics under $60'
+          ],
+          [
+            '11380000',
+            'Electronics\\Fax Machines'
+          ],
+          [
+            '11210000',
+            'Electronics\\GPS'
+          ],
+          [
+            '11100600',
+            'Electronics\\GPS Accessories'
+          ],
+          [
+            '8394',
+            'Electronics\\GPS Golf Systems'
+          ],
+          [
+            '11510904',
+            'Electronics\\Home Security'
+          ],
+          [
+            '11120000',
+            'Electronics\\Home Theater Systems'
+          ],
+          [
+            '11970000',
+            'Electronics\\Integrated Amplifiers'
+          ],
+          [
+            '11000400',
+            'Electronics\\Marine Electronics'
+          ],
+          [
+            '11610000',
+            'Electronics\\Mini-systems'
+          ],
+          [
+            '11710000',
+            'Electronics\\MiniDisc Recorder'
+          ],
+          [
+            '11580200',
+            'Electronics\\Pagers'
+          ],
+          [
+            '11690000',
+            'Electronics\\Phone / Answering Combos'
+          ],
+          [
+            '11100800',
+            'Electronics\\Photography / Darkroom Equipment'
+          ],
+          [
+            '11570000',
+            'Electronics\\Portable CD Players'
+          ],
+          [
+            '11630000',
+            'Electronics\\Portable Cassette Players'
+          ],
+          [
+            '11640000',
+            'Electronics\\Portable MiniDisc Players'
+          ],
+          [
+            '11650000',
+            'Electronics\\Portable Radios'
+          ],
+          [
+            '11730000',
+            'Electronics\\Portable Tape & Digital Recorders'
+          ],
+          [
+            '11910000',
+            'Electronics\\Radar Detectors & Jammers'
+          ],
+          [
+            '11070000',
+            'Electronics\\Receivers'
+          ],
+          [
+            '11510200',
+            'Electronics\\Rechargeable & Replacement Batteries'
+          ],
+          [
+            '11800000',
+            'Electronics\\Remote Controls'
+          ],
+          [
+            '11740000',
+            'Electronics\\Satellite Receivers'
+          ],
+          [
+            '11550000',
+            'Electronics\\Stereo Separates'
+          ],
+          [
+            '9213',
+            'Electronics\\Headphones'
+          ],
+          [
+            '100001516',
+            'Electronics\\Temp Stereo Speakers & Headphones'
+          ],
+          [
+            '11520000',
+            'Electronics\\TV'
+          ],
+          [
+            '11510905',
+            'Electronics\\TV Antennas'
+          ],
+          [
+            '11100809',
+            'Electronics\\TV-Mounts'
+          ],
+          [
+            '11510903',
+            'Electronics\\Telephone Accessories'
+          ],
+          [
+            '11960000',
+            'Electronics\\Turntables'
+          ],
+          [
+            '11580300',
+            'Electronics\\Two-Way Radios'
+          ],
+          [
+            '11980000',
+            'Electronics\\VCRs'
+          ],
+          [
+            '11510900',
+            'Electronics\\Video Accessories'
+          ],
+          [
+            '11750000',
+            'Electronics\\Web TV'
+          ],
+          [
+            '11920000',
+            'Electronics\\XM & Sirius Satellite Radios'
+          ],
+          [
+            '100001856',
+            'Gifts and Flowers\\Chips & Crackers'
+          ],
+          [
+            '100001861',
+            'Gifts and Flowers\\Dips & Spreads'
+          ],
+          [
+            '100001860',
+            'Gifts and Flowers\\Jerky'
+          ],
+          [
+            '100001862',
+            'Gifts and Flowers\\Miscellaneous Snacks'
+          ],
+          [
+            '100001857',
+            'Gifts and Flowers\\Popcorn & Rice Cakes'
+          ],
+          [
+            '100001858',
+            'Gifts and Flowers\\Puddings'
+          ],
+          [
+            '100001859',
+            'Gifts and Flowers\\Snack Bars'
+          ],
+          [
+            '100001863',
+            'Gifts and Flowers\\Soups'
+          ],
+          [
+            '100001874',
+            'Gifts and Flowers\\Temp Canned Food'
+          ],
+          [
+            '16031100',
+            'Gifts and Flowers\\Cheese'
+          ],
+          [
+            '16030103',
+            'Gifts and Flowers\\Cakes & Pies'
+          ],
+          [
+            '16030102',
+            'Gifts and Flowers\\Candy'
+          ],
+          [
+            '16030101',
+            'Gifts and Flowers\\Chocolate'
+          ],
+          [
+            '16030104',
+            'Gifts and Flowers\\Cookies & Brownies'
+          ],
+          [
+            '16030106',
+            'Gifts and Flowers\\Miscellaneous Chocolate & Sweets'
+          ],
+          [
+            '16030700',
+            'Gifts and Flowers\\Coffee & Tea'
+          ],
+          [
+            '100001904',
+            'Gifts and Flowers\\Bobble Heads'
+          ],
+          [
+            '100001903',
+            'Gifts and Flowers\\Collectible Coins'
+          ],
+          [
+            '100001906',
+            'Gifts and Flowers\\Collectible Dolls & Figurines'
+          ],
+          [
+            '100001911',
+            'Gifts and Flowers\\Collectible Eggs'
+          ],
+          [
+            '100001914',
+            'Gifts and Flowers\\Collectible Plates & Cups'
+          ],
+          [
+            '100001905',
+            'Gifts and Flowers\\Collectible Stamps'
+          ],
+          [
+            '100001907',
+            'Gifts and Flowers\\Collectible Weapons'
+          ],
+          [
+            '100001909',
+            'Gifts and Flowers\\Display Cases'
+          ],
+          [
+            '100001908',
+            'Gifts and Flowers\\Memorabilia'
+          ],
+          [
+            '100001916',
+            'Gifts and Flowers\\Miscellaneous Collectibles'
+          ],
+          [
+            '100001912',
+            'Gifts and Flowers\\Music Boxes & Carousels'
+          ],
+          [
+            '100001915',
+            'Gifts and Flowers\\Patches'
+          ],
+          [
+            '100001913',
+            'Gifts and Flowers\\Snow Globes'
+          ],
+          [
+            '100001917',
+            'Gifts and Flowers\\Trophies & Awards'
+          ],
+          [
+            '16031200',
+            'Gifts and Flowers\\Condiments, Seasoning & Sauces'
+          ],
+          [
+            '100001835',
+            'Gifts and Flowers\\Bottled Water'
+          ],
+          [
+            '100001836',
+            'Gifts and Flowers\\Miscellaneous Drinks & Juices'
+          ],
+          [
+            '100001834',
+            'Gifts and Flowers\\Nutritional Drinks & Shakes'
+          ],
+          [
+            '100001832',
+            'Gifts and Flowers\\Sodas & Juices'
+          ],
+          [
+            '100001833',
+            'Gifts and Flowers\\Sports & Energy Drinks'
+          ],
+          [
+            '100001867',
+            'Gifts and Flowers\\Baking & Cooking Ingredients'
+          ],
+          [
+            '100001869',
+            'Gifts and Flowers\\Boxed Meals & Side Dishes'
+          ],
+          [
+            '100001870',
+            'Gifts and Flowers\\Breads'
+          ],
+          [
+            '100001865',
+            'Gifts and Flowers\\Cereals & Granola'
+          ],
+          [
+            '100001871',
+            'Gifts and Flowers\\Dry Beans'
+          ],
+          [
+            '100001872',
+            'Gifts and Flowers\\Miscellaneous Dry Food'
+          ],
+          [
+            '100001866',
+            'Gifts and Flowers\\Pancake & Waffle Mixes'
+          ],
+          [
+            '100001868',
+            'Gifts and Flowers\\Pastas & Grains'
+          ],
+          [
+            '100001864',
+            'Gifts and Flowers\\Prepared & Frozen Foods'
+          ],
+          [
+            '16010400',
+            'Gifts and Flowers\\Flowers & Plants'
+          ],
+          [
+            '16031500',
+            'Gifts and Flowers\\Fruits & Vegetables'
+          ],
+          [
+            '16010600',
+            'Gifts and Flowers\\Gift Baskets'
+          ],
+          [
+            '100000043',
+            'Gifts and Flowers\\Gift Cards'
+          ],
+          [
+            '16011500',
+            'Gifts and Flowers\\Gift Registries'
+          ],
+          [
+            '100001899',
+            'Gifts and Flowers\\Caviar'
+          ],
+          [
+            '100001901',
+            'Gifts and Flowers\\Foie Gras & Pates'
+          ],
+          [
+            '100001902',
+            'Gifts and Flowers\\Miscellaneous Gourmet Food'
+          ],
+          [
+            '100001900',
+            'Gifts and Flowers\\Truffles'
+          ],
+          [
+            '16010700',
+            'Gifts and Flowers\\Greeting Cards'
+          ],
+          [
+            '16060000',
+            'Gifts and Flowers\\Liquor, Spirits & Beers'
+          ],
+          [
+            '16030600',
+            'Gifts and Flowers\\Meat & Seafood'
+          ],
+          [
+            '16011300',
+            'Gifts and Flowers\\Miscellaneous Gifts, Flowers & Food'
+          ],
+          [
+            '16031700',
+            'Gifts and Flowers\\Nuts'
+          ],
+          [
+            '16031800',
+            'Gifts and Flowers\\Oil & Vinegar'
+          ],
+          [
+            '16010900',
+            'Gifts and Flowers\\Party Supplies'
+          ],
+          [
+            '16010300',
+            'Gifts and Flowers\\Tobacco Products'
+          ],
+          [
+            '16011100',
+            'Gifts and Flowers\\Wine'
+          ],
+          [
+            '22005',
+            'Health\\Accessibility Equipment'
+          ],
+          [
+            '100001721',
+            'Health\\Blood Pressure Monitors'
+          ],
+          [
+            '100001719',
+            'Health\\Fever Thermometers'
+          ],
+          [
+            '100001718',
+            'Health\\Fitness Monitors'
+          ],
+          [
+            '100001722',
+            'Health\\Glucose Monitors & Tests'
+          ],
+          [
+            '100001720',
+            'Health\\Personal Scales'
+          ],
+          [
+            '100000669',
+            'Health\\Artificial Nails & Accessories'
+          ],
+          [
+            '100000677',
+            'Health\\Blemish Extractors'
+          ],
+          [
+            '100000616',
+            'Health\\Blush'
+          ],
+          [
+            '100000617',
+            'Health\\Bronzer'
+          ],
+          [
+            '100000671',
+            'Health\\Brow Tools'
+          ],
+          [
+            '100000615',
+            'Health\\Concealer'
+          ],
+          [
+            '100000673',
+            'Health\\Cosmetic Pencil Sharpeners'
+          ],
+          [
+            '100000637',
+            'Health\\Eyebrow Makeup'
+          ],
+          [
+            '100000670',
+            'Health\\Eyelash Curlers'
+          ],
+          [
+            '100000635',
+            'Health\\Eyeliner'
+          ],
+          [
+            '100000634',
+            'Health\\Eyeshadow'
+          ],
+          [
+            '100000655',
+            'Health\\Eyeshadow Base'
+          ],
+          [
+            '100000614',
+            'Health\\Face Powder'
+          ],
+          [
+            '100000674',
+            'Health\\Facial Blotting Paper'
+          ],
+          [
+            '100000678',
+            'Health\\False Eyelashes'
+          ],
+          [
+            '100000613',
+            'Health\\Foundation'
+          ],
+          [
+            '100000619',
+            'Health\\Lip Gloss'
+          ],
+          [
+            '100000621',
+            'Health\\Lip Liner'
+          ],
+          [
+            '100000620',
+            'Health\\Lip Plumper'
+          ],
+          [
+            '100000618',
+            'Health\\Lipstick'
+          ],
+          [
+            '100000676',
+            'Health\\Makeup Bags & Cases'
+          ],
+          [
+            '100000675',
+            'Health\\Makeup Brushes & Applicators'
+          ],
+          [
+            '100000638',
+            'Health\\Makeup Removers'
+          ],
+          [
+            '100000639',
+            'Health\\Makeup Sets & Palettes'
+          ],
+          [
+            '100000668',
+            'Health\\Manicure & Pedicure Sets'
+          ],
+          [
+            '100000636',
+            'Health\\Mascara'
+          ],
+          [
+            '100000680',
+            'Health\\Miscellaneous Cosmetics'
+          ],
+          [
+            '100000642',
+            'Health\\Nail Care Tools'
+          ],
+          [
+            '100000640',
+            'Health\\Nail Polish'
+          ],
+          [
+            '100000641',
+            'Health\\Nail Polish Removers'
+          ],
+          [
+            '100000643',
+            'Health\\Nail Treatments'
+          ],
+          [
+            '100000672',
+            'Health\\Tweezers'
+          ],
+          [
+            '22007',
+            'Health\\Dental Appliance Accessories'
+          ],
+          [
+            '241',
+            'Health\\Electric Toothbrushes'
+          ],
+          [
+            '243',
+            'Health\\Oral Irrigators'
+          ],
+          [
+            '285',
+            'Health\\Breath Remedies'
+          ],
+          [
+            '271',
+            'Health\\Dental Floss & Interdental Products'
+          ],
+          [
+            '281',
+            'Health\\Denture Care'
+          ],
+          [
+            '263',
+            'Health\\Manual Toothbrushes'
+          ],
+          [
+            '269',
+            'Health\\Mouthwash'
+          ],
+          [
+            '283',
+            'Health\\Oral Remedies'
+          ],
+          [
+            '311',
+            'Health\\Other Dental Supplies'
+          ],
+          [
+            '277',
+            'Health\\Teeth Whitening'
+          ],
+          [
+            '264',
+            'Health\\Toothpaste'
+          ],
+          [
+            '100000533',
+            'Health\\Barrettes'
+          ],
+          [
+            '100000528',
+            'Health\\Bobby Pins'
+          ],
+          [
+            '100000535',
+            'Health\\Hair Clamps'
+          ],
+          [
+            '100000532',
+            'Health\\Hair Clips'
+          ],
+          [
+            '100000531',
+            'Health\\Hair Nets'
+          ],
+          [
+            '100000534',
+            'Health\\Hair Sticks'
+          ],
+          [
+            '100000529',
+            'Health\\Headbands'
+          ],
+          [
+            '100000530',
+            'Health\\Ponytail Holders'
+          ],
+          [
+            '100000502',
+            'Health\\Hair Brushes'
+          ],
+          [
+            '100000524',
+            'Health\\Hair Combs'
+          ],
+          [
+            '100000497',
+            'Health\\Hair Conditioner'
+          ],
+          [
+            '100000506',
+            'Health\\Hair Extensions'
+          ],
+          [
+            '100000544',
+            'Health\\Hair Loss Treatment'
+          ],
+          [
+            '100000522',
+            'Health\\Hair Relaxers'
+          ],
+          [
+            '100000505',
+            'Health\\Hair Rollers'
+          ],
+          [
+            '100000496',
+            'Health\\Hair Shampoo'
+          ],
+          [
+            '100000504',
+            'Health\\Hair Shears'
+          ],
+          [
+            '100000500',
+            'Health\\Hair Styling Products'
+          ],
+          [
+            '100000498',
+            'Health\\Hair Treatment'
+          ],
+          [
+            '100000507',
+            'Health\\Miscellaneous Hair Care'
+          ],
+          [
+            '100000523',
+            'Health\\Perms'
+          ],
+          [
+            '100000503',
+            'Health\\Wigs & Hairpieces'
+          ],
+          [
+            '22015',
+            'Health\\Hair Care Appliances'
+          ],
+          [
+            '100001741',
+            'Health\\Medical Instruments'
+          ],
+          [
+            '100001742',
+            'Health\\Temp Hospital Supplies'
+          ],
+          [
+            '100001221',
+            'Health\\Lab Supplies & Equipment'
+          ],
+          [
+            '22009',
+            'Health\\Massagers'
+          ],
+          [
+            '100001731',
+            'Health\\Cotton Balls & Swabs'
+          ],
+          [
+            '100001727',
+            'Health\\Feminine Hygiene'
+          ],
+          [
+            '100001726',
+            'Health\\Home Diagnostic Tests'
+          ],
+          [
+            '100001732',
+            'Health\\Incontinence Supplies'
+          ],
+          [
+            '100001730',
+            'Health\\Nebulizers & Inhalers'
+          ],
+          [
+            '100001728',
+            'Health\\Sound Therapy Machines'
+          ],
+          [
+            '100001725',
+            'Health\\Temp Medicine & Remedies'
+          ],
+          [
+            '100001729',
+            'Health\\Therapy Lights'
+          ],
+          [
+            '220',
+            'Health\\Misc. Health & Beauty'
+          ],
+          [
+            '100001461',
+            'Health\\Orthopedic Supplies'
+          ],
+          [
+            '88',
+            'Health\\Perfume & Cologne'
+          ],
+          [
+            '100001442',
+            'Health\\Professional Salon & Spa Equipment'
+          ],
+          [
+            '100001827',
+            'Health\\Christian Apparel'
+          ],
+          [
+            '100001826',
+            'Health\\Church Furniture'
+          ],
+          [
+            '100001825',
+            'Health\\Church Supplies'
+          ],
+          [
+            '100001830',
+            'Health\\Funeral Caskets'
+          ],
+          [
+            '100001828',
+            'Health\\Judaica'
+          ],
+          [
+            '100001831',
+            'Health\\Nativity Sets'
+          ],
+          [
+            '100001829',
+            'Health\\Rosaries & Prayer Beads'
+          ],
+          [
+            '100001837',
+            'Health\\Temp Religious Goods'
+          ],
+          [
+            '22014',
+            'Health\\Saunas'
+          ],
+          [
+            '22010',
+            'Health\\Shaving Appliances'
+          ],
+          [
+            '22016',
+            'Health\\Skin Care Appliances'
+          ],
+          [
+            '8763',
+            'Health\\Bath & Spa Sets'
+          ],
+          [
+            '8771',
+            'Health\\Bath Products'
+          ],
+          [
+            '8760',
+            'Health\\Body Scrubs'
+          ],
+          [
+            '8770',
+            'Health\\Body Wash'
+          ],
+          [
+            '8761',
+            'Health\\Loofahs & Sponges'
+          ],
+          [
+            '8762',
+            'Health\\Soaps'
+          ],
+          [
+            '8774',
+            'Health\\Body Moisturizers'
+          ],
+          [
+            '8773',
+            'Health\\Deodorants & Antiperspirants'
+          ],
+          [
+            '8775',
+            'Health\\Skin Treatments'
+          ],
+          [
+            '8703',
+            'Health\\Acne Treatments'
+          ],
+          [
+            '8702',
+            'Health\\Eye Treatments'
+          ],
+          [
+            '8698',
+            'Health\\Face Cleansers'
+          ],
+          [
+            '8701',
+            'Health\\Face Masks'
+          ],
+          [
+            '8699',
+            'Health\\Face Moisturizers'
+          ],
+          [
+            '8818',
+            'Health\\Face Scrubs'
+          ],
+          [
+            '8700',
+            'Health\\Face Toners'
+          ],
+          [
+            '8697',
+            'Health\\Lip Treatments'
+          ],
+          [
+            '8778',
+            'Health\\Foot Care'
+          ],
+          [
+            '8777',
+            'Health\\Hand Care'
+          ],
+          [
+            '8779',
+            'Health\\Nails'
+          ],
+          [
+            '8719',
+            'Health\\Miscellaneous Skin Care Products'
+          ],
+          [
+            '8782',
+            'Health\\Aftershave Products'
+          ],
+          [
+            '8781',
+            'Health\\Hair Removal Products'
+          ],
+          [
+            '8783',
+            'Health\\Pre-Shave Products'
+          ],
+          [
+            '8816',
+            'Health\\Shaving Care'
+          ],
+          [
+            '8300',
+            'Health\\After Sun'
+          ],
+          [
+            '8302',
+            'Health\\Self Tanner'
+          ],
+          [
+            '8298',
+            'Health\\Sun Protection'
+          ],
+          [
+            '8793',
+            'Health\\Tanning Accelerator'
+          ],
+          [
+            '22012',
+            'Health\\Tanning Beds'
+          ],
+          [
+            '22013',
+            'Health\\Trimmers'
+          ],
+          [
+            '145',
+            'Health\\Vision Care'
+          ],
+          [
+            '150',
+            'Health\\Vitamins & Nutrition'
+          ],
+          [
+            '13600100',
+            'Home and Garden\\Art Supplies'
+          ],
+          [
+            '13600200',
+            'Home and Garden\\Craft Supplies'
+          ],
+          [
+            '13600300',
+            'Home and Garden\\Miscellaneous Arts & Crafts Supplies'
+          ],
+          [
+            '100001313',
+            'Home and Garden\\Bath Rugs'
+          ],
+          [
+            '100001301',
+            'Home and Garden\\Bathroom Accessories & Sets'
+          ],
+          [
+            '100001302',
+            'Home and Garden\\Bathroom Fixtures'
+          ],
+          [
+            '100001299',
+            'Home and Garden\\Bathroom Furniture'
+          ],
+          [
+            '100001297',
+            'Home and Garden\\Shower Curtain Hooks & Rods'
+          ],
+          [
+            '100001298',
+            'Home and Garden\\Shower Curtains'
+          ],
+          [
+            '100001296',
+            'Home and Garden\\Shower Liners'
+          ],
+          [
+            '100001295',
+            'Home and Garden\\Shower Mats'
+          ],
+          [
+            '100001300',
+            'Home and Garden\\Towel Stands & Warmers'
+          ],
+          [
+            '13030400',
+            'Home and Garden\\Bath Towels'
+          ],
+          [
+            '370',
+            'Home and Garden\\Bedding Sets'
+          ],
+          [
+            '453',
+            'Home and Garden\\Bedskirts'
+          ],
+          [
+            '374',
+            'Home and Garden\\Bedspreads'
+          ],
+          [
+            '364',
+            'Home and Garden\\Blankets & Throws'
+          ],
+          [
+            '372',
+            'Home and Garden\\Comforters'
+          ],
+          [
+            '440',
+            'Home and Garden\\Decorative Pillows'
+          ],
+          [
+            '389',
+            'Home and Garden\\Duvet & Comforter Covers'
+          ],
+          [
+            '391',
+            'Home and Garden\\Duvets'
+          ],
+          [
+            '455',
+            'Home and Garden\\Featherbeds & Covers'
+          ],
+          [
+            '425',
+            'Home and Garden\\Mattress Pads'
+          ],
+          [
+            '458',
+            'Home and Garden\\Miscellaneous Bedding'
+          ],
+          [
+            '409',
+            'Home and Garden\\Pillowcases & Pillow Shams'
+          ],
+          [
+            '431',
+            'Home and Garden\\Pillows'
+          ],
+          [
+            '397',
+            'Home and Garden\\Sheets'
+          ],
+          [
+            '25001000',
+            'Home and Garden\\Building Supplies'
+          ],
+          [
+            '13090100',
+            'Home and Garden\\Cleaning Supplies'
+          ],
+          [
+            '100001663',
+            'Home and Garden\\Bakeware'
+          ],
+          [
+            '100001661',
+            'Home and Garden\\Cookware'
+          ],
+          [
+            '100001431',
+            'Home and Garden\\Butcher Blocks'
+          ],
+          [
+            '100001439',
+            'Home and Garden\\Cutlery'
+          ],
+          [
+            '13080201',
+            'Home and Garden\\Desk Sets'
+          ],
+          [
+            '13080204',
+            'Home and Garden\\Miscellaneous Desk Accessories'
+          ],
+          [
+            '13080202',
+            'Home and Garden\\Organizers, Etc.'
+          ],
+          [
+            '9809',
+            'Home and Garden\\Paperweights'
+          ],
+          [
+            '25000700',
+            'Home and Garden\\Electrical Supplies'
+          ],
+          [
+            '13010700',
+            'Home and Garden\\Fertilizers'
+          ],
+          [
+            '25000900',
+            'Home and Garden\\Flooring Supplies'
+          ],
+          [
+            '8348',
+            'Home and Garden\\Armoires & Wardrobes'
+          ],
+          [
+            '8342',
+            'Home and Garden\\Bedroom Sets'
+          ],
+          [
+            '8344',
+            'Home and Garden\\Bedroom Vanities'
+          ],
+          [
+            '8340',
+            'Home and Garden\\Beds'
+          ],
+          [
+            '100001771',
+            'Home and Garden\\Bunk Beds'
+          ],
+          [
+            '8338',
+            'Home and Garden\\Dressers & Nightstands'
+          ],
+          [
+            '8346',
+            'Home and Garden\\Mattresses & Boxsprings'
+          ],
+          [
+            '100001290',
+            'Home and Garden\\Accent Furniture'
+          ],
+          [
+            '100001339',
+            'Home and Garden\\Chair Cushions'
+          ],
+          [
+            '100001283',
+            'Home and Garden\\Dining Room Chairs'
+          ],
+          [
+            '100001282',
+            'Home and Garden\\Dining Room Sets'
+          ],
+          [
+            '8309',
+            'Home and Garden\\Dining Room Tables'
+          ],
+          [
+            '100001436',
+            'Home and Garden\\Hutches & Buffets'
+          ],
+          [
+            '8311',
+            'Home and Garden\\Pub Furniture'
+          ],
+          [
+            '100001434',
+            'Home and Garden\\Baker Racks'
+          ],
+          [
+            '100001884',
+            'Home and Garden\\Countertops'
+          ],
+          [
+            '100001880',
+            'Home and Garden\\Home Bars'
+          ],
+          [
+            '100001435',
+            'Home and Garden\\Kitchen Carts'
+          ],
+          [
+            '100001881',
+            'Home and Garden\\Kitchen Pantries & Cabinets'
+          ],
+          [
+            '100001883',
+            'Home and Garden\\Kitchenettes'
+          ],
+          [
+            '100001416',
+            'Home and Garden\\Prep Tables'
+          ],
+          [
+            '100001882',
+            'Home and Garden\\Wine Racks'
+          ],
+          [
+            '8308',
+            'Home and Garden\\Accent & End Tables'
+          ],
+          [
+            '8258',
+            'Home and Garden\\Arm Chairs & Recliners'
+          ],
+          [
+            '8272',
+            'Home and Garden\\Bean Bags'
+          ],
+          [
+            '8264',
+            'Home and Garden\\CD & DVD Storage'
+          ],
+          [
+            '8250',
+            'Home and Garden\\Coffee & Cocktail Tables'
+          ],
+          [
+            '8310',
+            'Home and Garden\\Console Tables'
+          ],
+          [
+            '8247',
+            'Home and Garden\\Futons & Futon Frames'
+          ],
+          [
+            '8245',
+            'Home and Garden\\Love Seats'
+          ],
+          [
+            '8260',
+            'Home and Garden\\Massage Chairs'
+          ],
+          [
+            '8266',
+            'Home and Garden\\Ottomans'
+          ],
+          [
+            '8262',
+            'Home and Garden\\Rocking Chairs & Gliders'
+          ],
+          [
+            '8270',
+            'Home and Garden\\Room Dividers & Privacy Screens'
+          ],
+          [
+            '8248',
+            'Home and Garden\\Sectionals'
+          ],
+          [
+            '8249',
+            'Home and Garden\\Slipcovers'
+          ],
+          [
+            '8246',
+            'Home and Garden\\Sofa Beds & Sleepers'
+          ],
+          [
+            '8244',
+            'Home and Garden\\Sofas'
+          ],
+          [
+            '8268',
+            'Home and Garden\\TV & Entertainment Stands'
+          ],
+          [
+            '13170105',
+            'Home and Garden\\Miscellaneous Furniture'
+          ],
+          [
+            '100001945',
+            'Home and Garden\\Garden Hose Holders'
+          ],
+          [
+            '100001944',
+            'Home and Garden\\Sheds & Outdoor Storage Containers'
+          ],
+          [
+            '100001953',
+            'Home and Garden\\Temp Garden Organization & Storage'
+          ],
+          [
+            '13010200',
+            'Home and Garden\\Garden Tools'
+          ],
+          [
+            '13010800',
+            'Home and Garden\\Gardening Gifts & Apparel'
+          ],
+          [
+            '25000500',
+            'Home and Garden\\Hand Tools'
+          ],
+          [
+            '9807',
+            'Home and Garden\\Decorative Wall Letters'
+          ],
+          [
+            '9806',
+            'Home and Garden\\Decorative Wall Tiles'
+          ],
+          [
+            '415',
+            'Home and Garden\\Framed Artwork'
+          ],
+          [
+            '429',
+            'Home and Garden\\Plaques'
+          ],
+          [
+            '412',
+            'Home and Garden\\Posters & Prints'
+          ],
+          [
+            '100001510',
+            'Home and Garden\\Stained Art Glass'
+          ],
+          [
+            '434',
+            'Home and Garden\\Tapestries'
+          ],
+          [
+            '449',
+            'Home and Garden\\Tin Signs'
+          ],
+          [
+            '445',
+            'Home and Garden\\Wall Sculptures & Masks'
+          ],
+          [
+            '8572',
+            'Home and Garden\\Candle & Oil Lamps'
+          ],
+          [
+            '8574',
+            'Home and Garden\\Candle Accessories'
+          ],
+          [
+            '8573',
+            'Home and Garden\\Candle Holders'
+          ],
+          [
+            '8571',
+            'Home and Garden\\Candles'
+          ],
+          [
+            '8575',
+            'Home and Garden\\Home Fragrance'
+          ],
+          [
+            '383',
+            'Home and Garden\\Cuckoo Clocks'
+          ],
+          [
+            '360',
+            'Home and Garden\\Decorative Clocks'
+          ],
+          [
+            '368',
+            'Home and Garden\\Desk Clocks'
+          ],
+          [
+            '362',
+            'Home and Garden\\Grandfather Clocks'
+          ],
+          [
+            '399',
+            'Home and Garden\\Mantel Clocks'
+          ],
+          [
+            '396',
+            'Home and Garden\\Wall Clocks'
+          ],
+          [
+            '442',
+            'Home and Garden\\Fireplace Parts & Accessories'
+          ],
+          [
+            '437',
+            'Home and Garden\\Fireplace Tools'
+          ],
+          [
+            '418',
+            'Home and Garden\\Fireplaces & Mantels'
+          ],
+          [
+            '427',
+            'Home and Garden\\Home Heating Stoves'
+          ],
+          [
+            '474',
+            'Home and Garden\\Christmas & Holiday Ornaments'
+          ],
+          [
+            '469',
+            'Home and Garden\\Christmas Decor'
+          ],
+          [
+            '477',
+            'Home and Garden\\Christmas Lights'
+          ],
+          [
+            '473',
+            'Home and Garden\\Christmas Trees & Accessories'
+          ],
+          [
+            '8304',
+            'Home and Garden\\Halloween Decor'
+          ],
+          [
+            '8203',
+            'Home and Garden\\Other Holiday Decor'
+          ],
+          [
+            '479',
+            'Home and Garden\\Patriotic Decor'
+          ],
+          [
+            '471',
+            'Home and Garden\\Wreaths & Garlands'
+          ],
+          [
+            '9808',
+            'Home and Garden\\Cremation Urns'
+          ],
+          [
+            '13020213',
+            'Home and Garden\\Figurines'
+          ],
+          [
+            '13020207',
+            'Home and Garden\\Rugs'
+          ],
+          [
+            '401',
+            'Home and Garden\\Sculptures'
+          ],
+          [
+            '9805',
+            'Home and Garden\\Suncatchers'
+          ],
+          [
+            '13020208',
+            'Home and Garden\\Vases'
+          ],
+          [
+            '9804',
+            'Home and Garden\\World Globes'
+          ],
+          [
+            '8205',
+            'Home and Garden\\Compact & Handheld Mirrors'
+          ],
+          [
+            '451',
+            'Home and Garden\\Vanity & Table Mirrors'
+          ],
+          [
+            '8201',
+            'Home and Garden\\Wall & Floor Mirrors'
+          ],
+          [
+            '13020210',
+            'Home and Garden\\Miscellaneous Home Decor'
+          ],
+          [
+            '385',
+            'Home and Garden\\Digital Picture Frames'
+          ],
+          [
+            '378',
+            'Home and Garden\\Photo Albums'
+          ],
+          [
+            '13020203',
+            'Home and Garden\\Picture Frames'
+          ],
+          [
+            '100000065',
+            'Home and Garden\\Weather Instruments'
+          ],
+          [
+            '25000300',
+            'Home and Garden\\Home Hardware'
+          ],
+          [
+            '8444',
+            'Home and Garden\\Ceiling Fans'
+          ],
+          [
+            '9792',
+            'Home and Garden\\Ceiling Medallions'
+          ],
+          [
+            '8275',
+            'Home and Garden\\Chandeliers'
+          ],
+          [
+            '8446',
+            'Home and Garden\\Flush Mounts'
+          ],
+          [
+            '8449',
+            'Home and Garden\\Home Lighting Accessories'
+          ],
+          [
+            '9791',
+            'Home and Garden\\Neon Signs'
+          ],
+          [
+            '8445',
+            'Home and Garden\\Pendant Lighting'
+          ],
+          [
+            '8448',
+            'Home and Garden\\Recessed Lighting'
+          ],
+          [
+            '8447',
+            'Home and Garden\\Track Lights'
+          ],
+          [
+            '8506',
+            'Home and Garden\\Desk Lamps'
+          ],
+          [
+            '8504',
+            'Home and Garden\\Floor Lamps'
+          ],
+          [
+            '8507',
+            'Home and Garden\\Lamp Shades & Bases'
+          ],
+          [
+            '8505',
+            'Home and Garden\\Table Lamps'
+          ],
+          [
+            '8456',
+            'Home and Garden\\Miscellaneous Home Lighting'
+          ],
+          [
+            '8461',
+            'Home and Garden\\Landscape Lighting & Accessories'
+          ],
+          [
+            '8463',
+            'Home and Garden\\Outdoor Wall & Ceiling Lighting'
+          ],
+          [
+            '8465',
+            'Home and Garden\\Security Lighting'
+          ],
+          [
+            '8459',
+            'Home and Garden\\String Lights'
+          ],
+          [
+            '8502',
+            'Home and Garden\\Bathroom & Vanity Lighting'
+          ],
+          [
+            '9424',
+            'Home and Garden\\Night Lights'
+          ],
+          [
+            '8501',
+            'Home and Garden\\Wall Mounts & Picture Lighting'
+          ],
+          [
+            '100001723',
+            'Home and Garden\\Temp Home Organization'
+          ],
+          [
+            '100001712',
+            'Home and Garden\\Workbenches'
+          ],
+          [
+            '100001665',
+            'Home and Garden\\Food Wrap'
+          ],
+          [
+            '100001666',
+            'Home and Garden\\Kitchen Aprons'
+          ],
+          [
+            '100001664',
+            'Home and Garden\\Temp Kitchen Supplies & Utensils'
+          ],
+          [
+            '100001932',
+            'Home and Garden\\Arbors & Trellises'
+          ],
+          [
+            '100001941',
+            'Home and Garden\\Composters'
+          ],
+          [
+            '100001933',
+            'Home and Garden\\Fences & Gates'
+          ],
+          [
+            '100001935',
+            'Home and Garden\\Garden Bridges & Pathways'
+          ],
+          [
+            '100001934',
+            'Home and Garden\\Garden Edging'
+          ],
+          [
+            '100001942',
+            'Home and Garden\\Greenhouse & Nursery Supplies'
+          ],
+          [
+            '100001940',
+            'Home and Garden\\Landscape Rocks'
+          ],
+          [
+            '100001943',
+            'Home and Garden\\Miscellaneous Landscape Supplies'
+          ],
+          [
+            '100001936',
+            'Home and Garden\\Mulch'
+          ],
+          [
+            '100001937',
+            'Home and Garden\\Raised Garden Beds'
+          ],
+          [
+            '100001938',
+            'Home and Garden\\Weed Barrier'
+          ],
+          [
+            '100001773',
+            'Home and Garden\\Lawn Mowers & Tractors'
+          ],
+          [
+            '100001811',
+            'Home and Garden\\Lawn Tractor Attachments'
+          ],
+          [
+            '13130000',
+            'Home and Garden\\Miscellaneous Home & Garden'
+          ],
+          [
+            '13010600',
+            'Home and Garden\\Outdoor Cooking'
+          ],
+          [
+            '8278',
+            'Home and Garden\\Bird Baths & Feeders'
+          ],
+          [
+            '8280',
+            'Home and Garden\\Birdhouses'
+          ],
+          [
+            '8282',
+            'Home and Garden\\Other Animal Feeders & Shelter'
+          ],
+          [
+            '8331',
+            'Home and Garden\\Address Plaques & Signs'
+          ],
+          [
+            '8329',
+            'Home and Garden\\Door Knockers'
+          ],
+          [
+            '8330',
+            'Home and Garden\\Doorbell Buttons'
+          ],
+          [
+            '8328',
+            'Home and Garden\\Doormats'
+          ],
+          [
+            '8332',
+            'Home and Garden\\Mailboxes'
+          ],
+          [
+            '8351',
+            'Home and Garden\\Fountains'
+          ],
+          [
+            '8352',
+            'Home and Garden\\Ponds & Watergardens'
+          ],
+          [
+            '8723',
+            'Home and Garden\\Miscellaneous Outdoor Decor'
+          ],
+          [
+            '8377',
+            'Home and Garden\\Flags & Spinners'
+          ],
+          [
+            '8355',
+            'Home and Garden\\Garden Sculptures & Statues'
+          ],
+          [
+            '8368',
+            'Home and Garden\\Garden Stakes & Torches'
+          ],
+          [
+            '8370',
+            'Home and Garden\\Gazing Balls'
+          ],
+          [
+            '8378',
+            'Home and Garden\\Plant & Flower Stands'
+          ],
+          [
+            '8381',
+            'Home and Garden\\Planters'
+          ],
+          [
+            '8386',
+            'Home and Garden\\Rain Chains & Gauges'
+          ],
+          [
+            '8382',
+            'Home and Garden\\Stepping Stones'
+          ],
+          [
+            '8374',
+            'Home and Garden\\Sundials'
+          ],
+          [
+            '8385',
+            'Home and Garden\\Wind Chimes & Garden Bells'
+          ],
+          [
+            '8416',
+            'Home and Garden\\Outdoor Fireplaces'
+          ],
+          [
+            '8419',
+            'Home and Garden\\Outdoor Heaters'
+          ],
+          [
+            '8363',
+            'Home and Garden\\Cupolas'
+          ],
+          [
+            '8362',
+            'Home and Garden\\Finials'
+          ],
+          [
+            '8361',
+            'Home and Garden\\Weathervanes'
+          ],
+          [
+            '100001548',
+            'Home and Garden\\Hammocks & Stands'
+          ],
+          [
+            '100001551',
+            'Home and Garden\\Miscellaneous Outdoor Furniture'
+          ],
+          [
+            '100001547',
+            'Home and Garden\\Outdoor Benches'
+          ],
+          [
+            '100001546',
+            'Home and Garden\\Outdoor Canopies'
+          ],
+          [
+            '100001544',
+            'Home and Garden\\Outdoor Cushions'
+          ],
+          [
+            '100001565',
+            'Home and Garden\\Outdoor Furniture Covers'
+          ],
+          [
+            '100001549',
+            'Home and Garden\\Patio Furniture'
+          ],
+          [
+            '100001545',
+            'Home and Garden\\Patio Umbrellas'
+          ],
+          [
+            '100001550',
+            'Home and Garden\\Picnic Tables'
+          ],
+          [
+            '100001772',
+            'Home and Garden\\Outdoor Power Equipment'
+          ],
+          [
+            '25000200',
+            'Home and Garden\\Paint & Wall Covering Supplies'
+          ],
+          [
+            '13011200',
+            'Home and Garden\\Pest Control'
+          ],
+          [
+            '13010400',
+            'Home and Garden\\Plants & Trees'
+          ],
+          [
+            '8655',
+            'Home and Garden\\Bathtubs'
+          ],
+          [
+            '100001417',
+            'Home and Garden\\Commercial Sinks'
+          ],
+          [
+            '8657',
+            'Home and Garden\\Drain Hardware'
+          ],
+          [
+            '8656',
+            'Home and Garden\\Faucets & Sprayers'
+          ],
+          [
+            '8681',
+            'Home and Garden\\Garbage Disposals'
+          ],
+          [
+            '8673',
+            'Home and Garden\\Other Plumbing Supplies'
+          ],
+          [
+            '8659',
+            'Home and Garden\\Plumbing Pipes & Fittings'
+          ],
+          [
+            '8658',
+            'Home and Garden\\Shower Enclosures'
+          ],
+          [
+            '8675',
+            'Home and Garden\\Shower Heads'
+          ],
+          [
+            '8660',
+            'Home and Garden\\Sinks'
+          ],
+          [
+            '8731',
+            'Home and Garden\\Toilet Parts'
+          ],
+          [
+            '8679',
+            'Home and Garden\\Toilet Seats'
+          ],
+          [
+            '8678',
+            'Home and Garden\\Toilets'
+          ],
+          [
+            '8743',
+            'Home and Garden\\Air Compressors'
+          ],
+          [
+            '8748',
+            'Home and Garden\\Drill Bits'
+          ],
+          [
+            '8739',
+            'Home and Garden\\Drill Presses'
+          ],
+          [
+            '8747',
+            'Home and Garden\\Electric Router Tools'
+          ],
+          [
+            '8733',
+            'Home and Garden\\Generators'
+          ],
+          [
+            '8740',
+            'Home and Garden\\Grinders'
+          ],
+          [
+            '100001346',
+            'Home and Garden\\Industrial Air Compressors'
+          ],
+          [
+            '100001347',
+            'Home and Garden\\Industrial Drill Presses'
+          ],
+          [
+            '100001348',
+            'Home and Garden\\Industrial Generators'
+          ],
+          [
+            '100001349',
+            'Home and Garden\\Industrial Lathes'
+          ],
+          [
+            '100001350',
+            'Home and Garden\\Industrial Pressure Washers'
+          ],
+          [
+            '8713',
+            'Home and Garden\\Lathes'
+          ],
+          [
+            '8746',
+            'Home and Garden\\Nail Guns & Accessories'
+          ],
+          [
+            '100001351',
+            'Home and Garden\\Other Industrial Power Tools'
+          ],
+          [
+            '8721',
+            'Home and Garden\\Other Power Tools'
+          ],
+          [
+            '8734',
+            'Home and Garden\\Power Drills & Screwdrivers'
+          ],
+          [
+            '8717',
+            'Home and Garden\\Power Saw Blades'
+          ],
+          [
+            '8741',
+            'Home and Garden\\Power Saws'
+          ],
+          [
+            '9274',
+            'Home and Garden\\Power Staple Guns & Accessories'
+          ],
+          [
+            '8735',
+            'Home and Garden\\Power Tool Batteries & Chargers'
+          ],
+          [
+            '8742',
+            'Home and Garden\\Pressure Washers'
+          ],
+          [
+            '8711',
+            'Home and Garden\\Sanders & Polishers'
+          ],
+          [
+            '8712',
+            'Home and Garden\\Sanding & Polishing Pads'
+          ],
+          [
+            '8745',
+            'Home and Garden\\Soldering Irons'
+          ],
+          [
+            '8744',
+            'Home and Garden\\Welders'
+          ],
+          [
+            '25000400',
+            'Home and Garden\\Safety & Security'
+          ],
+          [
+            '13010300',
+            'Home and Garden\\Seeds & Bulbs'
+          ],
+          [
+            '13040400',
+            'Home and Garden\\Table Linens'
+          ],
+          [
+            '275',
+            'Home and Garden\\Corkscrews & Bottle Openers'
+          ],
+          [
+            '259',
+            'Home and Garden\\Flasks'
+          ],
+          [
+            '279',
+            'Home and Garden\\Ice Buckets & Coolers'
+          ],
+          [
+            '267',
+            'Home and Garden\\Shakers & Bar Tools'
+          ],
+          [
+            '255',
+            'Home and Garden\\Wine Tools & Accessories'
+          ],
+          [
+            '288',
+            'Home and Garden\\Beverage Service'
+          ],
+          [
+            '290',
+            'Home and Garden\\Chafers'
+          ],
+          [
+            '299',
+            'Home and Garden\\Bowls'
+          ],
+          [
+            '324',
+            'Home and Garden\\Coffee Pots'
+          ],
+          [
+            '315',
+            'Home and Garden\\Dinnerware Sets'
+          ],
+          [
+            '13040205',
+            'Home and Garden\\Flatware'
+          ],
+          [
+            '356',
+            'Home and Garden\\Plates'
+          ],
+          [
+            '350',
+            'Home and Garden\\Serving Flatware'
+          ],
+          [
+            '332',
+            'Home and Garden\\Teapots & Tea Sets'
+          ],
+          [
+            '293',
+            'Home and Garden\\Bar & Cocktail Glasses'
+          ],
+          [
+            '326',
+            'Home and Garden\\Cups & Saucers'
+          ],
+          [
+            '329',
+            'Home and Garden\\Mugs'
+          ],
+          [
+            '306',
+            'Home and Garden\\Water & Juice Glasses'
+          ],
+          [
+            '313',
+            'Home and Garden\\Wine Glasses & Champagne Flutes'
+          ],
+          [
+            '13040206',
+            'Home and Garden\\Miscellaneous Tableware'
+          ],
+          [
+            '347',
+            'Home and Garden\\Butter Dishes'
+          ],
+          [
+            '295',
+            'Home and Garden\\Creamers & Sugar Bowls'
+          ],
+          [
+            '317',
+            'Home and Garden\\Decanters & Pitchers'
+          ],
+          [
+            '322',
+            'Home and Garden\\Gravy Boats & Tureens'
+          ],
+          [
+            '330',
+            'Home and Garden\\Platters'
+          ],
+          [
+            '345',
+            'Home and Garden\\Stands & Serving Trays'
+          ],
+          [
+            '354',
+            'Home and Garden\\Trivets & Coasters'
+          ],
+          [
+            '13011300',
+            'Home and Garden\\Water Garden & Irrigation Supplies'
+          ],
+          [
+            '358',
+            'Home and Garden\\Curtain Rods & Accessories'
+          ],
+          [
+            '13020301',
+            'Home and Garden\\Curtains & Drapes'
+          ],
+          [
+            '13020306',
+            'Home and Garden\\Miscellaneous Window Treatments'
+          ],
+          [
+            '351',
+            'Home and Garden\\Window Blinds'
+          ],
+          [
+            '341',
+            'Home and Garden\\Window Scarves'
+          ],
+          [
+            '334',
+            'Home and Garden\\Window Shades'
+          ],
+          [
+            '319',
+            'Home and Garden\\Window Shutters'
+          ],
+          [
+            '343',
+            'Home and Garden\\Window Valances'
+          ],
+          [
+            '30010108',
+            'Jewelry\\Body Jewelry'
+          ],
+          [
+            '30010101',
+            'Jewelry\\Bracelets'
+          ],
+          [
+            '30000200',
+            'Jewelry\\Charms'
+          ],
+          [
+            '30010103',
+            'Jewelry\\Cuff Links'
+          ],
+          [
+            '30010107',
+            ' / Jewelry\\Cuff Links'
+          ],
+          [
+            '30010102',
+            'Jewelry\\Earrings'
+          ],
+          [
+            '30010110',
+            'Jewelry\\Jewelry Boxes'
+          ],
+          [
+            '30010112',
+            'Jewelry\\Jewelry Sets'
+          ],
+          [
+            '9959',
+            'Jewelry\\Loose Gemstones'
+          ],
+          [
+            '30010105',
+            'Jewelry\\Miscellaneous Jewelry'
+          ],
+          [
+            '30010104',
+            'Jewelry\\Necklaces & Pendants'
+          ],
+          [
+            '30010109',
+            'Jewelry\\Pins & Brooches'
+          ],
+          [
+            '30010106',
+            'Jewelry\\Rings'
+          ],
+          [
+            '100001539',
+            'Jewelry\\Watch Accessories'
+          ],
+          [
+            '30020100',
+            'Jewelry\\Watches'
+          ],
+          [
+            '23000100',
+            'Mature\\Adult Games'
+          ],
+          [
+            '23001000',
+            'Mature\\Adult Novelty'
+          ],
+          [
+            '23000700',
+            'Mature\\Condoms & Dental Dams'
+          ],
+          [
+            '23000400',
+            'Mature\\Erotic Art, Books, and Videos'
+          ],
+          [
+            '23000300',
+            'Mature\\Erotic Lingerie'
+          ],
+          [
+            '23000500',
+            'Mature\\Herbal Sex Enhancers'
+          ],
+          [
+            '23000600',
+            'Mature\\Lubricants'
+          ],
+          [
+            '23000800',
+            'Mature\\Miscellaneous Adult'
+          ],
+          [
+            '23000900',
+            'Mature\\Sensory Stimulation'
+          ],
+          [
+            '23000200',
+            'Mature\\Sex Toys'
+          ],
+          [
+            '5201',
+            'Music\\Blues Music'
+          ],
+          [
+            '5222',
+            'Music\\Cajun Music'
+          ],
+          [
+            '5202',
+            'Music\\Children\'s Music'
+          ],
+          [
+            '5207',
+            'Music\\Christian & Gospel Music'
+          ],
+          [
+            '100000852',
+            'Music\\Classical Music'
+          ],
+          [
+            '5203',
+            'Music\\Comedy'
+          ],
+          [
+            '5204',
+            'Music\\Country Music'
+          ],
+          [
+            '5205',
+            'Music\\Easy Listening Music'
+          ],
+          [
+            '5223',
+            'Music\\Electronic Music'
+          ],
+          [
+            '5224',
+            'Music\\Environmental Music'
+          ],
+          [
+            '5225',
+            'Music\\Folk Music'
+          ],
+          [
+            '5226',
+            'Music\\Hardcore & Punk Music'
+          ],
+          [
+            '5227',
+            'Music\\Heavy Metal Music'
+          ],
+          [
+            '5228',
+            'Music\\Instrumental Music'
+          ],
+          [
+            '5208',
+            'Music\\International Music'
+          ],
+          [
+            '5209',
+            'Music\\Jazz Instrumental Music'
+          ],
+          [
+            '5229',
+            'Music\\Jazz Vocal Music'
+          ],
+          [
+            '5218',
+            'Music\\MP3s'
+          ],
+          [
+            '5220',
+            'Music\\Miscellaneous Music'
+          ],
+          [
+            '5230',
+            'Music\\New Age Music'
+          ],
+          [
+            '5211',
+            'Music\\Oldies Music'
+          ],
+          [
+            '5231',
+            'Music\\Original Cast Music'
+          ],
+          [
+            '5212',
+            'Music\\Pop Vocal Music'
+          ],
+          [
+            '5213',
+            'Music\\R&B, Hip Hop & Rap Music'
+          ],
+          [
+            '5214',
+            'Music\\Reggae Music'
+          ],
+          [
+            '5215',
+            'Music\\Rock & Pop Music'
+          ],
+          [
+            '5232',
+            'Music\\Sound Effects'
+          ],
+          [
+            '5233',
+            'Music\\Spoken Word'
+          ],
+          [
+            '5216',
+            'Music\\TV & Movie Soundtracks'
+          ],
+          [
+            '521904',
+            'Musical Instruments\\DJ Equipment'
+          ],
+          [
+            '521902',
+            'Musical Instruments\\Drums / Percussion'
+          ],
+          [
+            '521900',
+            'Musical Instruments\\Guitar / Bass'
+          ],
+          [
+            '521912',
+            'Musical Instruments\\Instrument Strings'
+          ],
+          [
+            '11100700',
+            'Musical Instruments\\Karaoke Equipment'
+          ],
+          [
+            '21000100',
+            'Musical Instruments\\Karaoke Media'
+          ],
+          [
+            '521903',
+            'Musical Instruments\\Keyboards/Midi'
+          ],
+          [
+            '521913',
+            'Musical Instruments\\Miscellaneous Musical Instruments'
+          ],
+          [
+            '521908',
+            'Musical Instruments\\Mixers/Multi Track Recorders'
+          ],
+          [
+            '100001575',
+            'Musical Instruments\\Musical Instrument Care & Cleaning'
+          ],
+          [
+            '100001574',
+            'Musical Instruments\\Temp Musical Instrument Accessories'
+          ],
+          [
+            '521905',
+            'Musical Instruments\\Musical Instrument Amplifiers'
+          ],
+          [
+            '521911',
+            'Musical Instruments\\Musical Instrument Cables'
+          ],
+          [
+            '521907',
+            'Musical Instruments\\Musical Instrument Cases / Racks'
+          ],
+          [
+            '521910',
+            'Musical Instruments\\Musical Instrument Effects / Processors'
+          ],
+          [
+            '521906',
+            'Musical Instruments\\Musical Instrument Lighting Equipment'
+          ],
+          [
+            '521909',
+            'Musical Instruments\\Musical Instrument Microphones'
+          ],
+          [
+            '521915',
+            'Musical Instruments\\Musical Instrument Monitors / Speakers'
+          ],
+          [
+            '521916',
+            'Musical Instruments\\Musical Instrument Software / Sample CDs'
+          ],
+          [
+            '100001579',
+            'Musical Instruments\\Brass Instruments'
+          ],
+          [
+            '100001578',
+            'Musical Instruments\\String Instruments'
+          ],
+          [
+            '100001577',
+            'Musical Instruments\\Wind Instruments'
+          ],
+          [
+            '100001591',
+            'Office Supplies\\Binder Pockets & Index Dividers'
+          ],
+          [
+            '100001588',
+            'Office Supplies\\Binder Rings'
+          ],
+          [
+            '100001589',
+            'Office Supplies\\Hole Reinforcements'
+          ],
+          [
+            '100001590',
+            'Office Supplies\\Sheet Lifters'
+          ],
+          [
+            '100001592',
+            'Office Supplies\\Sheet Protectors'
+          ],
+          [
+            '1304',
+            'Office Supplies\\Binders'
+          ],
+          [
+            '1308',
+            'Office Supplies\\Binding Machines'
+          ],
+          [
+            '1309',
+            'Office Supplies\\Laminating Machines'
+          ],
+          [
+            '1306',
+            'Office Supplies\\Miscellaneous Binders & Accessories'
+          ],
+          [
+            '209',
+            'Office Supplies\\Calculators'
+          ],
+          [
+            '1201',
+            'Office Supplies\\Calendars'
+          ],
+          [
+            '1203',
+            'Office Supplies\\Miscellaneous Calendars, Organizers & Planners'
+          ],
+          [
+            '100001596',
+            'Office Supplies\\Business Card Organizers'
+          ],
+          [
+            '100001594',
+            'Office Supplies\\Journals & Diaries'
+          ],
+          [
+            '100001597',
+            'Office Supplies\\Padfolios'
+          ],
+          [
+            '100001595',
+            'Office Supplies\\Planner & Organizer Refills'
+          ],
+          [
+            '100001598',
+            'Office Supplies\\Planners, Organizers & Address Books'
+          ],
+          [
+            '100000114',
+            'Office Supplies\\Bulletin Boards'
+          ],
+          [
+            '100000115',
+            'Office Supplies\\Chalkboards'
+          ],
+          [
+            '100000119',
+            'Office Supplies\\Directory Boards'
+          ],
+          [
+            '100000120',
+            'Office Supplies\\Display & Marker Board Accessories'
+          ],
+          [
+            '100000116',
+            'Office Supplies\\Dry-Erase Boards'
+          ],
+          [
+            '100000117',
+            'Office Supplies\\Presentation Boards'
+          ],
+          [
+            '100000118',
+            'Office Supplies\\Specialty Marker Boards'
+          ],
+          [
+            '100001650',
+            'Office Supplies\\Ash Receptacles'
+          ],
+          [
+            '100001649',
+            'Office Supplies\\Bulk Disposable Tableware'
+          ],
+          [
+            '100001654',
+            'Office Supplies\\Condiment Holders & Dispensers'
+          ],
+          [
+            '100001651',
+            'Office Supplies\\Restaurant & Store Signs'
+          ],
+          [
+            '100001655',
+            'Office Supplies\\Suggestion Boxes'
+          ],
+          [
+            '100001653',
+            'Office Supplies\\Tableware Holders & Dispensers'
+          ],
+          [
+            '100001656',
+            'Office Supplies\\Temp Breakroom Supplies'
+          ],
+          [
+            '100001648',
+            'Office Supplies\\Time Clocks'
+          ],
+          [
+            '100001652',
+            'Office Supplies\\Workplace Posters & Signs'
+          ],
+          [
+            '4600',
+            'Office Supplies\\Janitorial Supplies'
+          ],
+          [
+            '4602',
+            'Office Supplies\\Miscellaneous Janitorial & Breakroom Supplies'
+          ],
+          [
+            '100001629',
+            'Office Supplies\\Envelope & Fingertip Moisteners'
+          ],
+          [
+            '1001',
+            ' / Office Supplies\\Envelope & Fingertip Moisteners'
+          ],
+          [
+            '100001628',
+            'Office Supplies\\Mail Organizers'
+          ],
+          [
+            '1000',
+            'Office Supplies\\Mailers'
+          ],
+          [
+            '1003',
+            'Office Supplies\\Miscellaneous Mailing & Shipping Supplies'
+          ],
+          [
+            '100001627',
+            'Office Supplies\\Moving Boxes'
+          ],
+          [
+            '100001625',
+            'Office Supplies\\Packing Materials'
+          ],
+          [
+            '100001626',
+            'Office Supplies\\Postal Scales'
+          ],
+          [
+            '47',
+            'Office Supplies\\Miscellaneous Office & School Supplies'
+          ],
+          [
+            '100001617',
+            'Office Supplies\\Account & Record Books'
+          ],
+          [
+            '100001614',
+            'Office Supplies\\Guest Check Forms'
+          ],
+          [
+            '100001613',
+            'Office Supplies\\Purchase Order Forms'
+          ],
+          [
+            '100001615',
+            'Office Supplies\\Receipt Books'
+          ],
+          [
+            '100001618',
+            'Office Supplies\\Tax Forms'
+          ],
+          [
+            '100001616',
+            'Office Supplies\\Time Cards'
+          ],
+          [
+            '100001639',
+            'Office Supplies\\Call Bells'
+          ],
+          [
+            '100000055',
+            'Office Supplies\\Clipboards'
+          ],
+          [
+            '100000474',
+            'Office Supplies\\Classification Folders'
+          ],
+          [
+            '100000475',
+            'Office Supplies\\Desk Files'
+          ],
+          [
+            '100000480',
+            'Office Supplies\\Document Wallets'
+          ],
+          [
+            '100000477',
+            'Office Supplies\\Expanding Folders'
+          ],
+          [
+            '100000473',
+            'Office Supplies\\Hanging File Folders'
+          ],
+          [
+            '100000472',
+            'Office Supplies\\Manila & Color Folders'
+          ],
+          [
+            '100000481',
+            'Office Supplies\\Patent Folders'
+          ],
+          [
+            '100000476',
+            'Office Supplies\\Presentation Folders'
+          ],
+          [
+            '100000478',
+            'Office Supplies\\Report & Folder Covers'
+          ],
+          [
+            '100000479',
+            'Office Supplies\\View Folders'
+          ],
+          [
+            '21202',
+            'Office Supplies\\Glue'
+          ],
+          [
+            '21203',
+            'Office Supplies\\Labels & Tags'
+          ],
+          [
+            '100000060',
+            'Office Supplies\\Letter Openers'
+          ],
+          [
+            '21220',
+            'Office Supplies\\Miscellaneous Office Basics'
+          ],
+          [
+            '100001609',
+            'Office Supplies\\Notebooks & Writing Pads'
+          ],
+          [
+            '100001611',
+            'Office Supplies\\Phone Message Pads & Books'
+          ],
+          [
+            '100001610',
+            'Office Supplies\\Sticky Note Holders'
+          ],
+          [
+            '100001608',
+            'Office Supplies\\Sticky Notes & Flags'
+          ],
+          [
+            '100000056',
+            'Office Supplies\\Office Stamps'
+          ],
+          [
+            '21217',
+            'Office Supplies\\Paper'
+          ],
+          [
+            '100000058',
+            'Office Supplies\\Paper Fasteners'
+          ],
+          [
+            '100001638',
+            'Office Supplies\\Paper Folding Machines'
+          ],
+          [
+            '100000756',
+            'Office Supplies\\Paper Shredder Waste Bags'
+          ],
+          [
+            '100000059',
+            'Office Supplies\\Paper Trimmers & Blades'
+          ],
+          [
+            '21214',
+            'Office Supplies\\Pencils'
+          ],
+          [
+            '21213',
+            'Office Supplies\\Pens'
+          ],
+          [
+            '100000061',
+            'Office Supplies\\Rulers'
+          ],
+          [
+            '21207',
+            'Office Supplies\\Scissors'
+          ],
+          [
+            '100000057',
+            'Office Supplies\\Stamp Pads'
+          ],
+          [
+            '21210',
+            'Office Supplies\\Staplers'
+          ],
+          [
+            '21209',
+            'Office Supplies\\Staples'
+          ],
+          [
+            '21211',
+            'Office Supplies\\Tape'
+          ],
+          [
+            '25010200',
+            'Office Supplies\\Bookcases'
+          ],
+          [
+            '100000054',
+            'Office Supplies\\Chair Mats'
+          ],
+          [
+            '25010400',
+            'Office Supplies\\Desks'
+          ],
+          [
+            '25010500',
+            'Office Supplies\\File Cabinets'
+          ],
+          [
+            '25010600',
+            'Office Supplies\\Miscellaneous Office Furniture'
+          ],
+          [
+            '25010300',
+            'Office Supplies\\Office Chairs'
+          ],
+          [
+            '100000080',
+            'Office Supplies\\Office Footrests'
+          ],
+          [
+            '100000081',
+            'Office Supplies\\Office Partitions & Panels'
+          ],
+          [
+            '100000062',
+            'Office Supplies\\Paper Shredders'
+          ],
+          [
+            '100000063',
+            'Office Supplies\\Typewriters'
+          ],
+          [
+            '20000001',
+            'Miscellaneous'
+          ],
+          [
+            '31000100',
+            'Pet Supplies\\Bird Supplies'
+          ],
+          [
+            '31000200',
+            'Pet Supplies\\Cat Supplies'
+          ],
+          [
+            '31000300',
+            'Pet Supplies\\Dog Supplies'
+          ],
+          [
+            '31000400',
+            'Pet Supplies\\Fish Supplies'
+          ],
+          [
+            '31000600',
+            'Pet Supplies\\More Pet Supplies'
+          ],
+          [
+            '31000500',
+            'Pet Supplies\\Reptile Supplies'
+          ],
+          [
+            '9799',
+            'Pet Supplies\\Small Pet Supplies'
+          ],
+          [
+            '9741',
+            'Sports\\Badminton Equipment'
+          ],
+          [
+            '12030300',
+            'Sports\\Basketball Equipment'
+          ],
+          [
+            '9971',
+            'Sports\\Benches & Bleachers'
+          ],
+          [
+            '100001449',
+            'Sports\\Bicycle Parts & Accessories'
+          ],
+          [
+            '100001448',
+            'Sports\\Bicycles'
+          ],
+          [
+            '100001450',
+            'Sports\\Cycling Apparel'
+          ],
+          [
+            '9968',
+            'Sports\\Billiards Equipment'
+          ],
+          [
+            '12180000',
+            'Sports\\Binoculars & Telescopes'
+          ],
+          [
+            '12180101',
+            'Sports\\Boats, Kayaks & Boating Equipment'
+          ],
+          [
+            '12000100',
+            'Sports\\Bowling Equipment'
+          ],
+          [
+            '12150105',
+            'Sports\\Boxing Equipment & Martial Arts Supplies'
+          ],
+          [
+            '12040100',
+            'Sports\\Camping & Hiking Gear'
+          ],
+          [
+            '9963',
+            'Sports\\Cheerleading Gear'
+          ],
+          [
+            '9964',
+            'Sports\\Cricket Equipment'
+          ],
+          [
+            '12000700',
+            'Sports\\Equestrian Clothing & Equipment'
+          ],
+          [
+            '12120100',
+            'Sports\\Fishing Gear'
+          ],
+          [
+            '9758',
+            'Sports\\Balance Boards'
+          ],
+          [
+            '8608',
+            'Sports\\Fitness Trampolines'
+          ],
+          [
+            '8565',
+            'Sports\\Jump Ropes'
+          ],
+          [
+            '8604',
+            'Sports\\Water Aerobics Equipment'
+          ],
+          [
+            '8564',
+            'Sports\\Workout Steps'
+          ],
+          [
+            '9526',
+            'Sports\\Cardio Equipment Accessories'
+          ],
+          [
+            '8618',
+            'Sports\\Elliptical & Cross Trainer Machines'
+          ],
+          [
+            '9524',
+            'Sports\\Recumbent Exercise Bikes'
+          ],
+          [
+            '9525',
+            'Sports\\Rowing Machines'
+          ],
+          [
+            '9523',
+            'Sports\\Spinning Bikes'
+          ],
+          [
+            '8622',
+            'Sports\\Stair Climbers & Steppers'
+          ],
+          [
+            '8620',
+            'Sports\\Treadmills'
+          ],
+          [
+            '9759',
+            'Sports\\Upper Body Ergometers'
+          ],
+          [
+            '8624',
+            'Sports\\Upright Exercise Bikes'
+          ],
+          [
+            '8610',
+            'Sports\\Body Weights'
+          ],
+          [
+            '8609',
+            'Sports\\Dumbbells'
+          ],
+          [
+            '8627',
+            'Sports\\Squat Racks & Power Cages'
+          ],
+          [
+            '9521',
+            'Sports\\Weight Bars'
+          ],
+          [
+            '8611',
+            'Sports\\Weight Plates & Plate Sets'
+          ],
+          [
+            '8612',
+            'Sports\\Weight Racks & Stands'
+          ],
+          [
+            '8626',
+            'Sports\\Workout Benches'
+          ],
+          [
+            '8566',
+            'Sports\\Other Fitness Equipment'
+          ],
+          [
+            '8638',
+            'Sports\\Ab & Waist Machines'
+          ],
+          [
+            '8635',
+            'Sports\\Arm & Shoulder Machines'
+          ],
+          [
+            '8634',
+            'Sports\\Chest & Back Machines'
+          ],
+          [
+            '8641',
+            'Sports\\Home Gym Attachments & Accessories'
+          ],
+          [
+            '8639',
+            'Sports\\Home Gyms'
+          ],
+          [
+            '8631',
+            'Sports\\Leg & Hip Machines'
+          ],
+          [
+            '9762',
+            'Sports\\Fitness Charts'
+          ],
+          [
+            '9760',
+            'Sports\\Hand Exercisers'
+          ],
+          [
+            '8688',
+            'Sports\\Medicine Balls'
+          ],
+          [
+            '9522',
+            'Sports\\Other Weight Training Accessories'
+          ],
+          [
+            '9763',
+            'Sports\\Pull-Up Bars'
+          ],
+          [
+            '9764',
+            'Sports\\Push-Up Bars'
+          ],
+          [
+            '9761',
+            'Sports\\Weight Bar Pads'
+          ],
+          [
+            '8667',
+            'Sports\\Weight Lifting Belts'
+          ],
+          [
+            '8668',
+            'Sports\\Weight Lifting Gloves'
+          ],
+          [
+            '8685',
+            'Sports\\Exercise Balls'
+          ],
+          [
+            '8684',
+            'Sports\\Exercise Mats'
+          ],
+          [
+            '8689',
+            'Sports\\Inversion Equipment'
+          ],
+          [
+            '8687',
+            'Sports\\Pilates Equipment'
+          ],
+          [
+            '8686',
+            'Sports\\Resistance Bands'
+          ],
+          [
+            '8800',
+            'Sports\\Yoga & Pilates Accessories'
+          ],
+          [
+            '9528',
+            'Sports\\Yoga & Pilates Kits'
+          ],
+          [
+            '9527',
+            'Sports\\Yoga Blocks & Wedges'
+          ],
+          [
+            '12060200',
+            'Sports\\Football Equipment'
+          ],
+          [
+            '12000400',
+            'Sports\\Game Tables'
+          ],
+          [
+            '100001532',
+            'Sports\\Golf Ball Retrievers'
+          ],
+          [
+            '100001529',
+            'Sports\\Golf Cart Battery Chargers'
+          ],
+          [
+            '100001528',
+            'Sports\\Golf Cart Covers'
+          ],
+          [
+            '100001530',
+            'Sports\\Golf Cart Tires'
+          ],
+          [
+            '8425',
+            'Sports\\Golf Carts'
+          ],
+          [
+            '100001531',
+            'Sports\\Golf Club Cleaners'
+          ],
+          [
+            '8318',
+            'Sports\\Golf Club Grips'
+          ],
+          [
+            '8319',
+            'Sports\\Golf Club Headcovers'
+          ],
+          [
+            '100001503',
+            'Sports\\Golf Club Heads'
+          ],
+          [
+            '100001504',
+            'Sports\\Golf Club Shafts'
+          ],
+          [
+            '8467',
+            'Sports\\Golf Gifts & Collectibles'
+          ],
+          [
+            '8393',
+            'Sports\\Golf Rangefinders'
+          ],
+          [
+            '8477',
+            'Sports\\Golf Training Aids'
+          ],
+          [
+            '8479',
+            'Sports\\Putting Greens'
+          ],
+          [
+            '8548',
+            'Sports\\Golf Apparel Bottoms'
+          ],
+          [
+            '8551',
+            'Sports\\Golf Apparel Tops'
+          ],
+          [
+            '8396',
+            'Sports\\Golf Gloves'
+          ],
+          [
+            '8559',
+            'Sports\\Golf Hats'
+          ],
+          [
+            '8555',
+            'Sports\\Golf Jackets'
+          ],
+          [
+            '8556',
+            'Sports\\Golf Shoes'
+          ],
+          [
+            '8392',
+            'Sports\\Divot Tools'
+          ],
+          [
+            '8421',
+            'Sports\\Golf Bags'
+          ],
+          [
+            '8389',
+            'Sports\\Golf Balls'
+          ],
+          [
+            '8409',
+            'Sports\\Golf Clubs'
+          ],
+          [
+            '8320',
+            'Sports\\Golf Tees'
+          ],
+          [
+            '8395',
+            'Sports\\Other Golf Gifts & Equipment'
+          ],
+          [
+            '9765',
+            'Sports\\Gymnastics Equipment'
+          ],
+          [
+            '12150125',
+            'Sports\\Hunting & Archery Equipment'
+          ],
+          [
+            '9742',
+            'Sports\\Ice Skating Equipment'
+          ],
+          [
+            '12130500',
+            'Sports\\Inline & Roller Skate Equipment'
+          ],
+          [
+            '12000600',
+            'Sports\\Lacrosse Equipment'
+          ],
+          [
+            '12020400',
+            'Sports\\MLB Shop'
+          ],
+          [
+            '12150100',
+            'Sports\\More Sports Equipment'
+          ],
+          [
+            '12150106',
+            'Sports\\Mountain Climbing Gear'
+          ],
+          [
+            '12200100',
+            'Sports\\NASCAR Shop'
+          ],
+          [
+            '12030400',
+            'Sports\\NBA Shop'
+          ],
+          [
+            '12030500',
+            'Sports\\NCAA Shop'
+          ],
+          [
+            '12060300',
+            'Sports\\NFL Shop'
+          ],
+          [
+            '12080200',
+            'Sports\\NHL Shop'
+          ],
+          [
+            '12150135',
+            'Sports\\Paintball Gear'
+          ],
+          [
+            '12190100',
+            'Sports\\Pro Wrestling Shop'
+          ],
+          [
+            '12080100',
+            'Sports\\Roller & Ice Hockey Equipment'
+          ],
+          [
+            '9962',
+            'Sports\\Rugby Equipment'
+          ],
+          [
+            '12130300',
+            'Sports\\Scooters & Accessories'
+          ],
+          [
+            '12180102',
+            'Sports\\Scuba Diving & Snorkeling Equipment'
+          ],
+          [
+            '12130400',
+            'Sports\\Skateboarding Equipment'
+          ],
+          [
+            '12140200',
+            'Sports\\Skiing Equipment'
+          ],
+          [
+            '12090100',
+            'Sports\\Snowboarding Equipment'
+          ],
+          [
+            '12100200',
+            'Sports\\Soccer Equipment'
+          ],
+          [
+            '12020300',
+            'Sports\\Softball & Baseball Equipment'
+          ],
+          [
+            '12000200',
+            'Sports\\Squash & Racquetball Equipment'
+          ],
+          [
+            '12180103',
+            'Sports\\Surf & Body Boarding Equipment'
+          ],
+          [
+            '100001791',
+            'Sports\\Miscellaneous Swimming Pools & Spas'
+          ],
+          [
+            '100001779',
+            'Sports\\Pool & Spa Covers'
+          ],
+          [
+            '100001782',
+            'Sports\\Pool & Spa Filters'
+          ],
+          [
+            '100001780',
+            'Sports\\Pool & Spa Heaters'
+          ],
+          [
+            '100001788',
+            'Sports\\Pool & Spa Lighting'
+          ],
+          [
+            '100001781',
+            'Sports\\Pool & Spa Maintenance'
+          ],
+          [
+            '100001785',
+            'Sports\\Pool & Spa Motors'
+          ],
+          [
+            '100001783',
+            'Sports\\Pool & Spa Pumps'
+          ],
+          [
+            '100001789',
+            'Sports\\Pool & Spa Safety'
+          ],
+          [
+            '100001786',
+            'Sports\\Pool Ladders & Railings'
+          ],
+          [
+            '100001784',
+            'Sports\\Pool Liners'
+          ],
+          [
+            '100001787',
+            'Sports\\Pool Slides & Diving Boards'
+          ],
+          [
+            '100001778',
+            'Sports\\Spas'
+          ],
+          [
+            '100001790',
+            'Sports\\Swimming Pool Fountains'
+          ],
+          [
+            '100001777',
+            'Sports\\Swimming Pools'
+          ],
+          [
+            '9740',
+            'Sports\\Table Tennis Equipment'
+          ],
+          [
+            '12110300',
+            'Sports\\Tennis Clothing & Equipment'
+          ],
+          [
+            '12000800',
+            'Sports\\Track & Field Equipment'
+          ],
+          [
+            '12000300',
+            'Sports\\Volleyball Equipment'
+          ],
+          [
+            '12180105',
+            'Sports\\Wakeboarding Equipment'
+          ],
+          [
+            '12180106',
+            'Sports\\Water Skiing Equipment'
+          ],
+          [
+            '12000500',
+            'Sports\\Winter Recreation'
+          ],
+          [
+            '14010100',
+            'Toys and Games\\Action Figures'
+          ],
+          [
+            '14010904',
+            'Toys and Games\\Baby Musical Toys'
+          ],
+          [
+            '14010908',
+            'Toys and Games\\Baby Rattles & Teethers'
+          ],
+          [
+            '14010901',
+            'Toys and Games\\Bath & Water Toys'
+          ],
+          [
+            '14010902',
+            'Toys and Games\\Crib & Stroller Toys'
+          ],
+          [
+            '14010903',
+            'Toys and Games\\Gyms & Playmats'
+          ],
+          [
+            '14010913',
+            'Toys and Games\\Miscellaneous Baby Toys'
+          ],
+          [
+            '14010910',
+            'Toys and Games\\Mobiles'
+          ],
+          [
+            '14010906',
+            'Toys and Games\\Push & Pull Toys'
+          ],
+          [
+            '14010909',
+            'Toys and Games\\Sort & Stack Toys'
+          ],
+          [
+            '100000803',
+            'Toys and Games\\Building Blocks'
+          ],
+          [
+            '100000804',
+            'Toys and Games\\Building Sets'
+          ],
+          [
+            '8214',
+            'Toys and Games\\Capes & Cloaks'
+          ],
+          [
+            '8219',
+            'Toys and Games\\Costume Armor & Weapons'
+          ],
+          [
+            '8216',
+            'Toys and Games\\Costume Footwear & Accessories'
+          ],
+          [
+            '8215',
+            'Toys and Games\\Costume Gloves'
+          ],
+          [
+            '8211',
+            'Toys and Games\\Costume Hands & Feet'
+          ],
+          [
+            '8208',
+            'Toys and Games\\Costume Hats & Headbands'
+          ],
+          [
+            '8210',
+            'Toys and Games\\Costume Masks'
+          ],
+          [
+            '8213',
+            'Toys and Games\\Costume Wigs & Facial Hair'
+          ],
+          [
+            '8209',
+            'Toys and Games\\Crowns & Tiaras'
+          ],
+          [
+            '8218',
+            'Toys and Games\\Halloween Jewelry'
+          ],
+          [
+            '8217',
+            'Toys and Games\\Halloween Makeup & Prosthetics'
+          ],
+          [
+            '8207',
+            'Toys and Games\\Other Costume Accessories'
+          ],
+          [
+            '8212',
+            'Toys and Games\\Wings & Halos'
+          ],
+          [
+            '8222',
+            'Toys and Games\\Adult Costumes'
+          ],
+          [
+            '8306',
+            'Toys and Games\\Baby Costumes'
+          ],
+          [
+            '8223',
+            'Toys and Games\\Kids\' Costumes'
+          ],
+          [
+            '8221',
+            'Toys and Games\\Pet Costumes'
+          ],
+          [
+            '8220',
+            'Toys and Games\\Halloween Props & Effects'
+          ],
+          [
+            '14010600',
+            'Toys and Games\\Dolls'
+          ],
+          [
+            '3',
+            '100,000,728 / Toys and Games\\'
+          ],
+          [
+            '100000732',
+            'Toys and Games\\Board Games'
+          ],
+          [
+            '100000729',
+            'Toys and Games\\Brain Teasers'
+          ],
+          [
+            '100000730',
+            'Toys and Games\\Card Games'
+          ],
+          [
+            '100000735',
+            'Toys and Games\\Casino Games'
+          ],
+          [
+            '100000731',
+            'Toys and Games\\Collectible & Trading Cards'
+          ],
+          [
+            '100000734',
+            'Toys and Games\\DVD Board Games'
+          ],
+          [
+            '100000736',
+            'Toys and Games\\Dice Games'
+          ],
+          [
+            '100000737',
+            'Toys and Games\\Dominoes'
+          ],
+          [
+            '100000733',
+            'Toys and Games\\Floor Games'
+          ],
+          [
+            '100000726',
+            'Toys and Games\\Floor Puzzles'
+          ],
+          [
+            '100000722',
+            'Toys and Games\\Game & Puzzle Accessories'
+          ],
+          [
+            '100000724',
+            'Toys and Games\\Jigsaw Puzzles'
+          ],
+          [
+            '100000723',
+            'Toys and Games\\Other Games & Puzzles'
+          ],
+          [
+            '100000725',
+            'Toys and Games\\Sudoku Puzzles'
+          ],
+          [
+            '100000727',
+            'Toys and Games\\Wooden & Pegged Puzzles'
+          ],
+          [
+            '14010300',
+            'Toys and Games\\Kids\' Arts & Crafts Supplies'
+          ],
+          [
+            '14011000',
+            'Toys and Games\\Learning Toys'
+          ],
+          [
+            '337',
+            'Toys and Games\\Miscellaneous Toys & Games'
+          ],
+          [
+            '14010800',
+            'Toys and Games\\Outdoor Games & Fun'
+          ],
+          [
+            '261',
+            'Toys and Games\\Plush Toys'
+          ],
+          [
+            '248',
+            'Toys and Games\\Stuffed Animals'
+          ],
+          [
+            '257',
+            'Toys and Games\\Teddy Bears'
+          ],
+          [
+            '14010213',
+            'Toys and Games\\Electronic Toys'
+          ],
+          [
+            '14010212',
+            'Toys and Games\\Kitchen & Housekeeping Toys'
+          ],
+          [
+            '14010211',
+            'Toys and Games\\Miscellaneous Pretend Play'
+          ],
+          [
+            '14010206',
+            'Toys and Games\\Musical Toys'
+          ],
+          [
+            '100000047',
+            'Toys and Games\\Play Tents & Tunnels'
+          ],
+          [
+            '100000046',
+            'Toys and Games\\Playsets & Figures'
+          ],
+          [
+            '14010204',
+            'Toys and Games\\Role Playing Toys'
+          ],
+          [
+            '245',
+            'Toys and Games\\Puppets & Puppet Theater'
+          ],
+          [
+            '14011200',
+            'Toys and Games\\Robotic & Radio Control Toys'
+          ],
+          [
+            '100000781',
+            'Toys and Games\\Model Aircrafts'
+          ],
+          [
+            '100000785',
+            'Toys and Games\\Model Automobiles'
+          ],
+          [
+            '100000783',
+            'Toys and Games\\Model Motorcycles'
+          ],
+          [
+            '100000779',
+            'Toys and Games\\Model Train Buildings & Scenery'
+          ],
+          [
+            '100000778',
+            'Toys and Games\\Model Train Cars'
+          ],
+          [
+            '100000780',
+            'Toys and Games\\Model Train Parts & Accessories'
+          ],
+          [
+            '100000765',
+            'Toys and Games\\Model Train Sets'
+          ],
+          [
+            '100000782',
+            'Toys and Games\\Model Watercrafts'
+          ],
+          [
+            '100000784',
+            'Toys and Games\\Other Toy Model Kits'
+          ],
+          [
+            '100000764',
+            'Toys and Games\\Other Toy Vehicles'
+          ],
+          [
+            '100000760',
+            'Toys and Games\\Toy Aircrafts'
+          ],
+          [
+            '100000758',
+            'Toys and Games\\Toy Cars'
+          ],
+          [
+            '100000786',
+            'Toys and Games\\Toy Model Kit Accessories'
+          ],
+          [
+            '100000762',
+            'Toys and Games\\Toy Motorcycles'
+          ],
+          [
+            '100000761',
+            'Toys and Games\\Toy Trains'
+          ],
+          [
+            '100000759',
+            'Toys and Games\\Toy Trucks'
+          ],
+          [
+            '100000763',
+            'Toys and Games\\Toy Vehicle Play Sets'
+          ],
+          [
+            '100000757',
+            'Toys and Games\\Toy Watercrafts'
+          ],
+          [
+            '620',
+            'Travel and Leisure\\Adult Vacations'
+          ],
+          [
+            '624',
+            'Travel and Leisure\\Adventure Travel'
+          ],
+          [
+            '729',
+            'Travel and Leisure\\Aeromexico'
+          ],
+          [
+            '725',
+            'Travel and Leisure\\Air New Zealand'
+          ],
+          [
+            '600',
+            'Travel and Leisure\\Airline Tickets'
+          ],
+          [
+            '607',
+            'Travel and Leisure\\Airport Shuttle'
+          ],
+          [
+            '739',
+            'Travel and Leisure\\Alamo Car Rental'
+          ],
+          [
+            '718',
+            'Travel and Leisure\\Alaska Airlines'
+          ],
+          [
+            '648',
+            'Travel and Leisure\\Alaska Vacations'
+          ],
+          [
+            '618',
+            'Travel and Leisure\\All Inclusive Vacations'
+          ],
+          [
+            '723',
+            'Travel and Leisure\\Aloha Airlines'
+          ],
+          [
+            '720',
+            'Travel and Leisure\\America West Airlines'
+          ],
+          [
+            '711',
+            'Travel and Leisure\\American Airlines'
+          ],
+          [
+            '650',
+            'Travel and Leisure\\Aruba Vacations'
+          ],
+          [
+            '658',
+            'Travel and Leisure\\Australia Vacations'
+          ],
+          [
+            '731',
+            'Travel and Leisure\\Austrian Airlines'
+          ],
+          [
+            '656',
+            'Travel and Leisure\\Bahamas Vacations'
+          ],
+          [
+            '633',
+            'Travel and Leisure\\Beach Vacations'
+          ],
+          [
+            '646',
+            'Travel and Leisure\\Belize Vacations'
+          ],
+          [
+            '690',
+            'Travel and Leisure\\Best Western Hotels'
+          ],
+          [
+            '685',
+            'Travel and Leisure\\Bird Watching'
+          ],
+          [
+            '672',
+            'Travel and Leisure\\Boating'
+          ],
+          [
+            '716',
+            'Travel and Leisure\\British Airways'
+          ],
+          [
+            '737',
+            'Travel and Leisure\\Budget Car Rental'
+          ],
+          [
+            '634',
+            'Travel and Leisure\\Business Travel'
+          ],
+          [
+            '655',
+            'Travel and Leisure\\California Vacations'
+          ],
+          [
+            '666',
+            'Travel and Leisure\\Camping'
+          ],
+          [
+            '642',
+            'Travel and Leisure\\Cancun Vacations'
+          ],
+          [
+            '683',
+            'Travel and Leisure\\Canoeing'
+          ],
+          [
+            '601',
+            'Travel and Leisure\\Car Rental'
+          ],
+          [
+            '643',
+            'Travel and Leisure\\Caribbean Vacations'
+          ],
+          [
+            '727',
+            'Travel and Leisure\\Cathay Pacific'
+          ],
+          [
+            '619',
+            'Travel and Leisure\\Cheap Vacations'
+          ],
+          [
+            '698',
+            'Travel and Leisure\\Clarion Hotels'
+          ],
+          [
+            '691',
+            'Travel and Leisure\\Club Med'
+          ],
+          [
+            '715',
+            'Travel and Leisure\\Continental Airlines'
+          ],
+          [
+            '645',
+            'Travel and Leisure\\Costa Rica Vacations'
+          ],
+          [
+            '602',
+            'Travel and Leisure\\Cruises'
+          ],
+          [
+            '608',
+            'Travel and Leisure\\Currency Exchange'
+          ],
+          [
+            '710',
+            'Travel and Leisure\\Days Inn Hotels'
+          ],
+          [
+            '667',
+            'Travel and Leisure\\Deer Hunting'
+          ],
+          [
+            '714',
+            'Travel and Leisure\\Delta Airlines'
+          ],
+          [
+            '621',
+            'Travel and Leisure\\Disney Vacations'
+          ],
+          [
+            '700',
+            'Travel and Leisure\\Doubletree Hotels'
+          ],
+          [
+            '709',
+            'Travel and Leisure\\Embassy Suites Hotels'
+          ],
+          [
+            '744',
+            'Travel and Leisure\\England Vacations'
+          ],
+          [
+            '736',
+            'Travel and Leisure\\Enterprise Car Rental'
+          ],
+          [
+            '644',
+            'Travel and Leisure\\European Vacations'
+          ],
+          [
+            '701',
+            'Travel and Leisure\\Fairmont Hotels'
+          ],
+          [
+            '640',
+            'Travel and Leisure\\Florida Vacations'
+          ],
+          [
+            '668',
+            'Travel and Leisure\\Fly Fishing'
+          ],
+          [
+            '703',
+            'Travel and Leisure\\Four Seasons Hotels'
+          ],
+          [
+            '651',
+            'Travel and Leisure\\France Vacations'
+          ],
+          [
+            '717',
+            'Travel and Leisure\\Frontier Airlines'
+          ],
+          [
+            '636',
+            'Travel and Leisure\\Gay Vacations'
+          ],
+          [
+            '625',
+            'Travel and Leisure\\Golf Vacations'
+          ],
+          [
+            '653',
+            'Travel and Leisure\\Grand Canyon Vacations'
+          ],
+          [
+            '706',
+            'Travel and Leisure\\Hampton Inn Hotels'
+          ],
+          [
+            '679',
+            'Travel and Leisure\\Hang Gliding'
+          ],
+          [
+            '639',
+            'Travel and Leisure\\Hawaii Vacations'
+          ],
+          [
+            '724',
+            'Travel and Leisure\\Hawaiian Airlines'
+          ],
+          [
+            '742',
+            'Travel and Leisure\\Hedonism Vacations'
+          ],
+          [
+            '740',
+            'Travel and Leisure\\Hertz Car Rental'
+          ],
+          [
+            '671',
+            'Travel and Leisure\\Hiking'
+          ],
+          [
+            '689',
+            'Travel and Leisure\\Hilton Hotels'
+          ],
+          [
+            '693',
+            'Travel and Leisure\\Homewood Suites'
+          ],
+          [
+            '629',
+            'Travel and Leisure\\Honeymoon Vacations'
+          ],
+          [
+            '676',
+            'Travel and Leisure\\Horseback Riding'
+          ],
+          [
+            '603',
+            'Travel and Leisure\\Hotels, Motels, & Resorts'
+          ],
+          [
+            '704',
+            'Travel and Leisure\\Howard Johnson Hotels'
+          ],
+          [
+            '696',
+            'Travel and Leisure\\Hyatt Hotels'
+          ],
+          [
+            '702',
+            'Travel and Leisure\\Intercontinental Hotels'
+          ],
+          [
+            '652',
+            'Travel and Leisure\\Ireland Vacations'
+          ],
+          [
+            '649',
+            'Travel and Leisure\\Italy Vacations'
+          ],
+          [
+            '654',
+            'Travel and Leisure\\Jamaica Vacations'
+          ],
+          [
+            '730',
+            'Travel and Leisure\\Japan Airlines'
+          ],
+          [
+            '687',
+            'Travel and Leisure\\Jet Skiing'
+          ],
+          [
+            '677',
+            'Travel and Leisure\\Kayaking'
+          ],
+          [
+            '638',
+            'Travel and Leisure\\Las Vegas Vacations'
+          ],
+          [
+            '637',
+            'Travel and Leisure\\Lesbian Vacations'
+          ],
+          [
+            '606',
+            'Travel and Leisure\\Limousine'
+          ],
+          [
+            '707',
+            'Travel and Leisure\\Loews Hotels'
+          ],
+          [
+            '657',
+            'Travel and Leisure\\London Vacations'
+          ],
+          [
+            '721',
+            'Travel and Leisure\\Lufthansa'
+          ],
+          [
+            '743',
+            'Travel and Leisure\\Luxury Resorts'
+          ],
+          [
+            '632',
+            'Travel and Leisure\\Luxury Travel'
+          ],
+          [
+            '705',
+            'Travel and Leisure\\Marriott Hotels'
+          ],
+          [
+            '732',
+            'Travel and Leisure\\Mexicana Airlines'
+          ],
+          [
+            '641',
+            'Travel and Leisure\\Mexico Vacations'
+          ],
+          [
+            '688',
+            'Travel and Leisure\\Motel 6'
+          ],
+          [
+            '673',
+            'Travel and Leisure\\Mountain Climbing'
+          ],
+          [
+            '735',
+            'Travel and Leisure\\National Car Rental'
+          ],
+          [
+            '663',
+            'Travel and Leisure\\New York Vacations'
+          ],
+          [
+            '659',
+            'Travel and Leisure\\New Zealand Vacations'
+          ],
+          [
+            '615',
+            'Travel and Leisure\\Nightlife'
+          ],
+          [
+            '713',
+            'Travel and Leisure\\Northwest Airlines'
+          ],
+          [
+            '626',
+            'Travel and Leisure\\Nude Vacations'
+          ],
+          [
+            '684',
+            'Travel and Leisure\\Parasailing'
+          ],
+          [
+            '662',
+            'Travel and Leisure\\Paris Vacations'
+          ],
+          [
+            '609',
+            'Travel and Leisure\\Passport'
+          ],
+          [
+            '734',
+            'Travel and Leisure\\Qantas Airways'
+          ],
+          [
+            '605',
+            'Travel and Leisure\\RV Rental'
+          ],
+          [
+            '612',
+            'Travel and Leisure\\RV Sales'
+          ],
+          [
+            '694',
+            'Travel and Leisure\\Radisson Hotels'
+          ],
+          [
+            '708',
+            'Travel and Leisure\\Ritz Carlton Hotels'
+          ],
+          [
+            '622',
+            'Travel and Leisure\\Romantic Getaways'
+          ],
+          [
+            '674',
+            'Travel and Leisure\\Safari'
+          ],
+          [
+            '613',
+            'Travel and Leisure\\Satellite Phones'
+          ],
+          [
+            '669',
+            'Travel and Leisure\\Scuba Diving'
+          ],
+          [
+            '627',
+            'Travel and Leisure\\Sex Vacations'
+          ],
+          [
+            '692',
+            'Travel and Leisure\\Sheraton Hotels'
+          ],
+          [
+            '722',
+            'Travel and Leisure\\Singapore Airlines'
+          ],
+          [
+            '628',
+            'Travel and Leisure\\Singles Vacations'
+          ],
+          [
+            '623',
+            'Travel and Leisure\\Ski Vacations'
+          ],
+          [
+            '670',
+            'Travel and Leisure\\Skydiving'
+          ],
+          [
+            '680',
+            'Travel and Leisure\\Snorkeling'
+          ],
+          [
+            '664',
+            'Travel and Leisure\\Snowboarding'
+          ],
+          [
+            '630',
+            'Travel and Leisure\\Spa Vacations'
+          ],
+          [
+            '660',
+            'Travel and Leisure\\Spain Vacations'
+          ],
+          [
+            '686',
+            'Travel and Leisure\\Spelunking'
+          ],
+          [
+            '695',
+            'Travel and Leisure\\Super 8 Motels'
+          ],
+          [
+            '665',
+            'Travel and Leisure\\Surfing'
+          ],
+          [
+            '741',
+            'Travel and Leisure\\Swinger Resorts'
+          ],
+          [
+            '635',
+            'Travel and Leisure\\Swinger Vacations'
+          ],
+          [
+            '733',
+            'Travel and Leisure\\SwissAir'
+          ],
+          [
+            '728',
+            'Travel and Leisure\\TWA'
+          ],
+          [
+            '647',
+            'Travel and Leisure\\Tahiti Vacations'
+          ],
+          [
+            '661',
+            'Travel and Leisure\\Thailand Vacations'
+          ],
+          [
+            '738',
+            'Travel and Leisure\\Thrifty Car Rental'
+          ],
+          [
+            '614',
+            'Travel and Leisure\\Travel Guide'
+          ],
+          [
+            '610',
+            'Travel and Leisure\\Travel Insurance'
+          ],
+          [
+            '604',
+            'Travel and Leisure\\Travel Services'
+          ],
+          [
+            '616',
+            'Travel and Leisure\\Traveler\'s Checks'
+          ],
+          [
+            '631',
+            'Travel and Leisure\\Tropical Vacations'
+          ],
+          [
+            '719',
+            'Travel and Leisure\\US Airways'
+          ],
+          [
+            '712',
+            'Travel and Leisure\\United Airlines'
+          ],
+          [
+            '617',
+            'Travel and Leisure\\Vacation Packages'
+          ],
+          [
+            '726',
+            'Travel and Leisure\\Virgin Atlantic'
+          ],
+          [
+            '682',
+            'Travel and Leisure\\Water Skiing'
+          ],
+          [
+            '611',
+            'Travel and Leisure\\Weather Reports'
+          ],
+          [
+            '697',
+            'Travel and Leisure\\Westin Hotels'
+          ],
+          [
+            '681',
+            'Travel and Leisure\\Whale Watching'
+          ],
+          [
+            '675',
+            'Travel and Leisure\\White Water Rafting'
+          ],
+          [
+            '678',
+            'Travel and Leisure\\Windsurfing'
+          ],
+          [
+            '699',
+            'Travel and Leisure\\Wyndham Hotels'
+          ],
+          [
+            '15010400',
+            'Video Games\\Miscellaneous Video Games'
+          ],
+          [
+            '15010201',
+            'Video Games\\Dreamcast Accessories'
+          ],
+          [
+            '15010207',
+            'Video Games\\Game Boy Advance Accessories'
+          ],
+          [
+            '15010206',
+            'Video Games\\Game Boy Micro Accessories'
+          ],
+          [
+            '9612',
+            'Video Games\\GameCube Accessories'
+          ],
+          [
+            '15010208',
+            'Video Games\\Miscellaneous Video Game Accessories'
+          ],
+          [
+            '15010205',
+            'Video Games\\Nintendo Accessories'
+          ],
+          [
+            '15010209',
+            'Video Games\\Nintendo DS Accessories'
+          ],
+          [
+            '9611',
+            'Video Games\\PSP Accessories'
+          ],
+          [
+            '15010203',
+            'Video Games\\PlayStation 2 Accessories'
+          ],
+          [
+            '9610',
+            'Video Games\\PlayStation 3 Accessories'
+          ],
+          [
+            '15010202',
+            'Video Games\\PlayStation Accessories'
+          ],
+          [
+            '9800',
+            'Video Games\\Video Game Chairs'
+          ],
+          [
+            '9613',
+            'Video Games\\Wii Accessories'
+          ],
+          [
+            '15010204',
+            'Video Games\\Xbox Accessories'
+          ],
+          [
+            '15010301',
+            'Video Games\\Dreamcast Consoles'
+          ],
+          [
+            '15010307',
+            'Video Games\\Game Boy Advance Consoles'
+          ],
+          [
+            '15010306',
+            'Video Games\\Game Boy Micro Consoles'
+          ],
+          [
+            '9607',
+            'Video Games\\GameCube Consoles'
+          ],
+          [
+            '15010308',
+            'Video Games\\Miscellaneous Video Game Consoles'
+          ],
+          [
+            '15010305',
+            'Video Games\\Nintendo Consoles'
+          ],
+          [
+            '15010309',
+            'Video Games\\Nintendo DS'
+          ],
+          [
+            '9608',
+            'Video Games\\PSP Consoles'
+          ],
+          [
+            '15010303',
+            'Video Games\\PlayStation 2 Consoles'
+          ],
+          [
+            '9609',
+            'Video Games\\PlayStation 3 Consoles'
+          ],
+          [
+            '15010302',
+            'Video Games\\PlayStation Consoles'
+          ],
+          [
+            '9606',
+            'Video Games\\Wii Consoles'
+          ],
+          [
+            '15010304',
+            'Video Games\\Xbox Consoles'
+          ],
+          [
+            '15010100',
+            'Video Games\\Video Games'
+          ]
+        ];

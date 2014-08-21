@@ -2104,19 +2104,7 @@ sub fetch_attrib {
 sub resolve_customer_tb {
 	my ($USERNAME,$MID) = @_;
 
-	if (&ZOOVY::myrelease($USERNAME)>201338) { return("CUSTOMERS"); }
-
-	if (not defined $MID) { ($MID) = &ZOOVY::resolve_mid($USERNAME); }
-
-	if ($MID<=0) { 
-		my ($package,$file,$line,$sub,$args) = caller(1);
-		print STDERR "MID[$MID] USERNAME[$USERNAME] caller($package,$file,$line,$sub,$args)\n";
-		return('CUSTOMER_NULL'); 
-		}
-
-   if (not defined $MID) { $MID = &ZOOVY::resolve_mid($USERNAME); }
-   if ($MID%10000>0) { $MID = $MID -($MID % 10000); }
-   return(sprintf("CUSTOMER_%d",$MID));
+	return("CUSTOMERS");
 	}
 
 
@@ -2126,10 +2114,7 @@ sub resolve_customer_tb {
 sub resolve_customer_addr_tb {
 	my ($USERNAME,$MID) = @_;
 
-	if (&ZOOVY::myrelease($USERNAME)>201338) { return("CUSTOMER_ADDRS"); }
-	if (not defined $MID) { $MID = &ZOOVY::resolve_mid($USERNAME); }
-	if ($MID%10000>0) { $MID = $MID -($MID % 10000); }		
-	return(sprintf("CUSTOMER_ADDR_%d",$MID));
+	return("CUSTOMER_ADDRS");
 	}
 
 ##

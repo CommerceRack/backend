@@ -1018,59 +1018,6 @@ sub paymentQCMD {
 	}
 
 
-##
-## serialize a call to disk.
-##
-#sub call_serialize {
-#	my ($self, $v) = @_;
-#
-#	my %out = ();
-#	foreach my $k (keys %{$self}) {
-#		if (substr($k,0,1) eq '*') {
-#			## no support for *LU at the moment
-#			}
-#		elsif ($k eq uc($k)) { 
-#			## ex. APIVERSION
-#			$out{'%_'}->{$k} = $self->{$k}; 
-#			}
-#		}
-#	$out{'%CMD'} = $v;
-#	my $CALLID = sprintf("%s-%s-%s-%s-%s",$self->username(),$v->{'_cmd'},$v->{'_uuid'},&ZTOOLKIT::timestamp(),Data::GUID->new()->as_string());
-#	open F, sprintf(">/dev/shm/call-%s.json",$CALLID);
-#	JSON::XS::encode_json(\%out);
-#	close F;
-#	return($CALLID);
-#	}
-
-##
-##
-##
-#sub call_deserialize {
-#	my ($CALLID) = @_;
-#
-#	my ($JSONAPI,$v) = ();
-#	my $IN = undef;
-#	if (-f "/dev/shm/call-%s.json") {
-#		open F, sprintf("</dev/shm/call-%s.json",$CALLID);
-#		$/ = undef; my $json = <F>; $/ = "\n";
-#		close F;
-#
-#		$IN = JSON::XS::decode_json($json);
-#		}
-#
-#	if (not defined $IN) {
-#		$JSONAPI = JSONAPI->new();
-#		foreach my $k (keys %{$IN->{'%_'}}) {
-#			$JSONAPI->{$k} = $IN->{'%_'};
-#			}
-#		$v = $IN->{'%CMD'};
-#		}	
-#		
-#	## first, establish .. 
-#	return($JSONAPI,$v); 
-#	}
-
-
 
 
 ##
@@ -1120,19 +1067,29 @@ sub async_fetch {
 
 
 
+=pod 
+@apiGroup jsonapi
+=cut
 
 =pod
 
-<API id="adminControlPanelAction">
-<input  id="verb">config-rebuild|nginx-restart|uwsgi-restart</input>
-</API>
+@api {POST} /adminControlPanelAction adminControlPanelAction 
+@apiGroup admin
+@apiName adminControlPanelAction
+@apiDescription
 
-<API id="adminControlPanelQuery">
-<input  id="file"></input>
-<output  id="contents"></input>
-</API>
+special functions to automate system level behaviors.
 
-=cut
+ | verb | explanation |
+ | ---- | ----------- |
+ | config-rebuild | rebuilds config file |
+ | uwsgi-restart | restart uwsgi server |
+ | nginx-restart | restart nginx server |
+
+ @apiParam (Input) {String} verb	see verb table 
+ @apiSuccess (Output) {String} contents	output from operation
+
+ =cut
 
 sub adminControlPanel {
 	my ($self,$v) = @_;
@@ -3137,110 +3094,97 @@ sub set_error {
 #
 #
 
-
-
 =pod
+@api {} API Usage
+@apiName API Usage
+@apiGroup INTRODUCTION
+@apiDescription
 
-<SECTION>
-<h1>API Usage</h1>
-Jquery parameters are passed back and forth using a json hash containing 3 critical elements:
+Parameters are passed back and forth using a json hash containing 3 critical elements:
 _uuid, _cartid, and either _cmd (for single commands) 
-The API itself is designed to be asynchronous, however at this time only a synchronous responses are
-available. 
+The API itself is designed to be asynchronous, however at this time only a synchronous responses are available. 
 
 *_uuid : a unique request id, this is passed back, and is used to identify duplicate requests.
-*  _cartid : the unique cart id (cart id) for this cart, you will receive this after making a request if you do
-not pass one, you must store this in the browser and pass it on subsequent requests.
-* _cmd : a complete list of commands is passed below.  If _cmd is used then parameters to _cmd are passed in the
-upper hash at the same level as _cmd.  If @cmds is used, then that is an array of hashes, each with their
-own "_cmd" - the example below includes *both usages*, however you will only need to use one:
+*  _cartid : the unique cart id (cart id) for this cart, you will receive this after making a request if you do not pass one, you must store this in the browser and pass it on subsequent requests.
+* _cmd : a complete list of commands is passed below.  If _cmd is used then parameters to _cmd are passed in the upper hash at the same level as _cmd.  If @cmds is used, then that is an array of hashes, each with their own "_cmd" - the example below includes *both usages*, however you will only need to use one:
 
-<CODE>
+@apiExample
 {
 "_uuid" : 1234,
 "_cartid" : "12345",
 "_cmd" : "cartItemsAdd",
 "_tag" : "some data you'd like returned",
 "_v" : "unique mvc/app id (used for debugging)"
- }
-</CODE>
-</SECTION>
+}
+=cut
 
-<SECTION>
-<h1>Error Handling</h1>
-handling errors is *critical* to a well behaved application, since there are literally hundreds of things
-which can go wrong at any one time.  With each command (_cmd) request the Zoovy backend will return at a 
-minimum: "rcmd", "rid", and "rmsg". 
-The exact response format depends on how the request was made, if _cmd is used, then the response will 
-include "rcmd" in the response, if @cmds was used, then both a top level "rcmd" indicating 
-success/failure/ warnings of all commands, in addition to an array of hashes containing rcmds for
-each individual request.
-<CAUTION>
-It is important when working with @cmds that you still check "rcmd" before looking at responses in 
-@rcmds because based on the rcmd (ex: "ise") there may be no specific responses. 
-</CAUTION>
+=pod
 
-* # : the unique request you sent in _uuid
-* rcmd : the type of request you sent can be 'ise', or 'err'.
-* if a fatal internal error if rcmd is 'ise', then an 'rid' (response error id) and 'rmsg') will be returned
-* if 'rcmd' is 'err' then it's a formatting error that can be corrected.
+@api {} Error Handling
+@apiName Error Handling
+@apiGroup INTRODUCTION
+@apiDescription
 
-A good rule of thumb is that an 'err' is 100% correctable by you, and an 'ise' *might* be correctable by you,
-but it's probably on Zoovy's end.  (The example where an 'ise' might be correctable would include a non-
-handled error on Zoovy's backend, if you fix the error the ise will go away). 
-On a successful call the rcmd will be the same '_cmd' that was received, or 'ok' if '@cmds' was used.
-<CAUTION>
-*do not* check for the presence of 'errid' to determine if an error occurred. if '_rcmd' had a warning
-(such as old call parameters) then errid and errmsg may also be returned, even though the request had
-actually succeeded.
-</CAUTION>
-</SECTION>
+  | ErrType | Cause |
+  | ------- | ----- |
+  | youwarn | a warning, not really an error, should be displayed to user. |
+  | youerr  | an error caused by the user (ex: data input), easily correctable |
+  | appwarn | a warning, should be logged to developer console |
+  | apperr  | a developer error (probably not correctable by user), ex: data formatting -- this is something the app developer can fix. |
+  | apiwarn | an issue communicating with a third party, does not indicate success/fail |
+  | apierr  | server error (probably not correctable by app), ex: facebook plugin did not work, site offline for maintenance, but usually an uncorrectable 3rd party error. |
+  | iseerr  | backend error, reserved for application to handle 'server down', 'unreachable' or otherwise 'invalid response format' errors  |
+  | cfgerr  | configuration error (something in the server configuration prohibits or blocks the request) |
+  
+  Handling errors is *critical* to a well behaved application, since there are literally hundreds of things
+  which can go wrong at any one time.  With each command (_cmd) request the backend will return at a 
+  minimum: "rcmd", "rid", and "rmsg". 
 
-<SECTION>
-<h1>Pipelined Requests</h1>
+  
+  The exact response format depends on how the request was made, if _cmd is used, then the response will 
+  include "rcmd" in the response, if @cmds was used, then both a top level "rcmd" indicating 
+  success/failure/ warnings of all commands, in addition to an array of hashes containing rcmds for
+  each individual request.
 
-Request:
-<CODE>
+  
+  It is important when working with @cmds that you still check "rcmd" before looking at responses in @rcmds because based on the rcmd (ex: "ise") there may be no specific responses. 
+  
+  
+  *do not* check for the presence of 'errid' to determine if an error occurred. if '_rcmd' had a warning
+  (such as old call parameters) then errid and errmsg may also be returned, even though the request had
+  actually succeeded.
+
+
+@apiExample 
+test
+
+=cut
+
+=pod
+
+@api {} Pipelined Requests
+@apiName PipelinedRequests
+@apiGroup INTRODUCTION
+
+@apiExample
+
 {
 "_cmd" : "pipeline",
 "@cmds" : [
   { "_cmd" : "", .. other parameters .. }
   ],
 }
-</CODE>
-Response:
-<CODE>
+
+
+@apiSuccessExample
+
 {
 "_rcmd" : "pipeline",
 "@rcmds" : [
 	{ "_rcmd" : "", .. other parameters .. }
 	],
 }
-</CODE>
-</SECTION>
 
-<SECTION>
-<h1>Errors</h1>
-* rcmd 'ise', errid 1, request could not be processed.
-* rcmd 'err', errid 2, errmsg Could not determine domain/associated site
-* rcmd 'err', errid 3, errmsg Could not determine associated username
-* rcmd 'err', errid 99, errmsg request did not deserialize properly
-* rcmd 'err', errid 102,	errmsg Unknown _cartid parameter passed
-* rcmd 'err',	errid	103,	errmsg No _cartid parameter passed
-* rcmd 'err',	errid	104,	errmsg No _cmd parameter passed
-* rcmd 'err',	errid	105,	errmsg Invalid _cmd parameter passed
-* rcmd 'err',	errid	106,	errmsg Invalid inside _cmd parameter passed
-* rcmd 'err', errid 107,  errmsg Unhandled else condition in _cmd @cmd detection
-* rcmd 'err', errid 108,  errmsg No valid commands could be found, please check your formatting.
-* rcmd 'err', errid 109,  errmsg A required parameter \"\" was not found or was blank
-* rcmd 'err', errid 110,  errmsg A required parameter \"\" was set to \"\", allowed values (valid: x,y,z)
-* rcmd 'err', errid 111,  errmsg Invalid or Corrupted Cart
-* rcmd 'err', errid 123,  errmsg Cart Authentication is required to make this call
-* rcmd 'err', errid 122,  errmsg Internal error in response from command stack.
-* rcmd 'err', errid 149,  errmsg buyer login required.
-* rcmd 'err', errid 150,  errmsg admin priviledges required.
-* rcmd 'err', errid 151,  errmsg illegal parameter passed.
-</SECTION>
 
 =cut
 
@@ -3665,8 +3609,9 @@ sub helpWiki {
 
 =pod 
 
-<API id="authAdminLogin">
-<purpose>performs authentication and returns an admin session id which can be used to make adminXXXXX calls.</purpose>
+@api /authAdminLogin authAdminLogin
+
+performs authentication and returns an admin session id which can be used to make adminXXXXX calls.</purpose>
 <input id="device_note"></input>
 <input id="ts" type="timestamp">current timestamp YYYYMMDDHHMMSS</input>
 <input id="authtype" optional="1">md5|sha1|facebook|googleid|paypal</input>
@@ -6657,6 +6602,21 @@ sub adminSupplier {
 				$pstmt = "update VENDOR_ORDERS set STATUS='CONFIRMED' where STATUS in ('PLACED') and MID=$MID /* $USERNAME */ and OUR_ORDERID=$qtOID";
 				print STDERR "$pstmt\n";
 				&JSONAPI::dbh_do(\%R,$udbh,$pstmt);				
+				}
+	       elsif ($VERB eq 'ORDER:FIXERROR') {
+				## only orders which arae hold
+				my ($OID) = $pref->{'orderid'};
+				my $qtOID = $udbh->quote($OID);
+				my $pstmt = "update VENDOR_ORDERS set STATUS='OPEN' where STATUS='ERROR' and MID=$MID /* $USERNAME */ and OUR_ORDERID=$qtOID";
+				print STDERR $pstmt."\n";
+				$self->accesslog('SUPPLIER.ORDERS.FIXERROR',"[ORDER: $OID] was reset from ERROR to OPEN",'INFO');
+				my ($rv) = &JSONAPI::dbh_do(\%R,$udbh,$pstmt);
+				if ($rv==1) {
+				   push @MSGS, "SUCCESS|FIXERROR ORDER: $OID";
+				   }
+				else {
+				   &JSONAPI::set_error(\%R,'apperr',4900,"APPROVE FAILURE ON ORDER: $OID");
+					}
 				}
 			elsif ($VERB eq 'ORDER:APPROVE') {
 				## only orders which arae hold
@@ -13886,6 +13846,7 @@ sub adminProject {
 				SECRET=>'secret',
 				GITHUB_REPO=>$REPO,
 				GITHUB_BRANCH=>$BRANCH,
+				GITHUB_TXLOG=>'',
 				TYPE=>$TYPE,
 				},sql=>1);
 			print STDERR $pstmt."\n";
@@ -17464,7 +17425,7 @@ sub platformInfo {
 	$R{'api-max-version'} = $JSONAPI::VERSION;
 	$R{'api-min-version'} = $JSONAPI::VERSION_MINIMUM;
 	$R{'api-our-version'} = $self->apiversion();
-	$R{'db-version'} = &ZOOVY::myrelease($self->username());
+	## $R{'db-version'} = &ZOOVY::myrelease($self->username());
 	## $R{'cluster'} = &ZOOVY::resolve_cluster($self->username());
 	$R{'mid'} = &ZOOVY::resolve_mid($self->username());
 	

@@ -1,0 +1,212 @@
+[
+	## NOTE: eventually we need to add.
+	#payment_accepted
+	#Details 	Acceptable payment methods for item purchases. Acceptable values are "Cash," "Check," "Visa," "MasterCard," "AmericanExpress," "Discover," or "WireTransfer." If you accept more than one method, include multiple instances of the <payment_accepted> attribute for each acceptable method.
+	#Example 	Acceptable:
+	#<g:payment_accepted>Cash</g:payment_accepted>
+	#<g:payment_accepted>Check</g:payment_accepted>
+	#Not acceptable:
+	#<g:payment_accepted>Cash Check</g:payment_accepted>
+	#Attribute of 	Events, Housing, Products, Services, Travel, Vehicles
+	#Content type 	paymentMethodEnumeration		
+
+	#tax_region
+	#Details 	Geographical region a tax rate applies to.
+	#Example 	<g:tax_region>California</g:tax_region>
+	#Attribute of 	Product, Events,
+	#Content type 	string
+	
+	# Details  	 Tax rate as a percentage.
+	#Example 	<g:tax_percent>8.2</g:tax_percent>
+	#Attribute of 	Products, Events
+	#Content type 	percentType
+
+	# http://www.google.com/support/merchants/bin/answer.py?hl=en&answer=188494
+	# changes for Sep 22
+	##	added 
+	#	- g:id
+	#	- g:google_product_category => google category
+	#	- g:additional_image_link
+	#	- g:availability
+	#	- g:gtin
+	#	- g:gender
+	#	- g:age_group
+	#	- g:color
+	#	- g:item_group_id
+	#	- g:shipping_weight
+	#	- g:material
+	#	- g:pattern
+	#
+	## changed
+	#	- g:price 	-> now includes " USD"
+	#	- g:size 	=> now a variant attrib
+	#
+	## removed
+	#	- g:currency
+	#	- g:upc
+	#	- g:isbn
+	#	- g:publisher
+	#	- g:rating
+	#	- g:manufacturer
+	#	- g:model_number
+	#	- g:weight
+	#
+	# 1. Basic Product Information
+	{
+	'header'=>'g:id',
+	'@try'=>['%PRODUCTID'],
+	},
+	{
+	'header'=>'title',
+	'@try'=>['gbase:prod_name','%TITLE_WITH_OPTIONS','zoovy:prod_name'],
+	'@format'=>['htmlstrip','wikistrip','stripunicode'],
+	'@validation'=>['not-blank'],
+	},
+	{
+	'header'=>'description',
+	'@try'=>['gbase:prod_desc','zoovy:prod_desc'],
+	'@format'=>['htmlstrip','wikistrip','stripunicode','trim?bytes=1000'],
+	'@validation'=>['not-blank'],
+	},
+	{
+	'header'=>'g:google_product_category',
+	'@try'=>['gbase:product_type'],
+	'@format'=>['stripunicode','lookup-category','replace?this=%2F&with=%3E'],
+	'@skip'=>['if-blank'],
+	},
+	{
+	'header'=>'g:product_type',
+	'@try'=>['navcat:meta'],
+	'@format'=>['stripunicode','replace?this=%2F&with=%3E'],
+	'@skip'=>['if-blank'],
+	},
+	{
+	'header'=>'link',
+	'@try'=>['zoovy:link2'],
+	},
+	{ 
+	'header'=>'g:image_link',
+	'@format'=>['imageurl?h=400&w=400'],
+	'@try'=>['zoovy:prod_thumb','zoovy:prod_image1'],
+	'@validation'=>['not-blank'],
+	},
+	{
+	'header'=>'g:additional_image_link',
+	'@format'=>['imageurl?h=400&w=400'],
+	'@try'=>['zoovy:prod_image2'],
+	'@validation'=>['not-blank'],
+	},
+	{
+	'header'=>'g:additional_image_link',
+	'@format'=>['imageurl?h=400&w=400'],
+	'@try'=>['zoovy:prod_image3'],
+	'@validation'=>['not-blank'],
+	},
+	{
+	'header'=>'g:condition',
+	'@try'=>['zoovy:prod_condition','%CONSTANT:new'],
+	},
+	#
+	# 2. Availability & Price
+	{
+	'header'=>'g:availability',
+	'@try'=>['%IN_STOCK'],
+	},
+	## price should now be following by currency
+	## ie 15.99 => 15.99 USD
+	{
+	'header'=>'g:price',
+	'@try'=>['gbase:base_price','zoovy:base_price'],
+	'@format'=>['currency-with-USD'],
+	'@validation'=>['positive-number'],
+	},
+	#
+	# 3. Unique Product Identifiers
+	{
+	'header'=>'g:brand',
+	'@try'=>['zoovy:prod_brand','zoovy:prod_mfg'],
+	'@skip'=>['if-blank'],
+	'@format'=>['stripunicode'],
+	},
+	# Global Trade Item Number (GTIN) of the item
+	# These identifiers include UPC (in North America), EAN (in Europe), JAN (in Japan), and ISBN (for books)
+	{
+	'header'=>'g:gtin',
+	'@try'=>['gbase:prod_upc','zoovy:prod_upc','zoovy:prod_fakeupc','zoovy:prod_isbn'],
+	'@validation'=>['not-blank'],
+	'@skip'=>['if-blank'],
+	'@format'=>['stripunicode'],
+	},
+	{
+	'header'=>'g:mpn',
+	'@try'=>['zoovy:prod_mfgid'],
+	'@skip'=>['if-blank'],
+	'@format'=>['stripunicode'],
+	},
+	#
+	# 4. Product Variants
+	{
+   'header'=>'g:item_group_id',
+	'@try'=>['%PARENT_PID',''],
+	'@skip'=>['if-blank'],
+	},
+	{
+   'header'=>'g:color',
+	'@try'=>['%OPTION_COLOR','gbase:prod_color','zoovy:prod_color',''],
+	'@skip'=>['if-blank'],
+	},
+	{
+   'header'=>'g:material',
+	'@try'=>['%OPTION_MATERIAL','gbase:prod_material',''],
+	'@skip'=>['if-blank'],
+	},
+	{
+   'header'=>'g:pattern',
+	'@try'=>['%OPTION_PATTERN','gbase:prod_pattern',''],
+	'@skip'=>['if-blank'],
+	},
+	{
+   'header'=>'g:size',
+	'@try'=>['%OPTION_SIZE','gbase:prod_size','zoovy:prod_size',''],
+	'@skip'=>['if-blank'],
+	},
+	#
+	# 5. Apparel Products
+	{
+   'header'=>'g:gender',
+	'@try'=>['gbase:prod_gender','zoovy:prod_gender','%CONSTANT:unisex',''],
+	'@skip'=>['if-blank'],
+	},
+	{
+   'header'=>'g:age_group',
+	'@try'=>['gbase:prod_age_group','%CONSTANT:adult',''],
+	'@skip'=>['if-blank'],
+	},
+	#
+	# 6. Tax & Shipping
+	{ 
+	'header'=>'g:shipping_weight',
+	'@try'=>['zoovy:ship_weight','zoovy:base_weight'],
+	'@format'=>['stripunicode','weight-in-lb'],
+	'@skip'=>['if-blank'],
+	},
+
+# Adwords group
+# http://www.google.com/support/merchants/bin/answer.py?answer=188479
+#	{
+#	'header'=>'g:adwords_grouping',
+#	'@try'=>['adwords:grouping','zoovy:prod_folder','zoovy:catalog'],
+#	'@skip'=>['if-blank'],
+#	},
+#	{
+#	'header'=>'g:adwords_publish',
+#	'@try'=>['adwords:blocked'],
+#	'@skip'=>['if-blank'],
+#	'@format'=>['boolean-opposite','boolean-truefalse'],
+#	},
+#	{
+#	'header'=>'g:adwords_redirect',
+#	'@try'=>['%G_ADWORDS_REDIRECT'],
+#	},
+]
+

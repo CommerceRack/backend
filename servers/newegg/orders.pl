@@ -505,7 +505,7 @@ sub downloadOrders {
 					## bummer, this function isnt supported on their new ftp server - changed - 2011-09-20
 					#my $modified = $ftp->mdtm($dir."/".$file);
 					## example: OrderList_20110918_200225.csv
-					$file =~ /OrderList_(\d\d\d\d)(\d\d)(\d\d)_(\d\d)(\d\d)(\d\d)\.csv/i;
+					$file =~ /OrderList_(\d\d\d\d)(\d\d)(\d\d)_(\d\d)(\d\d)(\d\d).*\.csv/i;
 					my ($date) = ("$1-$2-$3 $4:$5:$6 MST");
 					my $modified = ZTOOLKIT::gmtime_to_unixtime($date);
 					

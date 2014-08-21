@@ -1,0 +1,795 @@
+topCat_id	TopCatname	firstCat_id	firstCatname	secondCat_id	secondCatname				
+40443	Accessories	40457	A/V & Music Accessories	46879	A/V Amps, Modulators, Filters & Splitters				
+40443	Accessories	40457	A/V & Music Accessories	46880	A/V Home Theater Distribution & Switching				
+40443	Accessories	40457	A/V & Music Accessories	46881	A/V Remote Controls				
+40443	Accessories	40457	A/V & Music Accessories	40530	Audio Adapters				
+40443	Accessories	40457	A/V & Music Accessories	46882	Audio Cassette Copiers				
+40443	Accessories	40457	A/V & Music Accessories	40531	Audio Equalizers				
+40443	Accessories	40457	A/V & Music Accessories	40532	Audio Mixers				
+40443	Accessories	40457	A/V & Music Accessories	40533	PC Headset/Microphone Combo				
+40443	Accessories	40457	A/V & Music Accessories	40534	PC Headsets/Headphones				
+40443	Accessories	40457	A/V & Music Accessories	40535	PC Microphones				
+40443	Accessories	40457	A/V & Music Accessories	46798	Speakers, Subwoofers & Accessories				
+40443	Accessories	45404	Anti Theft Devices	45470	Cable Locks				
+40443	Accessories	45404	Anti Theft Devices	45471	Motion Sensors				
+40443	Accessories	45404	Anti Theft Devices	45472	Password/Token Security				
+40443	Accessories	45404	Anti Theft Devices	45473	Plate Locks				
+40443	Accessories	45404	Anti Theft Devices	45474	Solenoid Locks				
+40443	Accessories	40458	Desk Accessories	40536	Back & Foot Rests				
+40443	Accessories	40458	Desk Accessories	40537	Calculators				
+40443	Accessories	40458	Desk Accessories	46756	Computer Tool Kits				
+40443	Accessories	40458	Desk Accessories	40538	Copy Holders				
+40443	Accessories	40458	Desk Accessories	40539	CPU Stands				
+40443	Accessories	40458	Desk Accessories	40540	Desk Organizers				
+40443	Accessories	40458	Desk Accessories	40541	Dust Covers				
+40443	Accessories	40458	Desk Accessories	40542	Keyboard Accessories				
+40443	Accessories	40458	Desk Accessories	40543	Mouse & Keyboard Pads & Rests				
+40443	Accessories	40458	Desk Accessories	40544	Travel Lights & Fans				
+40443	Accessories	46757	Keyboard Drawers/Platforms [Alias]	NULL	NULL				
+40443	Accessories	40459	Monitor/TV Accessories	46883	Converter Boxes				
+40443	Accessories	40459	Monitor/TV Accessories	40545	Display Accessories				
+40443	Accessories	40459	Monitor/TV Accessories	40546	LCD Display Carrying Cases				
+40443	Accessories	40459	Monitor/TV Accessories	40547	Monitor Anti-Glare Filters				
+40443	Accessories	40459	Monitor/TV Accessories	40548	Monitor Overlays				
+40443	Accessories	40459	Monitor/TV Accessories	40549	Monitor/TV Lifts/Arms/Stands/Mounts/Bezels				
+40443	Accessories	40459	Monitor/TV Accessories	40550	Remote Controls				
+40443	Accessories	47831	Network Accessories	47832	Network Security Accs & Components				
+40443	Accessories	40460	Notebook/Tablet Accessories	40551	Notebook Accessory Kits				
+40443	Accessories	40460	Notebook/Tablet Accessories	45424	Notebook Batteries/Chargers/AC				
+40443	Accessories	40460	Notebook/Tablet Accessories	40552	Notebook Carrying Cases & Carts				
+40443	Accessories	40460	Notebook/Tablet Accessories	40553	Notebook Docking Options & Stands				
+40443	Accessories	40460	Notebook/Tablet Accessories	40554	Notebook Explansion Bays & Options				
+40443	Accessories	40460	Notebook/Tablet Accessories	45425	Notebook GPS Products				
+40443	Accessories	40460	Notebook/Tablet Accessories	40555	Notebook Power Options				
+40443	Accessories	40460	Notebook/Tablet Accessories	45426	Notebook Travel Connectivity				
+40443	Accessories	40460	Notebook/Tablet Accessories	40556	Tablet PC Accessories				
+40443	Accessories	40462	Printer/Plotter Accessories	45430	Label Printer Accessories				
+40443	Accessories	40462	Printer/Plotter Accessories	40564	Plotter Spindles & Roll Feeders				
+40443	Accessories	40462	Printer/Plotter Accessories	40565	Print Servers & Interface Cards				
+40443	Accessories	40462	Printer/Plotter Accessories	40566	Printer Carrying Cases & Covers				
+40443	Accessories	40462	Printer/Plotter Accessories	45431	Printer Distance Extenders				
+40443	Accessories	40462	Printer/Plotter Accessories	40567	Printer Duplex Units				
+40443	Accessories	40462	Printer/Plotter Accessories	40568	Printer Hard Drives				
+40443	Accessories	40462	Printer/Plotter Accessories	40569	Printer Management Software				
+40443	Accessories	40462	Printer/Plotter Accessories	40570	Printer Memory				
+40443	Accessories	40462	Printer/Plotter Accessories	40571	Printer Multifunction/Fax Options				
+40443	Accessories	40462	Printer/Plotter Accessories	40572	Printer Power Options				
+40443	Accessories	40462	Printer/Plotter Accessories	40573	Printer Sharing/Extender Devices				
+40443	Accessories	40462	Printer/Plotter Accessories	40574	Printer Trays/Drawers/Env Feeders				
+40443	Accessories	40462	Printer/Plotter Accessories	40575	Printer Upgrades				
+40443	Accessories	40462	Printer/Plotter Accessories	40576	Printer User Manuals				
+40443	Accessories	40462	Printer/Plotter Accessories	40577	Printer/Plotter Emulation/Font Upgr				
+40443	Accessories	40462	Printer/Plotter Accessories	40578	Printer/Plotter Furniture				
+40443	Accessories	40462	Printer/Plotter Accessories	40579	Printer/Plotter Output Options				
+40443	Accessories	40462	Printer/Plotter Accessories	40580	Push/Pull Tractors				
+40443	Accessories	40463	Projector Accessories	40581	Document Cameras				
+40443	Accessories	40463	Projector Accessories	40582	Projector Cables				
+40443	Accessories	40463	Projector Accessories	40583	Projector Cases				
+40443	Accessories	40463	Projector Accessories	40584	Projector Lens				
+40443	Accessories	40463	Projector Accessories	40585	Projector Mounting				
+40443	Accessories	40463	Projector Accessories	40586	Projector Network Adapters & Software				
+40443	Accessories	40463	Projector Accessories	52590	Projector Screen Accessories				
+40443	Accessories	40463	Projector Accessories	40587	Remote Controls/Pointers				
+40443	Accessories	40463	Projector Accessories	40588	Replacement Air Filters				
+40443	Accessories	40463	Projector Accessories	40589	Replacement Lamps				
+40443	Accessories	40463	Projector Accessories	40590	Transparency Adapters (TPAs)				
+40443	Accessories	40464	Scanner Accessories	40591	Document/Network Scan Servers				
+40443	Accessories	40464	Scanner Accessories	40592	Scanner ADF Auto Document Feeders				
+40443	Accessories	40464	Scanner Accessories	40593	Scanner Carrying Cases				
+40443	Accessories	40464	Scanner Accessories	40594	Scanner Consumables, AC Adapters & Kits				
+40443	Accessories	40464	Scanner Accessories	45432	Scanner Endorsers				
+40443	Accessories	40464	Scanner Accessories	40595	Scanner Film Holders/Feeders				
+40443	Accessories	40464	Scanner Accessories	40596	Scanner Imprinters & Endorsers				
+40443	Accessories	40464	Scanner Accessories	40597	Scanner Interface Cards				
+40443	Accessories	40464	Scanner Accessories	40598	Scanner Slide Adapters				
+40443	Accessories	40465	Storage Accessories & Components	40599	Data Transfer Kits				
+40443	Accessories	40465	Storage Accessories & Components	40600	Drive AC Power Adapters				
+40443	Accessories	40465	Storage Accessories & Components	40601	Drive Interface Converters				
+40443	Accessories	40465	Storage Accessories & Components	40602	Drive Mounting Hardware				
+40443	Accessories	40465	Storage Accessories & Components	45433	Driver Controller Components				
+40443	Accessories	40465	Storage Accessories & Components	45434	Jewel Cases, Labeling & Inserts				
+40443	Accessories	40465	Storage Accessories & Components	40603	Media Storage Cases & Stands				
+40443	Accessories	40465	Storage Accessories & Components	45436	Optical Device Components				
+40443	Accessories	40465	Storage Accessories & Components	40604	Portable Drive Carrying Cases				
+40443	Accessories	40465	Storage Accessories & Components	45437	SAN Components				
+40443	Accessories	40465	Storage Accessories & Components	40605	Space Management Products				
+40443	Accessories	40465	Storage Accessories & Components	45438	Tape Array Components				
+40443	Accessories	40465	Storage Accessories & Components	45439	Tape Library Components				
+40443	Accessories	40466	Video Gaming Accessories	40606	Game Console Accessories				
+40443	Accessories	40466	Video Gaming Accessories	40607	Game Organizers & Cases				
+40443	Accessories	40466	Video Gaming Accessories	40608	Other Video Game Accessories				
+40443	Accessories	40466	Video Gaming Accessories	40609	Video Game Cables & Adapters				
+40443	Accessories	40466	Video Gaming Accessories	40610	Video Game Controllers				
+40443	Accessories	40466	Video Gaming Accessories	40611	Video Game Expansion Products				
+40443	Accessories	40466	Video Gaming Accessories	40612	Video Game Memory Cards & Units				
+40443	Accessories	40466	Video Gaming Accessories	40613	Video Game Surge Protectors				
+40444	Cables	40467	A/V Cables	41276	Audio & Video Cables & Adapters				
+40444	Cables	40467	A/V Cables	41277	Audio Cables & Adapters				
+40444	Cables	40467	A/V Cables	40614	Monitor Cables & Adapters				
+40444	Cables	40467	A/V Cables	41278	Speaker Wire				
+40444	Cables	40467	A/V Cables	41279	Video Cables & Adapters				
+40444	Cables	40468	Cabling Components & Tools	40615	Cable Management				
+40444	Cables	40468	Cabling Components & Tools	40616	Jacks, Outlets & Faceplates				
+40444	Cables	40468	Cabling Components & Tools	40617	Patch Panels & Mounting				
+40444	Cables	40468	Cabling Components & Tools	40618	Tools & Toolkits				
+40444	Cables	45405	Communication Device Cables	45475	Video Conference Cabling				
+40444	Cables	45405	Communication Device Cables	45476	WAN Interface Cables				
+40444	Cables	40469	Computer Cables & Adapters	40619	File Transfer Cables				
+40444	Cables	40469	Computer Cables & Adapters	40620	Firewire Cables & Adapters				
+40444	Cables	40469	Computer Cables & Adapters	40621	Phone Line Cables				
+40444	Cables	40469	Computer Cables & Adapters	40622	Straight Through Serial Cables				
+40444	Cables	40469	Computer Cables & Adapters	40623	USB Cables & Adapters				
+40444	Cables	45406	Device Cables	45477	EIDE Ribbon Cables & Adapters				
+40444	Cables	45406	Device Cables	45478	Floppy Drive Cables				
+40444	Cables	45406	Device Cables	45479	Infrared Adapters				
+40444	Cables	45406	Device Cables	45480	Keyboard Cables & Adapters				
+40444	Cables	45406	Device Cables	45481	Motherboard Cables & Adapters				
+40444	Cables	45406	Device Cables	45482	Mouse Cables & Adapter				
+40444	Cables	45406	Device Cables	45483	Null Modem Cables & Adapters				
+40444	Cables	45406	Device Cables	45484	Parallel Printer Cables & Adapters				
+40444	Cables	45406	Device Cables	45485	PDA Sync Cables				
+40444	Cables	45406	Device Cables	45486	Proprietary Device Cables				
+40444	Cables	45406	Device Cables	45487	SCSI External Cables				
+40444	Cables	45406	Device Cables	45488	SCSI Ribbon Cables & Adapters				
+40444	Cables	45406	Device Cables	45489	SCSI Terminators				
+40444	Cables	45406	Device Cables	45490	Serial ATA Cables				
+40444	Cables	45406	Device Cables	45491	Travel Adapters for Phone/Power				
+40444	Cables	40470	I/O Device Cables	40624	Joystick Cables & Adapters				
+40444	Cables	40470	I/O Device Cables	40625	Keyboard/Mouse Cables & Adapters				
+40444	Cables	40470	I/O Device Cables	40626	KVM Switch Cables & Adapters				
+40444	Cables	40470	I/O Device Cables	40627	Modem Cables & Adapters				
+40444	Cables	40470	I/O Device Cables	40628	Printer Cables & Adapters				
+40444	Cables	46755	Internal Ribbon Cables & Adapters	NULL	NULL				
+40444	Cables	40471	Network Cables	52584	Ethernet Coax Cables & Adapters				
+40444	Cables	40471	Network Cables	47741	Ethernet coax cables and adapters				
+40444	Cables	40471	Network Cables	40630	Fiber Optic Cables & Adapters				
+40444	Cables	40471	Network Cables	40631	Modular Connectors				
+40444	Cables	40471	Network Cables	40632	Proprietary Network Device Cables				
+40444	Cables	40471	Network Cables	40633	Token Ring Cables				
+40444	Cables	40471	Network Cables	40629	Twisted pair cables and adapters				
+40444	Cables	45407	Network Device Cables	45492	Fibre Channel Cables & Adapters				
+40444	Cables	45407	Network Device Cables	45493	PCMCIA Replacement Cables				
+40444	Cables	45407	Network Device Cables	45494	SAN Device (Proprietary) Cables				
+40444	Cables	45407	Network Device Cables	45495	Security Device (Proprietary) Cables				
+40444	Cables	45407	Network Device Cables	45496	Server Device Cables				
+40444	Cables	45408	Peripheral Switches	45497	Auto Printer Switchboxes				
+40444	Cables	45408	Peripheral Switches	45498	KVM Switch Components				
+40444	Cables	45408	Peripheral Switches	45499	KVM Switch Extenders				
+40444	Cables	45408	Peripheral Switches	45500	Manual Printer Switchboxes				
+40444	Cables	45408	Peripheral Switches	45501	Monitor Switchboxes				
+40444	Cables	45408	Peripheral Switches	45502	Printer Extenders				
+40444	Cables	45408	Peripheral Switches	45503	Serial Switchboxes				
+40444	Cables	45408	Peripheral Switches	45504	Video Splitters				
+40444	Cables	40472	Power Cables	40634	AC Power Cables				
+40444	Cables	40472	Power Cables	40635	Indoor/Outdoor Extension Cords				
+40444	Cables	40473	Storage Cables	40636	Drive Power Cables				
+40444	Cables	40473	Storage Cables	40637	External Storage Cables & Adapters				
+40444	Cables	40473	Storage Cables	40638	Internal Storage Cables & Adapters				
+40445	Communications	40476	Carrier Transport Equipment	49110	Broadband Loop Carriers				
+40445	Communications	40476	Carrier Transport Equipment	49109	DSL Access Multiplexor				
+40445	Communications	40476	Carrier Transport Equipment	40652	Multiplexor Components				
+40445	Communications	40476	Carrier Transport Equipment	40653	Multiplexors				
+40445	Communications	40476	Carrier Transport Equipment	49111	Optical Transport				
+40445	Communications	40474	CSU/DSU's	40639	CSU/DSU/SDU Components				
+40445	Communications	40474	CSU/DSU's	40640	CSU/DSU/SDU Devices				
+40445	Communications	40461	Mobility accessories	40557	PDA Accessory Kits				
+40445	Communications	40461	Mobility accessories	45427	PDA Batteries/Chargers/AC Adapters				
+40445	Communications	40461	Mobility accessories	40558	PDA Carrying Cases				
+40445	Communications	40461	Mobility accessories	40559	PDA Expansion Cards				
+40445	Communications	40461	Mobility accessories	45428	PDA GPS Products				
+40445	Communications	40461	Mobility accessories	40560	PDA Power Options				
+40445	Communications	40461	Mobility accessories	40561	PDA Screen Protectors				
+40445	Communications	40461	Mobility accessories	40562	PDA Stylus				
+40445	Communications	40461	Mobility accessories	40563	PDA Sync Devices & Cables				
+40445	Communications	40461	Mobility accessories	45429	PDA Travel Connectivity				
+40445	Communications	53355	Mobility Communication Devices	40642	Cellular GPRS/CDMA/CDPD Modems				
+40445	Communications	53355	Mobility Communication Devices	40654	Cellular Phones				
+40445	Communications	53355	Mobility Communication Devices	53356	Data Cards				
+40445	Communications	53355	Mobility Communication Devices	40728	GPS Connectivity Devices				
+40445	Communications	53355	Mobility Communication Devices	40656	Pagers				
+40445	Communications	53355	Mobility Communication Devices	40679	PDA				
+40445	Communications	53355	Mobility Communication Devices	40678	PDA Wireless				
+40445	Communications	53355	Mobility Communication Devices	40681	Personal Organizers				
+40445	Communications	53355	Mobility Communication Devices	40680	Smart Phones				
+40445	Communications	40475	Modems & Connectivity Adapters	40641	Broadband (Cable/DSL) Modems				
+40445	Communications	40475	Modems & Connectivity Adapters	40643	Combo Modem/NIC				
+40445	Communications	40475	Modems & Connectivity Adapters	40644	Dial-Up Modems				
+40445	Communications	40475	Modems & Connectivity Adapters	40645	Host Connectivity				
+40445	Communications	40475	Modems & Connectivity Adapters	40646	ISDN & Sync Adapters				
+40445	Communications	40475	Modems & Connectivity Adapters	40647	Leased Line Modems				
+40445	Communications	40475	Modems & Connectivity Adapters	40648	Line Sharing Devices				
+40445	Communications	40475	Modems & Connectivity Adapters	40649	Multi-Modem Devices				
+40445	Communications	40475	Modems & Connectivity Adapters	40650	Rackmount Modems & Components				
+40445	Communications	40475	Modems & Connectivity Adapters	40651	Remote Access Modems				
+40445	Communications	40477	Phone Systems, Phones & Components	40655	IP Phones & Software				
+40445	Communications	40477	Phone Systems, Phones & Components	40657	PBX/IP-PBX Systems				
+40445	Communications	40477	Phone Systems, Phones & Components	40658	Phone System Cards & Components				
+40445	Communications	40477	Phone Systems, Phones & Components	40659	Phone System Software				
+40445	Communications	40478	Video & Audio Conferencing Equipment	41275	Audio Conferencing Components				
+40445	Communications	40478	Video & Audio Conferencing Equipment	40660	Audio Conferencing Units				
+40445	Communications	40478	Video & Audio Conferencing Equipment	40661	MultiPoint Video Conference Systems & Gateways				
+40445	Communications	40478	Video & Audio Conferencing Equipment	40662	Video Conference System Components				
+40445	Communications	40478	Video & Audio Conferencing Equipment	40663	Video Conference Systems				
+40445	Communications	40478	Video & Audio Conferencing Equipment	40664	Video Conferencing Cameras				
+40445	Communications	40478	Video & Audio Conferencing Equipment	40665	Video Conferencing Carts				
+40445	Communications	40478	Video & Audio Conferencing Equipment	40666	Video Conferencing Software				
+40445	Communications	40479	Voice Mail & Fax Equipment	40667	Fax Servers				
+40445	Communications	40479	Voice Mail & Fax Equipment	40668	Intelligent Fax Boards				
+40445	Communications	40479	Voice Mail & Fax Equipment	40669	Voice Boards				
+40445	Communications	40479	Voice Mail & Fax Equipment	40670	Voice Mail System Components				
+40445	Communications	40479	Voice Mail & Fax Equipment	40671	Voice Mail System Software				
+40446	Computer Systems	40480	Barebones Computers	45440	Barebones & Monitor Units				
+40446	Computer Systems	40480	Barebones Computers	46777	Barebones Notebooks				
+40446	Computer Systems	40480	Barebones Computers	40672	Barebones PC				
+40446	Computer Systems	40480	Barebones Computers	40673	Barebones Servers				
+40446	Computer Systems	40481	Desktop Computers	40674	Computer & Monitor Units				
+40446	Computer Systems	40481	Desktop Computers	40675	Desktop Systems				
+40446	Computer Systems	40481	Desktop Computers	40676	Small Form/ Ultra Slim Systems				
+40446	Computer Systems	40481	Desktop Computers	40677	Tower Systems				
+40446	Computer Systems	40482	Personal Digital Assistants	NULL	NULL				
+40446	Computer Systems	40483	Portable Computers	40682	Notebooks				
+40446	Computer Systems	40483	Portable Computers	40683	Tablet PCs				
+40446	Computer Systems	40484	Server Computers	49149	Blade Server Components				
+40446	Computer Systems	40484	Server Computers	40684	Blade Servers				
+40446	Computer Systems	40484	Server Computers	40685	Pedestal (Tower) Servers				
+40446	Computer Systems	40484	Server Computers	40686	Rackmount Servers				
+40446	Computer Systems	40485	Thin Clients & Terminals	40689	All in One Thin Clients				
+40446	Computer Systems	40485	Thin Clients & Terminals	40687	General Purpose Terminals				
+40446	Computer Systems	40485	Thin Clients & Terminals	40688	Terminal Components				
+40446	Computer Systems	40485	Thin Clients & Terminals	49108	Thin Client Terminals				
+40446	Computer Systems	40486	Workstations	40690	Itanium-Based Workstation				
+40446	Computer Systems	40486	Workstations	40691	Opteron-Based Workstation				
+40446	Computer Systems	40486	Workstations	40692	P4-Based Workstation				
+40446	Computer Systems	40486	Workstations	40693	RISC-Based Workstation				
+40446	Computer Systems	40486	Workstations	40694	XEON-Based Workstation				
+40447	Displays	40487	Computer Monitors	40695	CRT Monitors				
+40447	Displays	40487	Computer Monitors	47123	CRT Touch Screen				
+40447	Displays	40487	Computer Monitors	40696	LCD Monitors				
+40447	Displays	40487	Computer Monitors	47124	LCD Touch Screen				
+40447	Displays	40488	Medical Display Solutions	40697	Diagnostic Imaging Displays				
+40447	Displays	40488	Medical Display Solutions	40698	Mobile Point of Care Displays & Systems				
+40447	Displays	40488	Medical Display Solutions	40699	Patient Monitoring/Charting Displays				
+40448	Imaging Devices	40489	Scanners	41273	3D Scanners				
+40448	Imaging Devices	40489	Scanners	41272	Business Card Scanners				
+40448	Imaging Devices	40489	Scanners	40700	Card Scanners				
+40448	Imaging Devices	40489	Scanners	40701	Document Scanners				
+40448	Imaging Devices	40489	Scanners	40702	Flatbed Scanners				
+40448	Imaging Devices	40489	Scanners	40703	Handheld Scanners				
+40448	Imaging Devices	40489	Scanners	41274	Home/Office Scanners				
+40448	Imaging Devices	40489	Scanners	40704	Photo Scanners				
+40448	Imaging Devices	40489	Scanners	41271	Production/Enterprise Scanners				
+40448	Imaging Devices	40489	Scanners	40705	Slide/Film/Transparency Scanners				
+40449	Input/Output Devices	40490	Keyboards & Keypads	45441	Keyboard/Mice Bundles				
+40449	Input/Output Devices	40490	Keyboards & Keypads	40706	Keyboards				
+40449	Input/Output Devices	40490	Keyboards & Keypads	40707	Keypads				
+40449	Input/Output Devices	40490	Keyboards & Keypads	45442	PDA Keyboards				
+40449	Input/Output Devices	40490	Keyboards & Keypads	45443	Terminal Keyboards				
+40449	Input/Output Devices	40491	PC Game Controllers	40708	Gamepads				
+40449	Input/Output Devices	40491	PC Game Controllers	40709	Joysticks/Flightsticks				
+40449	Input/Output Devices	40491	PC Game Controllers	40710	Wheels & Pedals				
+40449	Input/Output Devices	40492	Pointing Devices & Whiteboards	40711	Graphics Tablets/Stylus				
+40449	Input/Output Devices	40492	Pointing Devices & Whiteboards	40712	Mice				
+40449	Input/Output Devices	40492	Pointing Devices & Whiteboards	40713	Touchpads				
+40449	Input/Output Devices	40492	Pointing Devices & Whiteboards	40714	Trackballs				
+40449	Input/Output Devices	40492	Pointing Devices & Whiteboards	40715	Whiteboards				
+40449	Input/Output Devices	45409	Scanners	45505	Graphic Flatbed Scanners				
+40449	Input/Output Devices	45409	Scanners	45506	Network Scanners				
+40449	Input/Output Devices	40493	Serial/Parallel & I/O Cards	40716	I/O Combo Cards				
+40449	Input/Output Devices	40493	Serial/Parallel & I/O Cards	40717	Multiport Serial Devices & Cables				
+40449	Input/Output Devices	40493	Serial/Parallel & I/O Cards	40718	Parallel Cards				
+40449	Input/Output Devices	40493	Serial/Parallel & I/O Cards	40719	Serial Cards				
+40449	Input/Output Devices	45410	Sound Cards & Devices	45507	Sound Cards				
+40449	Input/Output Devices	40494	Switching Devices	40720	Audio/Video Switchboxes & Splitters				
+40449	Input/Output Devices	40494	Switching Devices	40721	KVM Switches & Components				
+40449	Input/Output Devices	40494	Switching Devices	40722	Serial/Par Switchboxes & Extenders				
+40449	Input/Output Devices	40494	Switching Devices	40723	USB Device Switchboxes				
+40449	Input/Output Devices	40495	USB & Firewire Connectivity	40724	Firewire Connectivity Devices				
+40449	Input/Output Devices	40495	USB & Firewire Connectivity	45444	Firewire Hubs & Cards				
+40449	Input/Output Devices	40495	USB & Firewire Connectivity	45445	Multiport Hubs & Cards				
+40449	Input/Output Devices	40495	USB & Firewire Connectivity	40725	USB Connectivity Devices				
+40449	Input/Output Devices	40495	USB & Firewire Connectivity	45446	USB Hubs & Cards 				
+40449	Input/Output Devices	40495	USB & Firewire Connectivity	40726	USB/Firewire Connectivity Devices				
+40449	Input/Output Devices	40496	Wireless Connectivity Devices	40727	Bluetooth Connectivity Devices				
+40449	Input/Output Devices	40496	Wireless Connectivity Devices	40729	Infrared Connectivity Devices				
+40450	Network Devices	40497	Content Networking	40730	Content Delivery Equipment				
+40450	Network Devices	40497	Content Networking	40731	Content Delivery Software/Component				
+40450	Network Devices	40497	Content Networking	40732	Content Switching & Load Balancers				
+40450	Network Devices	45411	Device & Print Servers	45508	Device/Terminal Server Cabling				
+40450	Network Devices	45411	Device & Print Servers	45509	Print Servers				
+40450	Network Devices	40498	Device/Terminal/RAS Servers	40733	Device Servers & Components				
+40450	Network Devices	40498	Device/Terminal/RAS Servers	40734	Remote Access (RAS) Servers				
+40450	Network Devices	40498	Device/Terminal/RAS Servers	40735	Terminal/Console Servers & Cpnts				
+40450	Network Devices	45412	Network Appliances	45510	Internet Appliances				
+40450	Network Devices	45412	Network Appliances	45511	Multi-Function Appliances				
+40450	Network Devices	45412	Network Appliances	45512	Network Management Appliances & Components				
+40450	Network Devices	40499	Network Interface Cards	40736	ATM Network Cards				
+40450	Network Devices	40499	Network Interface Cards	40737	Boot Roms & Brackets				
+40450	Network Devices	40499	Network Interface Cards	40738	Ethernet NICs				
+40450	Network Devices	40499	Network Interface Cards	40739	Fast Ethernet NICs				
+40450	Network Devices	40499	Network Interface Cards	40740	FDDI Cards				
+40450	Network Devices	40499	Network Interface Cards	40741	Gigabit Ethernet NICs				
+40450	Network Devices	40499	Network Interface Cards	40742	Phone/Power Line NICS				
+40450	Network Devices	40499	Network Interface Cards	40743	Token Ring NICs				
+40450	Network Devices	40500	Routers & Components	40744	Configurable Interface Routers				
+40450	Network Devices	40500	Routers & Components	45447	Ethernet Routers				
+40450	Network Devices	40500	Routers & Components	40745	Fixed Interface Routers				
+40450	Network Devices	40500	Routers & Components	45448	ISDN Routers				
+40450	Network Devices	40500	Routers & Components	45449	Leased/DDS Routers				
+40450	Network Devices	40500	Routers & Components	45450	Modular Routers				
+40450	Network Devices	40500	Routers & Components	40746	Router Components				
+40450	Network Devices	40500	Routers & Components	45451	Serial Routers				
+40450	Network Devices	40500	Routers & Components	45452	T1/T3 Routers				
+40450	Network Devices	40500	Routers & Components	45453	VOIP/Access Gateways & Components				
+40450	Network Devices	40501	Switches & Hubs	40747	Chassis-Based Switches				
+40450	Network Devices	40501	Switches & Hubs	40748	Repeaters				
+40450	Network Devices	40501	Switches & Hubs	40749	Stackable Hubs				
+40450	Network Devices	40501	Switches & Hubs	40750	Stackable Switches				
+40450	Network Devices	40501	Switches & Hubs	40751	Standalone Hubs				
+40450	Network Devices	40501	Switches & Hubs	40752	Standalone Switches				
+40450	Network Devices	40501	Switches & Hubs	40753	Switch & Hub Components				
+40450	Network Devices	40502	Test Equipment	40754	Cable Testers				
+40450	Network Devices	40502	Test Equipment	45454	Handheld Network/Cable Testers				
+40450	Network Devices	40502	Test Equipment	40755	Network Analysis Devices				
+40450	Network Devices	40502	Test Equipment	40756	Test Equipment Components				
+40450	Network Devices	40503	Transceivers & Converters	45455	Media Converter Chassis				
+40450	Network Devices	40503	Transceivers & Converters	45456	Media Converter Modules				
+40450	Network Devices	40503	Transceivers & Converters	40757	Media Converters & Components				
+40450	Network Devices	40503	Transceivers & Converters	45457	Multi-Port Media Converters				
+40450	Network Devices	40503	Transceivers & Converters	45458	Powered Ethernet Adapters				
+40450	Network Devices	40503	Transceivers & Converters	45459	Stand-Alone Media Converters				
+40450	Network Devices	40503	Transceivers & Converters	45460	Transceiver Modules				
+40450	Network Devices	40503	Transceivers & Converters	40758	Transceivers				
+40450	Network Devices	40504	Wireless Networking	40759	Antennas & Amplifiers				
+40450	Network Devices	40504	Wireless Networking	40760	Lightning Arrestors				
+40450	Network Devices	40504	Wireless Networking	40761	Mounting Kits				
+40450	Network Devices	40504	Wireless Networking	40762	Wireless Access Points (AP)				
+40450	Network Devices	40504	Wireless Networking	40763	Wireless Bridges				
+40450	Network Devices	40504	Wireless Networking	40764	Wireless Cabling & Components				
+40450	Network Devices	40504	Wireless Networking	40765	Wireless NICs				
+40450	Network Devices	40504	Wireless Networking	40766	Wireless Routers & Gateways				
+40450	Network Devices	40504	Wireless Networking	40767	Wireless Starter Kits				
+40450	Network Devices	40504	Wireless Networking	41280	Wireless Switches				
+40451	POS/ AIDC/ Barcode Products	48277	ADC Mobile Terminals	48278	Keyboard Based Terminals				
+40451	POS/ AIDC/ Barcode Products	48277	ADC Mobile Terminals	48279	Pen Based Terminals				
+40451	POS/ AIDC/ Barcode Products	48277	ADC Mobile Terminals	48281	Specialty Terminals				
+40451	POS/ AIDC/ Barcode Products	48277	ADC Mobile Terminals	48280	Vehicle Mount Terminals				
+40451	POS/ AIDC/ Barcode Products	48282	ADC Wireless Infrastructure	48283	ADC Access Points				
+40451	POS/ AIDC/ Barcode Products	48282	ADC Wireless Infrastructure	48286	ADC Antennas & Access Ports				
+40451	POS/ AIDC/ Barcode Products	48282	ADC Wireless Infrastructure	48284	ADC Wireless Adapters				
+40451	POS/ AIDC/ Barcode Products	48282	ADC Wireless Infrastructure	48285	ADC Wireless Switches				
+40451	POS/ AIDC/ Barcode Products	40505	AIDC/POS Hardware & Components	40768	Badge Readers & Components				
+40451	POS/ AIDC/ Barcode Products	40505	AIDC/POS Hardware & Components	40769	Barcode Readers, Verifiers & Linear Imagers				
+40451	POS/ AIDC/ Barcode Products	40505	AIDC/POS Hardware & Components	40770	Cash Registers & Drawers				
+40451	POS/ AIDC/ Barcode Products	40505	AIDC/POS Hardware & Components	40771	Check & Magnetic Stripe Readers/Writers				
+40451	POS/ AIDC/ Barcode Products	40505	AIDC/POS Hardware & Components	40772	Decoders & Components				
+40451	POS/ AIDC/ Barcode Products	40505	AIDC/POS Hardware & Components	40773	Fixed Scanners & Scales				
+40451	POS/ AIDC/ Barcode Products	40505	AIDC/POS Hardware & Components	40774	Hardware Bundles				
+40451	POS/ AIDC/ Barcode Products	40505	AIDC/POS Hardware & Components	40775	Interactive Touch Displays				
+40451	POS/ AIDC/ Barcode Products	40505	AIDC/POS Hardware & Components	40776	Keyboards, Mice & Components				
+40451	POS/ AIDC/ Barcode Products	40505	AIDC/POS Hardware & Components	40777	Pole Displays & Components				
+40451	POS/ AIDC/ Barcode Products	40505	AIDC/POS Hardware & Components	40778	POS System I/O Devices & Components				
+40451	POS/ AIDC/ Barcode Products	40505	AIDC/POS Hardware & Components	40779	Signature Capture Terminals & Accessories				
+40451	POS/ AIDC/ Barcode Products	40506	AIDC/POS Printer Supplies	40780	Barcode/Label Printer Supplies				
+40451	POS/ AIDC/ Barcode Products	40506	AIDC/POS Printer Supplies	40781	Card Printer Supplies				
+40451	POS/ AIDC/ Barcode Products	40506	AIDC/POS Printer Supplies	40782	Receipt/Invoice Printer Supplies				
+40451	POS/ AIDC/ Barcode Products	40506	AIDC/POS Printer Supplies	40783	RFID Printer Supplies				
+40451	POS/ AIDC/ Barcode Products	40507	AIDC/POS Printers & Components	40784	Barcode/Label/Ticket Printers & Components				
+40451	POS/ AIDC/ Barcode Products	40507	AIDC/POS Printers & Components	40785	Hybrid/MFP Printers				
+40451	POS/ AIDC/ Barcode Products	40507	AIDC/POS Printers & Components	40786	ID Card Printers & Components				
+40451	POS/ AIDC/ Barcode Products	40507	AIDC/POS Printers & Components	40787	Receipt/Invoice Printers & Components				
+40451	POS/ AIDC/ Barcode Products	40508	AIDC/POS RFID Infrastructure	40788	RFID Antennas & Transceivers				
+40451	POS/ AIDC/ Barcode Products	40508	AIDC/POS RFID Infrastructure	40789	RFID Printers & Components				
+40451	POS/ AIDC/ Barcode Products	40508	AIDC/POS RFID Infrastructure	40790	RFID Readers & Components				
+40451	POS/ AIDC/ Barcode Products	40508	AIDC/POS RFID Infrastructure	40791	RFID Supplies				
+40451	POS/ AIDC/ Barcode Products	40509	AIDC/POS Services & Training	40792	Professional Services				
+40451	POS/ AIDC/ Barcode Products	40509	AIDC/POS Services & Training	40793	Training				
+40451	POS/ AIDC/ Barcode Products	40509	AIDC/POS Services & Training	40794	Warranties				
+40451	POS/ AIDC/ Barcode Products	40510	AIDC/POS Software	48287	AIDC/POS Application Development Software				
+40451	POS/ AIDC/ Barcode Products	40510	AIDC/POS Software	48288	AIDC/POS Barcode Label Software				
+40451	POS/ AIDC/ Barcode Products	40510	AIDC/POS Software	48290	AIDC/POS Data Capture Application Software				
+40451	POS/ AIDC/ Barcode Products	40510	AIDC/POS Software	48289	AIDC/POS Device Management Software				
+40451	POS/ AIDC/ Barcode Products	40510	AIDC/POS Software	48291	AIDC/POS Miscellaneous Software				
+40451	POS/ AIDC/ Barcode Products	40510	AIDC/POS Software	48292	AIDC/POS Terminal Emulation Software				
+40451	POS/ AIDC/ Barcode Products	40510	AIDC/POS Software	48293	AIDC/POS WRLS Network Management Tools				
+40451	POS/ AIDC/ Barcode Products	40510	AIDC/POS Software	40795	Barcode Labeling Software				
+40451	POS/ AIDC/ Barcode Products	40510	AIDC/POS Software	40796	Card Printing Software				
+40451	POS/ AIDC/ Barcode Products	40510	AIDC/POS Software	40797	Credit Card Transaction Software				
+40451	POS/ AIDC/ Barcode Products	40510	AIDC/POS Software	40798	Data Collection & Tracking Software				
+40451	POS/ AIDC/ Barcode Products	40510	AIDC/POS Software	40799	Development Software				
+40451	POS/ AIDC/ Barcode Products	40510	AIDC/POS Software	40800	Emulation Software				
+40451	POS/ AIDC/ Barcode Products	40510	AIDC/POS Software	40801	Inventory Control Software				
+40451	POS/ AIDC/ Barcode Products	40510	AIDC/POS Software	40802	Management Software				
+40451	POS/ AIDC/ Barcode Products	40510	AIDC/POS Software	40803	Payment Transaction Software				
+40451	POS/ AIDC/ Barcode Products	40510	AIDC/POS Software	48294	Retail Software				
+40451	POS/ AIDC/ Barcode Products	40510	AIDC/POS Software	40804	Sales/Inventory Reporting Software				
+40451	POS/ AIDC/ Barcode Products	40511	AIDC/POS Wireless Infrastructure	40805	Wireless Access Points (AP)				
+40451	POS/ AIDC/ Barcode Products	40511	AIDC/POS Wireless Infrastructure	40806	Wireless Adapters & Bridges				
+40451	POS/ AIDC/ Barcode Products	40511	AIDC/POS Wireless Infrastructure	40807	Wireless Antennas				
+40451	POS/ AIDC/ Barcode Products	40511	AIDC/POS Wireless Infrastructure	40808	Wireless Kits				
+40451	POS/ AIDC/ Barcode Products	40511	AIDC/POS Wireless Infrastructure	40809	Wireless Power, Cabling & Components				
+40451	POS/ AIDC/ Barcode Products	40511	AIDC/POS Wireless Infrastructure	40810	Wireless Switches, Hubs & Servers				
+40451	POS/ AIDC/ Barcode Products	48295	Auto ID & Retail POS Supplies	48296	Auto ID Printer Supplies				
+40451	POS/ AIDC/ Barcode Products	48295	Auto ID & Retail POS Supplies	48297	POS Printer Supplies				
+40451	POS/ AIDC/ Barcode Products	48298	Auto ID Accessories	48300	Auto ID Printer Accessories				
+40451	POS/ AIDC/ Barcode Products	48298	Auto ID Accessories	48299	Barcode Scanner Accessories				
+40451	POS/ AIDC/ Barcode Products	48311	Auto ID Barcode Scanners	48319	Barcode Slot Reader				
+40451	POS/ AIDC/ Barcode Products	48311	Auto ID Barcode Scanners	48318	Barcode Verifiers				
+40451	POS/ AIDC/ Barcode Products	48311	Auto ID Barcode Scanners	48316	Fixed Mount Scanners				
+40451	POS/ AIDC/ Barcode Products	48311	Auto ID Barcode Scanners	48313	Handheld Scanners				
+40451	POS/ AIDC/ Barcode Products	48311	Auto ID Barcode Scanners	48315	In-Counter Scanners				
+40451	POS/ AIDC/ Barcode Products	48311	Auto ID Barcode Scanners	48312	Penwand Barcode Readers				
+40451	POS/ AIDC/ Barcode Products	48311	Auto ID Barcode Scanners	48314	Presentation Scanners				
+40451	POS/ AIDC/ Barcode Products	48311	Auto ID Barcode Scanners	48320	Scanner Cables				
+40451	POS/ AIDC/ Barcode Products	48311	Auto ID Barcode Scanners	48317	Specialty Scanners				
+40451	POS/ AIDC/ Barcode Products	48321	Auto ID Printers	48326	Auto ID Printer Service Parts				
+40451	POS/ AIDC/ Barcode Products	48321	Auto ID Printers	48322	Barcode Label Printers				
+40451	POS/ AIDC/ Barcode Products	48321	Auto ID Printers	48325	Card Encoding Printers				
+40451	POS/ AIDC/ Barcode Products	48321	Auto ID Printers	48323	Mobile Label Printers				
+40451	POS/ AIDC/ Barcode Products	48321	Auto ID Printers	48324	RFID Encoding Printers				
+40451	POS/ AIDC/ Barcode Products	45413	POS Equipment	45513	POS Cash Drawers				
+40451	POS/ AIDC/ Barcode Products	45413	POS Equipment	45514	POS Printers				
+40451	POS/ AIDC/ Barcode Products	45413	POS Equipment	45515	POS Signature Pads				
+40451	POS/ AIDC/ Barcode Products	48327	POS Peripherals	48328	Cash Drawers				
+40451	POS/ AIDC/ Barcode Products	48327	POS Peripherals	48332	Check Readers				
+40451	POS/ AIDC/ Barcode Products	48327	POS Peripherals	48336	Debit/Credit Card Authorization Terminals				
+40451	POS/ AIDC/ Barcode Products	48327	POS Peripherals	48331	Magnetic Stripe Readers				
+40451	POS/ AIDC/ Barcode Products	48327	POS Peripherals	48335	Pin Pad Terminals				
+40451	POS/ AIDC/ Barcode Products	48327	POS Peripherals	48333	Pole Displays & Specialty Displays				
+40451	POS/ AIDC/ Barcode Products	48327	POS Peripherals	48329	POS Keyboards				
+40451	POS/ AIDC/ Barcode Products	48327	POS Peripherals	48334	POS Scales				
+40451	POS/ AIDC/ Barcode Products	48327	POS Peripherals	48330	POS Touchscreens				
+40451	POS/ AIDC/ Barcode Products	48327	POS Peripherals	48337	Signature Capture Terminals				
+40451	POS/ AIDC/ Barcode Products	48327	POS Peripherals	48338	Smartcard Readers				
+40451	POS/ AIDC/ Barcode Products	49097	POS Printers	48340	Impact Receipt Printers				
+40451	POS/ AIDC/ Barcode Products	49097	POS Printers	48341	Inkjet Receipt Printers				
+40451	POS/ AIDC/ Barcode Products	49097	POS Printers	48343	Mobile POS Printers				
+40451	POS/ AIDC/ Barcode Products	49097	POS Printers	48342	Multi-Station Printers				
+40451	POS/ AIDC/ Barcode Products	49097	POS Printers	48344	POS Printer Service Parts				
+40451	POS/ AIDC/ Barcode Products	49097	POS Printers	48339	Thermal Receipt Printers				
+40451	POS/ AIDC/ Barcode Products	45414	POS Supplies	45516	POS Ink Supplies				
+40451	POS/ AIDC/ Barcode Products	45414	POS Supplies	45517	POS Paper Rolls				
+40451	POS/ AIDC/ Barcode Products	40512	POS Systems & AIDC Terminals	40811	Data Collection Terminals & Components				
+40451	POS/ AIDC/ Barcode Products	40512	POS Systems & AIDC Terminals	40812	Kiosks, Price Checkers & Components				
+40451	POS/ AIDC/ Barcode Products	40512	POS Systems & AIDC Terminals	40813	Payment Systems & Components				
+40451	POS/ AIDC/ Barcode Products	40512	POS Systems & AIDC Terminals	40814	POS/KDS Systems				
+40451	POS/ AIDC/ Barcode Products	48345	POS Terminals	48346	Integrated Touchscreen POS Terminals				
+40451	POS/ AIDC/ Barcode Products	48345	POS Terminals	48349	Kiosk POS Terminals				
+40451	POS/ AIDC/ Barcode Products	48345	POS Terminals	48348	Portable POS Terminals				
+40451	POS/ AIDC/ Barcode Products	48345	POS Terminals	48347	Standalone POS Terminals				
+40451	POS/ AIDC/ Barcode Products	48350	Retail POS Accessories	48353	POS Peripheral Accessories				
+40451	POS/ AIDC/ Barcode Products	48350	Retail POS Accessories	48351	POS Printer Accessories				
+40451	POS/ AIDC/ Barcode Products	48350	Retail POS Accessories	48352	POS Terminal Accessories				
+40451	POS/ AIDC/ Barcode Products	48354	RFID Reader/Encoder	48356	Fixed Mount RFID Reader/Encoder				
+40451	POS/ AIDC/ Barcode Products	48354	RFID Reader/Encoder	48357	Handheld RFID Reader				
+40451	POS/ AIDC/ Barcode Products	48354	RFID Reader/Encoder	48355	Handheld RFID Reading Terminals				
+40451	POS/ AIDC/ Barcode Products	48354	RFID Reader/Encoder	48358	RFID Anteannas				
+40451	POS/ AIDC/ Barcode Products	49091	Solution Bundles	49093	Asset Tracking Solutions				
+40451	POS/ AIDC/ Barcode Products	49091	Solution Bundles	49094	Inventory Control Solutions				
+40451	POS/ AIDC/ Barcode Products	49091	Solution Bundles	49095	Labeling Solutions				
+40451	POS/ AIDC/ Barcode Products	49091	Solution Bundles	49092	POS Solutions				
+40451	POS/ AIDC/ Barcode Products	49091	Solution Bundles	49096	Time and Attendance Solutions				
+40451	POS/ AIDC/ Barcode Products	48359	Universal Accessories	48360	Common POS/AIDC Accessories				
+40451	POS/ AIDC/ Barcode Products	48359	Universal Accessories	48361	RFID Accessories				
+40451	POS/ AIDC/ Barcode Products	48362	Warranties, Service Fees & Contracts	48363	Epson				
+40451	POS/ AIDC/ Barcode Products	48362	Warranties, Service Fees & Contracts	48364	Handheld Products				
+40451	POS/ AIDC/ Barcode Products	48362	Warranties, Service Fees & Contracts	48372	Miscellaneous Service Fees				
+40451	POS/ AIDC/ Barcode Products	48362	Warranties, Service Fees & Contracts	48365	Oneil				
+40451	POS/ AIDC/ Barcode Products	48362	Warranties, Service Fees & Contracts	48366	Pioneer				
+40451	POS/ AIDC/ Barcode Products	48362	Warranties, Service Fees & Contracts	48367	PSC				
+40451	POS/ AIDC/ Barcode Products	48362	Warranties, Service Fees & Contracts	48368	Symbol				
+40451	POS/ AIDC/ Barcode Products	48362	Warranties, Service Fees & Contracts	48369	Ultimate				
+40451	POS/ AIDC/ Barcode Products	48362	Warranties, Service Fees & Contracts	48370	Unitech				
+40451	POS/ AIDC/ Barcode Products	48362	Warranties, Service Fees & Contracts	48371	Zebra				
+40451	POS/ AIDC/ Barcode Products	48373	Wireless ADC Accessories	48374	ADC Mobile Terminal Accessories				
+40451	POS/ AIDC/ Barcode Products	48373	Wireless ADC Accessories	48375	ADC Wireless Inftrastructure Accessories				
+40452	Power & Rack Equipment	40513	Power Equipment	40815	Line Conditioners				
+40452	Power & Rack Equipment	40513	Power Equipment	40816	Power Distribution Units (PDUs) & Components				
+40452	Power & Rack Equipment	40513	Power Equipment	40817	Power Inverters				
+40452	Power & Rack Equipment	40513	Power Equipment	40818	Power Strips				
+40452	Power & Rack Equipment	40513	Power Equipment	40819	Surge Protectors				
+40452	Power & Rack Equipment	40513	Power Equipment	40820	Uninterruptible Power Supplies				
+40452	Power & Rack Equipment	40513	Power Equipment	40821	UPS Batteries				
+40452	Power & Rack Equipment	40513	Power Equipment	40822	UPS Cables				
+40452	Power & Rack Equipment	40513	Power Equipment	40823	UPS Components				
+40452	Power & Rack Equipment	40513	Power Equipment	40824	UPS Management				
+40452	Power & Rack Equipment	40513	Power Equipment	40825	Voltage Regulators				
+40452	Power & Rack Equipment	40514	Rack Equipment	40826	Rack Enclosure Components				
+40452	Power & Rack Equipment	40514	Rack Equipment	40827	Rack Enclosures				
+40453	Presentation Devices	40515	Projector Screens	40828	Portable Projector Screens				
+40453	Presentation Devices	40515	Projector Screens	40829	Pull Down Projector Screens				
+40453	Presentation Devices	40516	Projectors	40830	DLP Projectors				
+40453	Presentation Devices	40516	Projectors	40831	LCD Projectors				
+40453	Presentation Devices	40516	Projectors	40832	Overhead Projectors				
+40454	Printers & Office Equipment	40517	Multifunction Peripherals (MFP)	40833	Inkjet-Based Multifunction Printer				
+40454	Printers & Office Equipment	40517	Multifunction Peripherals (MFP)	40834	Laser-Based Multifunction Printer				
+40454	Printers & Office Equipment	40518	Office Equipment	40835	Copy Machines				
+40454	Printers & Office Equipment	40518	Office Equipment	40836	Fax Machines				
+40454	Printers & Office Equipment	40518	Office Equipment	46758	Forms Bursters				
+40454	Printers & Office Equipment	40518	Office Equipment	40837	Laminators				
+40454	Printers & Office Equipment	40518	Office Equipment	40838	Office Furniture (Mexico/Latin America Only)				
+40454	Printers & Office Equipment	40518	Office Equipment	40839	Paper & CD/DVD Shredders				
+40454	Printers & Office Equipment	40518	Office Equipment	46759	Postal Scales				
+40454	Printers & Office Equipment	40518	Office Equipment	40840	Typewriters				
+40454	Printers & Office Equipment	40519	Plotters (Large Format Printers)	40841	Black & White Large Format Plotters				
+40454	Printers & Office Equipment	40519	Plotters (Large Format Printers)	40842	Color Large Format Printers				
+40454	Printers & Office Equipment	40520	Printers- Home/Office	40843	Black & White Laser/LED Printers				
+40454	Printers & Office Equipment	40520	Printers- Home/Office	41270	Business/ID Card Printers				
+40454	Printers & Office Equipment	40520	Printers- Home/Office	40844	CD/DVD Printers				
+40454	Printers & Office Equipment	40520	Printers- Home/Office	40845	Color Laser Printers				
+40454	Printers & Office Equipment	40520	Printers- Home/Office	40846	Dot Matrix Printers				
+40454	Printers & Office Equipment	40520	Printers- Home/Office	40847	Inkjet Printers				
+40454	Printers & Office Equipment	40520	Printers- Home/Office	40848	Label Printers				
+40454	Printers & Office Equipment	40520	Printers- Home/Office	40849	Line Printers				
+40454	Printers & Office Equipment	40520	Printers- Home/Office	41269	Photo Printers- Standalone				
+40454	Printers & Office Equipment	40520	Printers- Home/Office	47829	Solid Ink Printers				
+40454	Printers & Office Equipment	40520	Printers- Home/Office	40850	Thermal Printers				
+40455	Security Devices	47828	Anti-Virus/Anti-SPAM Device	NULL	NULL				
+40455	Security Devices	47825	Firewall Devices	NULL	NULL				
+40455	Security Devices	40521	Network Security	52583	Anti-Virus/Anti-SPAM Device				
+40455	Security Devices	40521	Network Security	40851	Authentication Devices & Components				
+40455	Security Devices	40521	Network Security	40852	Content Management Devices & Cpnts				
+40455	Security Devices	40521	Network Security	52585	Firewall Devices				
+40455	Security Devices	40521	Network Security	40853	Firewall/VPN Devices & Components				
+40455	Security Devices	40521	Network Security	40854	IDS Devices & Components				
+40455	Security Devices	40521	Network Security	40855	Multi-Function Security Appliances				
+40455	Security Devices	40521	Network Security	52589	Network Security Accs & Components				
+40455	Security Devices	40521	Network Security	52594	VPN Devices				
+40455	Security Devices	40522	Physical Security	40856	Anti-Theft Devices & Software				
+40455	Security Devices	40522	Physical Security	40857	Biometric Security Devices & Components				
+40455	Security Devices	40522	Physical Security	40858	Digital Video Recorders/ Components				
+40455	Security Devices	40522	Physical Security	40859	Environmental Monitors & Components				
+40455	Security Devices	40522	Physical Security	40860	Network Video Components				
+40455	Security Devices	40522	Physical Security	40861	Network/Security Cameras & Components				
+40455	Security Devices	40522	Physical Security	40862	Video Servers & Components				
+40455	Security Devices	47827	VPN Devices	NULL	NULL				
+40456	Services & Warranties	40523	Help Desk Services	40863	Internet Support				
+40456	Services & Warranties	40523	Help Desk Services	40864	Phone Support				
+40456	Services & Warranties	40524	Ingram Micro Services	40865	Ingram Micro Choice Adv Services				
+40456	Services & Warranties	40524	Ingram Micro Services	40866	Ingram Micro Help Desk Services				
+40456	Services & Warranties	40524	Ingram Micro Services	40867	Ingram Micro Integration Services				
+40456	Services & Warranties	40524	Ingram Micro Services	40868	Ingram Micro Logistics Services				
+40456	Services & Warranties	40524	Ingram Micro Services	40869	Ingram Micro Notes Content Services				
+40456	Services & Warranties	40524	Ingram Micro Services	40870	Ingram Micro Services Network- IMSN				
+40456	Services & Warranties	40525	Installation Services	40871	Hardware Installation Services				
+40456	Services & Warranties	40525	Installation Services	45461	Network Installation Services				
+40456	Services & Warranties	40525	Installation Services	40872	Software Installation Services				
+40456	Services & Warranties	40526	Managed & Carrier Services	40873	ASP Services				
+40456	Services & Warranties	40526	Managed & Carrier Services	40874	Broadband Services				
+40456	Services & Warranties	40526	Managed & Carrier Services	40875	ISP Services				
+40456	Services & Warranties	40526	Managed & Carrier Services	52587	Managed Services				
+40456	Services & Warranties	40526	Managed & Carrier Services	40876	Wireless Communications Services				
+40456	Services & Warranties	45415	Service Provider & Carrier Services	45518	Managed Security Services				
+40456	Services & Warranties	45415	Service Provider & Carrier Services	45519	Managed Service Provider Services (MSP)				
+40456	Services & Warranties	45415	Service Provider & Carrier Services	45520	Managed Storage Services				
+40456	Services & Warranties	40527	Vendor Professional Services	40877	Custom Consulting Services				
+40456	Services & Warranties	40527	Vendor Professional Services	40878	Deployment/Support Services				
+40456	Services & Warranties	40527	Vendor Professional Services	40879	Hardware Configuration Services				
+40456	Services & Warranties	40527	Vendor Professional Services	40880	Integration (BTO, CTO) Services				
+40456	Services & Warranties	40527	Vendor Professional Services	40881	Inventory Services				
+40456	Services & Warranties	40527	Vendor Professional Services	40882	Mobile Wireless Config Services				
+40456	Services & Warranties	40527	Vendor Professional Services	40883	Project Management Services				
+40456	Services & Warranties	40527	Vendor Professional Services	40884	Recovery Services				
+40456	Services & Warranties	40527	Vendor Professional Services	40885	Remote Monitoring Services				
+40456	Services & Warranties	40527	Vendor Professional Services	40886	Site Survey Services				
+40456	Services & Warranties	40527	Vendor Professional Services	40887	Software Configuration Services				
+40456	Services & Warranties	40527	Vendor Professional Services	40888	Wireless Networking Services				
+40456	Services & Warranties	40528	Warranties	40889	Extended Warranties				
+40456	Services & Warranties	40528	Warranties	45462	Help Desk Services				
+40456	Services & Warranties	40528	Warranties	45463	Post Sale Warranties				
+40456	Services & Warranties	40528	Warranties	45464	Software Update Services				
+40456	Services & Warranties	40528	Warranties	40890	Upgrade Warranties				
+40456	Services & Warranties	40528	Warranties	40529	Warranty Renewals				
+40891	Storage Devices	40900	CD/DVD Drives	40938	CD/CD-R/CD-RW Drives				
+40891	Storage Devices	40900	CD/DVD Drives	46795	CD/DVD Changers				
+40891	Storage Devices	40900	CD/DVD Drives	40939	CD/DVD Changers & Jukeboxes				
+40891	Storage Devices	40900	CD/DVD Drives	40940	CD/DVD Duplicators				
+40891	Storage Devices	40900	CD/DVD Drives	46796	CD/DVD Duplicators				
+40891	Storage Devices	40900	CD/DVD Drives	46884	CD/DVD Jukeboxes & Towers				
+40891	Storage Devices	40900	CD/DVD Drives	40941	Combo CD/DVD Drives				
+40891	Storage Devices	40900	CD/DVD Drives	40942	DVD Drives				
+40891	Storage Devices	40900	CD/DVD Drives	52588	NAS CD/DVD Devices				
+40891	Storage Devices	40900	CD/DVD Drives	40943	Optical Device Components				
+40891	Storage Devices	45416	CD/DVD/MO Optical Drives & Devices	45521	CD-ROM Drives				
+40891	Storage Devices	45416	CD/DVD/MO Optical Drives & Devices	45522	CD-RW Drives				
+40891	Storage Devices	40894	Disk Storage Systems	40908	DAS Systems				
+40891	Storage Devices	40894	Disk Storage Systems	40909	NAS Systems				
+40891	Storage Devices	40894	Disk Storage Systems	40910	SAN Systems				
+40891	Storage Devices	40895	Drive Controllers	40911	EIDE Drive Controllers				
+40891	Storage Devices	40895	Drive Controllers	40912	Fibre Host Bus Adapters (HBAs)				
+40891	Storage Devices	40895	Drive Controllers	40913	iSCSI Controllers				
+40891	Storage Devices	40895	Drive Controllers	40914	Multi-Interface Drive Controllers				
+40891	Storage Devices	40895	Drive Controllers	45465	RAID Controllers & Components				
+40891	Storage Devices	40895	Drive Controllers	49106	SAS Controllers				
+40891	Storage Devices	40895	Drive Controllers	49105	SAS RAID				
+40891	Storage Devices	40895	Drive Controllers	40915	SCSI Drive Controllers				
+40891	Storage Devices	40895	Drive Controllers	40916	Serial ATA Drive Controllers				
+40891	Storage Devices	40896	Drive Enclosures	40917	Disk Enclosures				
+40891	Storage Devices	40896	Drive Enclosures	40918	Enclosure Components				
+40891	Storage Devices	40896	Drive Enclosures	40919	RAID Enclosures				
+40891	Storage Devices	40896	Drive Enclosures	40920	Removable Frame & Carriers				
+40891	Storage Devices	40897	Flash Memory Devices	40921	Flash Adapters				
+40891	Storage Devices	40897	Flash Memory Devices	40922	Flash Card Cases				
+40891	Storage Devices	40897	Flash Memory Devices	40923	Flash Memory Cards	53767	Compact Flash		
+40891	Storage Devices	40897	Flash Memory Devices	40923	Flash Memory Cards	53768	Extreme Digital (XD)		
+40891	Storage Devices	40897	Flash Memory Devices	40923	Flash Memory Cards	53769	Memory Stick	53771	Duo
+40891	Storage Devices	40897	Flash Memory Devices	40923	Flash Memory Cards	53769	Memory Stick	53770	Pro
+40891	Storage Devices	40897	Flash Memory Devices	40923	Flash Memory Cards	53772	Multimedia Card		
+40891	Storage Devices	40897	Flash Memory Devices	40923	Flash Memory Cards	53764	Secure Digital	53766	Micro
+40891	Storage Devices	40897	Flash Memory Devices	40923	Flash Memory Cards	53764	Secure Digital	53765	Mini
+40891	Storage Devices	40897	Flash Memory Devices	40923	Flash Memory Cards	53773	SmartMedia		
+40891	Storage Devices	40897	Flash Memory Devices	40924	Flash Reader/Card Bundles				
+40891	Storage Devices	40897	Flash Memory Devices	40925	Flash Reader/Writers				
+40891	Storage Devices	40897	Flash Memory Devices	40926	Portable Flash Drives				
+40891	Storage Devices	40898	Floppy/Removable Media Drives	40927	Floppy Drives				
+40891	Storage Devices	40898	Floppy/Removable Media Drives	40928	Magneto Optical Devices				
+40891	Storage Devices	40898	Floppy/Removable Media Drives	40929	Removable Media Drives				
+40891	Storage Devices	40899	Hard Drives	40930	EIDE Hard Drives				
+40891	Storage Devices	40899	Hard Drives	40931	Fibre Channel Hard Drives				
+40891	Storage Devices	40899	Hard Drives	40932	Firewire Hard Drives				
+40891	Storage Devices	40899	Hard Drives	40933	Multi-Interface Hard Drives				
+40891	Storage Devices	40899	Hard Drives	40934	PCMCIA Hard Drives				
+40891	Storage Devices	40899	Hard Drives	40935	SCSI Hard Drives				
+40891	Storage Devices	40899	Hard Drives	40936	Serial ATA Hard Drives				
+40891	Storage Devices	40899	Hard Drives	49104	Serial Attached SCSI (SAS) Hard Drives				
+40891	Storage Devices	40899	Hard Drives	40937	USB Hard Drives				
+40891	Storage Devices	45417	Networked Storage	45523	Backup Accelorators				
+40891	Storage Devices	45417	Networked Storage	45524	NAS CD Servers				
+40891	Storage Devices	45417	Networked Storage	47824	NAS CD/DVD Servers				
+40891	Storage Devices	45417	Networked Storage	45435	NAS Components				
+40891	Storage Devices	45417	Networked Storage	45525	NAS Disk Systems				
+40891	Storage Devices	45417	Networked Storage	46885	NAS DVD Servers				
+40891	Storage Devices	45417	Networked Storage	49090	NAS Hard Drives				
+40891	Storage Devices	45417	Networked Storage	45526	Networked Tape Drives				
+40891	Storage Devices	45417	Networked Storage	45527	SAN Disk Systems				
+40891	Storage Devices	49085	SAN Infrastructure	52591	SAN Hard Drives				
+40891	Storage Devices	49085	SAN Infrastructure	49086	SAN Systems & Infrastructure				
+40891	Storage Devices	40901	Storage System Components	40944	Storage GBIC/SFP				
+40891	Storage Devices	40901	Storage System Components	40945	Storage Hubs				
+40891	Storage Devices	40901	Storage System Components	40946	Storage Routers				
+40891	Storage Devices	40901	Storage System Components	40947	Storage Switches				
+40891	Storage Devices	40901	Storage System Components	40948	Storage System Components				
+40891	Storage Devices	40902	Tape Devices	49087	Backup Devices				
+40891	Storage Devices	40902	Tape Devices	40949	Libraries				
+40891	Storage Devices	40902	Tape Devices	40950	Library Drives, Magazines & Cpnts				
+40891	Storage Devices	40902	Tape Devices	40951	Tape Arrays & Components				
+40891	Storage Devices	40902	Tape Devices	40952	Tape Drives				
+40892	Supplies & Media	45418	General Supplies	45528	Adhesive Supplies				
+40892	Supplies & Media	45418	General Supplies	45529	Binders/File Folders				
+40892	Supplies & Media	45418	General Supplies	45530	IM Catalogs/Guides				
+40892	Supplies & Media	45418	General Supplies	45531	Jewel Case Inserts				
+40892	Supplies & Media	45418	General Supplies	45532	Marketing Materials				
+40892	Supplies & Media	45418	General Supplies	45533	Other General Supplies				
+40892	Supplies & Media	45419	Ink & Toner Supplies	45534	Typewriter Supplies				
+40892	Supplies & Media	45420	Labels	45535	Lablemaker Labels				
+40892	Supplies & Media	45420	Labels	45536	Library Barcode Labels				
+40892	Supplies & Media	45420	Labels	45537	Printer Labels 				
+40892	Supplies & Media	40903	Media & Cleaning Cartridges	40953	Audio/Video Tapes				
+40892	Supplies & Media	40903	Media & Cleaning Cartridges	49089	Barcode Lables for Tape Cartridges				
+40892	Supplies & Media	40903	Media & Cleaning Cartridges	40954	Cleaning Cartridges				
+40892	Supplies & Media	40903	Media & Cleaning Cartridges	40955	Floppy Diskettes				
+40892	Supplies & Media	40903	Media & Cleaning Cartridges	40956	Optical CD/DVD/Magneto Media				
+40892	Supplies & Media	40903	Media & Cleaning Cartridges	40957	Removable Cartridge Media				
+40892	Supplies & Media	40903	Media & Cleaning Cartridges	40958	Tape Media				
+40892	Supplies & Media	40904	Office Supplies	40959	Calculator /Typewriters Supplies				
+40892	Supplies & Media	40904	Office Supplies	40960	CD Sleeves/Envelopes				
+40892	Supplies & Media	40904	Office Supplies	40961	Decals & Stickers				
+40892	Supplies & Media	40904	Office Supplies	40962	Filing Products				
+40892	Supplies & Media	40904	Office Supplies	40963	General Cleaning Supplies				
+40892	Supplies & Media	40904	Office Supplies	40964	General Purpose Batteries				
+40892	Supplies & Media	40904	Office Supplies	40965	ID Cards/Holders/Labels				
+40892	Supplies & Media	40904	Office Supplies	40966	Jewel Cases & Inserts				
+40892	Supplies & Media	40904	Office Supplies	40967	Labels & Applicators				
+40892	Supplies & Media	40904	Office Supplies	40968	Laminating Supplies				
+40892	Supplies & Media	40904	Office Supplies	40969	Paper/Envelopes				
+40892	Supplies & Media	40904	Office Supplies	40970	Scanner Supplies				
+40892	Supplies & Media	40904	Office Supplies	40971	Transparencies				
+40892	Supplies & Media	40904	Office Supplies	40972	Writing Supplies				
+40892	Supplies & Media	45421	Paper	45538	Envelopes				
+40892	Supplies & Media	45421	Paper	45539	Other Paper Products				
+40892	Supplies & Media	45421	Paper	45540	Plotter Paper				
+40892	Supplies & Media	45421	Paper	45541	Printer Paper				
+40892	Supplies & Media	40905	Printer/Plotter Supplies	40973	Dot Matrix Supplies				
+40892	Supplies & Media	40905	Printer/Plotter Supplies	40974	Fax/Copier Supplies				
+40892	Supplies & Media	40905	Printer/Plotter Supplies	40975	Inkjet Printer Supplies				
+40892	Supplies & Media	40905	Printer/Plotter Supplies	40976	Laser Printer Supplies				
+40892	Supplies & Media	40905	Printer/Plotter Supplies	40977	Multifunction Printer Supplies				
+40892	Supplies & Media	40905	Printer/Plotter Supplies	40978	Plotter Supplies				
+40892	Supplies & Media	40905	Printer/Plotter Supplies	47830	Solid Ink Printer Supplies				
+40892	Supplies & Media	40905	Printer/Plotter Supplies	40979	Thermal Printer Supplies				
+40892	Supplies & Media	45422	Transparencies	45542	Inkjet Transparencies				
+40892	Supplies & Media	45422	Transparencies	45543	Laser Transparencies				
+40892	Supplies & Media	45422	Transparencies	45544	Plotter Transparencies				
+41281	System Components	41283	Computer Cases & Mounting	49125	Appliqués (Regular)				
+41281	System Components	41283	Computer Cases & Mounting	49126	Appliqués (UV Reactive)				
+41281	System Components	41283	Computer Cases & Mounting	49127	Case Badges				
+41281	System Components	41283	Computer Cases & Mounting	41303	Case Components				
+41281	System Components	41283	Computer Cases & Mounting	49128	Case Skins				
+41281	System Components	41283	Computer Cases & Mounting	49129	Cold Cathode Lighting				
+41281	System Components	41283	Computer Cases & Mounting	45466	Desktop Cases				
+41281	System Components	41283	Computer Cases & Mounting	49131	LCD Readouts				
+41281	System Components	41283	Computer Cases & Mounting	49130	LED Lighting				
+41281	System Components	41283	Computer Cases & Mounting	45467	Monitor Enclosures				
+41281	System Components	41283	Computer Cases & Mounting	41304	PC Computer Cases				
+41281	System Components	41283	Computer Cases & Mounting	45468	Rackmount Cases				
+41281	System Components	41283	Computer Cases & Mounting	41305	Server Computer Cases				
+41281	System Components	41283	Computer Cases & Mounting	45469	Tower Cases				
+41281	System Components	45423	Fans 	45545	Case Fans				
+41281	System Components	45423	Fans 	49132	Fan Controllers				
+41281	System Components	45423	Fans 	49133	Fan Ducts				
+41281	System Components	45423	Fans 	49134	Fan Filters				
+41281	System Components	45423	Fans 	49135	Fan Grills				
+41281	System Components	45423	Fans 	49137	Fan Silencers				
+41281	System Components	45423	Fans 	45546	Hard Drive Fans				
+41281	System Components	45423	Fans 	49136	Notebook Coolers				
+41281	System Components	45423	Fans 	45547	Processor Fans				
+41281	System Components	45423	Fans 	45548	Specialized Fans				
+41281	System Components	45423	Fans 	45549	Thermal Compounds				
+41281	System Components	45423	Fans 	49138	VGA Fans				
+41281	System Components	41286	Memory	41325	Generic Memory				
+41281	System Components	41286	Memory	41326	Proprietary Memory				
+41281	System Components	41282	Motherboards	41290	Athlon Motherboards				
+41281	System Components	41282	Motherboards	41289	Athlon-64 Motherboards				
+41281	System Components	41282	Motherboards	41292	Athlon-FX Motherboards				
+41281	System Components	41282	Motherboards	41295	Athlon-MP Motherboards				
+41281	System Components	41282	Motherboards	41302	Athlon-XP Motherboards				
+41281	System Components	41282	Motherboards	41291	Duron Motherboards				
+41281	System Components	41282	Motherboards	41293	Itanium Motherboards				
+41281	System Components	41282	Motherboards	41294	Motherboard Components				
+41281	System Components	41282	Motherboards	41296	Opteron Motherboards				
+41281	System Components	41282	Motherboards	41297	Pentium III Motherboards				
+41281	System Components	41282	Motherboards	41298	Pentium IV Motherboards				
+41281	System Components	41282	Motherboards	46886	Pentium M Motherboards				
+41281	System Components	41282	Motherboards	46778	Pentium Mobile Motherboards				
+41281	System Components	41282	Motherboards	49124	Retainer Clips				
+41281	System Components	41282	Motherboards	41299	Sempron Motherboards				
+41281	System Components	41282	Motherboards	41300	XEON Dual Processor Motherboards				
+41281	System Components	41282	Motherboards	41301	XEON Multi Processor Motherboards				
+41281	System Components	41284	Power Supplies	41306	Case Specific Power Supplies				
+41281	System Components	41284	Power Supplies	41307	Generic Power Supplies				
+41281	System Components	41284	Power Supplies	41308	System Specific Power Supplies				
+41281	System Components	41285	Processors	41309	AMD Mobile Processors				
+41281	System Components	41285	Processors	46797	AMD Multi Processors				
+41281	System Components	41285	Processors	41310	AMD Single Processors				
+41281	System Components	41285	Processors	41312	Athlon Processors				
+41281	System Components	41285	Processors	41311	Athlon-FX Processors				
+41281	System Components	41285	Processors	41313	Athlon-MP Processors				
+41281	System Components	41285	Processors	41314	Athlon-XP Processors				
+41281	System Components	41285	Processors	41316	Duron Processors				
+41281	System Components	41285	Processors	41317	Intel Mobile Processors				
+41281	System Components	41285	Processors	41318	Intel Multi Processors				
+41281	System Components	41285	Processors	41315	Intel Single Processors				
+41281	System Components	41285	Processors	41319	Opteron Processors				
+41281	System Components	41285	Processors	41320	Pentium III Processors				
+41281	System Components	41285	Processors	41321	Pentium IV Processors				
+41281	System Components	41285	Processors	41322	Processor Accelerators				
+41281	System Components	41285	Processors	41323	Sempron Processors				
+41281	System Components	41285	Processors	41324	XEON Processors				
+41281	System Components	41288	Sound Cards	41332	External Sound Systems				
+41281	System Components	41288	Sound Cards	41333	Internal Sound Cards				
+41281	System Components	41287	Video & Capture Cards	41329	Scan Converters				
+41281	System Components	41287	Video & Capture Cards	41330	TV/Audio Tuners				
+41281	System Components	41287	Video & Capture Cards	41327	Video Capture Cards & Devices				
+41281	System Components	41287	Video & Capture Cards	41331	Video Cards				
+41281	System Components	41287	Video & Capture Cards	41328	Video Combo Cards & Devices				
+41281	System Components	49139	Water Cooling	49140	Accessories				
+41281	System Components	49139	Water Cooling	49141	Coolant				
+41281	System Components	49139	Water Cooling	49142	Fittings				
+41281	System Components	49139	Water Cooling	49143	Kits				
+41281	System Components	49139	Water Cooling	49144	Pumps				
+41281	System Components	49139	Water Cooling	49145	Radiators				
+41281	System Components	49139	Water Cooling	49146	Reservoirs				
+40893	Video Gaming	40906	Video Game Systems	40980	Microsoft Video Game Systems				
+40893	Video Gaming	40906	Video Game Systems	40981	Nintendo Game Systems				
+40893	Video Gaming	40906	Video Game Systems	40982	Sony Game Systems				
+40893	Video Gaming	40907	Video Games	40983	1st Person Shooter Games				
+40893	Video Gaming	40907	Video Games	40984	Action/Adventure Games				
+40893	Video Gaming	40907	Video Games	40985	Compilation Games 				
+40893	Video Gaming	40907	Video Games	40986	Family/Children's Games				
+40893	Video Gaming	40907	Video Games	40987	Fighting Games				
+40893	Video Gaming	40907	Video Games	40988	Music Games				
+40893	Video Gaming	40907	Video Games	40989	Puzzle Games				
+40893	Video Gaming	40907	Video Games	40990	Racing Games				
+40893	Video Gaming	40907	Video Games	40991	Role Playing Games				
+40893	Video Gaming	40907	Video Games	40992	Simulation Games				
+40893	Video Gaming	40907	Video Games	40993	Sports Games				
+40893	Video Gaming	40907	Video Games	40994	Strategy Games				

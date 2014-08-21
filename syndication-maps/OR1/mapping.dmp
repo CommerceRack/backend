@@ -1,0 +1,109 @@
+[
+	## REQUIRES FIELDS
+	## validation=> not-blank
+	##		- dont include SKU if this column data is blank
+	## 			 => positive-number
+	##		- dont include if the value is less than 0
+	### removed all 'not-blank' validation per Pete
+	{
+	'header'=>'Manufacturer Part Number',
+	'@try'=>['zoovy:prod_mfgid',''],
+	},
+	{
+	'header'=>'Unique Product ID',
+	'@try'=>['%PRODUCTID'],
+	},
+	{
+	'header'=>'UPC',
+	'@try'=>['zoovy:prod_upc','zoovy:prod_fakeupc',''],
+	},
+	{
+	'header'=>'Product Name',
+	'@try'=>['zoovy:prod_name',''],
+	'@format'=>['htmlstrip','wikistrip','stripunicode','textify'],
+	},
+	{
+	'header'=>'Product Description',
+	'@try'=>['zoovy:prod_desc',''],
+	'@format'=>['htmlstrip','wikistrip','stripunicode','textify'],
+	},
+	{
+	'header'=>'Product/Current Price',
+	'@try'=>['zoovy:base_price',''],
+	},
+	{
+	'header'=>'Product URL',
+	'@try'=>['zoovy:link2'],
+	},
+	{ 
+	'header'=>'Image URL',
+	'@format'=>['imageurl?h=400&w=400'],
+	'@try'=>['zoovy:prod_thumb','zoovy:prod_image1',''],
+	},
+	{
+	'header'=>'Category',
+	'@try'=>['navcat:bc',''],
+	},
+	{
+	'header'=>'Manufacturer',
+	'@try'=>['zoovy:prod_mfg','zoovy:prod_brand',''],
+	},
+	{
+	'header'=>'Stock Status',
+	'@try'=>['%IN_STOCK'],
+	},
+	{
+	'header'=>'Condition',
+	'@try'=>['zoovy:prod_condition','%CONSTANT:New'],
+	},
+	{ 
+	'header'=>'Shipping Cost',
+	'@format'=>['textify','currency'],
+	'@try'=>[''],
+	},
+	{ 
+	'header'=>'Shipping Weight',
+	'@try'=>['zoovy:ship_weight','zoovy:base_weight',''],
+	'@format'=>['weight-in-lbs-number-only'],
+	},
+	## OPTIONAL COLUMNS below
+	{
+	'header'=>'Keywords',
+	'@try'=>['zoovy:keywords',''],
+	},
+	{
+	'header'=>'MSRP/Original Price',
+	'@try'=>['zoovy:prod_msrp',''],
+	},
+	{
+	'header'=>'Product Type',
+	'@try'=>['gbase:product_type',''],
+	'@format'=>['lookup-category','replace?this=%2F&with=%3E'],
+	},
+	{
+	'header'=>'Size',
+	'@try'=>['%OPTION_SIZE','zoovy:prod_size',''],
+	},
+	{
+	'header'=>'Color',
+	'@try'=>['%OPTION_COLOR','zoovy:prod_color',''],
+	},
+	{
+	'header'=>'Age Group',
+	'@try'=>['zoovy:prod_age_group',''],
+	},
+	{
+	'header'=>'Gender',
+	'@try'=>['zoovy:prod_gender',''],
+	},
+	{
+	'header'=>'Quantity',
+	'@try'=>['zoovy:qty_instock'],
+	'@validation'=>['positive-number'],
+	},
+	{
+	'header'=>'Promotional Message',
+	'@try'=>[''],
+	},
+]
+
