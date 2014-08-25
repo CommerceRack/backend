@@ -177,6 +177,15 @@ use strict;
 	);
 
 
+sub call {
+        my ($self,$method,$params) = @_;
+        my $R = undef;
+        if ($JSONAPI::CMDS{$method}) {
+           $R = $JSONAPI::CMDS{$method}->[0]($self,$params);
+           }
+        return($R);
+        }
+
 
 
 %JSONAPI::CMDS = (

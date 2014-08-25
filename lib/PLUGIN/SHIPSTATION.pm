@@ -255,7 +255,7 @@ sub jsonapi {
 					$writer->startTag('Item');
 					$writer->cdataElement('LineItemID',$item->{'uuid'});
 					$writer->cdataElement('SKU',$item->{'sku'});
-					$writer->cdataElement('Name',$item->{'description'});
+					$writer->cdataElement('Name',sprintf("%s",$item->{'description'}));
 #					$writer->cdataElement('ImageUrl',&ZOOVY::image_path($self->username(),$item->{'image'}));	# The URL to the full product image.
 					$writer->dataElement('Weight',int($item->{'weight'}));
 					$writer->dataElement('WeightUnits','Ounces');
@@ -283,8 +283,8 @@ sub jsonapi {
 			
 							$writer->startTag('Option');
 							# $writer->dataElement('AttributeID',$option->{'id'});
-							$writer->dataElement('Name',$option->{'prompt'});
-							$writer->dataElement('Value',$option->{'data'} || $item->{'v'});
+							$writer->dataElement('Name',sprintf("%s",$option->{'prompt'}));
+							$writer->dataElement('Value',sprintf("%s",$option->{'data'} || $item->{'v'}));
 							#if ($option->{'fee'}>0) { $writer->dataElement('Price',$option->{'fee'}); }
 							#if ($option->{'weight'}>0) { $writer->dataElement('Weight',$option->{'fee'}); }
 							# $writer->dataElement('Debug','');
