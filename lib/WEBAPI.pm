@@ -1007,13 +1007,14 @@ sub resourceSync {
 
 
 
+
+
 ##
 ## SUPPORT/TICKET/CREATE
 ##
 sub support {
 	my ($USERNAME,$XAPI,$ID,$DATA) = @_;
 
-	require SUPPORT;
 	my ($API,$METHOD,$ACTION) = split(/\//,$XAPI,3);
 
 	my $XML = '';
@@ -1072,6 +1073,19 @@ sub support {
 #	use Data::Dumper;
 #	print STDERR Dumper($XML);
 
+	return(0,$XML);
+	}
+
+
+
+##
+## this doesn't do shit anymore
+##
+sub incompleteSync {
+	my ($USERNAME,$XAPI,$ID,$DATA) = @_;
+	my $XML = '';
+	$XML .= "<INCOMPLETEITEMS>\n";
+	$XML .= '</INCOMPLETEITEMS>';
 	return(0,$XML);
 	}
 

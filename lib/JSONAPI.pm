@@ -6124,6 +6124,10 @@ sub adminImageUploadMagick {
 		if ($iref->{'err'}>0) {
 			&JSONAPI::set_error(\%R,'iseerr',(23000+$iref->{'err'}),sprintf("MEDIA ERROR %s",$iref->{'errmsg'}));
 			}
+		else {
+			push @{$R{'@files'}}, $iref;
+			foreach my $k (keys %{$iref}) { $R{$k} = $iref->{$k}; }		## copy keys
+			}
 		}
 	elsif ($v->{'_cmd'} eq 'adminImageMagick') {
 		## doen't need a filename.

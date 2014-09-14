@@ -506,9 +506,7 @@ sub footer_inventory {
 				($UUID,$result) = $eb2->ftsdownload($PREVIOUS_JOBID,$fileId);
 				## TODO: we need to parse the result, keep in mind items with zero inventory SHOULD have errors.
 				## Invalid SKU number: WWFLOSAL (we can probably check current inventory to see if we need to ignore these)
-				open F, ">>/tmp/ebay.result";
-				print F $result;
-				close F;
+				## open F, ">>/tmp/ebay.result"; print F $result; close F;
 				}
 			elsif ($jobStatus eq 'Failed') {
 				$lm->pooshmsg("ISE|+Previous job:$PREVIOUS_JOBID is:$jobStatus (will need to manually reset account)");
