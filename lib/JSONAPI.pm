@@ -2837,6 +2837,11 @@ sub append_msg_to_response {
 	return();
 	}
 
+sub response_had_error {
+	my ($R) = @_;
+	if ($R->{'_msg_1_type'} eq 'success') { return(undef); }
+	return(sprintf("#%s %s",$R->{'_msg_1_id'},$R->{'_msg_1_txt'}));
+	}
 
 
 sub error_cmd_removed_since {
