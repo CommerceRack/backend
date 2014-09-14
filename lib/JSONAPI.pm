@@ -1826,11 +1826,15 @@ sub configJS {
 ##
 ##
 sub new {
-	my ($CLASS, $sessionid) = @_;
+	my ($CLASS, $sessionid,%options) = @_;
 
 	my $self = {};
 	bless $self, 'JSONAPI';
 	$self->{'%CARTS'} = {};
+	if ($options{'CART2'}) {
+		my $CART2 = $options{'CART2'};
+		$self->{'%CARTS'}->{ $CART2->cartid() } = $CART2;
+		}
 	## this is a cheap hack for is_config_js
 	if ($sessionid eq '__config.js__') { $self->{'__config.js__'}++; }
 
