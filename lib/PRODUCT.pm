@@ -381,6 +381,7 @@ sub elastic_index {
 	if ( $grp_children ne '' ) {		
 		my @CHILDREN = ();
 		foreach my $pid (split(/,/,$grp_children)) {
+			next if ($pid eq $PID);	## never allow us to be our own child.
 			$pid =~ s/[^A-Z0-9\-\_]+//gs;
 			push @CHILDREN, $pid;
 			}
@@ -664,12 +665,7 @@ sub new {
 		if (defined $self->{'%data'}->{'%SKU'}) {
 			## this specifically fixes a case where sku:price is blank (for cubworld)
 			foreach my $sku (keys %{$self->{'%data'}->{'%SKU'}}) {
-
-				if (ref($self->{'%data'}->{'%SKU'}->{$sku}) ne 'HASH') { 
-					## corrupt $sku entry (hopefully it was just '.')
-					delete $self->{'%data'}->{'%SKU'}->{$sku}; 
-					}
-				elsif ((defined $self->{'%data'}->{'%SKU'}->{$sku}->{'sku:price'}) && ($self->{'%data'}->{'%SKU'}->{$sku}->{'sku:price'} eq '')) {
+				if ((defined $self->{'%data'}->{'%SKU'}->{$sku}->{'sku:price'}) && ($self->{'%data'}->{'%SKU'}->{$sku}->{'sku:price'} eq '')) {
 					delete $self->{'%data'}->{'%SKU'}->{$sku}->{'sku:price'};
 					}
 				}
@@ -699,8 +695,18 @@ sub lu { return($_[0]->{'*LU'}); }
 sub modified_gmt { return($_[0]->{'%data'}->{'zoovy:prod_modified_gmt'}); }
 sub grp_type { return($_[0]->{'%data'}->{'zoovy:grp_type'}); }
 sub grp_parent { return($_[0]->{'%data'}->{'zoovy:grp_parent'}); }
-## returns an array of grp_children pids
-sub grp_children {  return(split(/,/,$_[0]->{'%data'}->{'zoovy:grp_children'})); }
+
+## returns an array of grp_children pids, attempts to filter out bad products.
+sub grp_children {  
+	my ($self) = @_;
+	my @children = ();
+	foreach my $pid (split(/,/,$_[0]->{'%data'}->{'zoovy:grp_children'})) {
+		next if ($pid eq $self->pid());	# we can never be our own child.
+		push @children, $pid;
+		}
+	return(@children); 
+	}
+
 sub folder {  
 	my ($self,$folder) = @_;
 	if (defined $folder) { 
@@ -758,11 +764,7 @@ sub public_url {
 		my $origin = $options{'origin'} || 'unknown';
 		my $market = $options{'mkt'} || 'xxx';
 		my $pid = $self->pid();
-
-		my $params = "?origin=$origin&product=$pid&marketplace=$market";
-		if ($options{'sku'} && ($options{'sku'} =~ /:/)) { $params .= "&sku=".URI::Escape::XS::uri_escape($options{'sku'}); }
-
-		return($params);
+		return("?origin=$origin&product=$pid&marketplace=$market");
 		}
 	elsif ($options{'style'} eq 'vstore') {
 		my $uri_name = $self->fetch('zoovy:prod_name');
@@ -792,12 +794,8 @@ sub public_url {
 		else {
 			$url = sprintf('/product/%s/%s',$self->pid(),$uri_name);
 			}
-
-		my $params = '';
-		if (defined $options{'mkt'}) { $params = sprintf("&meta=%s",$options{'mkt'}); }
-		if ((defined $options{'sku'}) && ($options{'sku'} =~ /:/)) { $params = sprintf("&sku=%s",URI::Escape::XS::uri_escape($options{'sku'})); }
-		if ($params ne '') {
-			$url = sprintf("%s?%s",$url,substr($params,1)); # prepend url, strip leading & , replace with ?
+		if (defined $options{'mkt'}) {
+			$url = sprintf("%s?meta=%s",$url,$options{'mkt'});
 			}
 		return($url);
 		}
