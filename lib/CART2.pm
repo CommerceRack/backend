@@ -1581,7 +1581,8 @@ sub __SYNC__ {
 			my $ID = $CPNREF->{'coupon'};
 			if (not defined $ID) { $ID = $CPNREF->{'id'}; }
 
-			$self->is_debug() && $self->msgs()->pooshmsg("INFO|+Processing COUPON:$ID");
+			$self->is_debug() && $self->msgs()->pooshmsg("INFO|+ --------------------------- $ID -------------------------");
+			## $self->is_debug() && $self->msgs()->pooshmsg("INFO|+Processing COUPON:$ID");
 
 #			print STDERR "COUPON: $ID\n";
 			my $SKIP = 0;
@@ -1650,11 +1651,15 @@ sub __SYNC__ {
 				my $CODE = uc($CPNREF->{'id'});
 				if ($CODE eq '') { $CODE = $CPNREF->{'code'}; }
 				# print STDERR "CODE: $CODE\n";
+
 			
 				my $itemref = undef;
 			  	for (my $counter=0; $counter < $rulemaxcount; $counter++) {
 					my $rule = $rules[$counter];
 					$rule->{'.line'} = $counter;
+					$rule->{'.code'} = $CODE;
+
+					my $RULEID = sprintf("%s.%d",$rule->{'.code'},$rule->{'.line'});
 			
 					if ($self->is_debug()) {
 						foreach my $key (keys %{$rule}) {
@@ -1663,7 +1668,7 @@ sub __SYNC__ {
 						$self->msgs()->pooshmsg("DEBUG|+Rule[$counter] .. Trying [".$rule->{'NAME'}."] MATCH=[$rule->{'MATCH'}]\n"); 
 						}
 			
-					my ($result) = $self->rulematch($rule,'*LM'=>$self->msgs());	
+					my ($result) = $self->rulematch($rule,'*LM'=>$self->msgs(),'mode'=>'PROMO');	
 			
 					my $DOACTION = $result->{'DOACTION'};
 					if ($rule->{'EXEC'} eq 'GOGO') {
@@ -7977,7 +7982,9 @@ sub rulematch {
 	my $DEBUG = 0;
 
 	# on disabled return a false match
-	$self->is_debug() && $LM->pooshmsg("RULE[$rule->{'.line'}]|+START MATCH='$rule->{'MATCH'}' FILTER='$FILTER'"); 
+	my $RULEID = sprintf("%s.%d",$rule->{'.code'},$rule->{'.line'});
+	my $MODE = $params{'mode'} || 'UNKNOWN';
+	$self->is_debug() && $LM->pooshmsg("RULE[$RULEID]|+START MATCH='$rule->{'MATCH'}' FILTER='$FILTER' MODE='$MODE'"); 
 
 	if (defined $rule->{'MATCHVALUE'}) {
 		$rule->{'MATCHVALUE'} =~ s/\$//gs;
@@ -8070,7 +8077,7 @@ sub rulematch {
 			# since we expanded $FILTER to a regex, life is grand!
 			($FILTER) = &ZSHIP::RULES::filter_to_regex($FILTER);
 			my $result = ($sku =~ /^(?:$FILTER)$/i)?1:0;
-			$self->is_debug() && $LM->pooshmsg(sprintf("RULE[$rule->{'.line'}]-%s|+SKU[$sku] FILTER[$FILTER] PASS=$result",$result?'MATCH':'SKIP'));
+			$self->is_debug() && $LM->pooshmsg(sprintf("RULE[$RULEID]-%s|+SKU[$sku] FILTER[$FILTER] PASS=$result",$result?'MATCH':'SKIP'));
 			return($result)
 			}
 		}
@@ -8090,13 +8097,20 @@ sub rulematch {
 		'skus'=>',',			## the final result will be ,sku1,sku2,sku3
 		);
 
+	if ($self->is_debug() && (scalar(@stids)==0)) {
+		$LM->pooshmsg("RULE[$RULEID]|+CART APPEARS TO BE EMPTY!!!!!!!");
+		}
+
 	foreach my $item (@{$STUFF2->items()}) {
 		# if $it is an external product then go ahead strip off the piece BEFORE and including the *
 		my $stid = $item->{'stid'};
 
+		$self->is_debug() && $LM->pooshmsg("RULE[$RULEID]|+loading $stid");
+
 		my $sku = $item->{'stid'};
 		if ($sku =~ /\*(.*?)$/) { $sku = $1; }		# remove claims
 		if ($sku =~ /^(.*?)\/.*$/) { $sku = $1; }		# strip non-inventoriable options
+
 
 		next if ($sku eq ''); 
 		## Skip legacy promotions
@@ -8104,9 +8118,9 @@ sub rulematch {
 
 		if ((defined $self) && ($self->is_debug())) { 
 			my ($result) = $evalsub->($stid,$item,$FILTER,$self);
-			$self->is_debug() && $LM->pooshmsg("RULE[$rule->{'.line'}]|+rulematch_cart // CHECKING: stid=[$stid] sku=[$sku] AGAINST=[$FILTER] RESULT=[$result]"); 
+			$self->is_debug() && $LM->pooshmsg("RULE[$RULEID]|+rulematch_cart // CHECKING: stid=[$stid] sku=[$sku] AGAINST=[$FILTER] RESULT=[$result]"); 
 			}
-
+	
 		next unless $evalsub->($stid,$item,$FILTER,$self);
 
 		$prices{$stid} = $item->{'price'};
@@ -8132,7 +8146,7 @@ sub rulematch {
 	## Guide to variables
 	## $matches contains the SKU matches
 	if ((defined $self) && ($self->is_debug())) { 
-		$self->is_debug() && $LM->pooshmsg("RULE[$rule->{'.line'}]|+MATCH:$rule->{'MATCH'} rulematch_cart finished // results: ".&ZOOVY::debugdump(\%RESULT));
+		$self->is_debug() && $LM->pooshmsg("RULE[$RULEID]|+MATCH:$rule->{'MATCH'} rulematch_cart finished // results: ".&ZOOVY::debugdump(\%RESULT));
 		}
 
 	## 
@@ -8161,17 +8175,17 @@ sub rulematch {
 			$DOACTION = $rule->{'EXEC'}; 
 			($skumatch,$qtymatch) = (1, $RESULT{'qtymatch'});
 			}
-		$self->is_debug() && $LM->pooshmsg("RULE[$rule->{'.line'}]|+ ** NOTHING IN FILTER HAD ".int($RESULT{'matches'})." MATCHES (SETTING DOACTION=$DOACTION)");
+		$self->is_debug() && $LM->pooshmsg("RULE[$RULEID]|+ ** NOTHING IN FILTER HAD ".int($RESULT{'matches'})." MATCHES (SETTING DOACTION=$DOACTION)");
 		}
 	elsif ($rule->{'MATCH'} eq 'ALL_IN_FILTER') {
 		# 5 = all products match
 		if ($RESULT{'matches'} == $STUFF2->count('show'=>'real')) { $DOACTION = $rule->{'EXEC'}; }
-		$self->is_debug() && $LM->pooshmsg(sprintf("RULE[$rule->{'.line'}]|+ALL_IN_FILTER RESULT MATCHES:$RESULT{'matches'} needs (%d items in cart)",$STUFF2->count('show'=>'real')));
+		$self->is_debug() && $LM->pooshmsg(sprintf("RULE[$RULEID]|+ALL_IN_FILTER RESULT MATCHES:$RESULT{'matches'} needs (%d items in cart)",$STUFF2->count('show'=>'real')));
 		}
 	elsif ($rule->{'MATCH'} eq 'ALL_NOT_PRESENT') {
 		# the inverse of ALL_IN_FILTER
 		if ($RESULT{'matches'} != $STUFF2->count('show'=>'real')) { $DOACTION = $rule->{'EXEC'}; }
-		$self->is_debug() && $LM->pooshmsg(sprintf("RULE[$rule->{'.line'}]|+ALL_NOT_PRESENT RESULT MATCHES:$RESULT{'matches'} cannot be (%d items in cart)",$STUFF2->count('show'=>'real')));
+		$self->is_debug() && $LM->pooshmsg(sprintf("RULE[$RULEID]|+ALL_NOT_PRESENT RESULT MATCHES:$RESULT{'matches'} cannot be (%d items in cart)",$STUFF2->count('show'=>'real')));
 		}
 	elsif ($rule->{'MATCH'} eq 'SANDBOX/YES') {
 		## true if cart is in sandbox mode.
@@ -8199,14 +8213,14 @@ sub rulematch {
 			}
 
 		my @stids = $STUFF2->stids();
-		$self->is_debug() && $LM->pooshmsg("RULE[$rule->{'.line'}]|+promo 64 Rule[$rule->{'.line'}] stids: ".join("!",@stids));
+		$self->is_debug() && $LM->pooshmsg("RULE[$RULEID]|+promo 64 Rule[$rule->{'.line'}] stids: ".join("!",@stids));
 
 		foreach my $stid (@stids) {
 			my ($pid,$claim,$invopts,$noinvopts,$virtual) = &PRODUCT::stid_to_pid($stid);
 			foreach my $matches (@matches) {
-				$self->is_debug() && $LM->pooshmsg("RULE[$rule->{'.line'}]|+promo 128 Rule[$rule->{'.line'}] test if \"$matches\" is in \":$invopts\/$noinvopts\"");
+				$self->is_debug() && $LM->pooshmsg("RULE[$RULEID]|+promo 128 Rule[$rule->{'.line'}] test if \"$matches\" is in \":$invopts\/$noinvopts\"");
 				if (index(":$invopts/$noinvopts",$matches)>=0) { 
-					$self->is_debug() && $LM->pooshmsg("RULE[$rule->{'.line'}]|+promo 128 Rule[$rule->{'.line'}] MATCHED!"); 
+					$self->is_debug() && $LM->pooshmsg("RULE[$RULEID]|+promo 128 Rule[$rule->{'.line'}] MATCHED!"); 
 					$RESULT{'skus'} .= "$stid,"; $RESULT{'matches'}++; $RESULT{'qtymatch'}++; 
 					}				
 				}
@@ -8325,12 +8339,12 @@ sub rulematch {
 				if ($secs > $now) { $DOACTION = $rule->{'EXEC'}; }
 				}
 			else {
-				$self->is_debug() && $LM->pooshmsg("RULE[$rule->{'.line'}]|+promo 128 Rule[$rule->{'.line'}] MATCH=$rule->{'MATCH'} IS INVALID **INTERNAL ERROR**");		
+				$self->is_debug() && $LM->pooshmsg("RULE[$RULEID]|+promo 128 Rule[$rule->{'.line'}] MATCH=$rule->{'MATCH'} IS INVALID **INTERNAL ERROR**");		
 				}
-			$self->is_debug() && $LM->pooshmsg("RULE[$rule->{'.line'}]|+promo 64 Rule[$rule->{'.line'}] TESTING IS ruleseconds=$secs $rule->{'MATCH'} now=$now (if it is we'd $rule->{'EXEC'})");		
+			$self->is_debug() && $LM->pooshmsg("RULE[$RULEID]|+promo 64 Rule[$rule->{'.line'}] TESTING IS ruleseconds=$secs $rule->{'MATCH'} now=$now (if it is we'd $rule->{'EXEC'})");		
 			}
 		else {
-			$self->is_debug() && $LM->pooshmsg("RULE[$rule->{'.line'}]|+promo 64 Rule[$rule->{'.line'}] ERROR Length of date in FILTER/MATCHVALUE must be 14 characters");
+			$self->is_debug() && $LM->pooshmsg("RULE[$RULEID]|+promo 64 Rule[$rule->{'.line'}] ERROR Length of date in FILTER/MATCHVALUE must be 14 characters");
 			}
 		}
 	elsif ($rule->{'MATCH'} eq 'COUPON/ANY') {
@@ -8389,15 +8403,15 @@ sub rulematch {
 				$term = uc($term);
 				if (index($meta,$term)>=0) { 
 					$DOACTION = $rule->{'EXEC'}; 
-					$self->is_debug() && $LM->pooshmsg("RULE[$rule->{'.line'}]|+promo 64 Rule[$rule->{'.line'}] FOUND \"$term\" in \"$meta\"\n"); 
+					$self->is_debug() && $LM->pooshmsg("RULE[$RULEID]|+promo 64 Rule[$rule->{'.line'}] FOUND \"$term\" in \"$meta\"\n"); 
 					}
 				else {
-					$self->is_debug() && $LM->pooshmsg("RULE[$rule->{'.line'}]|+promo 64 Rule[$rule->{'.line'}] MISSED \"$term\" in \"$meta\"\n"); 
+					$self->is_debug() && $LM->pooshmsg("RULE[$RULEID]|+promo 64 Rule[$rule->{'.line'}] MISSED \"$term\" in \"$meta\"\n"); 
 					}
 				}
 			}
 		else {
-			$self->is_debug() && $LM->pooshmsg("RULE[$rule->{'.line'}]|+promo 2 Rule[$rule->{'.line'}] UNKNOWN SUBMATCH TYPE: $submatch\n");
+			$self->is_debug() && $LM->pooshmsg("RULE[$RULEID]|+promo 2 Rule[$rule->{'.line'}] UNKNOWN SUBMATCH TYPE: $submatch\n");
 			}
 		}
 	elsif ($rule->{'MATCH'} =~ /^META\/(EXACT|FUZZY)$/) {
@@ -8420,15 +8434,15 @@ sub rulematch {
 				if (index($meta,$term)>=0) { 
 					$DOACTION = $rule->{'EXEC'}; 
 					$skumatch = 1; $qtymatch = 1; 
-					$self->is_debug() && $LM->pooshmsg("RULE[$rule->{'.line'}]|+promo 64 Rule[$rule->{'.line'}] FOUND \"$term\" in \"$meta\"\n");
+					$self->is_debug() && $LM->pooshmsg("RULE[$RULEID]|+promo 64 Rule[$rule->{'.line'}] FOUND \"$term\" in \"$meta\"\n");
 					}
 				else {
-					$self->is_debug() && $LM->pooshmsg("RULE[$rule->{'.line'}]|+promo 64 Rule[$rule->{'.line'}] MISSED \"$term\" in \"$meta\"\n"); 
+					$self->is_debug() && $LM->pooshmsg("RULE[$RULEID]|+promo 64 Rule[$rule->{'.line'}] MISSED \"$term\" in \"$meta\"\n"); 
 					}
 				}
 			}
 		else {
-			$self->is_debug() && $LM->pooshmsg("RULE[$rule->{'.line'}]|+promo 2 Rule[$rule->{'.line'}] UNKNOWN SUBMATCH TYPE: $submatch\n"); 
+			$self->is_debug() && $LM->pooshmsg("RULE[$RULEID]|+promo 2 Rule[$rule->{'.line'}] UNKNOWN SUBMATCH TYPE: $submatch\n"); 
 			}
 		}
 	elsif ($rule->{'MATCH'} =~ /^MULTIVARSITE\/(A|B)$/) {
@@ -8473,16 +8487,16 @@ sub rulematch {
 		foreach my $element (split(/\|/, $RESULT{'@FILTER'})) {
 			## Now verify the filter string contains one of each of the elements.
 			if ($RESULT{'skus'} !~ /,$element,/i) { 
-				$self->is_debug() && $LM->pooshmsg("RULE[$rule->{'.line'}]|+promo 64 SKU[$RESULT{'skus'}] was not in /,$element,/ -- will not continue"); 
+				$self->is_debug() && $LM->pooshmsg("RULE[$RULEID]|+promo 64 SKU[$RESULT{'skus'}] was not in /,$element,/ -- will not continue"); 
 				$sane=0; 
 				}
 			}
 		if ($DEBUG) { 
 			if (($sane==0) && ($RESULT{'@FILTER'} =~ /\*/)) {
-				$self->is_debug() && $LM->pooshmsg("RULE[$rule->{'.line'}]|+promo 64 **CRAZY_FILTER WARNING** method all items in cart logic is not compatible with wildcard characters, you must hardcode skus implicitly.");
+				$self->is_debug() && $LM->pooshmsg("RULE[$RULEID]|+promo 64 **CRAZY_FILTER WARNING** method all items in cart logic is not compatible with wildcard characters, you must hardcode skus implicitly.");
 				}
 			use Data::Dumper; 
-			$self->is_debug() && $LM->pooshmsg("RULE[$rule->{'.line'}]|+promo 128 CRAZY_FILTER CONTINUE[$sane] on result: ".Dumper(\%RESULT)); 
+			$self->is_debug() && $LM->pooshmsg("RULE[$RULEID]|+promo 128 CRAZY_FILTER CONTINUE[$sane] on result: ".Dumper(\%RESULT)); 
 			}
 		if ($sane) { 
 			$DOACTION = $rule->{'EXEC'}; 
@@ -8590,7 +8604,7 @@ sub rulematch {
 		if (($rule->{'MATCH'} eq 'WEIGHT/GT') && ($TOTALWEIGHT > $filterweight)) { $skumatch = 1; $qtymatch = 1; }
 		elsif (($rule->{'MATCH'} eq 'WEIGHT/LT') && ($TOTALWEIGHT < $filterweight)) { $skumatch = 1; $qtymatch = 1; }
 
-		$self->is_debug() && $LM->pooshmsg("RULE[$rule->{'.line'}]|+RULES DEBUG PROCESS 100 - TOTALWEIGHT=[$TOTALWEIGHT]");
+		$self->is_debug() && $LM->pooshmsg("RULE[$RULEID]|+RULES DEBUG PROCESS 100 - TOTALWEIGHT=[$TOTALWEIGHT]");
 		}
 	elsif (
 		($rule->{'MATCH'} eq 'SUBTOTAL/GT') || ($rule->{'MATCH'} eq 'SUBTOTAL/LT') ||
@@ -8605,7 +8619,7 @@ sub rulematch {
 
 		if ($self->is_debug()) { 
 			if ($self->__GET__('sum/items_total') != $SUBTOTAL) {
-				$self->is_debug() && $LM->pooshmsg("RULE[$rule->{'.line'}]|+NOTE - SHOWING=$SHOW TOTALPRICE=[$SUBTOTAL]"); 
+				$self->is_debug() && $LM->pooshmsg("RULE[$RULEID]|+NOTE - SHOWING=$SHOW TOTALPRICE=[$SUBTOTAL]"); 
 				}
 			}
 		
@@ -8632,7 +8646,7 @@ sub rulematch {
 			if ($VALUE > $SUBTOTAL) { $qtymatch = 1; $skumatch = 1; }
 			}
 		else { 
-			$self->is_debug() && $LM->pooshmsg("RULE[$rule->{'.line'}]|+UNKNOWN OP[$OP] for MATCH $rule->{'MATCH'}"); 
+			$self->is_debug() && $LM->pooshmsg("RULE[$RULEID]|+UNKNOWN OP[$OP] for MATCH $rule->{'MATCH'}"); 
 			}
 		}
 	#elsif (($rule->{'MATCH'} eq 'DATE/LT') || ($rule->{'MATCH'} eq 'DATE/GT')) {
@@ -8651,7 +8665,7 @@ sub rulematch {
 	#		if (($rule->{'MATCH'} eq 'DATE/LT') && ($secs > time())) { ($skumatch,$qtymatch) = (1,1); } 
 	#		elsif (($rule->{'MATCH'} eq 'DATE/GT') && ($secs <= time())) { ($skumatch,$qtymatch) = (1,1); } 
 	#		else {
-	#			$self->is_debug() && $LM->pooshmsg("RULE[$rule->{'.line'}]|+ship 128 rule[$rule->{'.line'}] DATE DID NOT QUALIFY RULE=$secs CURRENT=".time());				
+	#			$self->is_debug() && $LM->pooshmsg("RULE[$RULEID]|+ship 128 rule[$rule->{'.line'}] DATE DID NOT QUALIFY RULE=$secs CURRENT=".time());				
 	#			}
 	#		}
 	#	else {
@@ -8712,7 +8726,7 @@ sub rulematch {
 		if (not defined $CURRENTPRICE) { warn "CURRENTPRICE not set"; }
 		$CURRENTPRICE =~ s/[^0-9|^\.]+//g;
 
-		$self->is_debug() && $LM->pooshmsg("RULE[$rule->{'.line'}]|+SHIPPING/XX DEBUG ... MATCH=$rule->{'MATCH'} CURRENT=$CURRENTPRICE FILTER=".sprintf("%.2f",$rule->{'FILTER'})); 
+		$self->is_debug() && $LM->pooshmsg("RULE[$RULEID]|+SHIPPING/XX DEBUG ... MATCH=$rule->{'MATCH'} CURRENT=$CURRENTPRICE FILTER=".sprintf("%.2f",$rule->{'FILTER'})); 
 		if (($rule->{'MATCH'} eq 'SHIPPING/GT') && ($CURRENTPRICE>sprintf("%.2f",$rule->{'FILTER'}))) { 
 			$DOACTION = $rule->{'EXEC'};
 			}
@@ -8725,7 +8739,7 @@ sub rulematch {
 		}
 	else {
 		($skumatch,$qtymatch) = (0,0);
-		$self->is_debug() && $LM->pooshmsg("RULE[$rule->{'.line'}]|+ ****** WARNING ******: unhandled MATCH type ".$rule->{'MATCH'});
+		$self->is_debug() && $LM->pooshmsg("RULE[$RULEID]|+ ****** WARNING ******: unhandled MATCH type ".$rule->{'MATCH'});
 		}
 
 

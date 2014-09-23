@@ -403,7 +403,7 @@ sub do_ship_rules {
 			}
 
 
-		($result) = $CART2->rulematch($rule,CURRENTPRICE=>$CURRENTPRICE,'*LM'=>$LM);
+		($result) = $CART2->rulematch($rule,'mode'=>'SHIP',CURRENTPRICE=>$CURRENTPRICE,'*LM'=>$LM);
 		# my ($result->{'_skumatch'},) = ($result->{'_skumatch'},$result->{'_qtymatch'});
 
 		# print STDERR Dumper($rule,$result);

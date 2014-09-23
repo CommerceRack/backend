@@ -24327,16 +24327,6 @@ sub adminDebugProduct {
 =cut
 
 
-sub adminDebugPromotion {
-	my ($self,$v) = @_;
-	my %R = ();
-
-	
-
-	return(\%R);
-	}
-
-
 
 
 sub adminDebugShippingPromoTaxes {
@@ -24433,8 +24423,7 @@ sub adminDebugShippingPromoTaxes {
 		foreach my $line (@{$lm->msgs()}) {
 			my ($msg,$status) = &LISTING::MSGS::msg_to_disposition($line);
 			next if ($msg->{'TYPE'} eq 'SHIP');
-			# $out .= Dumper($msg);
-			push @MSGS, $status;
+			push @MSGS, $msg;
 			}
 		$R{'@MSGS'} = \@MSGS;
 		}
