@@ -77,7 +77,7 @@ sub add_products {
 				# push @ES_BULK_ACTIONS, { 'index'=>$payload };
 				push @ELASTIC::ES_PAYLOADS, $payload;
 				if (defined $payload->{'data'}) { warn "payload contains legacy ->data attribute\n"; }
-				print STDERR Dumper($payload);
+				## print STDERR Dumper($payload);
 				$bulk->index($payload)
 				}
 
@@ -676,7 +676,9 @@ sub rebuild_product_index {
 		foreach my $b (@{&ZTOOLKIT::batchify(\@pids,150)}) {
 			# print Dumper($b);
 			my ($Prodrefs) = &PRODUCT::group_into_hashref($USERNAME,$b);
+			delete $Prodrefs->{''};	## no blank PID's
 			my @Prods = values %{$Prodrefs};
+
 			&ELASTIC::add_products($USERNAME,\@Prods, '*es'=>$es,'index'=>$ESINDEX, 'gref'=>$globalref);
 			}
 
