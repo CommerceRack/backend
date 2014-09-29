@@ -34,15 +34,14 @@ sub send {
 	my $BCC = $msg->bcc() || $self->bcc();
 	my $BODY = $msg->body();
 
-#	open F, ">/tmp/email";
-#	print F $BODY;
-#	close F;
-	
 	$BODY = &emailify_html($BODY);
 
 	#my $FROM = $MSGREF->{'MSGFROM'};
 	my $webdbref = $self->blaster()->webdb();
 	my $FROM =  $webdbref->{'from_email'} || $webdbref->{'paypal_email'};
+	if ($FROM eq '') { 
+		warn "FROM email not set, this probably won't work well.";
+		}
 
 	my $SUBJECT = $msg->subject();
 	$SUBJECT =~ s/<.*?>//gs;	# html stripping!
@@ -93,6 +92,9 @@ sub send {
 		use Data::Dumper; 
 		print STDERR 'AWS OUTPUT; '.Dumper($r,$webdbref->{'%plugin.esp_awsses'})."\n";
 
+		}
+	elsif ($FROM eq '') {
+		warn "can't send without a FROM address\n";
 		}
 	else {
 		##

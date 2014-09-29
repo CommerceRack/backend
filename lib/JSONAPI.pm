@@ -19871,7 +19871,11 @@ sub appEmailSend {
 	#if (not $self->hasFlag(\%R,'XSELL')) {
 	#	## hasFlag set's it's own error!
 	#	}
-	if (not &JSONAPI::validate_required_parameter(\%R,$v,'method',['tellafriend'])) {
+	my ($webdbref) = $self->webdbref();
+	if ($webdbref->{'from_email'} eq '') {
+		&JSONAPI::append_msg_to_response(\%R,"apierr",6659,"partition 'from_email' setting is not set, cannot send messages.");
+		}
+	elsif (not &JSONAPI::validate_required_parameter(\%R,$v,'method',['tellafriend'])) {
 		}
 	elsif ($attempts>25) {
 		&JSONAPI::append_msg_to_response(\%R,"apierr",6002,"daily email threshold exceeded.");
