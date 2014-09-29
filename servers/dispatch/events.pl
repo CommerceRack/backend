@@ -1,6 +1,6 @@
 #!/usr/bin/perl
 
-
+use Linux::Smaps;
 use URI::Escape::XS;
 use Proc::PID::File;
 use strict;
@@ -111,6 +111,8 @@ my %eFunctions = (
 	);
 
 
+$::SMAP = Linux::Smaps->new(pid=>'self');
+$::SMAP_MAX_RSS = 1_000_000 + $::SMAP->size();
 
 my %params = ();
 foreach my $arg (@ARGV) {
@@ -275,6 +277,19 @@ while ( my $YAML = $redis->brpoplpush("EVENTS","EVENTS.PROCESSING",1) ) {
 			&sync();
 			last;
 			}
+		if ($::SMAP->size() > $::SMAP_MAX_RSS) {
+			## 1mb RSS - time to reboot
+			print sprintf("SCRIPT $::SCRIPT_FILE HAS RSS[%d] MAX[%d]\n",$::SMAP->size(),$::SMAP_MAX_RSS);
+			&sync();
+			last;
+			}
+		}
+
+	## 1mb RSS - time to reboot
+	print sprintf("SCRIPT $::SCRIPT_FILE HAS RSS[%d] MAX[%d]\n",$::SMAP->size(),$::SMAP_MAX_RSS);
+	if ($::LAST_SIZE != $::SMAP->size()) {
+		$::LAST_SIZE = $::SMAP->size();
+		sleep(10);
 		}
 
 	if ($YAML eq '') { 

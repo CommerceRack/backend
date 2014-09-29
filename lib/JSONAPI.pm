@@ -177,6 +177,15 @@ use strict;
 	);
 
 
+sub call {
+        my ($self,$method,$params) = @_;
+        my $R = undef;
+        if ($JSONAPI::CMDS{$method}) {
+           $R = $JSONAPI::CMDS{$method}->[0]($self,$params);
+           }
+        return($R);
+        }
+
 
 
 %JSONAPI::CMDS = (
@@ -1817,11 +1826,15 @@ sub configJS {
 ##
 ##
 sub new {
-	my ($CLASS, $sessionid) = @_;
+	my ($CLASS, $sessionid,%options) = @_;
 
 	my $self = {};
 	bless $self, 'JSONAPI';
 	$self->{'%CARTS'} = {};
+	if ($options{'CART2'}) {
+		my $CART2 = $options{'CART2'};
+		$self->{'%CARTS'}->{ $CART2->cartid() } = $CART2;
+		}
 	## this is a cheap hack for is_config_js
 	if ($sessionid eq '__config.js__') { $self->{'__config.js__'}++; }
 
@@ -2828,6 +2841,11 @@ sub append_msg_to_response {
 	return();
 	}
 
+sub response_had_error {
+	my ($R) = @_;
+	if ($R->{'_msg_1_type'} eq 'success') { return(undef); }
+	return(sprintf("#%s %s",$R->{'_msg_1_id'},$R->{'_msg_1_txt'}));
+	}
 
 
 sub error_cmd_removed_since {
@@ -6118,6 +6136,10 @@ sub adminImageUploadMagick {
 		my ($iref) = &MEDIA::store($self->username(),"$PWD/$filename.$ext",$DATA);
 		if ($iref->{'err'}>0) {
 			&JSONAPI::set_error(\%R,'iseerr',(23000+$iref->{'err'}),sprintf("MEDIA ERROR %s",$iref->{'errmsg'}));
+			}
+		else {
+			push @{$R{'@files'}}, $iref;
+			foreach my $k (keys %{$iref}) { $R{$k} = $iref->{$k}; }		## copy keys
 			}
 		}
 	elsif ($v->{'_cmd'} eq 'adminImageMagick') {
@@ -24309,16 +24331,6 @@ sub adminDebugProduct {
 =cut
 
 
-sub adminDebugPromotion {
-	my ($self,$v) = @_;
-	my %R = ();
-
-	
-
-	return(\%R);
-	}
-
-
 
 
 sub adminDebugShippingPromoTaxes {
@@ -24415,8 +24427,7 @@ sub adminDebugShippingPromoTaxes {
 		foreach my $line (@{$lm->msgs()}) {
 			my ($msg,$status) = &LISTING::MSGS::msg_to_disposition($line);
 			next if ($msg->{'TYPE'} eq 'SHIP');
-			# $out .= Dumper($msg);
-			push @MSGS, $status;
+			push @MSGS, $msg;
 			}
 		$R{'@MSGS'} = \@MSGS;
 		}

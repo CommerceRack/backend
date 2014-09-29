@@ -17,7 +17,14 @@ package BLAST::DEFAULTS;
 #	[ 'PRODUCT', '%SENDER_SUBJECT%', 'The subject that was supplied by the user (cgi variable: sender_subject)' ],
 #	[ 'PRODUCT', '%SENDER_BODY%', 'The body that was supplied by the user (cgi variable sender_body)' ],
 
-	
+
+## Some examples:
+#	'%AMAZON_ORDERID_IN_A_SPAN%' => q|<span data-tlc="bind $amzoid '.%ORDER.mkt.amazon_orderid'; apply --append;"></span>|,
+#	'%AMAZON_ORDER_LINK%' => q|<span data-tlc="bind $amzoid '.%ORDER.mkt.amazon_orderid'; if (is $var --notblank) {{ 
+#	format --prepend='http://www.amazon.com/gp/help/contact-us/general-questions.html?orderId='; 
+#	apply --attrib='href'; 
+#	apply --append; }};
+#	"></span>|,
 
 	'%PRODUCT_VIEWLINK%'=> q|<span data-tlc="bind $var '.%PRODUCT.ADDLINK'; apply --append;"></span>|,
 	'%PRODUCT_ADDLINK%'=> q|<span data-tlc="bind $var '.%PRODUCT.ADDLINK'; apply --append;"></span>|,

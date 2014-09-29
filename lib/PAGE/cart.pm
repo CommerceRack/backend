@@ -300,10 +300,20 @@ sub handler {
 		## first thing we need to do is figure out
 		$lm->pooshmsg("INFO|+Looks like we might have a giftcard");
 		my @errors = ();
-		$SITE::CART2->add_giftcard($v->{'giftcardcode'},\@errors);
-		foreach my $err (@errors) { 
-			$lm->pooshmsg("ERROR|+$err"); 
+
+		my ($R) = JSONAPI->new(undef,'CART'=>$SITE::CART2)->call('cartGiftcardAdd',{ 
+			'_cartid'=>$SITE::CART2->cartid(), 
+			'giftcard'=>$v->{'giftcardcode'}
+			});
+
+		if (&JSONAPI::response_had_error($R)) {
+			$lm->pooshmsg(sprintf("ERROR|+%s",&JSONAPI::response_had_error($R)));
 			}
+			
+		## $SITE::CART2->add_giftcard($v->{'giftcardcode'},\@errors);
+		#foreach my $err (@errors) { 
+		#	$lm->pooshmsg("ERROR|+$err"); 
+		#	}
 		}
 
 #	if (defined $v->{'giftcardcode'}) {

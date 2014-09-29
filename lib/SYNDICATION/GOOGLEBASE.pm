@@ -453,6 +453,7 @@ as <g:product_type></g:product_type>
       #$LABELS[2] = $P->fetch('zoovy:prod_mfg');
       #$LABELS[3] = $P->fetch('zoovy:prod_brand');
 
+		## we use the .custom_label_#_attrib in the syndication object to figure out which product attribute we should pull the data from
       foreach my $i (0..4) {
          my $attrib = $self->get(".custom_label_$i\_attrib") || "g:custom_label_$i";
          my ($DATA) = $P->get($attrib);

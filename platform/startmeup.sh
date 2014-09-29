@@ -132,9 +132,6 @@ for USER in `/httpd/platform/cfgecho.pl type:user | tr '[:upper:]' '[:lower:]'` 
  cat /tmp/rebuild.sh | at now
 
  
- /httpd/platform/dump-domains.pl               
-                
-
 ## PUSH DNS
 # for USER in `/httpd/platform/cfgecho.pl type:user` ; do    
 # ##	/httpd/servers/dns/push.pl $USER; 
@@ -142,19 +139,19 @@ for USER in `/httpd/platform/cfgecho.pl type:user | tr '[:upper:]' '[:lower:]'` 
 
 
 ## LET SUPPORT KNOW WHERE WE ARE
- for USER in `/httpd/platform/cfgecho.pl type:user` ; do    
- 	/httpd/platform/sethost.pl $USER; 
- done
+# for USER in `/httpd/platform/cfgecho.pl type:user` ; do    
+# 	/httpd/platform/sethost.pl $USER; 
+# done
 
 ## initializ monit of filesystems
-echo "" > /etc/monit.d/zfs
-for fs in `zfs list -H -t filesystem | cut -f 5` ; do
-   service=`echo $fs | sed "s/\//\_/g"`
-	echo "check filesystem $service with path $fs" >> /etc/monit.d/zfs
-   echo "   if space usage > 90% then alert" >> /etc/monit.d/zfs
-   echo "" >> /etc/monit.d/zfs
-done
-/etc/init.d/monit restart
+#echo "" > /etc/monit.d/zfs
+#for fs in `zfs list -H -t filesystem | cut -f 5` ; do
+#   service=`echo $fs | sed "s/\//\_/g"`
+#	echo "check filesystem $service with path $fs" >> /etc/monit.d/zfs
+#   echo "   if space usage > 90% then alert" >> /etc/monit.d/zfs
+#   echo "" >> /etc/monit.d/zfs
+#done
+#/etc/init.d/monit restart
 
 
 
