@@ -901,7 +901,10 @@ cpanm Net::Ping
 cpanm Hijk
 cpanm HTTP::Tiny
 cpanm Elasticsearch
-cpanm Pegex::Parser
+## version 0.25 introduces some breakage in TLC handling.
+cpanm Pegex@0.25
+#cpanm Pegex::Parser
+cpanm Mo::xxx
 cpanm Mo::builder
 cpanm Net::AWS::SES
 

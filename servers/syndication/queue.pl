@@ -32,7 +32,6 @@ if (my $reason = &ZOOVY::is_not_happytime(avg=>12)) {
 ##
 
 
-my %MERCHANTS = ();
 my $ts = time();
 
 my %params = ();
@@ -55,105 +54,44 @@ if (not &ZOOVY::locklocal(sprintf("queue.pl"))) {
 	die("could not lock local");
 	}
 
+my @USERS = ();
+if ($params{'user'}) { push @USERS, $params{'user'}; }
+if (scalar(@USERS)==0) {
+	@USERS = @{CFG->new()->users()};
+	}
+
 if (not defined $params{'type'}) { $params{'type'} = 'ALL'; }
 $params{'type'} = uc($params{'type'});	
 
 ##
 ## STAGE1: figure out which SYNDICATION::PROVIDERS need what type of queuing.
 ##
-
-my @DSTCODES = ();
-foreach my $dstcode (keys %SYNDICATION::PROVIDERS) {
-	next if ((defined $params{'dst'}) && ($dstcode ne $params{'dst'}));	## dst=ESS !??
+my $ts = time();
+my @JOBS = ();
+foreach my $USERNAME (@USERS) {
 	
-	if (($params{'type'} ne 'ALL') && ($params{'type'} ne 'PRODUCTS')) {
-		}
-	elsif ($SYNDICATION::PROVIDERS{$dstcode}->{'send_products'}) {
-		push @DSTCODES, [ $dstcode, 'PRODUCTS', $SYNDICATION::PROVIDERS{$dstcode}->{'send_products'} ];
-		}
+	my ($udbh) = &DBINFO::db_user_connect($USERNAME);
+	my $pstmt = "select * from SYNDICATION where IS_ACTIVE>0";
 
-	if (($params{'type'} ne 'ALL') && ($params{'type'} ne 'IMAGES')) {
-		}
-	elsif ($SYNDICATION::PROVIDERS{$dstcode}->{'send_images'}) {
-		push @DSTCODES, [ $dstcode, 'IMAGES', $SYNDICATION::PROVIDERS{$dstcode}->{'send_images'} ];
-		}
+	my $sth = $udbh->prepare($pstmt);
+	$sth->execute();
+	while ( my $row = $sth->fetchrow_hashref() ) {
+		my $DSTCODE = $row->{'DSTCODE'};
+		my $ID = $row->{'ID'};
+		my $DOMAIN = $row->{'DOMAIN'};
 
-	if (($params{'type'} ne 'ALL') && ($params{'type'} ne 'ORDERS')) {
-		}
-	elsif ($SYNDICATION::PROVIDERS{$dstcode}->{'grab_orders'}) {
-		push @DSTCODES, [ $dstcode, 'ORDERS', $SYNDICATION::PROVIDERS{$dstcode}->{'grab_orders'} ];
-		}
+		next if ((defined $params{'dst'}) && (uc($params{'dst'}) ne $DSTCODE));
+		next if ((defined $params{'dstcode'}) && (uc($params{'dstcode'}) ne $DSTCODE));
 
-	if (($params{'type'} ne 'ALL') && ($params{'type'} ne 'ORDER_STATUS')) {
-		}
-	elsif ($SYNDICATION::PROVIDERS{$dstcode}->{'send_orderstatus'}) {
-		push @DSTCODES, [ $dstcode, 'ORDERSTATUS', $SYNDICATION::PROVIDERS{$dstcode}->{'send_orderstatus'} ];
-		}
+		print "ID:$row->{'ID'} $row->{'DSTCODE'} $row->{'DOMAIN'}\n";
 
-	if (($params{'type'} ne 'ALL') && ($params{'type'} ne 'TRACKING')) {
-		}
-	elsif ($SYNDICATION::PROVIDERS{$dstcode}->{'send_tracking'}) {
-		push @DSTCODES, [ $dstcode, 'TRACKING', $SYNDICATION::PROVIDERS{$dstcode}->{'send_tracking'} ];
-		}
+		my $PROVIDER = $SYNDICATION::PROVIDERS{$DSTCODE};
+		if (not defined $PROVIDER) {
+			warn "SYNDICATION::PROVIDERS{$DSTCODE} not found\n";
+			next;
+			}
 
-	if (($params{'type'} ne 'ALL') && ($params{'type'} ne 'INVENTORY')) {
-		}
-	elsif ($SYNDICATION::PROVIDERS{$dstcode}->{'send_inventory'}) {
-		push @DSTCODES, [ $dstcode, 'INVENTORY', $SYNDICATION::PROVIDERS{$dstcode}->{'send_inventory'} ];
-		}
-
-	if (($params{'type'} ne 'ALL') && ($params{'type'} ne 'SHIPPING')) {
-		}
-	elsif ($SYNDICATION::PROVIDERS{$dstcode}->{'send_shipping'}) {
-		push @DSTCODES, [ $dstcode, 'SHIPPING', $SYNDICATION::PROVIDERS{$dstcode}->{'send_shipping'} ];
-		}
-
-	if (($params{'type'} ne 'ALL') && ($params{'type'} ne 'ACCESSORIES')) {
-		}
-	elsif ($SYNDICATION::PROVIDERS{$dstcode}->{'send_accessories'}) {
-		push @DSTCODES, [ $dstcode, 'ACCESSORIES', $SYNDICATION::PROVIDERS{$dstcode}->{'send_accessories'} ];
-		}
-
-	if (($params{'type'} ne 'ALL') && ($params{'type'} ne 'RELATIONS')) {
-		}
-	elsif ($SYNDICATION::PROVIDERS{$dstcode}->{'send_relations'}) {
-		push @DSTCODES, [ $dstcode, 'RELATIONS', $SYNDICATION::PROVIDERS{$dstcode}->{'send_relations'} ];
-		}
-
-	if (($params{'type'} ne 'ALL') && ($params{'type'} ne 'PRICING')) {
-		}
-	elsif ($SYNDICATION::PROVIDERS{$dstcode}->{'send_pricing'}) {
-		push @DSTCODES, [ $dstcode, 'PRICING', $SYNDICATION::PROVIDERS{$dstcode}->{'send_pricing'} ];
-		}
-
-	if (($params{'type'} ne 'ALL') && ($params{'type'} ne 'FEEDBACK')) {
-		}
-	elsif ($SYNDICATION::PROVIDERS{$dstcode}->{'send_feedback'}) {
-		push @DSTCODES, [ $dstcode, 'FEEDBACK', $SYNDICATION::PROVIDERS{$dstcode}->{'send_feedback'} ];
-		}
-	}
-
-##
-## STAGE2: go through and see which specific user/records have a {TYPE}_NEXTQUEUE_GMT which is older than now
-##				add those to @TO_QUEUE
-##
-
-my @TO_QUEUE = ();
-foreach my $set (shuffle @DSTCODES) {
-	my $udbh = &DBINFO::db_user_connect("$params{'cluster'}");
-	my ($DSTCODE,$DSTTYPE,$INTERVAL) = @{$set};
-	my $pstmt = "select USERNAME,DOMAIN,ID from SYNDICATION where IS_ACTIVE>0 and DSTCODE='$DSTCODE' and ${DSTTYPE}_NEXTQUEUE_GMT<unix_timestamp(now())";
-	if ($params{'all'}) {
-		$pstmt = "select USERNAME,DOMAIN,ID from SYNDICATION where IS_ACTIVE>0 and DSTCODE='$DSTCODE' ";
-		}
-	if ($params{'user'}) { $pstmt .= " and USERNAME=".$udbh->quote($params{'user'}); }
-	print $pstmt."\n";
-	my $ROWS = &DBINFO::fetch_all_into_hashref($params{'cluster'},$pstmt);
-	#my $sth = $udbh->prepare($pstmt);
-	#$sth->execute();
-	#while ( my ($USERNAME,$DOMAIN,$ID) = $sth->fetchrow() ) {
-	foreach my $row (@{$ROWS}) {
-		my ($USERNAME,$DOMAIN,$ID) = ($row->{'USERNAME'},$row->{'DOMAIN'},$row->{'ID'});
+		## PRT LOOKUP
 		my $PRT = -1;
 		if (substr($DOMAIN,0,1) eq '#') {
 			## we have a PRT defined as "#0" in PROFILE field
@@ -161,18 +99,49 @@ foreach my $set (shuffle @DSTCODES) {
 			## $PROFILE = &ZOOVY::prt_to_profile($USERNAME,$PRT);
 			}
 		else {
-			## we have a profile defined in the profile field
-			## $PRT = &ZOOVY::profile_to_prt($USERNAME,$PROFILE);
+		## we have a profile defined in the profile field
+				## $PRT = &ZOOVY::profile_to_prt($USERNAME,$PROFILE);
 			my ($D) = DOMAIN->new($USERNAME,$DOMAIN);
 			if (defined $D) { $PRT = $D->prt(); }
 			}
+		## /PRT LOOKUP
 
-		if ($PRT >= 0) {
-			push @TO_QUEUE, [ $USERNAME, $DOMAIN, $PRT, $ID, $DSTTYPE, $DSTCODE, $INTERVAL ];
+		foreach my $TYPE ('PRODUCTS','IMAGES','ORDERS','ORDERSTATUS','TRACKING','INVENTORY','SHIPPING','ACCESSORIES','RELATIONS','PRICING','FEEDBACK') {
+			next if ((defined $params{'type'}) && ($params{'type'} ne 'ALL') && (uc($params{'type'}) ne $TYPE));
+
+			my $INTERVAL = $PROVIDER->{sprintf('send_%s',lc($TYPE))};
+			my $NEXTQUEUE_GMT = $row->{sprintf("%s_NEXTQUEUE_GMT",$TYPE)};
+
+			my $QUEUE_JOB = 0;
+			if (not $INTERVAL) {
+				## there is send_products, send_images, etc. on the syndication provider
+				}
+			elsif ($NEXTQUEUE_GMT > $ts) {
+				print sprintf("$TYPE not ready to re-queue (needs %d seconds)\n", $NEXTQUEUE_GMT-$ts);
+
+				if ((defined $params{'type'}) && (uc($params{'type'}) eq $TYPE)) {
+					warn "type:$TYPE has overridden these settings\n";
+					$QUEUE_JOB++;
+					}
+				}
+
+			if ($QUEUE_JOB) {
+				push @JOBS, [ $USERNAME, $DOMAIN, $PRT, $ID, $TYPE, $DSTCODE, $INTERVAL  ];
+				}
+			
 			}
 		}
-	#$sth->finish();
+	$sth->finish();
+	&DBINFO::db_user_close();
 	}
+
+##
+## STAGE2: go through and see which specific user/records have a {TYPE}_NEXTQUEUE_GMT which is older than now
+##				add those to @TO_QUEUE
+##
+
+print Dumper(\@JOBS)."\n";
+
 #print Dumper(\@TO_QUEUE);
 
 
@@ -181,7 +150,7 @@ foreach my $set (shuffle @DSTCODES) {
 ##
 my $TS = time();
 my $i = 0;
-foreach my $workloadset (shuffle @TO_QUEUE) {
+foreach my $workloadset (shuffle @JOBS) {
 	print Dumper($workloadset);
 
 	my ($USERNAME,$DOMAIN,$PRT,$DBID,$DSTTYPE,$DSTCODE,$INTERVAL) = @{$workloadset};
@@ -281,17 +250,21 @@ foreach my $workloadset (shuffle @TO_QUEUE) {
 			}
 		
 		# open H, "|/usr/bin/at -q $queue now + $i minutes";
+		my @CMDS = ();
+		push @CMDS, "rm -f /tmp/syndication-$USERNAME-$DSTCODE-$DBID-$DSTTYPE.running-debug\n";
+		push @CMDS, $CMD."\n";
+		push @CMDS, "if \[ \"\$?\" -eq 0 \]; then\n";
+		push @CMDS, "  echo \"command failed\";\n";
+		push @CMDS, "  /bin/mv /tmp/syndication-$USERNAME-$DSTCODE-$DBID-$DSTTYPE.running-debug /tmp/syndication-$USERNAME-$DSTCODE-$DBID-$DSTTYPE.crashed-debug\n";
+		push @CMDS, "  exit 1;\n";
+		push @CMDS, "else\n";
+		push @CMDS, "  /bin/rm -f /tmp/syndication-$USERNAME-$DSTCODE-$DBID-$DSTTYPE.running-debug\n";
+		push @CMDS, "  exit 0;\n";
+		push @CMDS, "fi\n";
+		print join("\n",@CMDS);
+
 		open H, "|/usr/bin/at -q $queue now";
-		print H "rm -f /tmp/syndication-$USERNAME-$DSTCODE-$DBID-$DSTTYPE.running-debug\n";
-		print H $CMD."\n";
-		print H "if \[ \"\$?\" -eq 0 \]; then\n";
-		print H "  echo \"command failed\";\n";
-		print H "  /bin/mv /tmp/syndication-$USERNAME-$DSTCODE-$DBID-$DSTTYPE.running-debug /tmp/syndication-$USERNAME-$DSTCODE-$DBID-$DSTTYPE.crashed-debug\n";
-		print H "  exit 1;\n";
-		print H "else\n";
-		print H "  /bin/rm -f /tmp/syndication-$USERNAME-$DSTCODE-$DBID-$DSTTYPE.running-debug\n";
-		print H "  exit 0;\n";
-		print H "fi\n";
+		foreach my $cmd (@CMDS) { print H $cmd; }
 		close H;
 
 		my ($udbh) = &DBINFO::db_user_connect($USERNAME);	
