@@ -255,11 +255,11 @@ sub jsonapi {
 					$writer->startTag('Item');
 					$writer->cdataElement('LineItemID',$item->{'uuid'});
 					$writer->cdataElement('SKU',$item->{'sku'});
-					$writer->cdataElement('Name',sprintf("%s",$item->{'description'}));
+					$writer->cdataElement('Name',&ZTOOLKIT::stripUnicode(sprintf("%s",$item->{'description'})));
 #					$writer->cdataElement('ImageUrl',&ZOOVY::image_path($self->username(),$item->{'image'}));	# The URL to the full product image.
 					$writer->dataElement('Weight',int($item->{'weight'}));
 					$writer->dataElement('WeightUnits','Ounces');
-					$writer->dataElement('Quantity',$item->{'qty'});
+					$writer->dataElement('Quantity',int($item->{'qty'}));
 					$writer->dataElement('UnitPrice',$item->{'price'});
 
 					## NEED TO FILL THIS IN:
@@ -304,9 +304,9 @@ sub jsonapi {
 		$writer->endTag('Orders');
 		$writer->end();
 
-		#open F, ">/tmp/shipstation.order.$count";
-		#print F $BODY;
-		#close F;
+		open F, ">/tmp/shipstation.order.$count";
+		print F $BODY;
+		close F;
 
 		## this has zero orders
 		}

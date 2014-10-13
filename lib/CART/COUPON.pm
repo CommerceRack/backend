@@ -24,6 +24,7 @@ require ZWEBSITE;
 sub list {
 	my ($webdbref,%options) = @_;
 
+	if (not defined $webdbref->{'%COUPONS'}) { $webdbref->{'%COUPONS'} = {}; }
 	my $ref = $webdbref->{'%COUPONS'};
 	my @result = ();
 
@@ -52,6 +53,7 @@ sub delete {
 	my ($webdbref,$CODE) = @_;
 
 	if ($CODE ne '') {
+		if (not defined $webdbref->{'%COUPONS'}) { $webdbref->{'%COUPONS'} = {}; }
 		my ($ref) = $webdbref->{'%COUPONS'}; 
 		if (defined $ref->{$CODE}) {
 			delete $ref->{$CODE};
@@ -64,6 +66,7 @@ sub save {
 	my ($webdbref,$CODE, %options) = @_;
 
 	if ($CODE ne '') {
+		if (not defined $webdbref->{'%COUPONS'}) { $webdbref->{'%COUPONS'} = {}; }
 		my ($ref) = $webdbref->{'%COUPONS'};
 		if (not defined $ref->{$CODE}) { $ref->{$CODE} = { created_gmt=>time() }; }
 		
@@ -83,6 +86,8 @@ sub save {
 
 sub load {
 	my ($webdbref,$CODE) = @_;
+
+	if (not defined $webdbref->{'%COUPONS'}) { $webdbref->{'%COUPONS'} = {}; }
 	my ($ref) = $webdbref->{'%COUPONS'};
 	
 	if (defined $ref->{$CODE}) {
