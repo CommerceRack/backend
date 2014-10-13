@@ -259,7 +259,7 @@ sub jsonapi {
 #					$writer->cdataElement('ImageUrl',&ZOOVY::image_path($self->username(),$item->{'image'}));	# The URL to the full product image.
 					$writer->dataElement('Weight',int($item->{'weight'}));
 					$writer->dataElement('WeightUnits','Ounces');
-					$writer->dataElement('Quantity',$item->{'qty'});
+					$writer->dataElement('Quantity',int($item->{'qty'}));
 					$writer->dataElement('UnitPrice',$item->{'price'});
 
 					## NEED TO FILL THIS IN:

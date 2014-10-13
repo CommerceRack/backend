@@ -149,10 +149,6 @@ my $app = sub {
    if (defined $HTTP_RESPONSE) {
       ## we're already done! (probably an error)
       }
-	elsif ($path =~ /^\/jsonapi\/call\/([a-zA-Z]+)\.json/) {
-		## future jsonapi/call/appResource?filename=elastic_public.json
-		
-		}
    elsif ($path =~ /^\/jsonapi\/plugin\/([a-z0-9]+)\.(xml|json|txt)$/) {
       ## we handle options *very* differntly for jsonapi/upload requests so we'll do that later.
 		my $module = uc($1);
@@ -193,6 +189,10 @@ my $app = sub {
 		}
 	## NOTE: be careful with the path as it may contain shit like /s=/
 	## /jquery/config.js /jsonapi/config.js
+	elsif ($path =~ /^\/jsonapi\/call\/(v201[\d]{3})\/([a-zA-Z]+)\.json/) {
+		## future jsonapi/call/appResource?filename=elastic_public.json
+		$path = '/jsonapi/';
+		}
 	elsif ($path =~ /^\/jsonapi\/v\-201[45][\d][\d]+\/(.*?)$/o) {
 		## jsonapi/v-201405/api.api.api
 		$path = '/jsonapi/';

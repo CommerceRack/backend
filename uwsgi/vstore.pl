@@ -636,6 +636,9 @@ Disallow: /
 	if (not defined $SITE) { $disallow_robots++; }
 	elsif ($SITE->_is_secure()) { $disallow_robots++; }
 	elsif ($SITE->sdomain() =~ /\.zoovy\.com/) { $disallow_robots++; }
+	elsif ($SITE->sdomain() !~ /^www\./) { $disallow_robots++; }
+
+	print STDERR "SITE_DOMAIN: ".$SITE->sdomain()." [$disallow_robots]\n";
 		
 	if ($disallow_robots) {
 		## special robots.txt for .zoovy.com domains

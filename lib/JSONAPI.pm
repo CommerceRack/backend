@@ -1927,6 +1927,12 @@ sub psgiinit {
 	elsif ($VERSION > 0) {
 		## shit happened.
 		}
+	elsif ($plackreq->path_info() =~ /^\/jsonapi\/call\/v(201[\d][\d][\d])\/([a-zA-Z]+)$/) {
+		## future jsonapi/call/appResource?filename=elastic_public.json
+		$VERSION = $1;
+		$v->{'_cmd'} = $2;
+		$v->{'_uuid'} = time();
+		}
 	elsif ((defined $HEADERS) && (defined $HEADERS->header('x-version')) && ($HEADERS->header('x-version')>0)) {
 		## first use the environment
 		$VERSION = $HEADERS->header('x-version');  	## set by application
@@ -1954,7 +1960,7 @@ sub psgiinit {
 		## websockets, no version check
 		}
 	elsif (($VERSION eq '') || ($VERSION==0)) {
-		&JSONAPI::set_error($R = {}, 'apperr', 7, "X-VERSION header, _version or acceptable _v is required");
+		&JSONAPI::set_error($R = {}, 'apperr', 7, "X-VERSION header, _version or acceptable _v is required!" . $plackreq->path_info());
 		warn "NO APIVERSION was detected .. this request probably won't work well. (dumping v below)\n";
 		open F, ">>/tmp/noapi";
 		print F Dumper($v)."\n\n";

@@ -109,7 +109,14 @@ foreach my $USERNAME (@USERS) {
 		foreach my $TYPE ('PRODUCTS','IMAGES','ORDERS','ORDERSTATUS','TRACKING','INVENTORY','SHIPPING','ACCESSORIES','RELATIONS','PRICING','FEEDBACK') {
 			next if ((defined $params{'type'}) && ($params{'type'} ne 'ALL') && (uc($params{'type'}) ne $TYPE));
 
-			my $INTERVAL = $PROVIDER->{sprintf('send_%s',lc($TYPE))};
+			my $INTERVAL = '';
+			if ($TYPE eq 'ORDERS') {
+				$INTERVAL = $PROVIDER->{'grab_orders'};
+				}
+			else {
+				$INTERVAL = $PROVIDER->{sprintf('send_%s',lc($TYPE))};
+				}
+
 			my $NEXTQUEUE_GMT = $row->{sprintf("%s_NEXTQUEUE_GMT",$TYPE)};
 
 			my $QUEUE_JOB = 0;
@@ -123,6 +130,9 @@ foreach my $USERNAME (@USERS) {
 					warn "type:$TYPE has overridden these settings\n";
 					$QUEUE_JOB++;
 					}
+				}
+			else {
+				$QUEUE_JOB++;
 				}
 
 			if ($QUEUE_JOB) {
@@ -139,7 +149,6 @@ foreach my $USERNAME (@USERS) {
 ## STAGE2: go through and see which specific user/records have a {TYPE}_NEXTQUEUE_GMT which is older than now
 ##				add those to @TO_QUEUE
 ##
-
 print Dumper(\@JOBS)."\n";
 
 #print Dumper(\@TO_QUEUE);
