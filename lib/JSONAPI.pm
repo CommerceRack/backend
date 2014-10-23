@@ -18088,8 +18088,20 @@ sub appCartExists {
 
 	## NOTE: this call cannot be loaded *WITHOUT* a cart
 	my $cartid = $v->{'_cartid'};
+
+	## it's worth mentioning that any cartid stored in the session will be re-instantiated/created by the line below
 	my ($CART2) = $self->cart2($cartid,'create'=>0);
 	$R{'exists'} = (defined $CART2)?1:0;
+
+   if ($R{'exists'}) {
+      ## make sure we haven't placed an order
+      my $USERNAME = $self->username();
+      my ($redis) = &ZOOVY::getRedis($USERNAME,0);
+      my ($ID) = $redis->get("OIDRSV+$USERNAME+$cartid");
+      if (defined $ID) { $R{'exists'} = 0; }
+      }
+
+
 	$R{'valid'} = 1;
 
 	return(\%R);

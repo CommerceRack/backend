@@ -25,7 +25,7 @@ cd /backend/static/zmvc
 ln -s latest $VERSION
 
 ## set MOTD
-rm /etc/motd
+rm -f /etc/motd
 ln -s /backend/platform/etc-motd /etc/motd
 
 echo "/usr/local/lib" > /etc/ld.so.conf.d/usr-local-lib.conf
@@ -201,7 +201,7 @@ make install
 ##./configure;
 
 cd /usr/local/src/
-wget http://nginx.org/download/nginx-1.6.0.tar.gz; tar -xzvf nginx-1.6.0.tar.gz; cd nginx-1.6.0;
+wget http://nginx.org/download/nginx-1.6.2.tar.gz; tar -xzvf nginx-1.6.2.tar.gz; cd nginx-1.6.2;
 ## wget http://nginx.org/download/nginx-1.5.13.tar.gz; tar -xzvf nginx-1.5.13.tar.gz; cd nginx-1.5.13;
 ## wget http://nginx.org/download/nginx-1.5.9.tar.gz; tar -xzvf nginx-1.5.9.tar.gz; cd nginx-1.5.9
 ## cd /usr/local/src/nginx-1.5.9
@@ -213,7 +213,7 @@ wget http://nginx.org/download/nginx-1.6.0.tar.gz; tar -xzvf nginx-1.6.0.tar.gz;
 
 ## note: removed --without-http-cache --with-proxy
 ## 	--with-http_ssl_module \		## not needed
-cd /usr/local/src/nginx-1.6.0
+cd /usr/local/src/nginx-1.6.2
 ./configure --with-http_ssl_module --with-http_gunzip_module --with-http_gzip_static_module --without-http_ssi_module   \
 	--without-http_userid_module --without-http_access_module --without-http_auth_basic_module \ 
 	--without-http_autoindex_module --without-http_geo_module \
@@ -318,7 +318,8 @@ yum install -y ImageMagick ImageMagick-devel
 ## ELASTICSEARCH 
 ##
 yum -y install java-1.7.0-openjdk java-1.7.0-openjdk-devel  java-1.7.0-openjdk-javadoc java-1.7.0-openjdk-src
-yum -y install https://download.elasticsearch.org/elasticsearch/elasticsearch/elasticsearch-1.2.1.noarch.rpm
+#yum -y install https://download.elasticsearch.org/elasticsearch/elasticsearch/elasticsearch-1.2.1.noarch.rpm
+yum -y install https://download.elasticsearch.org/elasticsearch/elasticsearch/elasticsearch-1.3.4.noarch.rpm
 
 
 # wget http://search.cpan.org/CPAN/authors/id/M/MI/MIYAGAWA/PSGI-1.102.tar.gz
@@ -431,6 +432,7 @@ ldconfig
 
 
 # to simplify the perl modules - just run:
+yum -y install glibc-devel.i686 compat-libstdc++-33.i686
 /backend/platform/perl-setup.sh 
 
 
