@@ -1927,10 +1927,12 @@ sub psgiinit {
 	elsif ($VERSION > 0) {
 		## shit happened.
 		}
-	elsif ($plackreq->path_info() =~ /^\/jsonapi\/call\/v(201[\d][\d][\d])\/([a-zA-Z]+)$/) {
+	elsif ($plackreq->path_info() =~ /^\/jsonapi\/call\/v(201[\d][\d][\d])\/([a-zA-Z\.]+)$/) {
 		## future jsonapi/call/appResource?filename=elastic_public.json
 		$VERSION = $1;
 		$v->{'_cmd'} = $2;
+		if ($v->{'_cmd'} =~ /^(.*?)\.(json|xml)$/) { $v->{'_cmd'} = $1; $v->{'_format'} = $2;	}
+		## _format can be json or xml
 		$v->{'_uuid'} = time();
 		}
 	elsif ((defined $HEADERS) && (defined $HEADERS->header('x-version')) && ($HEADERS->header('x-version')>0)) {

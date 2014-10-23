@@ -189,7 +189,7 @@ my $app = sub {
 		}
 	## NOTE: be careful with the path as it may contain shit like /s=/
 	## /jquery/config.js /jsonapi/config.js
-	elsif ($path =~ /^\/jsonapi\/call\/(v201[\d]{3})\/([a-zA-Z]+)\.json/) {
+	elsif ($path =~ /^\/jsonapi\/call\/(v201[\d]{3})\/([a-zA-Z]+)([\.](json|xml))?/) {
 		## future jsonapi/call/appResource?filename=elastic_public.json
 		$path = '/jsonapi/';
 		}
@@ -449,17 +449,23 @@ my $app = sub {
 		if (-f '/dev/shm/debug.api') {
 			use Data::Dumper; open F, ">>/tmp/debug.api.log"; print F Dumper(time(),$v,$R); close F;
 			}
-				
-		my $utf8_encoded_json_text = JSON::XS->new->utf8->allow_blessed(1)->convert_blessed(1)->encode($R);
+
 		## print STDERR "UF8 ENCODED TXT: $utf8_encoded_json_text\n";
 		if ($v->{'_callback'}) {
 			## jsonp response
+			my $utf8_encoded_json_text = JSON::XS->new->utf8->allow_blessed(1)->convert_blessed(1)->encode($R);
 			$HEADERS->push_header( 'Content-Type' => 'application/javascript' );
 			$BODY = sprintf("%s(%s);\n\r",$v->{'_callback'},$utf8_encoded_json_text);
 			open F, ">/dev/shm/jsonp.js";	print F $BODY; 	close F;
 			}
+		elsif ((defined $v->{'_format'}) && ($v->{'_format'} eq 'xml')) {
+			$HEADERS->push_header( 'Content-Type' => 'text/xml' );
+			require Data::Dump::XML;
+			$BODY = Data::Dump::XML->new()->dump_xml($R);
+			}
 		else {
 			## json response
+			my $utf8_encoded_json_text = JSON::XS->new->utf8->allow_blessed(1)->convert_blessed(1)->encode($R);
 			$HEADERS->push_header( 'Content-Type' => 'text/json' );
 			$BODY = $utf8_encoded_json_text;
 			}
