@@ -202,7 +202,7 @@ sub public_product_link {
 	#	'meta'=>$meta
 	#	);
 
-	my $link = sprintf("http://www.%s/%s",$self->domain(),$P->public_url('origin'=>'cpc','mkt'=>$self->dstcode(),'style'=>$style));
+	my $link = sprintf("http://www.%s%s",$self->domain(),$P->public_url('origin'=>'cpc','mkt'=>$self->dstcode(),'style'=>$style));
 
 	## product link with meta data
 	my $analytics_data = '';

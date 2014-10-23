@@ -1293,6 +1293,9 @@ sub is_valid {
 
 ## END DYNAMIC AMAZON FIELDS ##
 # 'amz:product_type' =>  { 'src' => 'amphidex:AR_223932', 'type' => 'legacy' },
+'amz:prod_brand' =>  { 'hint' => 'Use when the brand to be sent to Amazon is different to that set in zoovy:prod_brand', 'name' => 'Amazon Brand', 'product' => 1, 'type' => 'textbox' },
+'amz:prod_mfg' =>  { 'hint' => 'Use when the manufacturer to be sent to Amazon is different to that set in zoovy:prod_mfg', 'name' => 'Amazon Manufacturer', 'product' => 1, 'type' => 'textbox' },
+'amz:color_override' =>  { 'hint' => 'Use when trying to merge with an existing Amazon product that has a different color to that set in amz:prod_color', 'name' => 'Amazon Color Override', 'product' => 1, 'type' => 'textbox' },
 'amz:prts' =>  { 'hint' => 'Select the partitions which this product will be allowed to syndicate from (note: you must select at least one partition for this field to work).', 'type' => 'prtchooser', 'title' => 'Amazon Syndication Restrict to Partitions' },
 'amz:qty' =>  { 'sku'=>1, 'hint' => 'The maximum quantity to send/reserve to inventory. Set to -1 to send all inventory without reserving any.', 'type' => 'number', 'title' => 'Amazon Max Inventory' },
 #'amz:quantity' =>  { 'src'=>'toolusa:AA-10054', 'type' => 'legacy' },

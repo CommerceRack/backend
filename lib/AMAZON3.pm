@@ -2004,7 +2004,11 @@ sub create_skuxml {
 		## 
 		##			DESCRIPTION AND BULLET CODE
 		##
-		if (&AMAZON3::is_defined($Pref{'zoovy:prod_brand'})) {
+		if (&AMAZON3::is_defined($Pref{'amz:prod_brand'})) {
+			# $prodxml->{'Product'}{'DescriptionData'}{'Brand'}->content(substr(ZTOOLKIT::stripUnicode($Pref{'zoovy:prod_mfg'}),0,49));
+			$writer->dataElement('Brand',substr(ZTOOLKIT::stripUnicode($Pref{'amz:prod_brand'}),0,49));
+			}
+		elsif (&AMAZON3::is_defined($Pref{'zoovy:prod_brand'})) {
 			# $prodxml->{'Product'}{'DescriptionData'}{'Brand'}->content(substr(ZTOOLKIT::stripUnicode($Pref{'zoovy:prod_mfg'}),0,49));
 			$writer->dataElement('Brand',substr(ZTOOLKIT::stripUnicode($Pref{'zoovy:prod_brand'}),0,49));
 			}
@@ -2227,7 +2231,7 @@ sub create_skuxml {
 			$weight = &ZSHIP::smart_weight($weight);
 			## merchants are using non-numerical weights, doesn't work
 			if (($weight eq '') || ($weight <= 0)) {
-				$lm->pooshmsg("ERROR|SRC:PRODUCT|SKU:$SKU|+Weight invalid [".$P->skufetch($SKU,'sku:weight').']');
+				$lm->pooshmsg("WARNING|SRC:PRODUCT|SKU:$SKU|+Weight invalid [".$P->skufetch($SKU,'sku:weight').']');
 				$weight = '';
 				}
 	
@@ -2273,7 +2277,11 @@ sub create_skuxml {
 		## Product->DescriptionData->Manufacturer
 		## Product->DescriptionData->MfrPartNumber
 		##	Amazon requires these fields, use USERNAME/PID as necessary
-		if (&AMAZON3::is_defined($Pref{'zoovy:prod_mfg'}) && $Pref{'zoovy:prod_mfg'} ne ' ') {
+		if (&AMAZON3::is_defined($Pref{'amz:prod_mfg'})) {
+			# $prodxml->{'Product'}{'DescriptionData'}{'Brand'}->content(substr(ZTOOLKIT::stripUnicode($Pref{'zoovy:prod_mfg'}),0,49));
+			$writer->dataElement('Brand',substr(ZTOOLKIT::stripUnicode($Pref{'amz:prod_mfg'}),0,49));
+			}
+		elsif (&AMAZON3::is_defined($Pref{'zoovy:prod_mfg'}) && $Pref{'zoovy:prod_mfg'} ne ' ') {
 			# $prodxml->{'Product'}{'DescriptionData'}{'Manufacturer'}->content(substr(ZTOOLKIT::stripUnicode($Pref{'zoovy:prod_mfg'}),0, 49));
 			$writer->dataElement('Manufacturer',substr(ZTOOLKIT::stripUnicode($Pref{'zoovy:prod_mfg'}),0, 49));
 			}
@@ -5070,7 +5078,7 @@ sub prep_header {
 	my $sk = $CFG->get('amazon_mws',"sk");
 	my $awskey = $CFG->get('amazon_mws',"aws_key");
 
-	my $TS = AMAZON3::amztime(time()+(8*3600));
+	my $TS = AMAZON3::amztime(time()+(7*3600));
 	my $md5 = &Digest::MD5::md5_base64($XML);
 	$md5 .= "==";		## this is officially duct-tape, run w/o and md5's dont match
 
