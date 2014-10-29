@@ -26122,6 +26122,30 @@ sub adminConfigMacro {
 				$gref->{'@flexedit'} = $fref;
 
 				}
+			elsif ($cmd eq 'GLOBAL/FLEXEDIT-FIELD-SET') {
+				## updates a single flexedit key
+				if (not defined $gref) { $gref = $self->globalref(); }
+				require ZWEBSITE;
+				require JSON::XS;
+				require PRODUCT::FLEXEDIT;
+
+				my $existing = $gref->{'@flexedit'} || [];
+
+				my $coder = JSON::XS->new->ascii->pretty->allow_nonref;
+				my $updateref = $coder->decode($params->{'json'});
+
+				my $i = scalar(@{$existing});
+				while (--$i >= 0) {
+					if ($existing->[$i]->{'id'} eq $updateref->{'id'}) {
+					   $existing->[$i] = $updateref;
+					   last;
+					   }
+					}
+				  if ($i <= -1) { push @{$existing}, $updateref; }
+				  $gref->{'@flexedit'} = $existing;
+
+				  ## print Dumper($gref->{'@flexedit'});
+				  }
 			elsif ($cmd eq 'GLOBAL/SITE-FIX') {
 				if (not defined $gref) { $gref = $self->globalref(); }
 #				my ($data,$action) = ('','');		## DOES NOT WORK YET
