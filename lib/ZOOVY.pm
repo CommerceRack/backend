@@ -66,7 +66,7 @@ $YAML::Syck::ImplicitBinary++;
 $YAML::Syck::ImplicitUnicode++;
 $YAML::Syck::SingleQuote++;		# do not fucking enable this. it has issues with cr/lf 183535
 
-$ZOOVY::RELEASE = 201401;
+$ZOOVY::RELEASE = 201410;
 %ZOOVY::RELEASE_CACHE = (
 	);
 
