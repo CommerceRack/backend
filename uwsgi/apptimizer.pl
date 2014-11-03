@@ -107,6 +107,9 @@ my $app = sub {
 		$RESULT = [ 'ERROR', '500', { body=>'<html><h1>PROJECTID not set.</h1></html>' } ];
 		}
 
+
+        print STDERR sprintf("%s %s %s\n",$USERNAME,$PROJECTID,$APP->release());
+
 	##
 	## SANITY: at this point %CONFIG is initialized.
 	##	

@@ -15,6 +15,7 @@ use URI::URL;
 use URI;
 use URI::QueryParam;
 use HTTP::Headers;
+use File::Slurp;
 
 use strict;
 require ZOOVY;
@@ -119,8 +120,9 @@ sub new {
 	else {
 		## make a copy of the host.domain.com.json
 		my $NFSROOT = $self->root();
-		my ($json) = slurp("$NFSROOT/platform/$hostdomain.json");
+		my $json = File::Slurp::read_file("$NFSROOT/platform/$hostdomain.json");
 		if ($json eq '') { $json = JSON::XS->new()->encode( { "_error"=>"platform/$hostdomain.json missing" } ); }
+		
 		my $ref = {};
 		eval { $ref = JSON::XS->new->ascii->pretty->allow_nonref->relaxed(1)->decode($json); };
 		if ($@) {
@@ -198,6 +200,7 @@ sub rewrites {
 
 	my $URI = $self->URI();
 
+        print STDERR "$NFSROOT/$REWRITES_FILE\n";
 	my $buf = '';
 	open F, "<$NFSROOT/$REWRITES_FILE";
 	while(<F>) {
@@ -214,7 +217,7 @@ sub rewrites {
 	eval { $ref = $JS->decode($buf); };
 	if ($@) {
 		$RESULT = [ 'ERROR', sprintf("file#rewrites: %s is corrupt. $@", $REWRITES_FILE) ];
-	   print "ERROR:$@\n";
+	   print STDERR "$NFSROOT/$REWRITES_FILE ERROR:$@\n";
 	   }
 
 
@@ -267,6 +270,9 @@ sub rewrites {
 
 		if ($DID_IT_MATCH) {
 			print STDERR "POST-MATCH#$row->{'.row'} then[$row->{'.then.val'}] thenkey[$row->{'.then.key'}] type[$row->{'type'}] src[$src] GOTO:[$row->{'.then.goto'}] apptimize[$row->{'apptimize'}]\n";
+			}
+		else {
+			print STDERR "FAIL_MATCH#$row->{'.row'} src[$src]==$row->{'if'}\n";
 			}
 
 		if (not $DID_IT_MATCH) {
