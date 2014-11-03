@@ -1772,6 +1772,9 @@ sub is_valid {
 
 'sku:upc'=>{ 'sku'=>2, 'type'=>'textbox', 'index'=>'upc', 'SKUDB'=>'UPC' },
 'sku:mfgid'=>{ 'sku'=>2, 'type'=>'textbox', 'index'=>'mfgid', 'SKUDB'=>'MFGID' },
+'sku:custom1'=>{ 'sku'=>2, 'type'=>'textbox', 'promo'=>'sku:custom1', 'index'=>'custom1', 'SKUDB'=>'CUSTOM1' },
+'sku:custom2'=>{ 'sku'=>2, 'type'=>'textbox', 'promo'=>'sku:custom2', 'SKUDB'=>'CUSTOM2' },
+'sku:custom3'=>{ 'sku'=>2, 'type'=>'textbox', 'promo'=>'sku:custom3', 'SKUDB'=>'CUSTOM3' },
 'sku:condition' => { 'sku'=>2, 'type'=>'textbox', 'index'=>'condition' },
 'sku:inventory' => { 'sku'=>2, 'type'=>'integer', 'index'=>'inventory' },
 'sku:assembly' =>  { 'sku'=>2, 'index'=>'assembly', 'maxlength' => 255, 'title' => 'Assembly/Kit skus', 'type' => 'text', 'SKUDB'=>'ASSEMBLY' },
