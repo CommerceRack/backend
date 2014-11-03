@@ -74,6 +74,37 @@ sub wikihash_decode {
 #	
 #	}
 
+sub cart_fields {
+	my ($USERNAME, %options) = @_;
+
+	my @CARTATTRIBS = (
+		'zoovy:catalog','zoovy:prod_upc','zoovy:prod_isbn','zoovy:prod_mfg','zoovy:prod_supplier',
+		'gc:blocked','paypalec:blocked',
+		'zoovy:prod_asm', 'zoovy:prod_is',
+		'zoovy:ship_latency',
+		'zoovy:prod_supplierid','zoovy:prod_image1','zoovy:ship_handling','zoovy:ship_markup','zoovy:ship_insurance',
+		'zoovy:ship_cost1','zoovy:pkg_depth','zoovy:pkg_height','zoovy:pkg_width','zoovy:pkg_exclusive', 'zoovy:pkg_multibox_ignore',
+		'zoovy:prod_mfgid','zoovy:ship_mfgcountry','zoovy:ship_harmoncode','zoovy:ship_nmfccode',
+		## needed for rules
+		'zoovy:ship_sortclass', 'zoovy:prod_promoclass',  'zoovy:prod_class', 'zoovy:profile', 
+		'is:shipfree','is:user1','is:sale',
+		'user:prod_store_warehouse_loc',		# zephyrsports / zephyrcrew
+		);
+
+	## find additional fields for this user.
+	my ($gref) = &ZWEBSITE::fetch_globalref($USERNAME);
+	if (defined $gref->{'@flexedit'}) {
+		foreach my $set (@{$gref->{'@flexedit'}}) {
+			print STDERR "SET: ".Dumper($set)."\n";
+			next unless (defined $set->{'cart'});
+			push @CARTATTRIBS, $set->{'id'};
+			}
+		}
+	
+	return(\@CARTATTRIBS);
+	}
+
+
 
 # perl -e 'use lib "/backend/lib"; use Data::Dumper; use PRODUCT::FLEXEDIT; print Dumper(&PRODUCT::FLEXEDIT::elastic_fields("nyciwear"));
 sub elastic_fields {
