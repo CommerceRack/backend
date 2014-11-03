@@ -5078,7 +5078,7 @@ sub prep_header {
 	my $sk = $CFG->get('amazon_mws',"sk");
 	my $awskey = $CFG->get('amazon_mws',"aws_key");
 
-	my $TS = AMAZON3::amztime(time()+(7*3600));
+	my $TS = AMAZON3::amztime(time());
 	my $md5 = &Digest::MD5::md5_base64($XML);
 	$md5 .= "==";		## this is officially duct-tape, run w/o and md5's dont match
 
@@ -5493,7 +5493,8 @@ sub build_mws_params {
 sub amztime {
 	my ($ts) = @_;
 	#return(strftime("%Y-%m-%dT%H:%M:%S",localtime($ts)));
-	return(POSIX::strftime("%Y-%m-%dT%H:%M:%S"."Z",localtime($ts)));
+	## GMTIME IS WHAT SHOULD BE USED IF THE TZ ENDS IN A "Z"
+	return(POSIX::strftime("%Y-%m-%dT%H:%M:%S"."Z",gmtime($ts)));
 	}
 
 
