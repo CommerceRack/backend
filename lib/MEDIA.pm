@@ -1379,8 +1379,8 @@ sub store {
 	
 		if (not $iref->{'err'} ) {
 			&MEDIA::addimage($USERNAME,$subdir,$image,$ext,time(),length($IMGBUF));
-         $iref->{'folder'} = $subdir;
-         $iref->{'image'} = "$image.$ext";
+			$iref->{'folder'} = $subdir;
+			$iref->{'image'} = "$image.$ext";
 			}
 		}
 
