@@ -1270,20 +1270,21 @@ sub cram {
 	## standard attribs we always copy (eventually these might be different based on the type of account purchased)
 	##
 	if (defined $P) {
-		foreach my $attrib (
-			'zoovy:catalog','zoovy:prod_upc','zoovy:prod_isbn','zoovy:prod_mfg','zoovy:prod_supplier',
-			'gc:blocked','paypalec:blocked',
-			'zoovy:prod_asm', 'zoovy:prod_is',
-			'zoovy:ship_latency',
-			'zoovy:prod_supplierid','zoovy:prod_image1','zoovy:ship_handling','zoovy:ship_markup','zoovy:ship_insurance',
-			'zoovy:ship_cost1','zoovy:pkg_depth','zoovy:pkg_height','zoovy:pkg_width','zoovy:pkg_exclusive', 'zoovy:pkg_multibox_ignore',
-			'zoovy:prod_mfgid','zoovy:ship_mfgcountry','zoovy:ship_harmoncode','zoovy:ship_nmfccode',
-			## needed for rules
-			'zoovy:ship_sortclass', 'zoovy:prod_promoclass',  'zoovy:prod_class', 'zoovy:profile', 
-			'is:shipfree','is:user1','is:sale',
-			'user:prod_store_warehouse_loc',		# zephyrsports / zephyrcrew
-			) {
-
+		#foreach my $attrib (
+		#	'zoovy:catalog','zoovy:prod_upc','zoovy:prod_isbn','zoovy:prod_mfg','zoovy:prod_supplier',
+		#	'gc:blocked','paypalec:blocked',
+		#	'zoovy:prod_asm', 'zoovy:prod_is',
+		#	'zoovy:ship_latency',
+		#	'zoovy:prod_supplierid','zoovy:prod_image1','zoovy:ship_handling','zoovy:ship_markup','zoovy:ship_insurance',
+		#	'zoovy:ship_cost1','zoovy:pkg_depth','zoovy:pkg_height','zoovy:pkg_width','zoovy:pkg_exclusive', 'zoovy:pkg_multibox_ignore',
+		#	'zoovy:prod_mfgid','zoovy:ship_mfgcountry','zoovy:ship_harmoncode','zoovy:ship_nmfccode',
+		#	## needed for rules
+		#	'zoovy:ship_sortclass', 'zoovy:prod_promoclass',  'zoovy:prod_class', 'zoovy:profile', 
+		#	'is:shipfree','is:user1','is:sale',
+		#	'user:prod_store_warehouse_loc',		# zephyrsports / zephyrcrew
+		#	) {
+		my $USERNAME = $self->username();
+		foreach my $attrib (@{&PRODUCT::FLEXEDIT::cart_fields($USERNAME)}) {
 			my $val = undef;
 			if ($item->{'sku'} ne $item->{'product'}) {
 				## this item has inventoriable options, let's see if we have a 'sku'=>1 field and if so we do a 'SKU' level lookup

@@ -2036,7 +2036,6 @@ sub create_skuxml {
 
 		my @BULLETS = ();
 		if ($Pref{'amz:key_features'} ne '') {
-			print STDERR "FOUND amz:key_features: ".$Pref{'amz:key_features'}."\n";
 			foreach my $line (split(/\*/, $Pref{'amz:key_features'})) {
 				$line =~ s/^[\s]+//gs; 	# strip leading whitespace
 				$line =~ s/[\s]+$//gs; 	# strip trailing whitespace

@@ -1272,12 +1272,13 @@ sub __INIT_TAX_RATES__ {
 
 sub __SYNC__ {
 	my ($self, %params) = @_;
-
+	
 	if (not defined $self->{'@CHANGES'}) { $self->{'@CHANGES'} = []; }
 	if (scalar(@{$self->{'@CHANGES'}})==0) {
 		$CART2::DEBUG && warn "__SYNC__ was not needed, and therefore was not performed\n";
 		return();
 		}
+
 
 	## LOOPBACK DETECTION -- this will prevent a SYNC from starting while a SYNC is running
 	##								 ex. shipping which runs towards the bottom of a sync reads a lot of values about
@@ -1285,6 +1286,7 @@ sub __SYNC__ {
 	##								 __SYNC__ calls won't also turn around and trigger another __SYNC__
 	if ($self->{'__SYNCING__'}) { return(); }
 	$self->{'__SYNCING__'}++;
+
 
 	if (&ZOOVY::servername() eq 'dev') {
 		warn "SYNC CALLED: ".join("|",caller(1))."\n";
@@ -1409,7 +1411,7 @@ sub __SYNC__ {
 		else {
 			$self->__INIT_TAX_RATES__();
 			}
-
+			
 		## at this point all the taxes are figured out.
 		warn "__SYNC__ IS ABOUT TO CALL SHIPMETHODS $$ ".join("|",caller(0))."\n";
 		$self->shipmethods('tbd'=>1);
