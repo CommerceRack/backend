@@ -1545,14 +1545,19 @@ sub __SYNC__ {
 		## AUTO COUPONS
 		my $couponsref = $webdbref->{'%COUPONS'};
 		if (not defined $couponsref) { $couponsref = {}; }
-		foreach my $cpnref (values %{$couponsref}) {
+		foreach my $ID (keys %{$couponsref}) {
+			my $cpnref = $couponsref->{$ID};
+			
 			next if ($cpnref->{'auto'} == 0);		
 			next if (($cpnref->{'begins_gmt'}>0) && ($cpnref->{'begins_gmt'}>$ts));		
 			next if (($cpnref->{'expires_gmt'}>0) && ($cpnref->{'expires_gmt'}<$ts));	
 			$cpnref->{'stackable'} = 1;		## yeah, don't let them fuck this up.
 
-			if (not defined $cpnref->{'coupon'}) { $cpnref->{'coupon'} = $cpnref->{'id'}; }
-			if (not defined $cpnref->{'coupon'}) { $cpnref->{'coupon'} = $cpnref->{'code'}; }
+			$cpnref->{'coupon'} = $ID;
+			$cpnref->{'code'} = $ID;
+			$cpnref->{'id'} = $ID;
+			#if (not defined $cpnref->{'coupon'}) { $cpnref->{'coupon'} = $cpnref->{'id'}; }
+			#if (not defined $cpnref->{'coupon'}) { $cpnref->{'coupon'} = $cpnref->{'code'}; }
 
 			push @AUTO_COUPONS, $cpnref;
 			}
@@ -1582,6 +1587,9 @@ sub __SYNC__ {
 		foreach my $CPNREF (@CART_COUPONS, @AUTO_COUPONS) {
 			my $ID = $CPNREF->{'coupon'};
 			if (not defined $ID) { $ID = $CPNREF->{'id'}; }
+
+
+			print STDERR Dumper($CPNREF)."\n";
 
 			$self->is_debug() && $self->msgs()->pooshmsg("INFO|+ --------------------------- $ID -------------------------");
 			## $self->is_debug() && $self->msgs()->pooshmsg("INFO|+Processing COUPON:$ID");
