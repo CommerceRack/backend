@@ -165,6 +165,11 @@ my $app = sub {
 			($HTTP_RESPONSE, $HEADERS, $BODY) = $plugin->jsonapi($path,$req,$HEADERS,$env);
 			# using OO interface
 			}
+		elsif ($module eq 'RESPONSECM') {
+			require PLUGIN::RESPONSECM;
+			my ($plugin) = PLUGIN::RESPONSECM->new($DNSINFO,$v);
+			($HTTP_RESPONSE, $HEADERS, $BODY) = $plugin->jsonapi($path,$req,$HEADERS,$env);
+			}
 		##
 		## ADD YOUR OWN CUSTOM MODULE/EXPORT HERE
 		##
