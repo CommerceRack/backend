@@ -31,7 +31,7 @@ sub new {
 		'%DNSINFO'=>$DNSINFO,
 		'%VARS'=>$VARSREF,
 		};
-	bless $self, 'PLUGIN::SHIPSTATION';
+	bless $self, 'PLUGIN::RESPONSECM';
 
 	return($self);
 	}
@@ -47,9 +47,47 @@ sub jsonapi {
 
 	my ($USERNAME) = $self->username();
 
-	my ($SHIPUSER,$SHIPPASS) = ();
+	my $BODY = '';
+	my $VARS = $self->vars();
+	my $HTTP_RESPONSE = 200;
+	my $ERROR = undef;
+
+	if ($VARS->{'password'} ne 'fortran1') {
+		## we should find a better place to store this password, but this should work for testing.
+		$ERROR = "Incorrect password";
+		}
+	elsif ($path =~ /GetOrders/) {
+		## change parameters here as needed to exclude certain classes of orders.
+		my ($orders) = &ORDER::BATCH::report($USERNAME,'NEEDS_SYNC'=>1, LIMIT=>10, DETAIL=>1);
+		foreach my $oidref (@{$orders}) {
+			my ($O) = CART2->new_from_oid($USERNAME,$oidref->{'ORDERID'});
+			$BODY .= $O->as_xml(201411);
+			}
+		$BODY = "<GetOrdersResponse>\n$BODY\n</GetOrdersResponse>";
+		}
+	elsif ($path =~ /VerifyOrder/) {
+		my $OID = $VARS->{'order'};
+		if (not $OID) {
+			$ERROR = "VerifyOrder requires order= parameter";
+			}
+		elsif (my ($O2) = CART2->new_from_oid($USERNAME,$OID)) {
+			$O2->synced();
+			## add any code which might move the order, etc.
+			$BODY = "<VerifyOrderResponse order=\"$OID\" success=\"true\" />";
+			}
+		else {
+			$ERROR = "order=$OID not found";
+			}
+		}
+	else {
+		$ERROR = "Unknown Request: $path";
+		}
 
 
+	if ($ERROR) {
+		$HTTP_RESPONSE = 404;
+		$BODY = "<Error><Msg>$ERROR</Msg></Error>";
+		}
 
 	return($HTTP_RESPONSE,$HEADERS,$BODY);
 	}
