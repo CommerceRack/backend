@@ -52,11 +52,12 @@ sub jsonapi {
 	my $HTTP_RESPONSE = 200;
 	my $ERROR = undef;
 
+	my $VERB = $VARS->{'verb'};
 	if ($VARS->{'password'} ne 'fortran1') {
 		## we should find a better place to store this password, but this should work for testing.
 		$ERROR = "Incorrect password";
 		}
-	elsif ($path =~ /GetOrders/) {
+	elsif ($VERB eq 'GetOrders') {
 		## change parameters here as needed to exclude certain classes of orders.
 		my ($orders) = &ORDER::BATCH::report($USERNAME,'NEEDS_SYNC'=>1, LIMIT=>10, DETAIL=>1);
 		foreach my $oidref (@{$orders}) {
@@ -65,7 +66,7 @@ sub jsonapi {
 			}
 		$BODY = "<GetOrdersResponse>\n$BODY\n</GetOrdersResponse>";
 		}
-	elsif ($path =~ /VerifyOrder/) {
+	elsif ($VERB eq 'VerifyOrder') {
 		my $OID = $VARS->{'order'};
 		if (not $OID) {
 			$ERROR = "VerifyOrder requires order= parameter";
@@ -80,7 +81,7 @@ sub jsonapi {
 			}
 		}
 	else {
-		$ERROR = "Unknown Request: $path";
+		$ERROR = "Unknown Request: $path verb:$VERB";
 		}
 
 

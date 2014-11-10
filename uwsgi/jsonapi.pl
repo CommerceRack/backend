@@ -149,7 +149,7 @@ my $app = sub {
    if (defined $HTTP_RESPONSE) {
       ## we're already done! (probably an error)
       }
-   elsif ($path =~ /^\/jsonapi\/plugin\/([a-z0-9]+)\.(xml|json|txt)$/) {
+   elsif ($path =~ /^\/jsonapi\/plugin\/([a-zA-Z0-9]+)\.(xml|json|txt)$/) {
       ## we handle options *very* differntly for jsonapi/upload requests so we'll do that later.
 		my $module = uc($1);
 		my $output = $2;
