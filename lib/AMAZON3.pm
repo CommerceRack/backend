@@ -5174,7 +5174,7 @@ sub prep_header2 {
 	my $sk = $CFG->get('amazon_mws',"sk");
 	my $awskey = $CFG->get('amazon_mws',"aws_key");
 
-	my $TS = AMAZON3::amztime(time()+(8*3600));
+	my $TS = AMAZON3::amztime(time());
 	my $md5 = &Digest::MD5::md5_base64($XML);
 	$md5 .= "==";		## this is officially duct-tape, run w/o and md5's dont match
 

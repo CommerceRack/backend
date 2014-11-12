@@ -301,10 +301,10 @@ foreach my $set (@TODO) {
 					## fuck you amazon.. if our client has this in the future, we get an error.
 					#my $amztrack_gmt = $track_gmt+(10*3600);
 					if ($track_gmt<=0) { $track_gmt = time(); }
-					my $amztrack_gmt = $track_gmt+(7*3600);
+#					my $amztrack_gmt = $track_gmt+(7*3600);
 				
 
-					my $amztime = AMAZON3::amztime($amztrack_gmt);
+					my $amztime = AMAZON3::amztime($track_gmt);
 					$xml->{'OrderFulfillment'}{'FulfillmentDate'}->content($amztime);
 				
 					# from ralpho @ amazon 11/25/09
