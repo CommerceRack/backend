@@ -134,6 +134,18 @@ sub resolveProductSelector {
 			@PIDS = &ZOOVY::fetchproduct_list_by_merchant($USERNAME);
 			# @PIDS = keys %{ZOOVY::fetchproducts_by_nameref($USERNAME)};
 			}
+		elsif ($VERB eq 'AMAZON-PRODUCT-ERROR') {
+			my ($udbh) = &DBINFO::db_user_connect($USERNAME);
+			my $pstmt = "select PID, SKU, AMZ_ERROR from SKU_LOOKUP where AMZ_FEEDS_ERROR=AMZ_FEEDS_ERROR|1";
+			my $sth = $udbh->prepare($pstmt);
+			$sth->execute();
+			my %PIDS = ();
+			while ( my ($PID, $SKU,$AMZ_ERROR) = $sth->fetchrow() ) {
+				$PIDS{$PID}++;
+				}
+			$sth->finish();
+			@PIDS = sort keys %PIDS;
+			}
 
 		if (scalar(@PIDS)>0) {
 			foreach my $PID (@PIDS) {

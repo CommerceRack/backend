@@ -585,6 +585,9 @@ sub create_imgxml {
 	my $CONTENTSAR = $options{'@CONTENTS'};
 	if (not defined $CONTENTSAR) { $CONTENTSAR = []; }
 
+	## this holds CSV headers
+	my $CSV = $options{'%AMZCSV'} || {};
+
 	my $lm = $options{'*LM'};
 	if (not defined $lm) { $lm = LISTING::MSGS->new($userref->{'USERNAME'}); }
 
@@ -592,7 +595,9 @@ sub create_imgxml {
 	if (not defined $xmlar) {
 		die("imagexmlar is required parameter \@xml=>[]");
 		}
-
+	elsif ($options{'%AMZCSV'}) {
+		## we don't care about feedpermissions for %AMZCSV 
+		}
 	elsif ((int($userref->{'*SO'}->get('.feedpermissions'))&4)==0) {
 		$lm->pooshmsg("STOP|+Images feed not enabled");
 		}
@@ -812,6 +817,8 @@ sub create_imgxml {
 				}
 			# $imgxml->{'ProductImage'}{'ImageLocation'}->content($url);
 			$writer->dataElement('ImageLocation',$url);
+			$CSV->{'main_image_url'} = $url;
+
 			$writer->endTag('ProductImage');
 			$writer->endTag('Message');
 			$writer->end();
@@ -865,6 +872,7 @@ sub create_relationxml {
 
 	my $lm = $options{'*LM'};
 	if (not defined $lm) { $lm = LISTING::MSGS->new($userref->{'USERNAME'}); }
+	my $CSV = $options{'%AMZCSV'} || {};
 
 	my $xmlar = $options{'@xml'};
 	if (not defined $xmlar) {
@@ -877,7 +885,10 @@ sub create_relationxml {
 	my $PRT = $userref->{'PRT'};
 	my $MID = ZOOVY::resolve_mid($USERNAME);
 
-	if ((int($userref->{'*SO'}->get('.feedpermissions'))&4)==0) {
+	if (defined $options{'%AMZCSV'}) {
+		## we don't need to worry about feedpermissions when %AMZCSV is passed.
+		}
+	elsif ((int($userref->{'*SO'}->get('.feedpermissions'))&4)==0) {
 		$lm->pooshmsg("STOP|+Relations feed not enabled");
 		}
 
@@ -919,6 +930,8 @@ sub create_relationxml {
 	foreach my $child (split(",",$Pref{'zoovy:related_products'})) {
 		push @RELATIONS, [ 'Accessory', $child ];
 		}
+
+	## TODO:CSV -- this seems like a good place to process some CSV relationship info
 
 	my $relations_to_send = 0;
 	if (scalar(@RELATIONS)==0) {
@@ -1019,7 +1032,7 @@ sub create_relationxml {
 		$writer->dataElement("MessageID",$MSGID = scalar(@{$xmlar})+1);
 		$writer->startTag("Relationship");
 		$writer->raw("\n");
-		$writer->dataElement("ParentSKU",$P->pid());
+		$writer->dataElement("ParentSKU", $CSV->{'parent_sku'} = $P->pid());
 		$writer->raw("\n");
 		foreach my $rset (@RELATIONS) {
 			next if ((not defined $rset->[2]) || ($rset->[2] == 0));
@@ -1091,6 +1104,8 @@ sub create_relationxml {
 sub create_skuxml {
 	my ($userref,$SKU,$P,%options) = @_;
 
+	my $CSV = $options{'%AMZCSV'} || {};
+
 	my $xmlar = $options{'@xml'};
 	if (not defined $xmlar) {
 		die("xmlar is required parameter \@xml=>[]");
@@ -1101,7 +1116,10 @@ sub create_skuxml {
 
 	my $USERNAME = $userref->{'USERNAME'};
 
-	if ((int($userref->{'*SO'}->get('.feedpermissions'))&4)==0) {
+	if (defined $options{'%AMZCSV'}) {
+		## move along, nothing to see here. (we don't check feedpermissions for $options{'%AMZCSV'})
+		}
+	elsif ((int($userref->{'*SO'}->get('.feedpermissions'))&4)==0) {
 		$lm->pooshmsg("STOP|+Product feed not enabled");
 		}
 
@@ -1187,6 +1205,14 @@ sub create_skuxml {
 	## check if valid CATALOG
 	my ($catalog,$subcat,$amz_catalog,$amz_subcat) = ($JSONREF->{'catalog'},$JSONREF->{'subcat'},$JSONREF->{'amz-catalog'},$JSONREF->{'amz-subcat'});
 
+	## TODO:CSV
+	$CSV->{'feed_product_type'} = $amz_catalog;
+	if (defined $AMAZON3::CATALOG_CSV_feed_product_type{$catalog}) {
+		$CSV->{'feed_product_type'} = $AMAZON3::CATALOG_CSV_feed_product_type{$catalog};
+		}
+
+	#print Dumper($JSONREF);
+
 	## it's easier to figure out themes and relationships together 
 	my $AMZ_RELATIONSHIP = undef;	
 	## AMZ_RELATIONSHIP will be an arrayref -- that contains the following values
@@ -1212,7 +1238,6 @@ sub create_skuxml {
 			## group containers don't have/require values
 			$themes{ $pog_theme } = '*** GROUP_PARENT ***';
 			}
-
 		}
 
 	if (not $lm->can_proceed()) {
@@ -1268,14 +1293,6 @@ sub create_skuxml {
 				##	for some categories there are variations that can't be sent as individual variations.
 				##		-	eg for category FineNecklaceBraceletAnklet variation 'StoneShape' must be sent with 'MetalType' as 'StoneShapeMetalType'
 				## 	- therefore we can't accuratey check the validity of theme until later in the code when the themes of all options are combined 
-
-#				my $were_good = 0;
-#				foreach my $allowedtheme (split(/,/,$JSONREF->{'variation-themes'})) {
-#					if ($allowedtheme eq $optiontheme) { $were_good++; }
-#					}
-#				if (not $were_good) {
-#					$lm->pooshmsg(sprintf("ERROR|+Variation error - the variation theme:$optiontheme is invalid. (The following themes are valid for $JSONREF->{'catalog'}: %s)",$JSONREF->{'variation-themes'}));
-#					}
 				}
 
 			#print "POG (build_prodFeed) ".Dumper($pog);
@@ -1381,43 +1398,6 @@ sub create_skuxml {
 			$AMZ_RELATIONSHIP = [ 'base', '' ];
 			}
 		}
-
-#	if ($PID eq $SKU) {
-#		## we're focused on the base product (don't load option data)
-#		}
-#	elsif ($P->has_variations('inv')) {			
-#		## start going thru children				
-#		## the '3' in skulist below means only inventoriable options + brief.	
-#		## only push children with inventory
-#		# my ($childref) = &AMAZON3::check_sku_inv(\@children, $USERNAME);
-#		# @children = keys %{$childref};
-#		## create children
-#		# my ($skuref) = $P->skuref($SKU);
-#		#### option defined variables - upc, asin, mfgid
-#		## use_upc is defined when a unique merchant-defined upc is defined
-#		## ie, don't use prod_upc if it comes from the parent and is therefore not unique
-#		## I'm sure there's a more elegant way to do this (also done for asin and mfgid)
-#		# $Pref{'zoovy:prod_upc'} = $skuref->{'zoovy:prod_upc'}; 
-#		# $Pref{'amz:asin'} = $skuref->{'amz:asin'}; 
-#		#$Pref{'zoovy:prod_mfgid'} = $skuref->{'zoovy:prod_mfgid'};
-#		#foreach my $k (keys %{$skuref}) { 
-#		#	$Pref{$k} = $skuref->{$k}; 
-#		#	}
-#		#my ($aoresult) = &POGS::apply_options($USERNAME,$SKU,$P->dataref(),'result'=>1);
-#		#if ($aoresult->{'!success'}) {
-#		#	## copy option price/weight into copy of product
-#		#	$Pref{'zoovy:base_price'} = $aoresult->{'zoovy:base_price'};
-#		#	$Pref{'zoovy:base_weight'} = $aoresult->{'zoovy:base_weight'};
-#		#	## note: pogs_desc has a leading "\n" so we don't need to append one.
-#		#	$Pref{'zoovy:pogs_desc'} = $aoresult->{'zoovy:pogs_desc'};
-#		#	$Pref{'zoovy:sku_name'} = sprintf("%s %s",$Pref{'zoovy:prod_name'},$aoresult->{'zoovy:pogs_desc'});
-#		#	}
-#		#$Pref{'zoovy:base_price'} = $P->skufetch($SKU,'sku:price');
-#		#$Pref{'zoovy:base_weight'} = $P->skufetch($SKU,'sku:weight');
-#		#$Pref{'zoovy:pogs_desc'} = $P->skufetch($SKU,'sku:variation_detail');
-#		#$Pref{'zoovy:sku_name'} = sprintf("%s %s",$Pref{'zoovy:prod_name'},$Pref{'zoovy:pogs_desc'});
-#		}
-
 
 	##
 	##	SANITY: at this point $AMZ_RELATIONSHIP is either set properly [ 'type','parentpid' ] or $ERROR is set.
@@ -1671,6 +1651,8 @@ sub create_skuxml {
 			}
 		}
 
+	$CSV->{'variation_theme'} = $theme;
+
 	##
 	## SANITY: at this point we've determined what type of SPID we're using, or we won't be returning
 	##				any data .. and we should probably set $ERROR
@@ -1682,6 +1664,7 @@ sub create_skuxml {
 		## NOTE: intentionally duplicated code, failsafe
 		$lm->pooshmsg("STOP|+vcontainer products are never ever sent to amazon");
 		}
+
 
 	# my $prodxml = undef;
 	my $xml = '';
@@ -1698,7 +1681,7 @@ sub create_skuxml {
 		$writer->dataElement("MessageID",$MSGID = scalar(@{$xmlar})+1);
 		$writer->startTag('Product');
 		
-		$writer->dataElement('SKU',$SKU);
+		$writer->dataElement('SKU',$CSV->{'item_sku'} = $SKU);
 		# $prodxml->{'Product'}{'SKU'}->content($SKU);
 
 		my $AMZSPID = undef;	
@@ -1827,6 +1810,8 @@ sub create_skuxml {
 				$writer->dataElement('Type','ASIN');
 				$writer->dataElement('Value',$AMZSPID->[1]);
 			$writer->endTag('StandardProductID');
+			$CSV->{'external_product_id_type'} = 'ASIN';
+			$CSV->{'external_product_id'} = $AMZSPID->[1];
 			#$prodxml->{'Product'}->{'StandardProductID'}->{'Type'}->content('ASIN');
 			# $prodxml->{'Product'}->{'StandardProductID'}->{'Value'}->content($AMZSPID->[1]);
 			}
@@ -1838,6 +1823,8 @@ sub create_skuxml {
 				$writer->dataElement('Type','UPC');
 				$writer->dataElement('Value',$AMZSPID->[1]);
 			$writer->endTag('StandardProductID');
+			$CSV->{'external_product_id_type'} = 'UPC';
+			$CSV->{'external_product_id'} = $AMZSPID->[1];
 			#$prodxml->{'Product'}->{'StandardProductID'}->{'Type'}->content('UPC');
 			#$prodxml->{'Product'}->{'StandardProductID'}->{'Value'}->content($AMZSPID->[1]);
 			}
@@ -1847,6 +1834,8 @@ sub create_skuxml {
 				$writer->dataElement('Type','EAN');
 				$writer->dataElement('Value',$AMZSPID->[1]);
 			$writer->endTag('StandardProductID');
+			$CSV->{'external_product_id_type'} = 'EAN';
+			$CSV->{'external_product_id'} = $AMZSPID->[1];
 			#$prodxml->{'Product'}->{'StandardProductID'}->{'Type'}->content('EAN');
 			#$prodxml->{'Product'}->{'StandardProductID'}->{'Value'}->content($AMZSPID->[1]);
 			}
@@ -1860,14 +1849,12 @@ sub create_skuxml {
 		## Product->ProductTaxCode
 		##	probably need to make this editable
 		# $prodxml->{'Product'}{'ProductTaxCode'}->content('A_GEN_TAX');
-		$writer->dataElement('ProductTaxCode','A_GEN_TAX');
+		$writer->dataElement('ProductTaxCode',$CSV->{'product_tax_code'} = 'A_GEN_TAX');
 	
 		## Product->LaunchDate	
 		# $prodxml->{'Product'}{'LaunchDate'}->content(&AMAZON3::amztime(time()));
 		$writer->dataElement('LaunchDate',&AMAZON3::amztime(time()));
-
 		}
-
 
 	if ($lm->can_proceed()) {
 		##	CONDITION
@@ -1916,7 +1903,7 @@ sub create_skuxml {
 			else {
 				## we have a valid Conditon
 				# $prodxml->{'Product'}{'Condition'}{'ConditionType'}->content($conditionType);
-				$writer->dataElement('ConditionType',$conditionType);
+				$writer->dataElement('ConditionType',$CSV->{'condition_type'} = $conditionType);
 				}
 			}
 
@@ -1927,7 +1914,7 @@ sub create_skuxml {
 			$conditionNote = &ZTOOLKIT::stripUnicode($conditionNote);
 			$lm->pooshmsg("DEBUG|+Using Condition Note: $conditionNote");
 			# $prodxml->{'Product'}{'Condition'}{'ConditionNote'}->content($conditionNote);
-			$writer->dataElement('ConditionNote',$conditionNote);
+			$writer->dataElement('ConditionNote',$CSV->{'condition_note'} = $conditionNote);
 			}
 		$writer->endTag('Condition');
 		}
@@ -1985,7 +1972,7 @@ sub create_skuxml {
 			}
 	
 		# $prodxml->{'Product'}{'DescriptionData'}{'Title'}->content($title);
-		$writer->dataElement('Title',$title);
+		$writer->dataElement('Title', $CSV->{'item_name'} = $title);
 		}
 
 	## Product->DescriptionData->Brand
@@ -2006,20 +1993,20 @@ sub create_skuxml {
 		##
 		if (&AMAZON3::is_defined($Pref{'amz:prod_brand'})) {
 			# $prodxml->{'Product'}{'DescriptionData'}{'Brand'}->content(substr(ZTOOLKIT::stripUnicode($Pref{'zoovy:prod_mfg'}),0,49));
-			$writer->dataElement('Brand',substr(ZTOOLKIT::stripUnicode($Pref{'amz:prod_brand'}),0,49));
+			$writer->dataElement('Brand',$CSV->{'brand_name'} = substr(ZTOOLKIT::stripUnicode($Pref{'amz:prod_brand'}),0,49));
 			}
 		elsif (&AMAZON3::is_defined($Pref{'zoovy:prod_brand'})) {
 			# $prodxml->{'Product'}{'DescriptionData'}{'Brand'}->content(substr(ZTOOLKIT::stripUnicode($Pref{'zoovy:prod_mfg'}),0,49));
-			$writer->dataElement('Brand',substr(ZTOOLKIT::stripUnicode($Pref{'zoovy:prod_brand'}),0,49));
+			$writer->dataElement('Brand',$CSV->{'brand_name'} = substr(ZTOOLKIT::stripUnicode($Pref{'zoovy:prod_brand'}),0,49));
 			}
 		elsif (&AMAZON3::is_defined($Pref{'zoovy:prod_mfg'})) {
 			# $prodxml->{'Product'}{'DescriptionData'}{'Brand'}->content(substr(ZTOOLKIT::stripUnicode($Pref{'zoovy:prod_mfg'}),0,49));
-			$writer->dataElement('Brand',substr(ZTOOLKIT::stripUnicode($Pref{'zoovy:prod_mfg'}),0,49));
+			$writer->dataElement('Brand',$CSV->{'brand_name'} = substr(ZTOOLKIT::stripUnicode($Pref{'zoovy:prod_mfg'}),0,49));
 			}
 		else {
 			$lm->pooshmsg("WARN|+Set zoovy:prod_mfg field (Amazon Brand) is required, defaulting to $USERNAME.");
 			# $prodxml->{'Product'}{'DescriptionData'}{'Brand'}->content($USERNAME);
-			$writer->dataElement('Brand',$USERNAME);
+			$writer->dataElement('Brand',$CSV->{'brand_name'} = $USERNAME);
 			}
 
 
@@ -2116,7 +2103,7 @@ sub create_skuxml {
 			}
  
 		# $prodxml->{'Product'}{'DescriptionData'}{'Description'}->content(substr($description,0,2000));
-		$writer->dataElement('Description',substr($description,0,2000));
+		$writer->dataElement('Description',$CSV->{'product_description'} = substr($description,0,2000));
 
 		my $i = 0;
 		foreach my $bullet (@BULLETS) {
@@ -2128,6 +2115,8 @@ sub create_skuxml {
 			$bullet = substr($bullet,0, 100);
 			# $prodxml->{'Product'}{'DescriptionData'}{'BulletPoint'}[$i++]->content($bullet);
 			$writer->dataElement('BulletPoint',$bullet);
+			$i++;
+			$CSV->{sprintf('bullet_point%d',$i)} = $bullet;
 			}
 		}
 
@@ -2160,7 +2149,9 @@ sub create_skuxml {
 			else { $lunit = uc($lunit); }
 			# $prodxml->{'Product'}{'DescriptionData'}{'ItemDimensions'}{'Length'}{'unitOfMeasure'} = $lunit;
 
-			$writer->dataElement('Length',sprintf("%.2f",$l),'unitOfMeasure'=>$lunit);
+			$writer->dataElement('Length',
+				$CSV->{'item_length'} = sprintf("%.2f",$l),
+				'unitOfMeasure'=> $CSV->{'item_length_unit_of_measure'} = $lunit);
 			}
 
 		## WIDTH
@@ -2181,7 +2172,9 @@ sub create_skuxml {
 				}
 			else { $wunit = uc($wunit); }
 			#$prodxml->{'Product'}{'DescriptionData'}{'ItemDimensions'}{'Width'}{'unitOfMeasure'} = $wunit;
-			$writer->dataElement('Width',sprintf("%.2f",$w),'unitOfMeasure'=>$wunit);
+			$writer->dataElement('Width',
+				$CSV->{'item_width'} = sprintf("%.2f",$w),
+				'unitOfMeasure'=>$CSV->{'item_width_unit_of_measure'} = $wunit);
 			}
 
 		## HEIGHT
@@ -2202,7 +2195,9 @@ sub create_skuxml {
 				}
 			else { $hunit = uc($hunit); }
 			# $prodxml->{'Product'}{'DescriptionData'}{'ItemDimensions'}{'Height'}{'unitOfMeasure'} = $hunit;
-			$writer->dataElement('Height',sprintf("%.2f",$h),'unitOfMeasure'=>$hunit);			
+			$writer->dataElement('Height',
+				$CSV->{'item_height'} = sprintf("%.2f",$h),
+				'unitOfMeasure'=>$CSV->{'item_height_unit_of_measure'} =$hunit);			
 			}
 		
 		## WEIGHT
@@ -2212,7 +2207,9 @@ sub create_skuxml {
 			$w = &ZSHIP::smart_weight($w);
 			# $prodxml->{'Product'}{'DescriptionData'}{'ItemDimensions'}{'Weight'}->content(sprintf("%.2f",$w));
 			# $prodxml->{'Product'}{'DescriptionData'}{'ItemDimensions'}{'Weight'}{'unitOfMeasure'} = 'OZ';
-			$writer->dataElement('Weight',sprintf("%.2f",$w),'unitOfMeasure'=>'OZ');
+			$writer->dataElement('Weight',
+				$CSV->{'item_weight'} = sprintf("%.2f",$w),
+				'unitOfMeasure'=>$CSV->{'item_weight_unit_of_measure'} = 'OZ');
 			}
 		$writer->endTag('ItemDimensions');
 		}
@@ -2237,7 +2234,9 @@ sub create_skuxml {
 			if ($weight ne '') {
 				# $prodxml->{'Product'}{'DescriptionData'}{'ShippingWeight'}->content(sprintf("%.2f", $weight));
 				# $prodxml->{'Product'}{'DescriptionData'}{'ShippingWeight'}{'unitOfMeasure'} = 'OZ';
-				$writer->dataElement('ShippingWeight',sprintf("%.2f",$weight),'unitOfMeasure'=>'OZ');
+				$writer->dataElement('ShippingWeight',
+					$CSV->{'weight_shipping_weight'} = sprintf("%.2f",$weight),
+					'unitOfMeasure'=>$CSV->{'weight_shipping_weight_unit_of_measure'} = 'OZ');
 				}
 			}
 
@@ -2246,7 +2245,9 @@ sub create_skuxml {
 		if ($Pref{'zoovy:prod_msrp'}>0) {
 			#$prodxml->{'Product'}{'DescriptionData'}{'MSRP'}{'currency'} = "USD";
 			#$prodxml->{'Product'}{'DescriptionData'}{'MSRP'}->content(sprintf("%.2f",$Pref{'zoovy:prod_msrp'}));
-			$writer->dataElement('MSRP',sprintf("%.2f",$Pref{'zoovy:prod_msrp'}),'currency'=>'USD');
+			$writer->dataElement('MSRP',
+				$CSV->{'list_price'} = sprintf("%.2f",$Pref{'zoovy:prod_msrp'}),
+				'currency'=>'USD');
 			}
 
 		## added 2008-11-25
@@ -2264,13 +2265,14 @@ sub create_skuxml {
 		if ($Pref{'zoovy:prod_cpsiawarning'} =~ /choking_hazard_/ || $Pref{'zoovy:prod_cpsiawarning'} eq 'no_warning_applicable') {
 			print STDERR "Found warning $USERNAME $SKU: ".$Pref{'zoovy:prod_cpsiawarning'}."\n";
 			my @warnings = split(/(,| )/, $Pref{'zoovy:prod_cpsiawarning'});
-			my $n = 0;
+			my $n = 1;
 			foreach my $warning (@warnings) {
 				next if $warning !~ /^(choking_hazard|no_warning_applicable)/;
 				# $prodxml->{'Product'}{'DescriptionData'}{'CPSIAWarning'}[$n]->content($warning);
 				$writer->dataElement('CPSIAWarning',$warning);
+				$CSV->{sprintf('cpsia_cautionary_statement%d',$n)} = $warning;
 				## only 4 warnings allowed
-				last if $n++ == 3;
+				last if $n++ == 4;
 				}
 			}
 		## Product->DescriptionData->Manufacturer
@@ -2278,24 +2280,30 @@ sub create_skuxml {
 		##	Amazon requires these fields, use USERNAME/PID as necessary
 		if (&AMAZON3::is_defined($Pref{'amz:prod_mfg'})) {
 			# $prodxml->{'Product'}{'DescriptionData'}{'Brand'}->content(substr(ZTOOLKIT::stripUnicode($Pref{'zoovy:prod_mfg'}),0,49));
-			$writer->dataElement('Brand',substr(ZTOOLKIT::stripUnicode($Pref{'amz:prod_mfg'}),0,49));
+			$writer->dataElement('Brand',
+				$CSV->{'brand'} = substr(ZTOOLKIT::stripUnicode($Pref{'amz:prod_mfg'}),0,49)
+				);
 			}
 		elsif (&AMAZON3::is_defined($Pref{'zoovy:prod_mfg'}) && $Pref{'zoovy:prod_mfg'} ne ' ') {
 			# $prodxml->{'Product'}{'DescriptionData'}{'Manufacturer'}->content(substr(ZTOOLKIT::stripUnicode($Pref{'zoovy:prod_mfg'}),0, 49));
-			$writer->dataElement('Manufacturer',substr(ZTOOLKIT::stripUnicode($Pref{'zoovy:prod_mfg'}),0, 49));
+			$writer->dataElement('Manufacturer',
+				$CSV->{'manufacturer'} = substr(ZTOOLKIT::stripUnicode($Pref{'zoovy:prod_mfg'}),0, 49)
+				);
+	
 			}
 		else {
 			# $prodxml->{'Product'}{'DescriptionData'}{'Manufacturer'}->content($USERNAME);
-			$writer->dataElement('Manufacturer',$USERNAME);
+			$writer->dataElement('Manufacturer',$CSV->{'manufacturer'} = $USERNAME);
 			}
 	
 		if ( &AMAZON3::is_defined($P->skufetch($SKU,'zoovy:prod_mfgid')) ) {
 			# $prodxml->{'Product'}{'DescriptionData'}{'MfrPartNumber'}->content(substr(ZTOOLKIT::stripUnicode($Pref{'zoovy:prod_mfgid'}),0,39));
-			$writer->dataElement('MfrPartNumber',substr(ZTOOLKIT::stripUnicode($P->skufetch($SKU,'zoovy:prod_mfgid')),0,39));
+			$writer->dataElement('MfrPartNumber',$CSV->{'part_number'} = substr(ZTOOLKIT::stripUnicode($P->skufetch($SKU,'zoovy:prod_mfgid')),0,39)
+				);
 			}
 		else {
 			# $prodxml->{'Product'}{'DescriptionData'}{'MfrPartNumber'}->content($SKU);
-			$writer->dataElement('MfrPartNumber',$SKU);
+			$writer->dataElement('MfrPartNumber',$CSV->{'part_number'} = $SKU);
 			}
 		}
 
@@ -2331,7 +2339,7 @@ sub create_skuxml {
 			$search_terms = &ZTOOLKIT::stripUnicode($search_terms);
 
 			my @arr = &AMAZON3::node_split($search_terms, 4, 50, ',');
-			my $i = 0; 
+			my $i = 1; 
 			foreach my $element (@arr) {
 				#next if ($element eq '');
 				if ($element eq '') { $element = ' '; }
@@ -2340,6 +2348,7 @@ sub create_skuxml {
 				next if ($element eq '');
 				# $prodxml->{'Product'}{'DescriptionData'}{'SearchTerms'}[$i]->content($element);
 				$writer->dataElement('SearchTerms',$element);
+				$CSV->{ sprintf("generic_keywords%d",$i)} = $element;
 				$i++;
 				}
 			}
@@ -2353,6 +2362,7 @@ sub create_skuxml {
 				next if ($element eq '');
 				# $prodxml->{'Product'}{'DescriptionData'}{'UsedFor'}[$i]->content($element);
 				$writer->dataElement('UsedFor',$element);
+				## TODO:CSV
 				$i++;
 				}
 			}
@@ -2383,6 +2393,7 @@ sub create_skuxml {
 		if ($lc_itemtype ne '') {
 			# $prodxml->{'Product'}{'DescriptionData'}{'ItemType'}->content($lc_itemtype);
 			$writer->dataElement('ItemType',$lc_itemtype);
+			$CSV->{'item_type'} = $lc_itemtype;	
 			}
 		
 		## Product->DescriptionData->OtherItemAttributes
@@ -2390,20 +2401,24 @@ sub create_skuxml {
 		if ($thesaurusinfo->{'OTHERITEM'} ne '') {
 			$thesaurusinfo->{'OTHERITEM'} = lc($thesaurusinfo->{'OTHERITEM'});
 			my @arr = &AMAZON3::node_split($thesaurusinfo->{'OTHERITEM'}, 5, 0);
+			my $i = 1;
 			foreach my $element (@arr) {
 				next if ($element eq '');
 				# $prodxml->{'Product'}{'DescriptionData'}{'OtherItemAttributes'}[$i]->content($element);
 				$writer->dataElement('OtherItemAttributes',$element);
+				$CSV->{sprintf('thesaurus_attribute_keywords%d',$i++)} = $element;
 				}
 			}
 		## Product->DescriptionData->TargetAudience
 		if ($thesaurusinfo->{'TARGETAUDIENCE'} ne '') {
 			$thesaurusinfo->{'TARGETAUDIENCE'} = lc($thesaurusinfo->{'TARGETAUDIENCE'});
 			my @arr = &AMAZON3::node_split($thesaurusinfo->{'TARGETAUDIENCE'}, 3, 0);
+			my $i = 1;
 			foreach my $element (@arr) {
 				next if ($element eq '');
 				# $prodxml->{'Product'}{'DescriptionData'}{'TargetAudience'}[$i]->content($element);
 				$writer->dataElement('TargetAudience',$element);
+				$CSV->{sprintf('target_audience_keywords%d',$i++)} = $element;
 				}
 			}
 	
@@ -2411,20 +2426,24 @@ sub create_skuxml {
 		if ($thesaurusinfo->{'SUBJECTCONTENT'} ne '') {
 			$thesaurusinfo->{'SUBJECTCONTENT'} = lc($thesaurusinfo->{'SUBJECTCONTENT'});
 			my @arr = &AMAZON3::node_split($thesaurusinfo->{'SUBJECTCONTENT'}, 5, 0);
+			my $i = 1;
 			foreach my $element (@arr) {
 				next if ($element eq '');
 				# $prodxml->{'Product'}{'DescriptionData'}{'SubjectContent'}[$i]->content($element);
 				$writer->dataElement('SubjectContent',$element);
+				$CSV->{sprintf('thesaurus_subject_keywords%d',$i++)} = $element;
 				}
 			}
 		## Product->DescriptionData->IsGiftWrapAvailable
 		if ($thesaurusinfo->{'ISGIFTWRAPAVAILABLE'} == 1) {
 			$writer->dataElement('IsGiftWrapAvailable',1);
+			$CSV->{'offering_can_be_giftwrapped'} = 1;
 			# $prodxml->{'Product'}{'DescriptionData'}{'IsGiftWrapAvailable'}->content(1);
 			}
 		## Product->DescriptionData->IsGiftMessageAvailable
 		if ($thesaurusinfo->{'ISGIFTMESSAGEAVAILABLE'} == 1) {
 			$writer->dataElement('IsGiftMessageAvailable',1);
+			$CSV->{'offering_can_be_giftmessaged'} = 1;
 			# $prodxml->{'Product'}{'DescriptionData'}{'IsGiftMessageAvailable'}->content(1);
 			}
 		### END of THESAURUS
@@ -2648,8 +2667,11 @@ sub create_skuxml {
 
 		my $pos=0;	## data position
 
+		##print '@vals: '.Dumper($field, \@vals);
+
 		foreach my $v (@vals) {
 			push @XMLPATH_AND_VAL, [ $pos++, $field, $v ];
+
 			}
 		}
 
@@ -2672,6 +2694,10 @@ sub create_skuxml {
 		## remove any bad data the user might have given us.
 		$val = &ZTOOLKIT::htmlstrip($val,2);
 
+		if (($val ne '') && ($field->{'amzcsv'})) {
+			$CSV->{ $field->{'amzcsv'} } = $val;
+			}
+
 		# my $pathxml = $prodxml->{'Product'}{'ProductData'};
 		my $pathxml = $prodxml;
 		## xmlpath is set in Json ex: "xmlpath" : "Home.ProductType.BedAndBath.VolumeCapacity"
@@ -2689,7 +2715,7 @@ sub create_skuxml {
 	
 		my $n = '';
 
-		if ( ($val eq '')	&& ($field->{'type'} ne 'hidden') && (not &ZOOVY::is_true( $field->{'amz-allow-blank'})) ) {
+		if ( ($val eq '') && ($field->{'type'} ne 'hidden') && (not &ZOOVY::is_true( $field->{'amz-allow-blank'})) ) {
 			## THIS LINE SHOULD NEVER BE REACHED - it's simply an added check in case a blank value gets through.
 
 			## $val will always be '' for 'hidden' input (id: CRC****) but thats fine because it's not a product attribute.
@@ -2728,7 +2754,6 @@ sub create_skuxml {
 		##			  - hints can be set at json level to give advise specific to that attribute.
 		##
 		my $hint = '';
-
 		
 		if (($field->{'type'} eq 'select') && ($field->{'amz-format'} ne 'ColorSpecification')) {
 			## if a select type attribute makes it this far it already has a valid value. select attributes are fully validated earlier in 'type validation'.
@@ -3164,6 +3189,7 @@ sub create_skuxml {
 			# $prodxml = $prodxml->base();
 			# $prodxml->{'Message'}{'Product'}{'RegisteredParameter'}->content('PrivateLabel');
 			$writer->dataElement('RegisteredParameter','PrivateLabel');
+			## TODO:CSV
 			}
 
 		# my ($xml) = $prodxml->data(nometagen=>1,noheader=>1);
@@ -3176,6 +3202,18 @@ sub create_skuxml {
 		push @{$xmlar}, $xml;
 		$lm->pooshmsg(sprintf("SUCCESS|MSGID:$MSGID|+appended product to feed",$SKU));
 		}
+
+	## QUICK AND DIRTY HACK FOR AMZCSV PROOF OF CONCEPT
+	if (defined $options{'%AMZCSV'}) {
+		## NOTE: if we're in %AMZCSV mode, this is a list of special csv logic.
+		$CSV->{'parent_child'} = $AMZ_RELATIONSHIP->[0];
+		if ($AMZ_RELATIONSHIP->[0] eq 'child') {
+			$CSV->{'parent_sku'} = $AMZ_RELATIONSHIP->[1];
+			$CSV->{'relationship_type'} = 'Variation';
+			}
+		## we could return something unique settings here (but I can't imagine why)
+		}
+
 
 	return($lm,$xmlar,$CONTENTSAR);
 	}	
@@ -3373,6 +3411,11 @@ sub describe_bw {
 	'ProductImage'=>'_POST_PRODUCT_IMAGE_DATA_',		## Hmm.. this is what shoudl appear in the body i think!?
 	'Order Fulfillment'=>'_POST_ORDER_FULFILLMENT_DATA_',
 	'Order Acknowledgement'=>'_POST_ORDER_ACKNOWLEDGEMENT_DATA_',
+	);
+
+## a lookup table of our CATALOG to amazon CSV feed_product_type
+%AMAZON3::CATALOG_CSV_feed_product_type = (
+	'SPORTS'=>'SportingGoods'
 	);
 
 %AMAZON3::CATALOGS = (

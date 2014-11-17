@@ -62,7 +62,9 @@ sub jsonapi {
 		my ($orders) = &ORDER::BATCH::report($USERNAME,'NEEDS_SYNC'=>1, LIMIT=>10, DETAIL=>1);
 		foreach my $oidref (@{$orders}) {
 			my ($O) = CART2->new_from_oid($USERNAME,$oidref->{'ORDERID'});
-			$BODY .= $O->as_xml(201411);
+#			$BODY .= $O->as_xml(201411);
+			use ORDER::XCBL; 
+			$BODY .= ORDER::XCBL::as_xcbl($O);
 			}
 		$BODY = "<GetOrdersResponse>\n$BODY\n</GetOrdersResponse>";
 		}

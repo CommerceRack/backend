@@ -23,7 +23,7 @@ sub as_xcbl {
 	my $order_id = $O2->oid();
 	# supplier_order_id is usually the same as the source order id.
 	# but it COULD be something different, it's not order_id.
-	if ($O2-is_supplier_order()) {
+	if ($O2->is_supplier_order()) {
 		$order_id = $O2->supplier_orderid();
 		}
 
@@ -94,9 +94,9 @@ sub as_xcbl {
 			$writer->endTag("core:NameAddress");
 			$writer->startTag("core:PrimaryContact");
 
-			$O2->in_get('ship/firstname') = '' if !$O2->in_get('ship/firstname'); #need for concatenation - can't be undef
-			$O2->in_get('ship/middlename') = '' if !$O2->in_get('ship/middlename'); #need for concatenation - can't be undef
-			$O2->in_get('ship/lastname') = '' if !$O2->in_get('ship/lastname'); #need for concatenation - can't be undef
+			$O2->in_set('ship/firstname','') if !$O2->in_get('ship/firstname'); #need for concatenation - can't be undef
+			$O2->in_set('ship/middlename','') if !$O2->in_get('ship/middlename'); #need for concatenation - can't be undef
+			$O2->in_set('ship/lastname','') if !$O2->in_get('ship/lastname'); #need for concatenation - can't be undef
 
 			$writer->dataElement("core:ContactName", $O2->in_get('ship/firstname') . " " . $O2->in_get('ship/middlename') . " " . $O2->in_get('ship/lastname')); # <ship_firstname> <ship_middlename> <ship_lastname>
 			$writer->startTag("core:ListOfContactNumber");
@@ -133,9 +133,9 @@ sub as_xcbl {
 			$writer->endTag("core:NameAddress");
 			$writer->startTag("core:PrimaryContact");
 
-			$O2->in_get('bill/firstname') = '' if !$O2->in_get('bill/firstname'); #need for concatenation - can't be undef
-			$O2->in_get('bill/middlename') = '' if !$O2->in_get('bill/middlename'); #need for concatenation - can't be undef
-			$O2->in_get('bill/lastname') = '' if !$O2->in_get('bill/lastname'); #need for concatenation - can't be undef
+			$O2->in_set('bill/firstname','') if !$O2->in_get('bill/firstname'); #need for concatenation - can't be undef
+			$O2->in_set('bill/middlename','') if !$O2->in_get('bill/middlename'); #need for concatenation - can't be undef
+			$O2->in_set('bill/lastname','') if !$O2->in_get('bill/lastname'); #need for concatenation - can't be undef
 
 			$writer->dataElement("core:ContactName", $O2->in_get('bill/firstname') . " " . $O2->in_get('bill/middlename') . " " . $O2->in_get('bill/lastname')); # <bill_firstname> <bill_middlename> <bill_lastname>
 			$writer->startTag("core:ListOfContactNumber");
@@ -200,6 +200,17 @@ sub as_xcbl {
 
 	# --OrderSummary START--
 	$writer->startTag("OrderSummary");
+
+	$writer->startTag("NameValueSet");
+		$writer->dataElement("SetName", "CustomShippingAttributes");
+		$writer->startTag("ListOfNameValuePair");
+			$writer->startTag("NameValuePair");
+				$writer->dataElement("ShippingMethod", $O2->in_get('sum/shp_method'));
+				$writer->dataElement("ShippingCost", $O2->in_get('sum/shp_total'));
+			$writer->endTag("NameValuePair");
+		$writer->endTag("ListOfNameValuePair");
+	$writer->endTag("NameValueSet");
+
 	$writer->startTag("ListOfTaxSummary");
 		$writer->startTag("core:TaxSummary");
 			$writer->dataElement("core:TaxTypeCoded", "Other"); # min for core:TaxSummary element

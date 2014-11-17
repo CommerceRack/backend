@@ -1,4 +1,4 @@
-package ELASTIC;
+ package ELASTIC;
 
 use strict;
 
@@ -517,7 +517,7 @@ sub rebuild_product_index {
 		}
 
 	#print Dumper(\%PRODUCT_PROPERTIES);
-	# print Dumper(\@INDEXABLE_FIELDS);
+	#print Dumper(\@INDEXABLE_FIELDS);
 	
 	my @SYNONYMS = ();
 	# blank lines and lines starting with pound are comments.
@@ -626,7 +626,10 @@ sub rebuild_product_index {
 						},
  					'lcKeyword' => {
 						'tokenizer' => 'keyword',
-						'filter' => [ 'asciifolding', 'lowercase', 'stop'  ],
+						##'filter' => [ 'asciifolding', 'lowercase', 'stop'  ],
+						## NOTE: do not use a "stop" wordlist filter here, it will break 
+						## words such as "but" which might appear as enumered abbreviation for a team (butler)
+						'filter' => [ 'asciifolding', 'lowercase'  ],
 						},
 					'synonym' => {
 						'tokenizer' => 'whitespace',
@@ -642,6 +645,9 @@ sub rebuild_product_index {
 				}
 			}
 		);
+
+
+		
 
 	# www.elasticsearch.org/guide/reference/mapping/array-type.html
  	# www.elasticsearch.org/guide/reference/index-modules/analysis/
