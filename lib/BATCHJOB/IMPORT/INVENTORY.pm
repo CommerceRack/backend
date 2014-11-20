@@ -222,6 +222,11 @@ sub parseinventory {
 			$ERROR = "CHECKSKU - INVALID SKU";
 			}
 
+		if (($optionsref->{'AUTO_UUID'}) && (not $INVCMD{'UUID'})) {
+			## we have no UUID, but we do have AUTO_UUID so we'll use the SKU as the UUID
+			$INVCMD{'UUID'} = $INVCMD{'SKU'};
+			}
+
 		## only do SKU updates
 
 		if ($ERROR) {

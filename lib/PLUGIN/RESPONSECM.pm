@@ -59,7 +59,7 @@ sub jsonapi {
 		}
 	elsif ($VERB eq 'GetOrders') {
 		## change parameters here as needed to exclude certain classes of orders.
-		my ($orders) = &ORDER::BATCH::report($USERNAME,'NEEDS_SYNC'=>1, LIMIT=>10, DETAIL=>1);
+		my ($orders) = &ORDER::BATCH::report($USERNAME,'NEEDS_SYNC'=>1, LIMIT=>10, DETAIL=>1, 'PAYMENT_VERB'=>'PAID');
 		foreach my $oidref (@{$orders}) {
 			my ($O) = CART2->new_from_oid($USERNAME,$oidref->{'ORDERID'});
 #			$BODY .= $O->as_xml(201411);

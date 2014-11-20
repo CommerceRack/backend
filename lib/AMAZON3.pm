@@ -3206,7 +3206,7 @@ sub create_skuxml {
 	## QUICK AND DIRTY HACK FOR AMZCSV PROOF OF CONCEPT
 	if (defined $options{'%AMZCSV'}) {
 		## NOTE: if we're in %AMZCSV mode, this is a list of special csv logic.
-		$CSV->{'parent_child'} = $AMZ_RELATIONSHIP->[0];
+		$CSV->{'parent_child'} = $AMZ_RELATIONSHIP->[3];
 		if ($AMZ_RELATIONSHIP->[0] eq 'child') {
 			$CSV->{'parent_sku'} = $AMZ_RELATIONSHIP->[1];
 			$CSV->{'relationship_type'} = 'Variation';
