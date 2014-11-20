@@ -91,12 +91,18 @@ sub cart_fields {
 		'user:prod_store_warehouse_loc',		# zephyrsports / zephyrcrew
 		);
 
+	foreach my $attrib (keys %PRODUCT::FLEXEDIT::fields) {
+		my $ref = $PRODUCT::FLEXEDIT::fields{$attrib};
+		if (defined $ref->{'cart'}) { push @CARTATTRIBS, $ref->{'cart'}; }
+		}
+
 	## find additional fields for this user.
 	my ($gref) = &ZWEBSITE::fetch_globalref($USERNAME);
+	print Dumper($gref->{'@flexedit'});
 	if (defined $gref->{'@flexedit'}) {
 		foreach my $set (@{$gref->{'@flexedit'}}) {
+			next unless (defined $set->{'cart'}); 
 			print STDERR "SET: ".Dumper($set)."\n";
-			next unless (defined $set->{'cart'});
 			push @CARTATTRIBS, $set->{'id'};
 			}
 		}
