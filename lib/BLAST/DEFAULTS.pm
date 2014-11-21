@@ -1615,7 +1615,7 @@ If you have any questions or comments please contact us.
 		},
 
 
-	'ORDER.CONFIRM_DENIED'=>{ # ODENIED
+	'ORDER.CONFIRM.DENIED'=>{ # ODENIED
 		MSGOBJECT=>'ORDER',
 		MSGFORMAT=>'HTML',
 		MSGTITLE=>q~Order Payment Denied~,

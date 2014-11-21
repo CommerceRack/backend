@@ -6348,7 +6348,7 @@ sub finalize_order {
 	else {
 		my $ORDER_PS = $self->payment_status();
 		my $ORDER_PS_PRETTY = &ZPAY::payment_status_short_desc($ORDER_PS);	 # PAID|PENDING|DENIED
-		my ($MSGID) = sprintf('ORDER.CONFIRM.%s.%03d',$ORDER_PS,$ORDER_PS);
+		my ($MSGID) = sprintf('ORDER.CONFIRM.%s.%03d',$ORDER_PS_PRETTY,$ORDER_PS);
 		my ($rcpt) = $BLAST->recipient('CART',$self,{'%ORDER'=>$self->TO_JSON()});
 		my ($msg) = $BLAST->msg($MSGID);
 		$BLAST->send($rcpt,$msg);
