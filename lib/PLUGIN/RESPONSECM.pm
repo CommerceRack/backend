@@ -68,13 +68,24 @@ sub jsonapi {
 			}
 		$BODY = "<GetOrdersResponse>\n$BODY\n</GetOrdersResponse>";
 		}
-	elsif ($VERB eq 'VerifyOrder') {
+	elsif ($VERB eq 'GetOrdersNative') {
+		## change parameters here as needed to exclude certain classes of orders.
+		my ($orders) = &ORDER::BATCH::report($USERNAME,'NEEDS_SYNC'=>1, LIMIT=>10, DETAIL=>1, 'PAYMENT_VERB'=>'PAID');
+		foreach my $oidref (@{$orders}) {
+			my ($O) = CART2->new_from_oid($USERNAME,$oidref->{'ORDERID'});
+			$BODY .= $O->as_xml(201411);
+			}
+		$BODY = "<GetOrdersResponse>\n$BODY\n</GetOrdersResponse>";
+		}
+	elsif (($VERB eq 'VerifyOrder') || ($VERB eq 'ResetOrder')) {
 		my $OID = $VARS->{'order'};
 		if (not $OID) {
 			$ERROR = "VerifyOrder requires order= parameter";
 			}
 		elsif (my ($O2) = CART2->new_from_oid($USERNAME,$OID)) {
-			$O2->synced();
+			my $ts = time();
+			if ($VERB eq 'ResetOrder') { $ts = 0; }
+			$O2->synced($ts);
 			## add any code which might move the order, etc.
 			$BODY = "<VerifyOrderResponse order=\"$OID\" success=\"true\" />";
 			}

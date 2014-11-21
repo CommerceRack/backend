@@ -206,6 +206,7 @@ sub as_xcbl {
 		$writer->startTag("ListOfNameValuePair");
 			$writer->startTag("NameValuePair");
 				$writer->dataElement("ShippingMethod", $O2->in_get('sum/shp_method'));
+				$writer->dataElement('ShippingCarrier', $O2->in_get('sum/shp_carrier'));
 				$writer->dataElement("ShippingCost", $O2->in_get('sum/shp_total'));
 			$writer->endTag("NameValuePair");
 		$writer->endTag("ListOfNameValuePair");

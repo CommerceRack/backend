@@ -12457,14 +12457,16 @@ sub elastic_index {
 ##	note: eventually we might actually want to try and add a log here!
 ##
 sub synced {
-	my ($self) = @_;
+	my ($self, $ts) = @_;
+
+	if (not defined $ts) { $ts = time(); }
 
 	my $USERNAME = $self->username();
 	my ($udbh) = &DBINFO::db_user_connect($USERNAME);
 	my ($MID) = &ZOOVY::resolve_mid($USERNAME);
 	my ($TB) = &DBINFO::resolve_orders_tb($USERNAME,$MID);
 	my $qtOID = $udbh->quote($self->oid());
-	my $pstmt = "update $TB set SYNCED_GMT=".time()." where MID=$MID /* $USERNAME */ and ORDERID=$qtOID";
+	my $pstmt = "update $TB set SYNCED_GMT=".int($ts)." where MID=$MID /* $USERNAME */ and ORDERID=$qtOID";
 	$udbh->do($pstmt);
 	&DBINFO::db_user_close();
 	}	
