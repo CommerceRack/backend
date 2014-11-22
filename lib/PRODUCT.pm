@@ -414,6 +414,8 @@ sub elastic_index {
 			};
 		}
 
+	open F, ">/tmp/foo"; foreach my $x (@ES_PAYLOADS) { print F Dumper(JSON::XS::encode_json($x))."\n"; }; close F;
+
 	return(\@ES_PAYLOADS);
 	}
 
@@ -1873,7 +1875,6 @@ sub skufetch {
 							&ZSHIP::smart_weight($opt->{'w'},1),1);
 						$weight = $diff;
 						}
-	
 					push @variation_details, $pog->{'prompt'}.': '.$opt->{'prompt'};
 					#$result{'zoovy:prod_name'} .= "\n".$pog->{'prompt'}.': '.$opt->{'prompt'};
 					#$result{'zoovy:pogs_desc'} .= "\n".$pog->{'prompt'}.': '.$opt->{'prompt'};

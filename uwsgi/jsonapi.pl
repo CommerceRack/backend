@@ -149,7 +149,7 @@ my $app = sub {
    if (defined $HTTP_RESPONSE) {
       ## we're already done! (probably an error)
       }
-   elsif ($path =~ /^\/jsonapi\/plugin\/([a-z0-9]+)\.(xml|json|txt)$/) {
+   elsif ($path =~ /^\/jsonapi\/plugin\/([a-zA-Z0-9]+)\.(xml|json|txt)$/) {
       ## we handle options *very* differntly for jsonapi/upload requests so we'll do that later.
 		my $module = uc($1);
 		my $output = $2;
@@ -164,6 +164,11 @@ my $app = sub {
 			my ($plugin) = PLUGIN::SHIPSTATION->new($DNSINFO,$v);
 			($HTTP_RESPONSE, $HEADERS, $BODY) = $plugin->jsonapi($path,$req,$HEADERS,$env);
 			# using OO interface
+			}
+		elsif ($module eq 'RESPONSECM') {
+			require PLUGIN::RESPONSECM;
+			my ($plugin) = PLUGIN::RESPONSECM->new($DNSINFO,$v);
+			($HTTP_RESPONSE, $HEADERS, $BODY) = $plugin->jsonapi($path,$req,$HEADERS,$env);
 			}
 		##
 		## ADD YOUR OWN CUSTOM MODULE/EXPORT HERE

@@ -296,6 +296,36 @@ sub elastic_fields {
 	}
 
 
+##
+##
+##
+sub amzcsv_map {
+	my ($USERNAME) = @_;
+
+	my %MAPPING = ();	## a hash keyed by amzcsv attr, with value being an array of matching rows from 
+  
+	my ($gref) = &ZWEBSITE::fetch_globalref($USERNAME);
+	if (defined $gref->{'@flexedit'}) {
+		foreach my $set (@{$gref->{'@flexedit'}}) {
+			next unless (defined $set->{'amzcsv'});
+
+			if (not defined $MAPPING{ $set->{'amzcsv'} }) { $MAPPING{$set->{'amzcsv'}} = []; }
+			push @{ $MAPPING{ $set->{'amzcsv'} }}, $set;
+			}
+		}
+
+	foreach my $id (keys %PRODUCT::FLEXEDIT::fields) {
+		my $set = $PRODUCT::FLEXEDIT::fields{$id};
+		next unless (defined $set->{'amzcsv'});
+
+		$set->{'id'} = $id;
+		if (not defined $MAPPING{ $set->{'amzcsv'} }) { $MAPPING{$set->{'amzcsv'}} = []; }
+		push @{ $MAPPING{ $set->{'amzcsv'} }}, $set;
+		}
+
+	return(\%MAPPING);
+	}
+
 
 ##
 ## 
@@ -1330,13 +1360,13 @@ sub is_valid {
 
 ## END DYNAMIC AMAZON FIELDS ##
 # 'amz:product_type' =>  { 'src' => 'amphidex:AR_223932', 'type' => 'legacy' },
-'amz:prod_brand' =>  { 'hint' => 'Use when the brand to be sent to Amazon is different to that set in zoovy:prod_brand', 'name' => 'Amazon Brand', 'product' => 1, 'type' => 'textbox' },
-'amz:prod_mfg' =>  { 'hint' => 'Use when the manufacturer to be sent to Amazon is different to that set in zoovy:prod_mfg', 'name' => 'Amazon Manufacturer', 'product' => 1, 'type' => 'textbox' },
+'amz:prod_brand' =>  { 'hint' => 'Use when the brand to be sent to Amazon is different to that set in zoovy:prod_brand', 'amzcsv'=>'brand_name','amzcsv:priority'=>'1', 'name' => 'Amazon Brand', 'product' => 1, 'type' => 'textbox' },
+'amz:prod_mfg' =>  { 'hint' => 'Use when the manufacturer to be sent to Amazon is different to that set in zoovy:prod_mfg','amzcsv'=>'manufacturer','amzcsv:priority'=>'1', 'name' => 'Amazon Manufacturer', 'product' => 1, 'type' => 'textbox' },
 'amz:color_override' =>  { 'hint' => 'Use when trying to merge with an existing Amazon product that has a different color to that set in amz:prod_color', 'name' => 'Amazon Color Override', 'product' => 1, 'type' => 'textbox' },
 'amz:prts' =>  { 'hint' => 'Select the partitions which this product will be allowed to syndicate from (note: you must select at least one partition for this field to work).', 'type' => 'prtchooser', 'title' => 'Amazon Syndication Restrict to Partitions' },
 'amz:qty' =>  { 'sku'=>1, 'hint' => 'The maximum quantity to send/reserve to inventory. Set to -1 to send all inventory without reserving any.', 'type' => 'number', 'title' => 'Amazon Max Inventory' },
 #'amz:quantity' =>  { 'src'=>'toolusa:AA-10054', 'type' => 'legacy' },
-'amz:restock_date' =>  { 'sku'=>1, 'hint' => 'Date that the product will be restocked to Amazon (YYYYMMDD)', 'type' => 'date', 'title' => 'Amazon Restock Date (YYYYMMDD)' },
+'amz:restock_date' =>  { 'sku'=>1, 'hint' => 'Date that the product will be restocked to Amazon (YYYYMMDD)', 'amzcsv'=>'restock_date','amzcsv:priority'=>'1','type' => 'date', 'title' => 'Amazon Restock Date (YYYYMMDD)' },
 #'amz:search_term_1' =>  { 'src' => 'summitfashions:YMR177020', 'type' => 'legacy' },
 #'amz:search_term_2' =>  { 'src' => 'summitfashions:YAC09', 'type' => 'legacy' },
 #'amz:search_term_3' =>  { 'src' => 'summitfashions:YAC09', 'type' => 'legacy' },
@@ -1824,7 +1854,7 @@ sub is_valid {
 'zoovy:prod_book_price_guide' =>  {  'origin' => 'crunruh/WIZARD.~oct2008a', 'type' => 'textbox', 'title' => 'Price Guide' },
 'zoovy:prod_book_publisher' =>  {  'origin' => 'crunruh/WIZARD.~oct2008a', 'type' => 'textbox', 'title' => 'Publisher' },
 'zoovy:prod_bottom' =>  {  'origin' => 'moetown55/LAYOUT.~p-custom_product', 'type' => 'textbox', 'title' => 'Bottom' },
-'zoovy:prod_brand' =>  { 'hint' => 'Use only if the brand is different than the manufacturer', 'name' => 'Product Brand', 'product' => 1, 'type' => 'textbox' },
+'zoovy:prod_brand' =>  { 'hint' => 'Use only if the brand is different than the manufacturer', 'amzcsv'=>'brand_name','amzcsv:priority'=>'2', 'name' => 'Product Brand', 'product' => 1, 'type' => 'textbox' },
 'zoovy:prod_button_addons' =>  { 'src' => 'thegoodtimber:EB_OA270_FULL', 'type' => 'legacy' },
 'zoovy:prod_button_assembly' =>  { 'src' => 'thegoodtimber:EB_OA270_FULL', 'type' => 'legacy' },
 'zoovy:prod_button_collection' =>  { 'src' => 'thegoodtimber:EB_OA270_FULL', 'type' => 'legacy' },
@@ -2009,7 +2039,7 @@ sub is_valid {
 'zoovy:prod_meta_desc5' =>  { 'title' => 'Alt Meta Description #5', 'type' => 'textarea', 'rows' => 4, 'cols' => 70 },
 'zoovy:prod_metal' =>  { 'src' => 'sporks:WATCH', 'type' => 'legacy' },
 #'zoovy:prod_mf' =>  {  'origin' => 'flipanese/WIZARD.~flipanese_wizard', 'type' => 'textbox', 'title' => 'Manufacturer/Publisher' },
-'zoovy:prod_mfg' =>  { 'popular'=>1, 'index'=>'prod_mfg', 'type' => 'textbox', 'title' => 'Product Manufacturer' },
+'zoovy:prod_mfg' =>  { 'popular'=>1, 'amzcsv'=>'manufacturer','amzcsv:priority'=>'1','index'=>'prod_mfg', 'type' => 'textbox', 'title' => 'Product Manufacturer' },
 'zoovy:prod_mfg_link' =>  {  'origin' => 'usavem/LAYOUT.~usm_p_5lists', 'type' => 'textbox', 'title' => 'Manufacturer cat safe id (ex: dolls_by_maker.adora_limited_edition_dolls)' },
 'zoovy:prod_mfgid' =>  { 'popular'=>1, 'index'=>'prod_mfgid', 'type' => 'textbox', 'sku'=>1, 'title' => 'Product Manufacturer ID' },
 # 'zoovy:prod_mfgid2' =>  { 'src' => 'sweetwaterscavenger:UM24002AF-T', 'type' => 'legacy' },
