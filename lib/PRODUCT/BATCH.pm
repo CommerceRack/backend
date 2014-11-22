@@ -134,9 +134,14 @@ sub resolveProductSelector {
 			@PIDS = &ZOOVY::fetchproduct_list_by_merchant($USERNAME);
 			# @PIDS = keys %{ZOOVY::fetchproducts_by_nameref($USERNAME)};
 			}
-		elsif ($VERB eq 'AMAZON-PRODUCT-ERROR') {
+		elsif ($VERB =~ /AMAZON-(PRODUCT|INVENTORY|ALL)-ERROR/) {
+			## NOTE: $MASK values come from $AMAZON3::BW 
+			my $MASK = 0;
+			if ($1 eq 'PRODUCT') { $MASK |= 1; }
+			if ($1 eq 'INVENTORY') { $MASK |= 16; }
+			if ($1 eq 'ALL') { $MASK |= 1+2+4+8+16+32; }
 			my ($udbh) = &DBINFO::db_user_connect($USERNAME);
-			my $pstmt = "select PID, SKU, AMZ_ERROR from SKU_LOOKUP where AMZ_FEEDS_ERROR=AMZ_FEEDS_ERROR|1";
+			my $pstmt = "select PID, SKU, AMZ_ERROR from SKU_LOOKUP where AMZ_FEEDS_ERROR=AMZ_FEEDS_ERROR|$MASK";
 			my $sth = $udbh->prepare($pstmt);
 			$sth->execute();
 			my %PIDS = ();
