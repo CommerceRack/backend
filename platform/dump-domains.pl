@@ -82,6 +82,7 @@ foreach my $USERNAME (@{$CFG->users()}) {
 
 	use DOMAIN::QUERY;
 	my (@DOMAINS) = @{DOMAIN::QUERY::rebuild_cache($USERNAME)};
+	print Dumper(\@DOMAINS);
 
 	##
 	## 
@@ -103,7 +104,14 @@ foreach my $USERNAME (@{$CFG->users()}) {
 			my $HOSTREF = $D->{'%HOSTS'}->{$HOST};
 
 			my @MSGS = ();
-			my ($HOSTDOMAIN) = lc(sprintf("%s.%s",$HOST, $D->{'DOMAIN'}));
+			my $HOSTDOMAIN = undef;
+			if ($HOST eq '') {
+				($HOSTDOMAIN) = lc($D->{'DOMAIN'});
+				}
+			else {
+				($HOSTDOMAIN) = lc(sprintf("%s.%s",$HOST, $D->{'DOMAIN'}));
+				}
+
 			next if ($HOSTDOMAIN eq '');
 			print "HELLO! $HOSTDOMAIN\n";
 
@@ -245,8 +253,11 @@ foreach my $USERNAME (@{$CFG->users()}) {
 			print "Append $NGINX_CONFIG_FILE data:$IPADDR\n";
 			open F, ">>$NGINX_CONFIG_FILE";
 
-			if ($HOSTDOMAIN =~ /^www\./) {
-				print F qq~
+#			if ($D->{'%HOSTS'}->{''}) {
+#				## we have a null route domain
+#				}
+#			elsif ($HOSTDOMAIN =~ /^www\./) {
+#				print F qq~
 ##
 ## $DOMAIN ($USERNAME)
 ##
@@ -258,8 +269,8 @@ foreach my $USERNAME (@{$CFG->users()}) {
 #	ssl_certificate_key  $PEM_FILE;
 #	return 301 http://$HOSTDOMAIN\$request_uri;
 #	}
-~;
-				}
+#~;
+#				}
 
 
 			print F qq~

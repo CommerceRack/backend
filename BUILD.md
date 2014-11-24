@@ -1,15 +1,25 @@
 
+
+## DOCKER COMMANDS:
+sudo docker build -t my_test .
+
+docker run -i -t -p 80 -p 443 -p 9000 centos /bin/bash
+
+
 ##
 ## 201407 BUILD process
 ##
 # using a standard centos box
 ##
 
+## NOTE: aws linux edit  /etc/yum.repos.d/epel.repo  Under the section marked [epel], change enabled=0 to enabled=1.
+yum -y install epel-release
+yum -y install ansible
+
 yum -y install yum-plugin-fastestmirror
 yum install -y git
 
 useradd -u 1000 commercerack
-
 
 
 ## similiar to tinydns, etc. we use a root level directory to minimize stat calls to the root fs
@@ -21,7 +31,7 @@ cd /backend/
 git clone https://github.com/commercerack/backend-static.git
 ln -s backend-static static
 cd /backend/static/zmvc
-./git-sync
+#./git-sync
 ln -s latest $VERSION
 
 ## set MOTD
@@ -31,7 +41,7 @@ ln -s /backend/platform/etc-motd /etc/motd
 echo "/usr/local/lib" > /etc/ld.so.conf.d/usr-local-lib.conf
 ldconfig
 
-ln -sf /usr/share/zoneinfo/US/Pacific-New /etc/localtime
+#ln -sf /usr/share/zoneinfo/US/Pacific-New /etc/localtime
 
 
 ##
@@ -41,7 +51,7 @@ rpm --import http://apt.sw.be/RPM-GPG-KEY.dag.txt
 yum -y install htop
 
 ##
-## ELRepo
+## ELRepo (done earlier)
 ##
 #rpm --import https://www.elrepo.org/RPM-GPG-KEY-elrepo.org
 ### CENTOS 6:
@@ -50,7 +60,7 @@ yum -y install htop
 #rpm -Uvh http://www.elrepo.org/elrepo-release-7.0-2.el7.elrepo.noarch.rpm (external link)
 
 ## Fedora Extras (centos 6)
-yum -y install http://dl.fedoraproject.org/pub/epel/6/i386/epel-release-6-8.noarch.rpm
+##yum -y install http://dl.fedoraproject.org/pub/epel/6/i386/epel-release-6-8.noarch.rpm
 ## https://dl.fedoraproject.org/pub/epel/beta/7/x86_64/epel-release-7-0.2.noarch.rpm
 
 ## we don't need ip forwarding anymore
@@ -59,12 +69,11 @@ yum -y install http://dl.fedoraproject.org/pub/epel/6/i386/epel-release-6-8.noar
 
 
 #===========================================
-## INSTALL ZFS
+## INSTALL ZFS (not for DOCKER)
 #===========================================
 yum -y install rpm-build kernel-devel zlib-devel libuuid-devel libblkid-devel libselinux-devel  e2fsprogs-devel parted lsscsi
 yum -y localinstall --nogpgcheck http://archive.zfsonlinux.org/epel/zfs-release-1-3.el6.noarch.rpm
 yum -y localinstall --nogpgcheck http://archive.zfsonlinux.org/epel/zfs-release$(rpm -E %dist).noarch.rpm
-
 
 ## instructions for ZFS on Linux are here: http://zfsonlinux.org/epel.html
 # yum localinstall --nogpgcheck http://archive.zfsonlinux.org/epel/zfs-release-1-3.el6.noarch.rpm
@@ -267,9 +276,6 @@ mkdir vhosts
 
 ## legacy path:
 ln -s /backend/ /httpd
-
-
-
 
 yum install memcached
 /sbin/chkconfig --add memcached
@@ -624,6 +630,17 @@ insecure: 1
 ^D
 
 
+##
+## monit.d
+##
+rpm -ivh http://dl.fedoraproject.org/pub/epel/6/i386/epel-release-6-8.noarch.rpm
+yum install monit -y
+
+
+## This can't be installed via cpanm
+http://search.cpan.org/CPAN/authors/id/O/OP/OPI/Linux-Smaps-0.13.tar.gz
+
+
 
 
 ## now we can provision a new account
@@ -909,6 +926,7 @@ gw1 boxes:
 echo 15 > /proc/sys/net/ipv4/tcp_keepalive_intvl 
 echo 9 > /proc/sys/net/ipv4/tcp_keepalive_probes
 echo 8192 61000 > /proc/sys/net/ipv4/ip_local_port_range
+
 
 
 

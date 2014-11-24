@@ -374,8 +374,11 @@ while ( my $YAML = $redis->brpoplpush("EVENTS","EVENTS.PROCESSING",1) ) {
 		}
 	elsif (not defined $error) {	
 		# print "TRY: $EVENT $USERNAME $PRT ".Dumper($YREF)."\n";
-		if (not eval { ($error) = $eFunctions{$EVENT}->($EVENT,$USERNAME,$PRT,$YREF,$LM,$redis,\%::CACHE); }) {
+		eval { ($error) = $eFunctions{$EVENT}->($EVENT,$USERNAME,$PRT,$YREF,$LM,$redis,\%::CACHE); };
+		if ($@) {
 			$error = $@;
+			print "ERROR:$error\n";
+			die($@);
 			}
 		}
 
@@ -387,11 +390,11 @@ while ( my $YAML = $redis->brpoplpush("EVENTS","EVENTS.PROCESSING",1) ) {
 		##
 		## bat shit happened.. so we save the #err and #ets (error timestamp)
 		##
-		print "ERR-$error (did not delete EVENT)\n";
 		$YREF->{'#attempts'}++;
 		$YREF->{'#err'} = $error;
 		$YREF->{'#ets'} = time();
 		my $REVISEDYAML = YAML::Syck::Dump($YREF);
+		print "ERR-$error (did not delete EVENT) $REVISEDYAML\n";
 		if ($YREF->{'#attempts'}<1) {
 			$redis->lpush("EVENTS.RETRY",$REVISEDYAML);
 			$LM->pooshmsg("RETRY|PRT:$PRT|E:$EVENT|+$error");
@@ -701,11 +704,13 @@ sub e_SKU {
 	print "EVENT: $EVENT PID:$PID SKU:$SKU\n";
 
 	my ($P) = &load_cached_resource($CACHEREF,'PRODUCT',$USERNAME,$PID);
-	my $PID = $YREF->{'PID'};
-	my $SKU = $YREF->{'SKU'};
+	if (defined $P) {
+		my $PID = $YREF->{'PID'};
+		my $SKU = $YREF->{'SKU'};
 
-	if ($P->fetch('amz:ts')) { 
-		&AMAZON3::item_set_status({USERNAME=>$USERNAME,MID=>$MID},$SKU,['+prices.todo'],'USE_PIDS'=>0);
+		if ($P->fetch('amz:ts')) { 
+			&AMAZON3::item_set_status({USERNAME=>$USERNAME,MID=>$MID},$SKU,['+prices.todo'],'USE_PIDS'=>0);
+			}
 		}
 
 	return(undef);
@@ -735,6 +740,10 @@ sub e_PID {
 	my @SQ_VERBS = ();
 
 	my ($P) = &load_cached_resource($CACHEREF,'PRODUCT',$USERNAME,$PID);
+	if (not defined $P) {
+		print "USER: $USERNAME PRODUCT: $PID does not exist\n";
+		return(undef);
+		}
 
 	if ($EVENT eq 'PID.AMZ-CHANGE') {
 		## one or more properties that impact amazon have changed.
@@ -748,7 +757,6 @@ sub e_PID {
 	my %MKT_STATUS = ();
 	if ($EVENT eq 'PID.MKT-CHANGE') {
 		## use is/was variables to record changes
-		require LISTING::EVENT;
 		print STDERR "MKT-CHANGE - PID:$PID is:$YREF->{'is'}  was:$YREF->{'was'}\n";
 		foreach my $is (@{&ZOOVY::bitstr_bits($YREF->{'is'})}) {
 			$MKT_STATUS{$is} |= 2; 
@@ -807,7 +815,6 @@ sub e_PID {
 		
 	if ($EVENT eq 'PID.MKT-CHANGE') {
 		## use is/was variables to record changes
-		require LISTING::EVENT;
 
 		foreach my $id (keys %MKT_STATUS) {
 			my $INTREF = &ZOOVY::fetch_integration('id'=>$id);
@@ -1694,8 +1701,8 @@ sub e_INV_OUTOFSTOCK {
 	if (not defined $AVAILABLE) { return(); }
 	if ($AVAILABLE>0) { return(); }
 
-	require LISTING::EVENT;
 	require EBAY2;
+	require LISTING::EBAY;
 	
 	my ($MID) = &ZOOVY::resolve_mid($USERNAME);
 	my ($udbh) = &DBINFO::db_user_connect($USERNAME);
@@ -1706,15 +1713,17 @@ sub e_INV_OUTOFSTOCK {
 	$sth->execute();
 	while ( my ($UUID,$EBAY_ID,$PRT) = $sth->fetchrow() ) {
 		print "INV_REVOKE EVENT REMOVED EBAY_ID: $EBAY_ID PRT:$PRT\n";
-		my ($le) = LISTING::EVENT->new(
-			'USERNAME'=>$USERNAME,'PRT'=>$PRT,
-			'SKU'=>$SKU,
-			'VERB'=>'END',
-			'TARGET'=>'EBAY',
-			'TARGET_LISTINGID'=>$EBAY_ID,
-			'TARGET_UUID'=>$UUID,
-			'REQUEST_APP'=>'INV-EV',
-			);
+		my ($le) = LISTING::EBAY->new('DBREF'=>$udbh,'USERNAME'=>$USERNAME,'PRT'=>$PRT,'SKU'=>$SKU,'TARGET_LISTINGID'=>$EBAY_ID,'TARGET_UUID'=>$UUID);
+		$le->dispatch('REQUEST_APP'=>'INV-EV','VERB'=>'END','TARGET_LISTINGID'=>$EBAY_ID,'TARGET_UUID'=>$UUID);
+		#my ($le) = LISTING::EVENT->new(
+		#	'USERNAME'=>$USERNAME,'PRT'=>$PRT,
+		#	'SKU'=>$SKU,
+		#	'VERB'=>'END',
+		#	'TARGET'=>'EBAY',
+		#	'TARGET_LISTINGID'=>$EBAY_ID,
+		#	'TARGET_UUID'=>$UUID,
+		#	'REQUEST_APP'=>'INV-EV',
+		#	);
 		}
 	$sth->finish();
 	&DBINFO::db_user_close();

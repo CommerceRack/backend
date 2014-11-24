@@ -120,8 +120,18 @@ sub new {
 	else {
 		## make a copy of the host.domain.com.json
 		my $NFSROOT = $self->root();
-		my $json = File::Slurp::read_file("$NFSROOT/platform/$hostdomain.json");
-		if ($json eq '') { $json = JSON::XS->new()->encode( { "_error"=>"platform/$hostdomain.json missing" } ); }
+
+		my $json = undef;
+		if (! -f "$NFSROOT/platform/$hostdomain.json" ) {
+			$json = JSON::XS->new()->encode( { "_error"=>"platform/$hostdomain.json missing" } ); 
+			}
+		else {
+			$json = File::Slurp::read_file("$NFSROOT/platform/$hostdomain.json");
+			}
+
+		if ($json eq '') { 
+			$json = JSON::XS->new()->encode( { "_error"=>"platform/$hostdomain.json exists, but is empty" } ); 
+			}
 		
 		my $ref = {};
 		eval { $ref = JSON::XS->new->ascii->pretty->allow_nonref->relaxed(1)->decode($json); };
