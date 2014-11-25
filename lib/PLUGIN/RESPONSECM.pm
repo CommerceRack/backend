@@ -62,6 +62,8 @@ sub jsonapi {
 		my ($orders) = &ORDER::BATCH::report($USERNAME,'NEEDS_SYNC'=>1, LIMIT=>10, DETAIL=>1, 'PAYMENT_VERB'=>'PAID');
 		foreach my $oidref (@{$orders}) {
 			my ($O) = CART2->new_from_oid($USERNAME,$oidref->{'ORDERID'});
+			next if $O->in_get('flow/pool') eq 'COMPLETED';
+			next if $O->in_get('flow/pool') eq 'CANCELLED';
 #			$BODY .= $O->as_xml(201411);
 			use ORDER::XCBL; 
 			$BODY .= ORDER::XCBL::as_xcbl($O);

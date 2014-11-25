@@ -270,6 +270,9 @@ sub rebuild_private_index {
 								filter		=> [qw(standard lowercase stop asciifolding)],
 								},
 							'lcKeyword' => {
+								'tokenizer' => 'whitespace',
+								},
+							'lcKeyword' => {
 								'tokenizer' => 'keyword',
 								'filter' => [ 'asciifolding', 'lowercase' ],
 								},
@@ -326,8 +329,8 @@ sub rebuild_product_index {
 	## www.elasticsearch.org/guide/reference/index-modules/analysis/snowball-tokenfilter.html
 	## NOTE: keyword is case sensitive
 	my %SKU_PROPERTIES = ();
-	$SKU_PROPERTIES{'pid'} = { 'analyzer'=>'lcKeyword',   'buffer_size'=>20, 'type'=>'string', 'store'=>'no', 'include_in_all'=>1 };
-	$SKU_PROPERTIES{'sku'} = { 'analyzer'=>'lcKeyword',   'buffer_size'=>35, 'type'=>'string', 'store'=>'no', 'include_in_all'=>1 };
+	$SKU_PROPERTIES{'pid'} = { 'analyzer'=>'ucToken',   'buffer_size'=>20, 'type'=>'string', 'store'=>'no', 'include_in_all'=>1 };
+	$SKU_PROPERTIES{'sku'} = { 'analyzer'=>'ucToken',   'buffer_size'=>35, 'type'=>'string', 'store'=>'no', 'include_in_all'=>1 };
 	$SKU_PROPERTIES{'ts'} = { 'type'=>'integer', 'include_in_all'=>0 };
 	$SKU_PROPERTIES{'available'} = { 'type'=>'integer', 'include_in_all'=>0 };
 	$SKU_PROPERTIES{'markets'} = { 'type'=>'integer', 'include_in_all'=>0 };
@@ -335,14 +338,14 @@ sub rebuild_product_index {
 	$SKU_PROPERTIES{'dirty'} = { 'type'=>'boolean', 'include_in_all'=>0 };
 
 	my %PRODUCT_PROPERTIES = ();
-	$PRODUCT_PROPERTIES{'pid'} = { 'analyzer'=>'lcKeyword',   'buffer_size'=>20, 'type'=>'string', 'store'=>'no', 'include_in_all'=>1 };
-	$PRODUCT_PROPERTIES{'skus'} = { 'analyzer'=>'lcKeyword',  'buffer_size'=>35, 'type'=>'string', 'store'=>'no', 'include_in_all'=>0 };
-	$PRODUCT_PROPERTIES{'options'} = { 'analyzer'=>'lcKeyword', 'type'=>'string', 'store'=>'no', 'include_in_all'=>'no' };
-	$PRODUCT_PROPERTIES{'pogs'} = { 'analyzer'=>'keyword',  'buffer_size'=>6, 'type'=>'string', 'store'=>'no', 'include_in_all'=>0 };
+	$PRODUCT_PROPERTIES{'pid'} = { 'analyzer'=>'ucToken',   'buffer_size'=>20, 'type'=>'string', 'store'=>'no', 'include_in_all'=>1 };
+	$PRODUCT_PROPERTIES{'skus'} = { 'analyzer'=>'ucToken',  'buffer_size'=>35, 'type'=>'string', 'store'=>'no', 'include_in_all'=>0 };
+	$PRODUCT_PROPERTIES{'options'} = { 'analyzer'=>'ucToken', 'type'=>'string', 'store'=>'no', 'include_in_all'=>'no' };
+	$PRODUCT_PROPERTIES{'pogs'} = { 'analyzer'=>'ucToken',  'buffer_size'=>6, 'type'=>'string', 'store'=>'no', 'include_in_all'=>0 };
 	$PRODUCT_PROPERTIES{'tags'} = { 'analyzer'=>'keyword',  'buffer_size'=>15, 'type'=>'string', 'store'=>'no', 'include_in_all'=>0 };
 	$PRODUCT_PROPERTIES{'images'} = { 'analyzer'=>'keyword',  'type'=>'string', 'store'=>'no', 'include_in_all'=>0 };
-	$PRODUCT_PROPERTIES{'child_pids'} = { 'analyzer'=>'lcKeyword',  'type'=>'string', 'store'=>'no', 'include_in_all'=>0 };
-	$PRODUCT_PROPERTIES{'assembly_pids'} = { 'analyzer'=>'lcKeyword',  'type'=>'string', 'store'=>'no', 'include_in_all'=>0 };
+	$PRODUCT_PROPERTIES{'child_pids'} = { 'analyzer'=>'ucToken',  'type'=>'string', 'store'=>'no', 'include_in_all'=>0 };
+	$PRODUCT_PROPERTIES{'assembly_pids'} = { 'analyzer'=>'ucToken',  'type'=>'string', 'store'=>'no', 'include_in_all'=>0 };
 	$PRODUCT_PROPERTIES{'marketplaces'} = { 'analyzer'=>'lcKeyword',  'type'=>'string', 'store'=>'no', 'include_in_all'=>0 };
 	# $PRODUCT_PROPERTIES{'breadcrumbs'} = { 'analyzer'=>'lcKeyword',  'type'=>'string', 'store'=>'no', 'include_in_all'=>0 };
 
@@ -623,6 +626,10 @@ sub rebuild_product_index {
  						'tokenizer'	=> 'standard',
 						'char_filter' => ['html_strip',(($HAS_CHARMAP)?'my_mapping':undef) ],
 						'filter'		=> ['standard', 'lowercase', ($HAS_SYNONYMS?'synonym':undef), ($HAS_STOPWORDS?'useStopWords':undef), 'stop', 'asciifolding'],
+						},
+					'ucToken' => {
+						'tokenizer' => 'whitespace',
+						'filter' => [ 'asciifolding', 'uppercase' ]
 						},
  					'lcKeyword' => {
 						'tokenizer' => 'keyword',
