@@ -84,8 +84,7 @@ sub as_xcbl {
 			$writer->dataElement("core:PostalCode", $O2->in_get('ship/postal')); # <ship_zip>
 			$writer->dataElement("core:City", $O2->in_get('ship/city')); # <ship_city>
 			$writer->startTag("core:Region");
-				$O2->in_get('ship/region') = '' if !$O2->in_get('ship/region'); #need for concatenation - can't be undef
-				$writer->dataElement("core:RegionCoded", "US".$O2->in_get('ship/region')); # US.<ship_state>
+				$writer->dataElement("core:RegionCoded", sprintf("US%s",$O2->in_get('ship/region'))); # US.<ship_state>
 				$writer->dataElement("core:RegionCodedOther", $O2->in_get('ship/province')); # <ship_province>
 			$writer->endTag("core:Region");
 			$writer->startTag("core:Country");
@@ -123,8 +122,8 @@ sub as_xcbl {
 			$writer->dataElement("core:PostalCode", $O2->in_get('bill/postal')); # <bill_zip>
 			$writer->dataElement("core:City", $O2->in_get('bill/city')); # <bill_city>
 			$writer->startTag("core:Region");
-				$O2->in_get('bill/region') = '' if (!$O2->in_get('bill/region')); #need for concatenation - can't be undef'
-				$writer->dataElement("core:RegionCoded", "US" . $O2->in_get('bill/region')); # US.<bill_state>
+				# $O2->in_get('bill/region') = '' if (!$O2->in_get('bill/region')); #need for concatenation - can't be undef'
+				$writer->dataElement("core:RegionCoded", sprintf("US%s",$O2->in_get('bill/region'))); # US.<bill_state>
 				$writer->dataElement("core:RegionCodedOther", $O2->in_get('bill/province')); # <bill_province>
 			$writer->endTag("core:Region");
 			$writer->startTag("core:Country");
@@ -133,11 +132,12 @@ sub as_xcbl {
 			$writer->endTag("core:NameAddress");
 			$writer->startTag("core:PrimaryContact");
 
-			$O2->in_set('bill/firstname','') if !$O2->in_get('bill/firstname'); #need for concatenation - can't be undef
-			$O2->in_set('bill/middlename','') if !$O2->in_get('bill/middlename'); #need for concatenation - can't be undef
-			$O2->in_set('bill/lastname','') if !$O2->in_get('bill/lastname'); #need for concatenation - can't be undef
+			#$O2->in_set('bill/firstname','') if !$O2->in_get('bill/firstname'); #need for concatenation - can't be undef
+			#$O2->in_set('bill/middlename','') if !$O2->in_get('bill/middlename'); #need for concatenation - can't be undef
+			#$O2->in_set('bill/lastname','') if !$O2->in_get('bill/lastname'); #need for concatenation - can't be undef
 
-			$writer->dataElement("core:ContactName", $O2->in_get('bill/firstname') . " " . $O2->in_get('bill/middlename') . " " . $O2->in_get('bill/lastname')); # <bill_firstname> <bill_middlename> <bill_lastname>
+			$writer->dataElement("core:ContactName", 
+				sprintf("%s %s %s",$O2->in_get('bill/firstname'), $O2->in_get('bill/middlename'), $O2->in_get('bill/lastname'))); # <bill_firstname> <bill_middlename> <bill_lastname>
 			$writer->startTag("core:ListOfContactNumber");
 				$writer->startTag("core:ContactNumber");
 					$writer->dataElement("core:ContactNumberValue", $O2->in_get('bill/phone')); # <bill_phone>
