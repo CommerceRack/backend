@@ -48,9 +48,11 @@ sub CONFIG {
 
 sub username { return($_[0]->{'$USERNAME'}); }
 sub URI { return($_[0]->{'*URI'}); }
+sub framework { return(int($_[0]->CONFIG()->{'framework'} || $_[0]->CONFIG()->{'release'})); }
 sub release { return($_[0]->CONFIG()->{'release'}); }
 sub hostdomain { return($_[0]->{'$hostdomain'}); }
 sub projectid { return($_[0]->{'$PROJECTID'}); }
+
 sub root {
 	my ($self,$new_root) = @_;
 	if (defined $new_root) { $self->{'$ROOT'} = $new_root; }
@@ -161,7 +163,7 @@ sub new {
 
 		$CONFIG{'file#robots'} = $CONFIG{'file#robots'} || '/robots.txt';
 		if ($CONFIG{'release'}>=201410) {
-			$CONFIG{'file#rewrites'} = $CONFIG{'file#rewrites'} || '/platform/rewrites.json';
+			## $CONFIG{'file#rewrites'} = $CONFIG{'file#rewrites'} || '/platform/rewrites.json';
 			}
 		else {
 			$CONFIG{'file#rewrites'} = $CONFIG{'file#rewrites'} || '/platform/rewrites.txt';
@@ -194,11 +196,21 @@ sub new {
 	}
 
 
+
 ##
+## a key unique enough for caching at a project level.
 ##
+sub cachekey {
+	my ($self) = @_;
+	my $KEY = sprintf("%s|%s|%s",$self->hostdomain(),$self->projectid(),$self->release());
+	}
+
+
+##
+## process rewrites
 ##
 sub rewrites {
-	my ($self) = @_;
+	my ($self, %options) = @_;
 
 	my $CONFIG = $self->CONFIG();
 	my $NFSROOT = $self->root();
@@ -208,40 +220,81 @@ sub rewrites {
 	$REWRITES_FILE =~ s/[.]+/./gs;	# no .. are allowed in the path
 	$REWRITES_FILE =~ s/[\/]+/\//gs;	# no // are allowed in the path
 
+	my $LOG = $options{'@LOG'} || undef;
+
 	my $URI = $self->URI();
-
-        print STDERR "$NFSROOT/$REWRITES_FILE\n";
-	my $buf = '';
-	open F, "<$NFSROOT/$REWRITES_FILE";
-	while(<F>) {
-	   $_ =~ s/^\/\//##/gs; ## replace leading // with ## (json::xs supports ## comments)
-	   $buf .= $_;
-	   }
-	close F;
-	# print STDERR "FILE: $NFSROOT/$REWRITES_FILE\n";
-
 	my $RESULT = undef;
-
 	my $ref = [];
-	my $JS = JSON::XS->new->ascii->pretty->allow_nonref()->relaxed(1);
-	eval { $ref = $JS->decode($buf); };
-	if ($@) {
-		$RESULT = [ 'ERROR', sprintf("file#rewrites: %s is corrupt. $@", $REWRITES_FILE) ];
-	   print STDERR "$NFSROOT/$REWRITES_FILE ERROR:$@\n";
-	   }
+
+	my $MEMCACHE_KEY = undef;
+	my $memd = undef;
+
+	## eventually we should use a better metric for USE_CACHE
+	my $USE_CACHE = (not defined $LOG)?1:0;
+	$USE_CACHE++;
+
+	if ($USE_CACHE) {
+		## CACHING
+		$MEMCACHE_KEY = sprintf("%s/rewrites/%s",$self->cachekey(),$URI->as_string());
+		$LOG && push @$LOG, sprintf("INFO|+caching enabled, key is: %s",$MEMCACHE_KEY);
+		$memd = &ZOOVY::getMemd($self->username());
+		my $cacheresult = $memd->get("$MEMCACHE_KEY");
+		if ($cacheresult) {
+			$LOG && push @$LOG, sprintf("INFO|+found cache result: %s",$cacheresult);
+			$RESULT = [ split(':',$cacheresult) ];
+			}
+		}
 
 
-	## pre-process rewrite rows.
-	my $statement = 0;
-	foreach my $row (@{$ref}) {
-		$row->{'.row'} = ++$statement;
-		foreach my $k (keys %{$row}) { 
-			if ($k =~ /^then/) { $row->{'.then.val'} = $row->{$k}; $row->{'.then.key'} = $k; }
-			if ($k =~ /^else/) { $row->{'.else.val'} = $row->{$k}; $row->{'.else.key'} = $k };
+	if ($RESULT) {
+		$LOG && push @$LOG, "INFO|+rewrites were skipped, found early result.";
+		}
+	elsif ($REWRITES_FILE eq '') {
+		## no rewwrites file
+		$LOG && push @$LOG, "WARN|+domain.json file#rewrites not set in platform/domain.json"; 
+		}
+	elsif (! -f "$NFSROOT/$REWRITES_FILE") {
+		## some type of error
+		$LOG && push @$LOG, "WARN|+domain.json file#rewrites $NFSROOT/$REWRITES_FILE does not exist.";
+		}
+	else {	
+		$LOG && push @$LOG, "INFO|+domain.json file#rewrites set to $REWRITES_FILE";
+		my $buf = '';
+		open F, "<$NFSROOT/$REWRITES_FILE";
+		my $ACTUAL_FILE_LENGTH = 0;
+		while(<F>) {
+			$ACTUAL_FILE_LENGTH += length($_);
+		   $_ =~ s/^\/\//##/gs; ## replace leading // with ## (json::xs supports ## comments)
+		   $buf .= $_;
+		   }
+		close F;
+		# print STDERR "FILE: $NFSROOT/$REWRITES_FILE\n";
+
+		my $JS = JSON::XS->new->ascii->pretty->allow_nonref()->relaxed(1);
+		eval { $ref = $JS->decode($buf); };
+		if ($@) {
+			$RESULT = [ 'ERROR', sprintf("file#rewrites: %s is corrupt. $@", $REWRITES_FILE) ];
+		   print STDERR "$NFSROOT/$REWRITES_FILE ERROR:$@\n";
+		   }
+		$LOG && push @$LOG, sprintf("INFO|+rewrites file is %d bytes (%d bytes after comments) and has %d parsed rules.",$ACTUAL_FILE_LENGTH,length($buf),scalar(@{$ref}));
+
+		## pre-process rewrite rows.
+		my $statement = 0;
+		foreach my $row (@{$ref}) {
+			$row->{'.row'} = ++$statement;
+			foreach my $k (keys %{$row}) { 
+				if ($k =~ /^then/) { $row->{'.then.val'} = $row->{$k}; $row->{'.then.key'} = $k; }
+				if ($k =~ /^else/) { $row->{'.else.val'} = $row->{$k}; $row->{'.else.key'} = $k };
+				}
 			}
 		}
 
 	# print STDERR "REF: ".Dumper($ref)."\n";
+	if ($LOG) {
+		push @$LOG, sprintf("INFO|+START type=uri is: %s",$URI->as_string());
+		push @$LOG, sprintf("INFO|+START type=path is: %s",$URI->path());
+		push @$LOG, sprintf("INFO|+START type=query is: %s",$URI->query());
+		}
 
 	foreach my $row (@{$ref}) {
 		last if ($RESULT);
@@ -279,16 +332,16 @@ sub rewrites {
 			}
 
 		if ($DID_IT_MATCH) {
-			print STDERR "POST-MATCH#$row->{'.row'} then[$row->{'.then.val'}] thenkey[$row->{'.then.key'}] type[$row->{'type'}] src[$src] GOTO:[$row->{'.then.goto'}] apptimize[$row->{'apptimize'}]\n";
+			$LOG && push @$LOG, "DEBUG|+POST-MATCH#$row->{'.row'} then[$row->{'.then.val'}] thenkey[$row->{'.then.key'}] type[$row->{'type'}] src[$src] GOTO:[$row->{'.then.goto'}] apptimize[$row->{'apptimize'}]";
 			}
 		else {
-			print STDERR "FAIL_MATCH#$row->{'.row'} src[$src]==$row->{'if'}\n";
+			$LOG && push @$LOG, "DEBUG|+FAIL_MATCH#$row->{'.row'} src[$src]==$row->{'if'}";
 			}
 
 		if (not $DID_IT_MATCH) {
 			}
 		elsif ($row->{'.then.key'} eq 'then#rewrite') {
-			print STDERR "!!!!! REWRITE type:$row->{'type'} src:$src (goto:$row->{'.then.goto'})\n";
+			$LOG && push @$LOG, "DEBUG|+REWRITE type:$row->{'type'} src:$src (goto:$row->{'.then.goto'})";
 			if ($row->{'type'} eq 'path') {
 				## rewrite the path, unset $GOTO
 				$URI->path($row->{'.then.goto'});
@@ -300,7 +353,7 @@ sub rewrites {
 				$RESULT = [ 'SENDFILE', $row->{'.then.goto'} ];
 				}
 			else {
-				print STDERR "MISSED ON FILE: $row->{'.then.goto'}\n";
+				$LOG && push @$LOG, "DEBUG|+MISSED ON FILE: $row->{'.then.goto'}";
 				$RESULT = undef;
 				}
 
@@ -342,11 +395,41 @@ sub rewrites {
 			## end foreach $row
 		}
 	## end if release>201410
+
+
+	if ($USE_CACHE && $MEMCACHE_KEY) {
+		if (not defined $RESULT) {
+			$RESULT = [ 'NULL', 'no rewrites' ];
+			}
+		$LOG && push @$LOG, sprintf("INFO|+setting cache %s to %s",$MEMCACHE_KEY,join(":",@{$RESULT}));
+		$memd->set($MEMCACHE_KEY,join(":",@{$RESULT}));
+		}
+
+	if (defined $LOG) {
+		if (defined $RESULT) {
+			push @$LOG, sprintf("%s|+%s",@{$RESULT}); 
+			}
+		else {
+			push @$LOG, sprintf("FINISH|+nothing done.");
+			}
+		}
+
+	if (defined $RESULT) {
+		if ($RESULT->[0] eq 'NULL') {	
+			## a NULL cache (used to cache negative results)
+			$RESULT = undef; 
+			}
+		}
+	
 	return($RESULT);
 	}
 
 
+
+
+##
 ## only for versions < 201410
+##
 sub rewrites_pre_201410 {
 	my ($self) = @_;
 
@@ -464,6 +547,9 @@ sub rewrites_pre_201410 {
 	}
 
 
+##
+## not used after 201410
+##
 sub escaped_fragments {
 	my ($self) = @_;
 
