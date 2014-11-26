@@ -1587,9 +1587,7 @@ sub __SYNC__ {
 		foreach my $CPNREF (@CART_COUPONS, @AUTO_COUPONS) {
 			my $ID = $CPNREF->{'coupon'};
 			if (not defined $ID) { $ID = $CPNREF->{'id'}; }
-
-
-			print STDERR Dumper($CPNREF)."\n";
+			#print STDERR Dumper($CPNREF)."\n";
 
 			$self->is_debug() && $self->msgs()->pooshmsg("INFO|+ --------------------------- $ID -------------------------");
 			## $self->is_debug() && $self->msgs()->pooshmsg("INFO|+Processing COUPON:$ID");

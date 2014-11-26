@@ -188,15 +188,6 @@ sub call {
 
 
 
-sub call {
-        my ($self,$method,$params) = @_;
-        my $R = undef;
-        if ($JSONAPI::CMDS{$method}) {
-           $R = $JSONAPI::CMDS{$method}->[0]($self,$params);
-           }	
-        return($R);
-        }
-
 
 %JSONAPI::CMDS = (
 	## LEGACY ##
@@ -1977,8 +1968,7 @@ sub psgiinit {
 		open F, ">>/tmp/noapi";
 		print F Dumper($v)."\n\n";
 		close F;
-		
-		print STDERR Dumper($v);
+		#print STDERR Dumper($v);
 		}
 	elsif ($VERSION < $JSONAPI::VERSION_MINIMUM) {
 		my $BROKE_FOR = ((time()%7200) - 6000);
@@ -4306,7 +4296,7 @@ sub authAdminLogin {
 
 		my $api = JSON::XS::decode_json($body);
 
-		print STDERR Dumper($req,$api);
+		# print STDERR Dumper($req,$api);
 		if (not defined $api) {
 			&JSONAPI::set_error(\%R,'apierr',156,'Invalid api response');			
 			}
@@ -4353,7 +4343,7 @@ sub authAdminLogin {
 	elsif ($v->{'authtype'} eq 'password') {
 		print STDERR "$USERNAME $LUSER HASH:$v->{'authtype'} $v->{'authid'}\n";
 
-		print STDERR Dumper($v);
+		# print STDERR Dumper($v);
 		#my ($ERROR) = OAUTH::verify_credentials($USERNAME,$LUSER,"$v->{'ts'}",$v->{'authtype'},$v->{'authid'});
 		#if ($ERROR) {
 		#	&JSONAPI::set_error(\%R,'apperr',155,$ERROR);
@@ -9544,7 +9534,7 @@ sub adminBlastMacro {
 		}
 	elsif ($v->{'_cmd'} eq 'adminBlastMacroPropertyUpdate') {
 		my %PRT = ();
-		print STDERR Dumper($v);
+		# print STDERR Dumper($v);
 		foreach my $k (keys %{$v}) { if ($k =~ /^PRT\.(.*?)$/) { $PRT{$1} = $v->{$k}; } }
 		my ($webdb) = &ZWEBSITE::fetch_website_dbref($self->username(),$self->prt());
 		$webdb->{'%BLAST'} = \%PRT;
@@ -11139,7 +11129,7 @@ sub adminCampaign {
 			#	}
 			}
 
-		print STDERR Dumper(\@MSGS);
+		# print STDERR Dumper(\@MSGS);
 		foreach my $msg (@MSGS) {
 			my ($ref) = LISTING::MSGS::msg_to_disposition($msg);
 			if (substr($ref->{'+'},0,1) eq '+') { $ref->{'+'} = substr($ref->{'+'},1); }
@@ -18160,7 +18150,7 @@ sub cartItemAppend {
 		}
 
 	my $lm = LISTING::MSGS->new($self->username()); 
-	print STDERR Dumper($v);
+	# print STDERR Dumper($v);
 
 	#if ($cgiv->{'_trustedparams'}) {
 	#	my %trustedparams = ();
@@ -25696,8 +25686,7 @@ sub adminWarehouse {
 				}
 			if (not defined $PREF->{'GEO'}) { $PREF->{'GEO'} = $GEO; }
 			## end parameter expansion.
-
-			print STDERR Dumper($VERB,$PREF);
+			# print STDERR Dumper($VERB,$PREF);
 	
 			if (defined $W) {
 				}
@@ -29026,9 +29015,7 @@ sub adminCSVExport {
 	my @OTHER_COLUMNS = ();
 	my @LINES = ();
 
-
-	print STDERR Dumper($v);
-
+	#print STDERR Dumper($v);
 	if (defined $v->{'@headers'}) {
 		foreach my $line (@{$v->{'@headers'}}) {
 			push @HEADERS, $line;
