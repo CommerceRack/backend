@@ -85,7 +85,7 @@ sub as_xcbl {
 			$writer->dataElement("core:City", $O2->in_get('ship/city')); # <ship_city>
 			$writer->startTag("core:Region");
 				$writer->dataElement("core:RegionCoded", sprintf("US%s",$O2->in_get('ship/region'))); # US.<ship_state>
-				$writer->dataElement("core:RegionCodedOther", $O2->in_get('ship/province')); # <ship_province>
+				$writer->dataElement("core:RegionCodedOther", $O2->in_get('ship/region')); # <ship_region>
 			$writer->endTag("core:Region");
 			$writer->startTag("core:Country");
 				$writer->dataElement("core:CountryCoded", $O2->in_get('ship/countrycode')); # <ship_countrycode>, 2 Letter code
@@ -124,7 +124,7 @@ sub as_xcbl {
 			$writer->startTag("core:Region");
 				# $O2->in_get('bill/region') = '' if (!$O2->in_get('bill/region')); #need for concatenation - can't be undef'
 				$writer->dataElement("core:RegionCoded", sprintf("US%s",$O2->in_get('bill/region'))); # US.<bill_state>
-				$writer->dataElement("core:RegionCodedOther", $O2->in_get('bill/province')); # <bill_province>
+				$writer->dataElement("core:RegionCodedOther", $O2->in_get('bill/region')); # <bill_region>
 			$writer->endTag("core:Region");
 			$writer->startTag("core:Country");
 				$writer->dataElement("core:CountryCoded", $O2->in_get('bill/countrycode')); # <bill_countrycode>, 2 Letter code
