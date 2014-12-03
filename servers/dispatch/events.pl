@@ -1,6 +1,6 @@
 #!/usr/bin/perl
 
-use Linux::Smaps;
+
 use URI::Escape::XS;
 use Proc::PID::File;
 use strict;
@@ -111,8 +111,6 @@ my %eFunctions = (
 	);
 
 
-$::SMAP = Linux::Smaps->new(pid=>'self');
-$::SMAP_MAX_RSS = 1_000_000 + $::SMAP->size();
 
 my %params = ();
 foreach my $arg (@ARGV) {
@@ -277,19 +275,6 @@ while ( my $YAML = $redis->brpoplpush("EVENTS","EVENTS.PROCESSING",1) ) {
 			&sync();
 			last;
 			}
-		if ($::SMAP->size() > $::SMAP_MAX_RSS) {
-			## 1mb RSS - time to reboot
-			print sprintf("SCRIPT $::SCRIPT_FILE HAS RSS[%d] MAX[%d]\n",$::SMAP->size(),$::SMAP_MAX_RSS);
-			&sync();
-			last;
-			}
-		}
-
-	## 1mb RSS - time to reboot
-	print sprintf("SCRIPT $::SCRIPT_FILE HAS RSS[%d] MAX[%d]\n",$::SMAP->size(),$::SMAP_MAX_RSS);
-	if ($::LAST_SIZE != $::SMAP->size()) {
-		$::LAST_SIZE = $::SMAP->size();
-		sleep(10);
 		}
 
 	if ($YAML eq '') { 
@@ -374,11 +359,8 @@ while ( my $YAML = $redis->brpoplpush("EVENTS","EVENTS.PROCESSING",1) ) {
 		}
 	elsif (not defined $error) {	
 		# print "TRY: $EVENT $USERNAME $PRT ".Dumper($YREF)."\n";
-		eval { ($error) = $eFunctions{$EVENT}->($EVENT,$USERNAME,$PRT,$YREF,$LM,$redis,\%::CACHE); };
-		if ($@) {
+		if (not eval { ($error) = $eFunctions{$EVENT}->($EVENT,$USERNAME,$PRT,$YREF,$LM,$redis,\%::CACHE); }) {
 			$error = $@;
-			print "ERROR:$error\n";
-			die($@);
 			}
 		}
 
@@ -390,11 +372,11 @@ while ( my $YAML = $redis->brpoplpush("EVENTS","EVENTS.PROCESSING",1) ) {
 		##
 		## bat shit happened.. so we save the #err and #ets (error timestamp)
 		##
+		print "ERR-$error (did not delete EVENT)\n";
 		$YREF->{'#attempts'}++;
 		$YREF->{'#err'} = $error;
 		$YREF->{'#ets'} = time();
 		my $REVISEDYAML = YAML::Syck::Dump($YREF);
-		print "ERR-$error (did not delete EVENT) $REVISEDYAML\n";
 		if ($YREF->{'#attempts'}<1) {
 			$redis->lpush("EVENTS.RETRY",$REVISEDYAML);
 			$LM->pooshmsg("RETRY|PRT:$PRT|E:$EVENT|+$error");
@@ -704,13 +686,11 @@ sub e_SKU {
 	print "EVENT: $EVENT PID:$PID SKU:$SKU\n";
 
 	my ($P) = &load_cached_resource($CACHEREF,'PRODUCT',$USERNAME,$PID);
-	if (defined $P) {
-		my $PID = $YREF->{'PID'};
-		my $SKU = $YREF->{'SKU'};
+	my $PID = $YREF->{'PID'};
+	my $SKU = $YREF->{'SKU'};
 
-		if ($P->fetch('amz:ts')) { 
-			&AMAZON3::item_set_status({USERNAME=>$USERNAME,MID=>$MID},$SKU,['+prices.todo'],'USE_PIDS'=>0);
-			}
+	if ($P->fetch('amz:ts')) { 
+		&AMAZON3::item_set_status({USERNAME=>$USERNAME,MID=>$MID},$SKU,['+prices.todo'],'USE_PIDS'=>0);
 		}
 
 	return(undef);
@@ -740,10 +720,6 @@ sub e_PID {
 	my @SQ_VERBS = ();
 
 	my ($P) = &load_cached_resource($CACHEREF,'PRODUCT',$USERNAME,$PID);
-	if (not defined $P) {
-		print "USER: $USERNAME PRODUCT: $PID does not exist\n";
-		return(undef);
-		}
 
 	if ($EVENT eq 'PID.AMZ-CHANGE') {
 		## one or more properties that impact amazon have changed.
@@ -757,6 +733,7 @@ sub e_PID {
 	my %MKT_STATUS = ();
 	if ($EVENT eq 'PID.MKT-CHANGE') {
 		## use is/was variables to record changes
+		require LISTING::EVENT;
 		print STDERR "MKT-CHANGE - PID:$PID is:$YREF->{'is'}  was:$YREF->{'was'}\n";
 		foreach my $is (@{&ZOOVY::bitstr_bits($YREF->{'is'})}) {
 			$MKT_STATUS{$is} |= 2; 
@@ -815,6 +792,7 @@ sub e_PID {
 		
 	if ($EVENT eq 'PID.MKT-CHANGE') {
 		## use is/was variables to record changes
+		require LISTING::EVENT;
 
 		foreach my $id (keys %MKT_STATUS) {
 			my $INTREF = &ZOOVY::fetch_integration('id'=>$id);
@@ -962,6 +940,24 @@ sub e_ORDER {
 			}
 		}
 
+
+	## COMPUTE ORDER ORIGIN (why isn't this in the ORDER object?)
+	my $ORDER_ORIGIN = '';
+	## attempt 2, getting correct marketplace dstcode from order
+	if ($ORDER_ORIGIN ne '') {
+		}
+	elsif ($O2->in_get('our/mkts') ne '') {
+		## mkts set for marketplace orders
+		## no need to loop thru all (even though there should only be one for marketplace orders??)
+		foreach my $id (@{&ZOOVY::bitstr_bits($O2->in_get('our/mkts'))}) {
+			my $sref = &ZOOVY::fetch_integration('id'=>$id);
+			# print Dumper($sref);
+			$ORDER_ORIGIN = $sref->{'dst'};
+			}
+		}
+	print "ORDER_ORIGIN: $ORDER_ORIGIN\n";
+
+
 	foreach my $item (@{$O2->stuff2()->items()}) {
 		## check items for matching marketplaces
 		## note: this is necessary because some marketplaces don't set our/mkts
@@ -1100,6 +1096,22 @@ sub e_ORDER {
 		## check for ebay stuff and notify of shipment
 		## print STDERR 'ORDER_DST: '.Dumper(\%ORDER_DST);
 
+
+		my $MSGID = 'ORDER.SHIPPED';
+		if ($ORDER_ORIGIN eq 'BUY') {
+			}
+		elsif ($ORDER_ORIGIN eq 'AMZ') {
+			}
+		elsif ($ORDER_ORIGIN eq 'EBY') {
+			}
+		## TODO: we really need a setting here to disable this email.
+		elsif (not defined $MSGID) {
+			}
+		else {
+			#$O2->run_macro_commands( [ 'EMAIL', { msg=>$MSGID } ]);			
+			$O2->eblast($MSGID);
+			}
+
 		if ($ORDER_DST{'EBA'} || $ORDER_DST{'EBF'}) {
 			## EBAY
 			($success) = &notify_ebay($O2,$EVENT); 
@@ -1142,22 +1154,6 @@ sub e_ORDER {
 			($success) = &notify_amazon($O2,$EVENT);
 			}
 
-		## automatically set orders to COMPLETED
-		if ($USERNAME eq 'DESIGNED2BSWEET') {
-			$O2->run_macro("SETPOOL?pool=COMPLETED");
-			}
-
-		## added by patti - 2011-10-12
-		## note: addition has been tested, just needs to be pushed to production...
-		#if ($USERNAME eq 'amphidex') {
-		#	## only set orders to COMPLETED that have 1 only item and have been SHIPPED
-		#	## note: orders that have qty=2 for one item.. count=2, ie not moved to COMPLETED
-		#	if ($O2->stuff2()->count(1) == 1) {
-		#		$O2->add_history("ORDER.SHIP event called, moved single-item shipped order to COMPLETED");
-		#		$o->run_macro("SETPOOL?pool=completed");
-		#		}
-		#	}
-
 		## determine which carriers were used to ship order
 		## 	we may use this info more in the future to determine how far in the 
 		##		future we should send ORDER.ARRIVE emails
@@ -1176,15 +1172,8 @@ sub e_ORDER {
 		### days in ORDER.SHIP depend on if international or domestic order (and possibly the carrier used)
 		my %ARRIVED_OVERRIDES = (
 			'CUBWORLD'=>14,
-			'GKWORLD.int'=>35,		
-			'GKWORLD.late'=>5,
 			'CYPHERSTYLES.dom'=>10,
 			'CYPHERSTYLES.int'=>30,		
-			'DESIGNED2BSWEET.int'=>21,	## ticket 966532
-			'DESIGNED2BSWEET.dom'=>14, 
-			'BEAUTYSTORE.dom'=>10,
-			'BEAUTYSTORE.int'=>21,		## ticket 1157660
-			'TOTALFANSHOP.int'=>20,		## ticket 968081	
 			'FROGPONDAQUATICS.dom'=>14, ## ticket 2035507 
 			'FROGPONDAQUATICS.int'=>28, ## ticket 2035507
 			);
@@ -1483,21 +1472,6 @@ sub e_ORDER {
 		## need to make emails PROFILE specific
 		#my ($SREF) = SITE->new($USERNAME,'PROFILE'=>$O2->profile(),'PRT'=>$O2->prt());
 		#my ($se) = SITE::EMAILS->new($USERNAME,'*SITE'=>$SREF,'GLOBALS'=>1);
-		my $ORDER_ORIGIN = '';
-
-		## attempt 2, getting correct marketplace dstcode from order
-		if ($ORDER_ORIGIN ne '') {
-			}
-		elsif ($O2->in_get('our/mkts') ne '') {
-			## mkts set for marketplace orders
-			## no need to loop thru all (even though there should only be one for marketplace orders??)
-			foreach my $id (@{&ZOOVY::bitstr_bits($O2->in_get('our/mkts'))}) {
-				my $sref = &ZOOVY::fetch_integration('id'=>$id);
-				# print Dumper($sref);
-				$ORDER_ORIGIN = $sref->{'dst'};
-				}
-			}
-		print Dumper($ORDER_ORIGIN);
 
 		my $MSGID = undef;
 		if ($ORDER_ORIGIN eq 'BUY') {
@@ -1701,8 +1675,8 @@ sub e_INV_OUTOFSTOCK {
 	if (not defined $AVAILABLE) { return(); }
 	if ($AVAILABLE>0) { return(); }
 
+	require LISTING::EVENT;
 	require EBAY2;
-	require LISTING::EBAY;
 	
 	my ($MID) = &ZOOVY::resolve_mid($USERNAME);
 	my ($udbh) = &DBINFO::db_user_connect($USERNAME);
@@ -1713,17 +1687,15 @@ sub e_INV_OUTOFSTOCK {
 	$sth->execute();
 	while ( my ($UUID,$EBAY_ID,$PRT) = $sth->fetchrow() ) {
 		print "INV_REVOKE EVENT REMOVED EBAY_ID: $EBAY_ID PRT:$PRT\n";
-		my ($le) = LISTING::EBAY->new('DBREF'=>$udbh,'USERNAME'=>$USERNAME,'PRT'=>$PRT,'SKU'=>$SKU,'TARGET_LISTINGID'=>$EBAY_ID,'TARGET_UUID'=>$UUID);
-		$le->dispatch('REQUEST_APP'=>'INV-EV','VERB'=>'END','TARGET_LISTINGID'=>$EBAY_ID,'TARGET_UUID'=>$UUID);
-		#my ($le) = LISTING::EVENT->new(
-		#	'USERNAME'=>$USERNAME,'PRT'=>$PRT,
-		#	'SKU'=>$SKU,
-		#	'VERB'=>'END',
-		#	'TARGET'=>'EBAY',
-		#	'TARGET_LISTINGID'=>$EBAY_ID,
-		#	'TARGET_UUID'=>$UUID,
-		#	'REQUEST_APP'=>'INV-EV',
-		#	);
+		my ($le) = LISTING::EVENT->new(
+			'USERNAME'=>$USERNAME,'PRT'=>$PRT,
+			'SKU'=>$SKU,
+			'VERB'=>'END',
+			'TARGET'=>'EBAY',
+			'TARGET_LISTINGID'=>$EBAY_ID,
+			'TARGET_UUID'=>$UUID,
+			'REQUEST_APP'=>'INV-EV',
+			);
 		}
 	$sth->finish();
 	&DBINFO::db_user_close();

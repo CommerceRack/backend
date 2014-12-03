@@ -12,7 +12,6 @@ use ZTOOLKIT;
 use PRODUCT::FLEXEDIT;
 use ELASTIC;
 use ORDER::BATCH;
-use ORDER;
 
 my $USERNAME = $ARGV[0];
 if ($USERNAME eq '') {

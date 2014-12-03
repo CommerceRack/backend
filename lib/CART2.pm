@@ -1272,13 +1272,12 @@ sub __INIT_TAX_RATES__ {
 
 sub __SYNC__ {
 	my ($self, %params) = @_;
-	
+
 	if (not defined $self->{'@CHANGES'}) { $self->{'@CHANGES'} = []; }
 	if (scalar(@{$self->{'@CHANGES'}})==0) {
 		$CART2::DEBUG && warn "__SYNC__ was not needed, and therefore was not performed\n";
 		return();
 		}
-
 
 	## LOOPBACK DETECTION -- this will prevent a SYNC from starting while a SYNC is running
 	##								 ex. shipping which runs towards the bottom of a sync reads a lot of values about
@@ -1286,7 +1285,6 @@ sub __SYNC__ {
 	##								 __SYNC__ calls won't also turn around and trigger another __SYNC__
 	if ($self->{'__SYNCING__'}) { return(); }
 	$self->{'__SYNCING__'}++;
-
 
 	if (&ZOOVY::servername() eq 'dev') {
 		warn "SYNC CALLED: ".join("|",caller(1))."\n";
@@ -1411,7 +1409,7 @@ sub __SYNC__ {
 		else {
 			$self->__INIT_TAX_RATES__();
 			}
-			
+
 		## at this point all the taxes are figured out.
 		warn "__SYNC__ IS ABOUT TO CALL SHIPMETHODS $$ ".join("|",caller(0))."\n";
 		$self->shipmethods('tbd'=>1);
@@ -1545,19 +1543,14 @@ sub __SYNC__ {
 		## AUTO COUPONS
 		my $couponsref = $webdbref->{'%COUPONS'};
 		if (not defined $couponsref) { $couponsref = {}; }
-		foreach my $ID (keys %{$couponsref}) {
-			my $cpnref = $couponsref->{$ID};
-			
+		foreach my $cpnref (values %{$couponsref}) {
 			next if ($cpnref->{'auto'} == 0);		
 			next if (($cpnref->{'begins_gmt'}>0) && ($cpnref->{'begins_gmt'}>$ts));		
 			next if (($cpnref->{'expires_gmt'}>0) && ($cpnref->{'expires_gmt'}<$ts));	
 			$cpnref->{'stackable'} = 1;		## yeah, don't let them fuck this up.
 
-			$cpnref->{'coupon'} = $ID;
-			$cpnref->{'code'} = $ID;
-			$cpnref->{'id'} = $ID;
-			#if (not defined $cpnref->{'coupon'}) { $cpnref->{'coupon'} = $cpnref->{'id'}; }
-			#if (not defined $cpnref->{'coupon'}) { $cpnref->{'coupon'} = $cpnref->{'code'}; }
+			if (not defined $cpnref->{'coupon'}) { $cpnref->{'coupon'} = $cpnref->{'id'}; }
+			if (not defined $cpnref->{'coupon'}) { $cpnref->{'coupon'} = $cpnref->{'code'}; }
 
 			push @AUTO_COUPONS, $cpnref;
 			}
@@ -1587,7 +1580,6 @@ sub __SYNC__ {
 		foreach my $CPNREF (@CART_COUPONS, @AUTO_COUPONS) {
 			my $ID = $CPNREF->{'coupon'};
 			if (not defined $ID) { $ID = $CPNREF->{'id'}; }
-			#print STDERR Dumper($CPNREF)."\n";
 
 			$self->is_debug() && $self->msgs()->pooshmsg("INFO|+ --------------------------- $ID -------------------------");
 			## $self->is_debug() && $self->msgs()->pooshmsg("INFO|+Processing COUPON:$ID");
@@ -3650,6 +3642,27 @@ sub __GET__ {
 	}
 
 
+
+sub eblast {
+	my ($self, $MSGID) = @_;
+
+	my $BLAST = undef;
+	my $rcpt = undef;
+	if ($self->customerid()>0) {		
+		## if they have a customer record, 
+		my ($C) = CUSTOMER->new($self->username(),'CREATE'=>0,'CID'=>$self->customerid(),'INIT'=>0x1);
+		($BLAST) = BLAST->new($C->username,$C->prt());
+		($rcpt) = $BLAST->recipient('CUSTOMER',$C);
+		}
+	elsif ($self->in_get('bill/email')) {
+		($BLAST) = BLAST->new($self->username(),$self->prt());
+		($rcpt) = $BLAST->recipient('EMAIL',$self->in_get('bill/email'));
+		}
+
+	my ($msg) = $BLAST->msg($MSGID,{'ORDER'=>$self});
+	$BLAST->send($rcpt,$msg);
+	return();
+	}
 
 
 ##
@@ -6346,7 +6359,7 @@ sub finalize_order {
 	else {
 		my $ORDER_PS = $self->payment_status();
 		my $ORDER_PS_PRETTY = &ZPAY::payment_status_short_desc($ORDER_PS);	 # PAID|PENDING|DENIED
-		my ($MSGID) = sprintf('ORDER.CONFIRM.%s.%03d',$ORDER_PS_PRETTY,$ORDER_PS);
+		my ($MSGID) = sprintf('ORDER.CONFIRM.%s.%03d',$ORDER_PS,$ORDER_PS);
 		my ($rcpt) = $BLAST->recipient('CART',$self,{'%ORDER'=>$self->TO_JSON()});
 		my ($msg) = $BLAST->msg($MSGID);
 		$BLAST->send($rcpt,$msg);
@@ -12455,16 +12468,14 @@ sub elastic_index {
 ##	note: eventually we might actually want to try and add a log here!
 ##
 sub synced {
-	my ($self, $ts) = @_;
-
-	if (not defined $ts) { $ts = time(); }
+	my ($self) = @_;
 
 	my $USERNAME = $self->username();
 	my ($udbh) = &DBINFO::db_user_connect($USERNAME);
 	my ($MID) = &ZOOVY::resolve_mid($USERNAME);
 	my ($TB) = &DBINFO::resolve_orders_tb($USERNAME,$MID);
 	my $qtOID = $udbh->quote($self->oid());
-	my $pstmt = "update $TB set SYNCED_GMT=".int($ts)." where MID=$MID /* $USERNAME */ and ORDERID=$qtOID";
+	my $pstmt = "update $TB set SYNCED_GMT=".time()." where MID=$MID /* $USERNAME */ and ORDERID=$qtOID";
 	$udbh->do($pstmt);
 	&DBINFO::db_user_close();
 	}	

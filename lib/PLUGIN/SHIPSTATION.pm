@@ -159,7 +159,7 @@ sub jsonapi {
 
 		my $count = $redis->scard($REDIS_KEY);
 		#my $writer = new XML::Writer(OUTPUT => \$BODY, DATA_MODE => 1, DATA_INDENT => 4, ENCODING => 'us-ascii');
-		my $writer = new XML::Writer(OUTPUT => \$BODY, DATA_MODE => 1, DATA_INDENT => 4, ENCODING => 'utf-8');
+		my $writer = new XML::Writer(OUTPUT => \$BODY, DATA_MODE => 1, DATA_INDENT => 4, ENCODING => 'utf-8', UNSAFE=>1);
 		## my $writer = new XML::Writer(OUTPUT => \$BODY, DATA_MODE => 1, DATA_INDENT => 4);
 		$writer->xmlDecl("UTF-8");
 		$writer->startTag('Orders','pages'=>$count);
@@ -173,6 +173,33 @@ sub jsonapi {
 		foreach my $orderid (@ORDERS) {
 			next if ($orderid eq '');
 			my ($O2) = CART2->new_from_oid($self->username(),$orderid);
+			my ($xml) = &PLUGIN::SHIPSTATION::shipstation_order_xml($O2);			
+			$writer->raw($xml);
+			}
+
+		$writer->endTag('Orders');
+		$writer->end();
+
+		open F, ">/tmp/shipstation.order.$count";
+		print F $BODY;
+		close F;
+
+		## this has zero orders
+		}
+
+
+	## open F, ">>/tmp/shipstation.xml"; print F $BODY; close F;
+
+	return($HTTP_RESPONSE,$HEADERS,$BODY);
+	}
+
+
+sub shipstation_order_xml {
+	my ($O2) = @_;
+
+	my $BODY = '';
+
+		my $writer = new XML::Writer(OUTPUT => \$BODY, DATA_MODE => 1, DATA_INDENT => 4, ENCODING => 'utf-8');
 
 			$writer->startTag('Order');
 			my $OID = $O2->oid();
@@ -260,7 +287,7 @@ sub jsonapi {
 					$writer->dataElement('Weight',int($item->{'weight'}));
 					$writer->dataElement('WeightUnits','Ounces');
 					$writer->dataElement('Quantity',int($item->{'qty'}));
-					$writer->dataElement('UnitPrice',$item->{'price'});
+					$writer->dataElement('UnitPrice',sprintf("%.2f",$item->{'price'}));
 
 					## NEED TO FILL THIS IN:
  					## $writer->cdataElement('Location','');
@@ -278,13 +305,13 @@ sub jsonapi {
 #                                                                   },
 					if ((defined $item->{'%options'}) && (ref($item->{'%options'}) eq 'HASH')) {
 						$writer->startTag('Options');
+
 						foreach my $code (keys %{$item->{'%options'}}) {
 							my $option = $item->{'%options'}->{$code};
-			
 							$writer->startTag('Option');
 							# $writer->dataElement('AttributeID',$option->{'id'});
-							$writer->dataElement('Name',sprintf("%s",$option->{'prompt'}));
-							$writer->dataElement('Value',sprintf("%s",$option->{'data'} || $item->{'v'}));
+							$writer->cdataElement('Name',sprintf("%s",$option->{'prompt'}));
+							$writer->cdataElement('Value',sprintf("%s",$option->{'data'} || $item->{'v'}));
 							#if ($option->{'fee'}>0) { $writer->dataElement('Price',$option->{'fee'}); }
 							#if ($option->{'weight'}>0) { $writer->dataElement('Weight',$option->{'fee'}); }
 							# $writer->dataElement('Debug','');
@@ -299,22 +326,9 @@ sub jsonapi {
 
 			##
 			$writer->endTag('Order');
-			} 
 
-		$writer->endTag('Orders');
 		$writer->end();
-
-		open F, ">/tmp/shipstation.order.$count";
-		print F $BODY;
-		close F;
-
-		## this has zero orders
-		}
-
-
-	## open F, ">>/tmp/shipstation.xml"; print F $BODY; close F;
-
-	return($HTTP_RESPONSE,$HEADERS,$BODY);
+	return($BODY);
 	}
 
 	

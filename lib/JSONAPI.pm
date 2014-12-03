@@ -1,6 +1,160 @@
 package JSONAPI;
 
 
+=pod
+@apiDefine mashup mashups are cool
+
+=cut
+
+=pod
+@apiDefine ebay ebay is cool
+=cut
+
+=pod
+@apiDefine supplier supplier is cool
+=cut
+
+
+=pod
+@apiDefine product  product is cool
+=cut
+
+=pod
+@apiDefine PRODUCT_SELECTOR  product is cool
+=cut
+
+=pod
+@apiDefine buyer buyer is cool
+=cut
+
+=pod
+@apiDefine report report  is cool
+=cut
+
+
+=pod
+@apiDefine navcat navcat  is cool
+=cut
+
+
+=pod
+@apiDefine CIENGINE CIENGINE  is cool
+=cut
+
+=pod
+@apiDefine customer customer  is cool
+=cut
+
+=pod
+@apiDefine wallet wallet  is cool
+=cut
+
+
+
+=pod
+@api {} API Usage
+@apiName API Usage
+@apiGroup INTRODUCTION
+@apiDescription
+
+Parameters are passed back and forth using a json hash containing 3 critical elements:
+_uuid, _cartid, and either _cmd (for single commands) 
+The API itself is designed to be asynchronous, however at this time only a synchronous responses are available. 
+
+* _uuid : a unique request id, this is passed back, and is used to identify duplicate requests.
+* _cartid : the unique cart id (cart id) for this cart, you will receive this after making a request if you do not pass one, you must store this in the browser and pass it on subsequent requests.
+* _cmd : a complete list of commands is passed below.  If _cmd is used then parameters to _cmd are passed in the upper hash at the same level as _cmd.  If @cmds is used, then that is an array of hashes, each with their own "_cmd" - the example below includes *both usages*, however you will only need to use one:
+
+@apiExample Simple Request
+POST http://www.domain.com/jsonapi/call/v201411/time.json
+
+@apiSuccessExample Time Response (json)
+{"_rcmd":"time","unix":1417115824,"_rtag":null,"_uuid":1417115824}
+
+@apiExample 
+{
+"_uuid" : 1234,
+"_cartid" : "12345",
+"_cmd" : "cartItemsAdd",
+"_tag" : "some data you'd like returned",
+"_v" : "unique mvc/app id (used for debugging)"
+}
+
+=cut
+
+
+=pod
+@api {} Error Handling
+@apiName Error Handling
+@apiGroup INTRODUCTION
+@apiDescription
+
+  | ErrType | Cause |
+  | ------- | ----- |
+  | youwarn | a warning, not really an error, should be displayed to user. |
+  | youerr  | an error caused by the user (ex: data input), easily correctable |
+  | appwarn | a warning, should be logged to developer console |
+  | apperr  | a developer error (probably not correctable by user), ex: data formatting -- this is something the app developer can fix. |
+  | apiwarn | an issue communicating with a third party, does not indicate success/fail |
+  | apierr  | server error (probably not correctable by app), ex: facebook plugin did not work, site offline for maintenance, but usually an uncorrectable 3rd party error. |
+  | iseerr  | backend error, reserved for application to handle 'server down', 'unreachable' or otherwise 'invalid response format' errors  |
+  | cfgerr  | configuration error (something in the server configuration prohibits or blocks the request) |
+  
+  Handling errors is *critical* to a well behaved application, since there are literally hundreds of things
+  which can go wrong at any one time.  With each command (_cmd) request the backend will return at a 
+  minimum: "rcmd", "rid", and "rmsg". 
+
+  
+  The exact response format depends on how the request was made, if _cmd is used, then the response will 
+  include "rcmd" in the response, if @cmds was used, then both a top level "rcmd" indicating 
+  success/failure/ warnings of all commands, in addition to an array of hashes containing rcmds for
+  each individual request.
+
+  
+  It is important when working with @cmds that you still check "rcmd" before looking at responses in @rcmds because based on the rcmd (ex: "ise") there may be no specific responses. 
+  
+  
+  *do not* check for the presence of 'errid' to determine if an error occurred. if '_rcmd' had a warning
+  (such as old call parameters) then errid and errmsg may also be returned, even though the request had
+  actually succeeded.
+
+
+@apiExample 
+test
+
+=cut
+
+=pod
+@api {} Pipelined Requests
+@apiName PipelinedRequests
+@apiGroup INTRODUCTION
+
+@apiExample
+
+{
+"_cmd" : "pipeline",
+"@cmds" : [
+  { "_cmd" : "", .. other parameters .. }
+  ],
+}
+
+
+@apiSuccessExample {json} Sample Input
+
+{
+"_rcmd" : "pipeline",
+"@rcmds" : [
+	{ "_rcmd" : "", .. other parameters .. }
+	],
+}
+
+
+=cut
+
+
+
+
+
 $JSONAPI::PARTITION_OFFSET = 0;				## use this to identify code.
 
 ##
@@ -51,7 +205,6 @@ $JSONAPI::VERSION_MINIMUM = 201312;
 # https://github.com/blog/1081-instantly-beautiful-project-pages
 
 =pod
-
 <SECTION>
 <h1>Version</h1>
 API RELEASE DATE: 2014/02
@@ -757,9 +910,6 @@ sub call {
 	'appInteractInternalMemCache'=>[ \&JSONAPI::appInteractInternal, {}, 	'mashup' ],
 	'appInteractInternalRedis'=>[ \&JSONAPI::appInteractInternal, {}, 		'mashup' ],
 
-	## flow control
-	'appAccidentDataRecorder'=>[ &JSONAPI::appAccidentDataRecorder, {}, 'utility' ],
-
 	## Buyer
 	'appBuyerCreate'=>[ \&JSONAPI::appBuyerCreate, {}, 'customer' ],
 	'appBuyerLogin'=>[ \&JSONAPI::appBuyerLogin,  {}, 'customer', ],
@@ -1076,19 +1226,14 @@ sub async_fetch {
 
 
 
-
-=pod 
-@apiGroup jsonapi
-=cut
-
 =pod
-
 @api {POST} /adminControlPanelAction adminControlPanelAction 
 @apiGroup admin
 @apiName adminControlPanelAction
 @apiDescription
 
 special functions to automate system level behaviors.
+** EXPERIMENTAL (may change significantly in future versions) **
 
  | verb | explanation |
  | ---- | ----------- |
@@ -1099,7 +1244,7 @@ special functions to automate system level behaviors.
  @apiParam (Input) {String} verb	see verb table 
  @apiSuccess (Output) {String} contents	output from operation
 
- =cut
+=cut
 
 sub adminControlPanel {
 	my ($self,$v) = @_;
@@ -1140,28 +1285,30 @@ sub adminControlPanel {
 
 
 =pod
-
+@api {POST} /cryptTool cryptTool
+@apiGroup utility
+@apiName cryptTool cryptTool
+@apiExample Legacy Doc
 <API id="cryptTool">
 
 <input  id="verb">make-key|make-csr|make-self-signed-crt</input>
 
 <input  if="verb:make-key" id="length" optional="1">1024|2048|4096</input>
-<output if="verb:make-key" id="key">key text</output>
+<output if="verb:make-key" id="key">key text
 
 <input  if="verb:make-csr" id="key"></input>
 <input  if="verb:make-csr" id="company">any company, inc.</input>
 <input  if="verb:make-csr" id="city"></input>
 <input  if="verb:make-csr" id="state"></input>
 <input  if="verb:make-csr" id="fqdn">www.domain.com</input>
-<output if="verb:make-csr" id="csr">csr text</output>
+<output if="verb:make-csr" id="csr">csr text
 
 <input  if="verb:make-self-signed-crt" id="key"></input>
 <input  if="verb:make-self-signed-crt" id="csr"></input>
-<output if="verb:make-self-signed-crt" id="crt">crt text</output>
-
-</API>
+<output if="verb:make-self-signed-crt" id="crt">crt text
 
 =cut
+
 
 sub cryptoTool {
    my ($self, $v) = @_;
@@ -1300,12 +1447,15 @@ sub cryptoTool {
    }
 
 
+=pod
+@api {POST} /providerExec providerExec
+@apiGroup admin
+@apiName providerExec
+@apiExample
+Not available ** EXPERIMENTAL **
 
+=cut
 
-##
-## providerExec
-##		
-##
 sub providerExec {
 	my ($self,$v) = @_;
 
@@ -1398,21 +1548,18 @@ sub providerExec {
 	}
 
 
-##
-##
-##
-sub appAccidentDataRecorder {
-	my ($self,$v) = @_;
-	my %R = ();
-
-	open F, ">>/tmp/adr";
-	print F Dumper($v);
-	close F;
-
-	return(\%R);
-	};
 
 
+
+=pod
+@api {POST} /domainLookup domainLookup
+@apiGroup site
+@apiName domainLookup domainLookup
+@apiDescription
+
+Not available ** EXPERIMENTAL **
+
+=cut
 
 sub domainLookup {
 	my ($self, $v) = @_;
@@ -1451,25 +1598,18 @@ sub domainLookup {
 	}
 
 
-##
-##
-##
-sub appHostForUser {
-	my ($self,$v) = @_;
-	my %R = ();
-
-		
-	
-	return(\%R);
-	}
 
 
 
 =pod
+@api {POST} /loadPlatformJSON loadPlatformJSON
+@apiGroup site
+@apiName loadPlatformJSON loadPlatformJSON
+@apiDescription
 
-<SECTION>
-<h1></h1>
-<note>
+TODO
+
+@apiSuccessExample {json} loadPlatformJSON Response
 {
 	"_version":201318,
 	"_start":"xyz",			// default starting position
@@ -1499,8 +1639,7 @@ sub appHostForUser {
 	   
 	],
 }
-</note>
-</SECTION>
+
 
 =cut
 
@@ -1692,6 +1831,16 @@ sub parse_macros {
 
 
 
+=pod
+@api {POST} /configJS configJS
+@apiGroup site
+@apiName configJS
+@apiDescription outputs a variety of useful information about a site.
+@apiExample Request
+
+http:/www.domain.com/jsonapi/config.js
+
+=cut
 
 
 sub configJS {
@@ -2323,9 +2472,6 @@ sub psgiinit {
 	## this will be undef if there were no errors.
 	return($R);
 	}
-
-
-
 
 
 
@@ -3120,100 +3266,6 @@ sub set_error {
 #
 #
 
-=pod
-@api {} API Usage
-@apiName API Usage
-@apiGroup INTRODUCTION
-@apiDescription
-
-Parameters are passed back and forth using a json hash containing 3 critical elements:
-_uuid, _cartid, and either _cmd (for single commands) 
-The API itself is designed to be asynchronous, however at this time only a synchronous responses are available. 
-
-*_uuid : a unique request id, this is passed back, and is used to identify duplicate requests.
-*  _cartid : the unique cart id (cart id) for this cart, you will receive this after making a request if you do not pass one, you must store this in the browser and pass it on subsequent requests.
-* _cmd : a complete list of commands is passed below.  If _cmd is used then parameters to _cmd are passed in the upper hash at the same level as _cmd.  If @cmds is used, then that is an array of hashes, each with their own "_cmd" - the example below includes *both usages*, however you will only need to use one:
-
-@apiExample
-{
-"_uuid" : 1234,
-"_cartid" : "12345",
-"_cmd" : "cartItemsAdd",
-"_tag" : "some data you'd like returned",
-"_v" : "unique mvc/app id (used for debugging)"
-}
-=cut
-
-=pod
-
-@api {} Error Handling
-@apiName Error Handling
-@apiGroup INTRODUCTION
-@apiDescription
-
-  | ErrType | Cause |
-  | ------- | ----- |
-  | youwarn | a warning, not really an error, should be displayed to user. |
-  | youerr  | an error caused by the user (ex: data input), easily correctable |
-  | appwarn | a warning, should be logged to developer console |
-  | apperr  | a developer error (probably not correctable by user), ex: data formatting -- this is something the app developer can fix. |
-  | apiwarn | an issue communicating with a third party, does not indicate success/fail |
-  | apierr  | server error (probably not correctable by app), ex: facebook plugin did not work, site offline for maintenance, but usually an uncorrectable 3rd party error. |
-  | iseerr  | backend error, reserved for application to handle 'server down', 'unreachable' or otherwise 'invalid response format' errors  |
-  | cfgerr  | configuration error (something in the server configuration prohibits or blocks the request) |
-  
-  Handling errors is *critical* to a well behaved application, since there are literally hundreds of things
-  which can go wrong at any one time.  With each command (_cmd) request the backend will return at a 
-  minimum: "rcmd", "rid", and "rmsg". 
-
-  
-  The exact response format depends on how the request was made, if _cmd is used, then the response will 
-  include "rcmd" in the response, if @cmds was used, then both a top level "rcmd" indicating 
-  success/failure/ warnings of all commands, in addition to an array of hashes containing rcmds for
-  each individual request.
-
-  
-  It is important when working with @cmds that you still check "rcmd" before looking at responses in @rcmds because based on the rcmd (ex: "ise") there may be no specific responses. 
-  
-  
-  *do not* check for the presence of 'errid' to determine if an error occurred. if '_rcmd' had a warning
-  (such as old call parameters) then errid and errmsg may also be returned, even though the request had
-  actually succeeded.
-
-
-@apiExample 
-test
-
-=cut
-
-=pod
-
-@api {} Pipelined Requests
-@apiName PipelinedRequests
-@apiGroup INTRODUCTION
-
-@apiExample
-
-{
-"_cmd" : "pipeline",
-"@cmds" : [
-  { "_cmd" : "", .. other parameters .. }
-  ],
-}
-
-
-@apiSuccessExample
-
-{
-"_rcmd" : "pipeline",
-"@rcmds" : [
-	{ "_rcmd" : "", .. other parameters .. }
-	],
-}
-
-
-=cut
-
 
 
 ## 
@@ -3582,20 +3634,26 @@ sub handle {
 
 =pod 
 
-<API id="helpAPI">
-<input id="keywords"></input>
-<output id="@RESULTS">
-[ 'docid':'doc1', 'score':'52.533', 'title':'title of document 1', 'summary':'plain text summary' ]
-[ 'docid':'doc2', 'score':'42.232', 'title':'title of document 2', 'summary':'plain text summary' ]
-</output>
-</API>
+@api {POST} /helpAPI helpAPI
+@apiGroup admin
+@apiName helpAPI
+@apiDescription 
+used to do in-app (user wiki) documentation lookups/searches.
 
-<API id="helpDocumentGet">
-<input id="docid">documentid</input>
-<output id="body">html document</output>
-</API>
+@apiParam (Request) {String} keywords	search string
+@apiParam (Response) {Array} @RESULTS
+@apiExample Request
+
+{
+'@RESULTS':[
+	[ 'docid':'doc1', 'score':'52.533', 'title':'title of document 1', 'summary':'plain text summary' ]
+	[ 'docid':'doc2', 'score':'42.232', 'title':'title of document 2', 'summary':'plain text summary' ]
+	]
+}
 
 =cut
+
+
 
 ##
 ##
@@ -3633,106 +3691,29 @@ sub helpWiki {
 
 
 
-=pod 
-
-@api /authAdminLogin authAdminLogin
-
-performs authentication and returns an admin session id which can be used to make adminXXXXX calls.</purpose>
-<input id="device_note"></input>
-<input id="ts" type="timestamp">current timestamp YYYYMMDDHHMMSS</input>
-<input id="authtype" optional="1">md5|sha1|facebook|googleid|paypal</input>
-<input id="authid" optional="1">for md5 or sha1 - it is a digest of hashtype(password+ts)</input>
-
-<hint>
-userid identifies a user (not a domain) within a specific account. A single user may have access to many partitions and many domains. There are
-several valid ways to write a user.  Each account is assigned a 20 character "username", in addition there is a 10 digit sub-user called the "luser". 
-the security administrator for every account is called "admin" and so the login for admin would be "admin*username" or simply "username" in addition
-if a domain.com is associated to an account then it is also allowed to login as admin@domain.com.  The same applies for luser which would simply be 
-luser*username or luser@domain.com.  Please note that login id's are NOT the same as email addresses, it is not possible to login with an email address
-unless the users email address also happens to be luser@domain.com (which would be configured by security administrator)
-</hint>
-
-<hint>
-authentication information (USERID, CLIENTID, DOMAIN, VERSION, AUTHTOKEN) can be passed in either of two ways - using HTTP Headers, or in the data payload.
-The following is a mapping of HTTP Header to payload parameter.   X-USERID = _userid, X-DOMAIN = _domain, X-VERSION = _version, X-CLIENTID = _clientid,
-X-DEVICEID = _deviceid, X-AUTHTOKEN = _authtoken.  Avoid using HTTP headers when making requests via the XHR XMLHTTPRequest from a browser, there are
-numerous compatibility issues with the CORS (Cross Origin Resource Sharing) specification 2119 so use the payload version instead. Ex:
-{ "_cmd":"someThing", "_clientid":"your client id", "_version":201249, } 
-</hint>
-
-<hint>
-authAdminLogin calls do not require an authtoken (since they return it), depending on the circumstances the api may return a challenge 
-which complies with the supported challenge methods. The list of acceptable challenge methods is determined by comparing the allowed challenge 
-methods of the client (which were specified when the clientid was requested/assigned) and also the challenge types allowed by the administrator -
-if no mutually acceptable challenge types can be identified then an error is returned and access is denied.  Challenges are issued based on the
-accounts security administrator settings. 
-</hint>
-
-<hint>
-authtype of md5|sha1 refers to the digest protocol being used (in all cases we will accept the hexadecimal notation)
-the authid is generated by computing the md5 or sha1 hexadecimal digest value of the concatenation of plain_text_password and ts .
-Given the following inputs password="A", ts="1B" then it would be md5("A1B") or sha1("A1B") respectively.
-Both MD5 and SHA1 are widely implemented protocols and sufficiently secure for this exercise - 
-we have included the appropriate security tokens as generated by the md5 and sha1 functions in 
-mysql below (use these as a reference to test your own functions)
-
-mysql> select md5('A1B');
-+----------------------------------+
-| md5('A1B')                       |
-+----------------------------------+
-| 9c8c7d6da17f5b90b9c2b8aa03812ab4 |
-+----------------------------------+
-
-mysql> select sha1('A1B');
-+------------------------------------------+
-| sha1('A1B')                              |
-+------------------------------------------+
-| 7b6bfc9420addb09c8cfb1ae5f71f8e797d4685d |
-+------------------------------------------+
-
-The ts value of "1B" would not be valid, it should be a date in YYYYMMDDHHMMSS format. 
-The date must be within 60 seconds of the actual time or the request will be refused. 
-In addition the random security string is ONLY valid for one request within a 1 hour period.
-</hint>
-
-<response id="authtoken">secret user key</response>
-<response id="deviceid">deviceid</response>
-<response id="userid">userid</response>
-<response id="ts"></response>
-
-
-<example>
-X-USERID: user@domain.com
-X-CLIENT: your.app.client.id
-X-VERSION: 201246
-X-DEVICEID: user_specified
-X-DOMAIN: domain.com
-Content-Type: application/json
-
-{ "_cmd":"authAdminLogin", "ts":"YYYYMMDDHHMMSS or seconds since 1970", "authtype":"md5", "authid"  }
-</example>
-
-</API>
-
-
-
-<API id="authNewAccountCreate">
-<purpose>
+=pod
+@api {POST} /authNewAccountCreate authNewAccountCreate
+@apiGroup admin
+@apiName authNewAccountCreate
+@apiDescription 
 establish a new anycommerce account (this data should be collected during the registration process)
-</purpose>
-<input id="domain"></input>
-<input id="email"></input>
-<input id="firstname"></input>
-<input id="lastname"></input>
-<input id="company"></input>
-<input id="phone"></input>
-<input id="verification">sms|voice</input>
-<notes>returns a valid token to the account</notes>
-<response id="ts">timestamp</response>
-<response id="userid">login@username</response>
-<response id="deviceid">login@username</response>
-<response id="authtoken">login@username</response>
-</API>
+returns a valid token to the account
+
+@apiParam (Request) {String} keywords	search string
+@apiParam (Response) {Array} @RESULTS
+
+@apiParam (Request) {String} domain
+@apiParam (Request) {String} email
+@apiParam (Request) {String} firstname
+@apiParam (Request) {String} lastname
+@apiParam (Request) {String} company
+@apiParam (Request) {String} phone
+@apiParam (Request) {String} verificationsms|voice
+
+@apiParam (Response) {String} ts	timestamp
+@apiParam (Response) {String} userid	login@username
+@apiParam (Response) {String} deviceid	login@username
+@apiParam (Response) {String} authtoken	login@username
 
 =cut
 
@@ -3805,34 +3786,10 @@ sub authNewAccountCreate {
 	}
 
 
-
-#=pod
-#
-#<API id="appSessionRegister">
-#<purpose>Using the client's identifier.</purpose>
-#</API>
-#
-#<API id="appSessionStatus">
-#</API>
-#
-#=cut
-#
-#
-#sub appSessionRegister {
-#	my ($self,$v) = @_;
-#
-##	'appSessionRegister'=>[ \&JSONAPI::appSessionRegister, { }, 'app', ],
-##	'appSessionStatus'=>[ \&JSONAPI::appSessionStatus, { }, 'app', ],
-#
-#
-#	}
-#
-
-
 =pod
+@apiGroup Mashups
+@apiDefine Mashups
 
-<SECTION>
-<h1>MashUps</h1>
 MashUps are used to send/receive data with "external systems" via a variety of protocols including:
 SQS, SQL, HTTP, HTTPS, MemCache, Rredis, SMTP, FTP, or SFTP.
 
@@ -3870,7 +3827,6 @@ Payload input and output are identical across protocols.
 However Request/Response formatting is designed to be familiar across protocols, but obviously intended to utilize the
 specifics.
 
-
 appMashUpRedis
 platform=appMashUpRedis-XXX.json
 
@@ -3885,56 +3841,60 @@ _cartid=xyz
 	[ command2, param2, param2b, param2c, .. ]
 	]
 
+=cut
 
-
-</SECTION>
-
-<API id="appMashUpSQS">
-<concept>mashup</concept>
+=pod
+@api {POST} appMashUpSQS appMashUpSQS
+@apiName appMashUpSQS
+@apiGroup app
+@apiUse mashup
+@apiDescription
 <purpose></purpose>
 <notes></notes>
-</API>
+=cut
 
-<API id="appMashUpSQL">
-<concept>mashup</concept>
-<purpose></purpose>
-<notes></notes>
-</API>
 
-<API id="appMashUpHTTP">
-<concept>mashup</concept>
-<purpose></purpose>
-<notes></notes>
-</API>
+=pod
+@api {POST} appMashUpSQL appMashUpSQL
+@apiGroup app
+@apiUse mashup
+=cut
 
-<API id="appMashUpHTTPS">
-<concept>mashup</concept>
-<purpose></purpose>
-<notes></notes>
-</API>
+=pod
+@api {POST} appMashUpHTTP appMashUpHTTP
+@apiGroup app
+@apiUse mashup
+=cut
 
-<API id="appMashUpMemCache">
-<concept>mashup</concept>
-<purpose></purpose>
-<notes></notes>
-</API>
+=pod
+@api {POST} appMashUpHTTPS appMashUpHTTPS
+@apiGroup app
+@apiUse mashup
+=cut
 
-<API id="appMashUpRedis">
-<concept>mashup</concept>
-<purpose></purpose>
-<notes></notes>
-</API>
+=pod
+@api {POST} appMashUpMemCache appMashUpMemCache
+@apiGroup app
+@apiUse mashup
+=cut
 
-<API id="appMashUpSMTP">
-<concept>mashup</concept>
-<purpose></purpose>
-<notes></notes>
-<input id="permission">.mashups/smtp-sample.json</input>
-<input id="sender" optional="1"></input>
-<input id="recipient" optional="1"></input>
-<input id="subject" optional="1"></input>
-<input id="body"></input>
-<example id=".mashups/smtp-sample.json">
+=pod
+@api {POST} appMashUpRedis appMashUpRedis
+@apiGroup app
+@apiUse mashup
+=cut
+
+=pod
+@api {POST} appMashUpSMTP appMashUpSMTP
+@apiName appMashUpSMTP
+@apiGroup app
+@apiUse mashup
+@apiParam (Request) {String} permission.mashups/smtp-sample.json
+@apiParam (Request) {String} sender" optional="1
+@apiParam (Request) {String} recipient" optional="1
+@apiParam (Request) {String} subject" optional="1
+@apiParam (Request) {String} body
+@apiExample .mashups/smtp-sample.json
 {
 	"call":"appMashUpSMTP",			/* required */
 	"call-limit-daily":"10",		/* recommended: max of 10 calls per day */
@@ -3954,33 +3914,30 @@ _cartid=xyz
 		{ "id":"body", 	  "verb":"sub", "value":"Your eye color is: %eyecolor%" }
 		]
 }
-</example>
-</API>
+=cut
 
-<API id="appMashUpFTP">
-<concept>mashup</concept>
-<purpose></purpose>
-<notes></notes>
-</API>
+=pod
+@api {POST} appMashUpFTP appMashUpFTP
+@apiGroup app
+@apiUse mashup
+=cut
 
-<API id="appMashUpSFTP">
-<concept>mashup</concept>
-<purpose></purpose>
-<notes></notes>
-</API>
+=pod
+@api {POST} appMashUpSFTP  appMashUpSFTP
+@apiGroup app
+@apiUse mashup
+=cut
 
-<API id="appInteractInternalMemCache">
-<concept>mashup</concept>
-<purpose></purpose>
-<notes></notes>
-</API>
+=pod
+@api {POST} appInteractInternalMemCache appInteractInternalMemCache
+@apiGroup app
+@apiUse mashup
+=cut
 
-<API id="appInteractInternalRedis">
-<concept>mashup</concept>
-<purpose></purpose>
-<notes></notes>
-</API>
-
+=pod
+@api {POST} appInteractInternalRedis appInteractInternalRedis
+@apiGroup app
+@apiUse mashup
 =cut
 
 sub appMashUp {
@@ -4124,9 +4081,7 @@ sub appMashUp {
 	return(\%R);
 	}
 
-sub appInteractInternal {
-	##
-	}
+
 
 
 ##
@@ -4134,13 +4089,13 @@ sub appInteractInternal {
 ##
 
 =pod
+@api {POST} authAdminLogout authAdminLogout
+@apiName authAdminLogout
+@apiGroup admin
+@apiDescription
+destroy/invalidate an admin session.
 
-<API id="authAdminLogout">
-<purpose>destroy/invalidate an admin session.</purpose>
-<notes>
 Does not need any parameters, destroys the current session (if any), always returns a success.
-</notes>
-</API>
 
 =cut
 
@@ -4155,6 +4110,85 @@ sub authAdminLogout {
 
 	return(\%R);
 	}
+
+
+
+=pod 
+
+@api /authAdminLogin authAdminLogin
+@apiName authAdminLogin
+@apiGroup admin
+@apiDescription
+performs authentication and returns an admin session id which can be used to make adminXXXXX calls.</purpose>
+
+userid identifies a user (not a domain) within a specific account. A single user may have access to many partitions and many domains. There are
+for md5 or sha1 - it is a digest of hashtype(password+ts)several valid ways to write a user.  Each account is assigned a 20 character "username", in addition there is a 10 digit sub-user called the "luser". 
+the security administrator for every account is called "admin" and so the login for admin would be "admin*username" or simply "username" in addition
+if a domain.com is associated to an account then it is also allowed to login as admin@domain.com.  The same applies for luser which would simply be 
+luser*username or luser@domain.com.  Please note that login id's are NOT the same as email addresses, it is not possible to login with an email address
+unless the users email address also happens to be luser@domain.com (which would be configured by security administrator)
+
+authentication information (USERID, CLIENTID, DOMAIN, VERSION, AUTHTOKEN) can be passed in either of two ways - using HTTP Headers, or in the data payload.
+The following is a mapping of HTTP Header to payload parameter.   X-USERID = _userid, X-DOMAIN = _domain, X-VERSION = _version, X-CLIENTID = _clientid,
+X-DEVICEID = _deviceid, X-AUTHTOKEN = _authtoken.  Avoid using HTTP headers when making requests via the XHR XMLHTTPRequest from a browser, there are
+numerous compatibility issues with the CORS (Cross Origin Resource Sharing) specification 2119 so use the payload version instead. Ex:
+{ "_cmd":"someThing", "_clientid":"your client id", "_version":201249, } 
+
+authAdminLogin calls do not require an authtoken (since they return it), depending on the circumstances the api may return a challenge 
+which complies with the supported challenge methods. The list of acceptable challenge methods is determined by comparing the allowed challenge 
+methods of the client (which were specified when the clientid was requested/assigned) and also the challenge types allowed by the administrator -
+if no mutually acceptable challenge types can be identified then an error is returned and access is denied.  Challenges are issued based on the
+accounts security administrator settings. 
+
+authtype of md5|sha1 refers to the digest protocol being used (in all cases we will accept the hexadecimal notation)
+the authid is generated by computing the md5 or sha1 hexadecimal digest value of the concatenation of plain_text_password and ts .
+Given the following inputs password="A", ts="1B" then it would be md5("A1B") or sha1("A1B") respectively.
+Both MD5 and SHA1 are widely implemented protocols and sufficiently secure for this exercise - 
+we have included the appropriate security tokens as generated by the md5 and sha1 functions in 
+mysql below (use these as a reference to test your own functions)
+
+mysql> select md5('A1B');
++----------------------------------+
+| md5('A1B')                       |
++----------------------------------+
+| 9c8c7d6da17f5b90b9c2b8aa03812ab4 |
++----------------------------------+
+
+mysql> select sha1('A1B');
++------------------------------------------+
+| sha1('A1B')                              |
++------------------------------------------+
+| 7b6bfc9420addb09c8cfb1ae5f71f8e797d4685d |
++------------------------------------------+
+
+The ts value of "1B" would not be valid, it should be a date in YYYYMMDDHHMMSS format. 
+The date must be within 60 seconds of the actual time or the request will be refused. 
+In addition the random security string is ONLY valid for one request within a 1 hour period.
+
+
+@apiParam (Request) {String} device_note
+@apiParam (Request) {Timestamp} current timestamp YYYYMMDDHHMMSS
+@apiParam (Request) {Enumeration} [authtype] md5|sha1|facebook|googleid|paypal
+@apiParam (Request) {String} [authid] for md5 or sha1 - it is a digest of hashtype(password+ts)
+
+@apiParam (Response) {String} authtoken	secret user key
+@apiParam (Response) {String} authtoken	secret user key
+@apiParam (Response) {String} deviceid	deviceid
+@apiParam (Response) {String} userid	userid
+@apiParam (Response) {String} ts	
+
+@apiSuccessExample Using Headers
+X-USERID: user@domain.com
+X-CLIENT: your.app.client.id
+X-VERSION: 201246
+X-DEVICEID: user_specified
+X-DOMAIN: domain.com
+Content-Type: application/json
+
+{ "_cmd":"authAdminLogin", "ts":"YYYYMMDDHHMMSS or seconds since 1970", "authtype":"md5", "authid"  }
+=cut
+
+
 
 ##
 ##
@@ -4433,21 +4467,25 @@ sub authAdminLogin {
 
 =pod 
 
-<API id="authPasswordRecover">
-<purpose>
+@api {POST} authPasswordRecover authPasswordRecover
+@apiName authPasswordRecover
+@apiGroup admin
+@apiDescription
 employs the password recovery mechanism for the account (currently only email).
 a temporary password is created and emailed, up to 10 times in a 3 hour period.
-</purpose>
-<input id="email">email</input>
-</API>
 
-<API id="adminPasswordUpdate">
-<purpose>changes a users password</purpose>
-<input id="old">old password</input>
-<input id="new">new passowrd</input>
-</API>
+@apiParam (Request) {String} emailemail
+=cut
 
+=pod
+@api {POST} adminPasswordUpdate adminPasswordUpdate
+@apiName adminPasswordUpdate
+@apiGroup admin
+@apiDescription
+changes a users password
 
+@apiParam (Request) {String} oldold password
+@apiParam (Request) {String} newnew passowrd
 
 =cut
 
@@ -4562,151 +4600,36 @@ sub authPassword {
 
 
 
-#################################################################################
-##
-##
-##
-
-#=pod
-#
-#<API id="appAdminInit">
-#<purpose>creates a new administrative session</purpose>
-#<input id="login" optional="1">merchant*subuser</input>
-#<input id="login" optional="1">username</input>
-#<response id="_cartid"></response>
-#<hint>An admnistrative _cartid is *REQUIRED* for appAdminAuthenticate</hint>
-#</API>
-#
-#=cut
-##
-## first call of a new session 
-##
-#sub appAdminInit {
-#	my ($self,$v) = @_;
-#
-#	require AUTH;
-#	my ($USERNAME,$LUSER) = AUTH::parse_login($v->{'login'});
-#
-#	my %R = ();
-#	if (not $USERNAME) {
-#		&JSONAPI::set_error(\%R,'youerr',55,"USERNAME[$USERNAME] is not defined");
-#		}
-#	elsif (&ZOOVY::resolve_mid($USERNAME)<=0) {
-#		&JSONAPI::set_error(\%R,'youerr',56,"USERNAME[$USERNAME] is not valid (could not lookup mid)");
-#		}
-#
-#	my $token = undef;
-#	if (not &JSONAPI::hadError(\%R)) {
-#		($token) = AUTH::create_session($USERNAME,$LUSER,$ENV{'REMOTE_ADDR'},sprintf("%s",$v->{'_v'}));
-#		$R{'_cartid'} = "*$token|USERNAME=$USERNAME|TS=".time();
-#		}
-#
-#	return(\%R);
-#	}
-
-
-
-
-
-
-
-#=pod
-#
-#<API id="appAdminAuthenticate">
-#<purpose>upgrades an existing session with administrative priviledges. currently the session must be created by using appAdminInit</purpose>
-#<input id="_cartid" optional="1">must start with a '*') as returned by appAdminInitAdminSession</input>
-#<input id="hashtype" optional="1">md5|sha1</input>
-#<input id="hashpass" optional="1">hashtype(password+_cartid)</input>
-#<hint>
-#hashpass is generated by computing the md5 or sha1 hexadecimal value of the concatenation 
-#of both the plain text password, and the _cartid. Here are some examples (all examples assume password is 'secret' and 
-#the cartid is '*1234' 
-#MySQL: md5(concat('secret','*1234')) = 856f3822e74dd1ba30cde256c8810204
-#MySQL: sha1(concat('secret','*1234')) = bb7ee41a37b553162aff5b5c2d0bd295343fecd0
-#</hint>
-#</API>
-#
-#=cut
-#
-###
-### second call of a new session
-###
-#sub appAdminAuthenticate {
-#	my ($self,$v) = @_;
-#
-#	# use Digest::MD5;
-#	# my ($tryhash) = Digest::MD5::md5_hex($PASSWORD.$token);
-#	my %R = ();
-#
-#	require AUTH;
-#	my ($USERNAME,$LUSER) = AUTH::parse_login($v->{'login'});
-#	## *TOKEN|USERNAME=xyz|TS=123
-#	my ($token) = split(/\|/,$v->{'_cartid'});
-#
-#	if ($v->{'login'} eq '') {
-#		&JSONAPI::set_error(\%R,'apperr',55,"login is required (and was blank)");
-#		}
-#	elsif (not $USERNAME) {
-#		&JSONAPI::set_error(\%R,'apperr',55,"USERNAME[$USERNAME] is not defined in login string.");
-#		}
-#	elsif ($v->{'hashpass'} eq '') {
-#		&JSONAPI::set_error(\%R,'apperr',8801,"Missing required parameter hashpass=");				
-#		}
-#	elsif (not &JSONAPI::validate_required_parameter(\%R,$v,'hashtype',['sha1','md5'])) {
-#		}
-#	elsif (substr($token,0,1) ne '*') {
-#		&JSONAPI::set_error(\%R,'apperr',8802,"Valid admin sessions will begin with a asterisk.");
-#		}
-#
-#
-#	if (not &JSONAPI::hadError(\%R)) {
-#		require AUTH;
-#		print STDERR "TOKEN: $token HASH:$v->{'hashtype'} $v->{'hashpass'}\n";
-#		my ($ERROR) = AUTH::verify_credentials($USERNAME,$LUSER,substr($v->{'_cartid'},1),$v->{'hashtype'},$v->{'hashpass'});
-#		if ($ERROR) {
-#			&JSONAPI::set_error(\%R,'apperr',155,$ERROR);
-#			}
-#		}
-#
-#	if (not &JSONAPI::hadError(\%R)) {
-#		my ($cartid) = &AUTH::authorize_session($USERNAME,$LUSER,substr($token,1));
-#		if (not defined $cartid) {
-#			&JSONAPI::set_error(\%R,'apperr',156,"Cart could not be upgraded to authorized status");
-#			}
-#		else {
-#			$R{'_cartid'} = $cartid;
-#			&JSONAPI::append_msg_to_response(\%R,'success',0);
-#			}
-#		}
-#
-#	return(\%R);
-#	}
-#
-
-
-
-
-
 
 =pod
+@api {POST} adminPlatformMacro adminPlatformMacro
+@apiName adminPlatformMacro
+@apiGroup admin
+=cut
 
-<API id="adminPlatformMacro">
-</API>
+=pod
+@api {POST} adminPlatformHealth adminPlatformHealth
+@apiName adminPlatformHealth
+@apiGroup admin
+=cut
 
-<API id="adminPlatformHealth">
-</API>
+=pod
+@api {POST} adminPlatformLogList adminPlatformLogList
+@apiName adminPlatformLogList
+@apiGroup admin
+=cut
 
-<API id="adminPlatformLogList">
-</API>
+=pod
+@api {POST} adminPlatformLogDownload adminPlatformLogDownload
+@apiName adminPlatformLogDownload
+@apiGroup admin
+@apiParam (Request) {String} GUID
+=cut
 
-<API id="adminPlatformLogDownload">
-<input id="GUID"></input>
-</API>
-
-
-<API id="adminPlatformQueueList">
-</API>
-
+=pod
+@api {POST} adminPlatformQueueList adminPlatformQueueList
+@apiName adminPlatformQueueList
+@apiGroup admin
 =cut 
 
 sub adminPlatform {
@@ -4920,1016 +4843,77 @@ sub adminPlatform {
 
 
 
-
 =pod
+@api {POST} adminImageUpload adminImageUpload
+@apiName adminImageUpload
+@apiGroup admin
+@apiDescription
+uses the file upload api to link a fileguid into a media library directory.</purpose>
 
-<API id="adminDataQuery">
-<purpose>accesses local management database for a variety of fields/reports</purpose>
-<input id="query">
-	listing-active,listing-active-fixed,listing-active-store,listing-active-auction,listing-all,listing-allwattempts,
-	event-warnings,event-success,event-pending,event-target-powr.auction,event-target-ebay.auction,event-target-ebay.fixed
-</input>
-<input id="since_gmt">epoch timestamp - returns all data since that time</input>
-<input id="batchid">batchid (only valid with event- requests)</input>
-<output id="@HEADER"></output>
-<output id="@ROWS"></output>
-<acl want="EBAY">
-</acl>
-</API>
-
-=cut 
-
-sub adminDataQuery {
-	my ($self, $v) = @_;
-
-	my %R = ();
-	my @HEADERS = ();
-	my @ROWS = ();
-
-	my ($udbh) = &DBINFO::db_user_connect($self->username());
-	my $PRT = $self->prt();
-	my $MID = $self->mid();
-	my $USERNAME = $self->username();
-	my $PERIOD_GMT = int($v->{'since_gmt'});
-
-	if (not $self->checkACL(\%R,'LISTING','L')) {
-		}
-	elsif (not &JSONAPI::validate_required_parameter(\%R,$v,'query')) {
-		}
-	elsif ($v->{'query'} =~ /^listing\-(active|active-fixed|active-store|active-auction|all|allwattempts)$/) {
-
-		push @HEADERS, "EBAY_ID";
-		push @HEADERS, "PRODUCT";
-		push @HEADERS, "TYPE";
-		push @HEADERS, "TITLE";
-		push @HEADERS, "ENDS";
-		push @HEADERS, "PROFILE";
-		push @HEADERS, "IS_GTC";
-		push @HEADERS, "CLASS";
-		push @HEADERS, 'ITEMS_REMAIN';
-
-		my $pstmt = "select EBAY_ID,PRODUCT,TITLE,ENDS_GMT,IS_GTC,PROFILE,CLASS,ITEMS_REMAIN from EBAY_LISTINGS where MID=$MID /* $USERNAME */ and PRT=$PRT ";
-		if ($v->{'query'} eq 'listing-active') {
-			$pstmt .= " and IS_ENDED=0 and EBAY_ID>0";
-			}
-		elsif ($v->{'query'} eq 'listing-active-fixed') {
-			$pstmt .= " and CLASS='FIXED' and IS_ENDED=0 and EBAY_ID>0";
-			}
-		elsif ($v->{'query'} eq 'listing-active-store') {
-			$pstmt .= " and CLASS='STORE' and IS_ENDED=0 and EBAY_ID>0";
-			}
-		elsif ($v->{'query'} eq 'listing-active-auction') {
-			$pstmt .= " and CLASS='AUCTION' and IS_ENDED=0 and EBAY_ID>0";
-			}
-		elsif ($v->{'query'} eq 'listing-all') {
-			$pstmt .= " and EBAY_ID>0";
-			}
-		elsif ($v->{'query'} eq 'listing-allwattempts') {
-			# $pstmt .= "";
-			}
-
-		print STDERR $pstmt."\n";
-		my $sth = $udbh->prepare($pstmt);
-		$sth->execute();
-		while ( my $ref = $sth->fetchrow_hashref() ) {
-			my @row = ();
-			if ($ref->{'IS_GTC'}) {
-				$ref->{'ENDS'} = 'GTC';
-				}
-			else {
-				$ref->{'ENDS'} = &ZTOOLKIT::pretty_date($ref->{'ENDS_GMT'},2);
-				}
-			
-			foreach my $h (@HEADERS) {
-				push @row, $ref->{$h};
-				}
-			push @ROWS, \@row;
-			}
-		}
-	elsif ($v->{'query'} =~ /^event\-(error|success|pending|target-)/) {
-		push @HEADERS, "ID";
-		push @HEADERS, "PRODUCT";
-		push @HEADERS, "VERB";
-		push @HEADERS, "SKU";
-		push @HEADERS, "QTY";
-		push @HEADERS, "CREATED";
-		push @HEADERS, "TARGET";
-		push @HEADERS, "TARGET_LISTINGID";
-		push @HEADERS, "REQUEST_APP";
-		push @HEADERS, "REQUEST_BATCHID";
-		push @HEADERS, "RESULT";
-		push @HEADERS, "RESULT_ERR_SRC";
-		push @HEADERS, "RESULT_ERR_CODE";
-		push @HEADERS, "RESULT_ERR_MSG";
-		push @HEADERS, "LUSER";
-
-		my $pstmt = "select ID,VERB,REQUEST_APP,REQUEST_BATCHID,PRODUCT,SKU,QTY,from_unixtime(CREATED_GMT) CREATED,TARGET,TARGET_LISTINGID,RESULT,RESULT_ERR_SRC,RESULT_ERR_CODE,RESULT_ERR_MSG,LUSER from LISTING_EVENTS ";
-		$pstmt .= " where MID=$MID /* $USERNAME */ ";
-		if ($v->{'query'} eq 'event-error') {
-			$pstmt .= " and RESULT in ('FAIL-SOFT','FAIL-FATAL') ";
-			}
-		elsif ($v->{'query'} eq 'event-warnings') {
-			$pstmt .= " and RESULT in ('SUCCESS-WARNING') ";
-			}
-		elsif ($v->{'query'} eq 'event-success') {
-			$pstmt .= " and RESULT in ('SUCCESS','SUCCESS-WARNING') ";
-			}
-		elsif ($v->{'query'} eq 'event-pending') {
-			$pstmt .= " and RESULT in ('PENDING','RUNNING') ";
-			}
-		elsif ($v->{'query'} eq 'event-target-ebay.auction') {
-			$pstmt .= " and TARGET='EBAY.AUCTION' ";
-			}
-		elsif ($v->{'query'} eq 'event-target-ebay.fixed') {
-			$pstmt .= " and TARGET='EBAY.FIXED' ";
-			}
-
-		if ($v->{'batchid'} ne '') {
-			$pstmt .= " and REQUEST_BATCHID=".int($v->{'batchid'});
-			}
-		if ($PERIOD_GMT>0) { 
-			$pstmt .= " and CREATED_GMT>".int($PERIOD_GMT); 
-			}
-
-		$pstmt .= " order by ID";
-
-		my $sth = $udbh->prepare($pstmt);
-		$sth->execute();
-		while ( my $ref = $sth->fetchrow_hashref() ) {
-			my @row = ();
-			foreach my $h (@HEADERS) {
-				push @row, $ref->{$h};
-				}
-			push @ROWS, \@row;
-			}
-		}
-
-	&DBINFO::db_user_close();
-
-	$R{'@ROWS'} = \@ROWS;
-	$R{'@HEADER'} = \@HEADERS;
-		
-
-#		print "Content-Type: text/csv\n\n";
-#
-#		my $status  = $csv->combine(@HEADERS);  # combine columns into a string
-#		my $line    = $csv->string();           # get the combined string
-#		print "$line\n";
-#
-#		foreach my $row (@rows) {
-#			$status  = $csv->combine(@{$row});  # combine columns into a string
-#			$line    = $csv->string();           # get the combined string
-#			print "$line\n";
-#			}
-#		}
-
-	return(\%R);
-	}
-
-
-
-
-=pod 
-
-<API id="adminOrderSearch">
-<purpose>returns a list of orders based on the results of an elastic search</purpose>
-<input id="ELASTIC">elastic search parameters</input>
-<input id="DETAIL" optional="1">1,3,5</input>
-<input id="DEBUG"></input>
-</API>
-
-
-<API id="adminOrderList">
-<purpose>returns a list of orders based on one or more filter criteria</purpose>
-<input id="_admin" required="1">admin session id</input>
-<input id="TS" optional="1">modified since timestamp</input>
-<input id="EREFID" optional="1">string (external reference id)</input>
-<input id="CUSTOMER" optional="1">#CID</input>
-<input id="DETAIL" optional="1">1,3,5</input>
-<input id="POOL" optional="1">RECENT,PENDING,PROCESSING</input>
-<input id="PRT" optional="1">0</input>
-<input id="BILL_FULLNAME" optional="1">string</input>
-<input id="BILL_EMAIL" optional="1">string</input>
-<input id="BILL_PHONE" optional="1">string</input>
-<input id="SHIP_FULLNAME" optional="1">string</input>
-<input id="CREATED_GMT" optional="1">#epoch</input>
-<input id="CREATEDTILL_GMT" optional="1">#epoch</input>
-<input id="PAID_GMT" optional="1">#epoch</input>
-<input id="PAIDTILL_GMT" optional="1">#epoch</input>
-<input id="PAYMENT_STATUS" optional="1">001</input>
-<input id="SHIPPED_GMT" optional="1">1/0</input>
-<input id="NEEDS_SYNC" optional="1">1/0</input>
-<input id="MKT" optional="1">EBY,AMZ</input>
-<input id="LIMIT" optional="1">#int (records returned)</input>
-<caution>
-maximum number of records returned is 1,000
-</caution>
-<response id="@orders">an array of orders containing varied amounts of data based on the detail level requested</response>
-<example title="response with DETAIL:1">
-<![CDATA[
-@orders:[
-	[ 'ORDERID':'2012-01-1234', 'MODIFIED_GMT':123456 ],
-	[ 'ORDERID':'2012-01-1235', 'MODIFIED_GMT':123457 ],
-	[ 'ORDERID':'2012-01-1236', 'MODIFIED_GMT':123458 ]
-	]
-]]></example>
-<note>
-Detail level 3 includes POOL, CREATED_GMT
-Detail level 5 includes CUSTOMER ID, ORDER_BILL_NAME, ORDER_BILL_EMAIL, ORDER_BILL_ZONE, ORDER_PAYMENT_STATUS, ORDER_PAYMENT_METHOD, ORDER_TOTAL, ORDER_SPECIAL, MKT, MKT_BITSTR
-</note>
-</API>
-
+@apiParam (Request) {String} folderfolder
+@apiParam (Request) {String} filename
+@apiParam (Request) {String} [base64base64] encoded image data
+@apiParam (Request) {String} [fileguid] fileguid (from file upload)
 =cut
 
-sub adminOrderList {
-	my ($self,$v) = @_;
-
-	my %R = ();	
-
-	require ORDER::BATCH;
-	my $res = [];
-
-	if (not $self->checkACL(\%R,'ORDER','L')) {
-		## this will set it's own error
-		}
-	elsif ($v->{'_cmd'} eq 'adminOrderItemList') {
-
-		my ($INV2) = INVENTORY2->new($self->username());
-		if ($v->{'backorder'}) {
-			($R{'@INVDETAIL'},$R{'rowcount'}) = $INV2->pagedetail('+'=>'ALL','BASETYPE'=>'BACKORDER',limit=>($v->{'limit'}||50),page=>($v->{'page'}||0));
-			}
-		elsif ($v->{'preorder'}) {
-			($R{'@INVDETAIL'},$R{'rowcount'}) = $INV2->pagedetail('+'=>'ALL','BASETYPE'=>'PREORDER',limit=>($v->{'limit'}||50),page=>($v->{'page'}||0));
-			}
-		elsif ($v->{'pick_noroute'}) {
-			($R{'@INVDETAIL'},$R{'rowcount'}) = $INV2->pagedetail('+'=>'ALL','BASETYPE'=>'PICK','WHERE'=>[ 'PICK_ROUTE', 'EQ', 'TBD' ] ,limit=>($v->{'limit'}||50),page=>($v->{'page'}||0));
-			}
-		elsif ($v->{'pick_unshipped'}) {
-			($R{'@INVDETAIL'},$R{'rowcount'}) = $INV2->pagedetail('+'=>'ALL','BASETYPE'=>'PICK',
-				'@WHERE'=>
-					[
-					[ 'PICK_DONE_TS', 'EQ', 0 ],
-					[ 'PICK_ROUTE', 'IN', [ 'WMS','SUPPLIER','PARTNER' ] ]
-					]
-				,  limit=>($v->{'limit'}||50),page=>($v->{'page'}||0));
-			}
-		}
-	elsif ($v->{'_cmd'} eq 'adminOrderSearch') {
-		my ($es) = &ZOOVY::getElasticSearch($self->username());
-		if (not defined $es) {
-			&JSONAPI::append_msg_to_response(\%R,"iseerr",201,"elasticsearch object is not available");			
-			}
-		elsif (not $self->checkACL(\%R,'ORDER','S')) {
-			## this will set it's own error
-			}
-
-		if (not &hadError(\%R)) {
-			## try
-			my %params = %{$v->{'ELASTIC'}};
-
-			## these became nested one level deeper in es v1.0
-			if (defined $params{'query'}) { $params{'body'}->{'query'} = $params{'query'}; delete $params{'query'}; }
-			if (defined $params{'filter'}) { $params{'body'}->{'filter'} = $params{'filter'}; delete $params{'filter'}; }
-			$params{'index'} = sprintf("%s.private",$self->username());
-
-			eval { %R = %{$es->search(%params)} };
-			# open F, ">/tmp/foo";	print F Dumper(\%params,\%R);	close F;
-
-			if (scalar(keys %R)==0) {
-				&JSONAPI::append_msg_to_response(\%R,"iseerr",18201,"no keys returned from elastic");
-				}
-		 	elsif (not $@) {
-				## yay, success!
-				$R{'_count'} = scalar(@{$R{'hits'}->{'hits'}});
-				#if ($R{'_count'}>0) {
-				#	foreach my $hit (@{$R{'hits'}->{'hits'}}) {
-				#		#$hit = $hit->{'_source'};
-				#		#delete $hit->{'description'};
-				#		#delete $hit->{'marketplaces'};
-				#		#delete $hit->{'skus'};
-				#		# $hit->{'prod_name'} = 'test';
-				#		}
-				#	}
-				}
-			elsif (ref($@) eq 'ElasticSearch::Error::Request') {
-				my ($e) = $@;
-				my $txt = $e->{'-text'};
-				$txt =~ s/\[inet\[.*?\]\]//gs;	## remove: [inet[/192.168.2.35:9300]]
-				&JSONAPI::append_msg_to_response(\%R,"apperr",18200,"search mode:$v->{'mode'} failed: ".$e->{'-text'});
-			   }
-			elsif (ref($@) eq 'ElasticSearch::Error::Missing') {
-				&JSONAPI::append_msg_to_response(\%R,"iseerr",18202,sprintf("search mode:$v->{'mode'} %s",$@->{'-text'}));
-				$R{'dump'} = Dumper($@);
-				}
-			else {
-				&JSONAPI::append_msg_to_response(\%R,"iseerr",18201,"search mode:$v->{'mode'} failed with unknown error");
-				$R{'dump'} = Dumper($@);
-				}
-			}
-
-		my @OIDS = ();
-		if (not &hadError(\%R)) {
-			foreach my $record (@{$R{'hits'}->{'hits'}}) {
-				push @OIDS, $record->{'_source'}->{'orderid'};
-				}
-			}
-		elsif (not $v->{'DEBUG'}) {
-			%R = ();
-			}
-	
-		if (scalar(@OIDS)>0) {
-			($res) = &ORDER::BATCH::report($self->username(), 'DETAIL'=>$v->{'DETAIL'}, '@OIDS'=>\@OIDS );		
-			}
-		}
-	elsif ($v->{'_cmd'} eq 'adminOrderList') {
-		($res) = &ORDER::BATCH::report($self->username(), %{$v});	
-		}
-	else {
-		&JSONAPI::validate_unknown_cmd(\%R,$v);
-		}
-
-	$R{'@orders'} = [];
-	foreach my $ref (@{$res}) {
-		push @{$R{'@orders'}}, $ref;
-		}
-
-	if (not &JSONAPI::hadError(\%R)) {
-		&JSONAPI::append_msg_to_response(\%R,'success',0);
-		}
-
-	return(\%R);
-	}
-
-
-
 =pod
-
-<API id="adminOrderDetail">
-<purpose>provides a full dump of data inside an order</purpose>
-<input id="_cartid" required="1">admin session id</input>
-<input id="orderid" required="1">Order ID</input>
-<response id="order">a json representation of an order (exact fields depend on version/order source)</response>
-</API>
-
-=cut
-
- 
-sub adminOrderRouteList {
-	my ($self, $v) = @_;
-	my %R = ();	
-
-	my ($o) = undef;
-	#($o,my $err) = ORDER->new($self->username(),$v->{'orderid'},new=>0);
-	my ($CART2) = CART2->new_from_oid($self->username(),$v->{'orderid'});
-	$R{'orderid'} = $v->{'orderid'};		## this seemed like a good idea
-	#if (defined $err) {
-	#	&JSONAPI::append_msg_to_response(\%R,'apperr',9901,'error:'.$err);
-	#	}
-	if (not defined $CART2) {
-		&JSONAPI::append_msg_to_response(\%R,'apperr',9901,'orderid is not valid/could not lookup order');
-		}
-	elsif (not $self->checkACL(\%R,'ORDER','R')) {
-		## this will set it's own error
-		}
-
-	if (defined $CART2) {
-		my $UUID = $v->{'uuid'};
-		my ($item) = $CART2->stuff2()->item('uuid'=>$UUID);
-		my $SKU = $item->{'sku'};
-		print STDERR "SKU: $SKU\n";
-
-		my ($LINKEDROUTES) = INVENTORY2->new($self->username())->detail('SKU'=>$SKU,'+'=>'ROUTE','@BASETYPES'=>['SIMPLE','WMS','SUPPLIER']);
-		my @ROUTES = ();
-		foreach my $route (@{$LINKEDROUTES}) {
-			my $title = '';
-			if ($route->{'BASETYPE'} eq 'SIMPLE') { 
-				push @ROUTES, { 
-					'cmdtxt'=>sprintf('Simple Inventory'),
-					'cmd'=>sprintf("ITEM-UUID-ROUTE?SKU=$SKU&UUID=$UUID&ROUTE=SIMPLE"),
-					'qty'=>$route->{'QTY'}
-					};
-				}
-			elsif ($route->{'BASETYPE'} eq 'WMS') { 
-				push @ROUTES, { 
-					'cmdtxt'=>sprintf('WMS %s',$route->{'WMS_GEO'}),
-					'cmd'=>sprintf("ITEM-UUID-ROUTE?SKU=$SKU&UUID=$UUID&ROUTE=WMS&WMS_GEO=%s",$route->{'WMS_GEO'}),
-					'qty'=>$route->{'QTY'}
-					};
-				}
-			elsif ($route->{'BASETYPE'} eq 'SUPPLIER') { 
-				push @ROUTES, { 
-					'cmdtxt'=>sprintf('SUPPLIER %s',$route->{'SUPPLIER_ID'}),
-					'cmd'=>sprintf("ITEM-UUID-ROUTE?SKU=$SKU&UUID=$UUID&ROUTE=SUPPLIER&SUPPLIER_ID=%s",$route->{'SUPPLIER_ID'}),
-					'qty'=>$route->{'QTY'}
-					};
-				}
-			}
-		push @ROUTES, { 'cmdtxt'=>'Backorder', 'cmd'=>"ITEM-UUID-ROUTE?UUID=$UUID&ROUTE=BACKORDER", 'qty'=>0 };
-		$R{'@ROUTES'} = \@ROUTES;
-		}
-	
-	return(\%R);
-	}
-
-
-
-=pod
-
-<API id="adminOrderDetail">
-<purpose>provides a full dump of data inside an order</purpose>
-<input id="_cartid" required="1">admin session id</input>
-<input id="orderid" required="1">Order ID</input>
-<response id="order">a json representation of an order (exact fields depend on version/order source)</response>
-</API>
-
-=cut
-
- 
-sub adminOrderDetail {
-	my ($self,$v) = @_;
-
-	my %R = ();	
-
-	my ($o) = undef;
-	#($o,my $err) = ORDER->new($self->username(),$v->{'orderid'},new=>0);
-	my ($CART2) = CART2->new_from_oid($self->username(),$v->{'orderid'});
-	#if (defined $err) {
-	#	&JSONAPI::append_msg_to_response(\%R,'apperr',9901,'error:'.$err);
-	#	}
-	if (not defined $CART2) {
-		&JSONAPI::append_msg_to_response(\%R,'apperr',9901,'orderid is not valid/could not lookup order');
-		}
-	elsif (not $self->checkACL(\%R,'ORDER','R')) {
-		## this will set it's own error
-		}
-	else {
-		%R = %{$CART2->jsonify()};
-		}
-
-	if (not &JSONAPI::hadError(\%R)) {
-		&JSONAPI::append_msg_to_response(\%R,'success',0);		
-		}
-   return(\%R);
-	}
-
-
-=pod
-
-<API id="adminOrderMacro">
-<purpose>uses the embedded macro language to set order parameters, depending on access levels macros may not be available.</purpose>
-<input id="orderid" required="1">order id of the order# to update</input>
-<input id="@updates" required="1">macro content
-</input>
-<example>
-<![CDATA[
-
-@updates:[
-	'cmd',
-	'cmd?some=param',
-	]
-
-]]>
-</example>
-<hint>
-<![CDATA[
-
-**Using Order Macros (@updates)**
-
-Order Macros provide a developer with a way to make easy, incremental, non-destructive updates to orders. 
-The syntax for a macro payload uses a familiar dsn format cmd?key=value&key=value, along with the same
-uri encoding rules, and one command per line (making the files very easy to read) -- here is an example:
-"SETPOOL?pool=COMPLETED" (without the quotes). A complete list of available commands is below:
-
-* CREATE
-* SETPOOL?pool=[pool]\n
-* CAPTURE?amount=[amount]\n
-* ADDTRACKING?carrier=[UPS|FDX]&track=[1234]\n
-* EMAIL?msg=[msgname]\n
-* ADDPUBLICNOTE?note=[note]\n
-* ADDPRIVATENOTE?note=[note]\n
-* ADDCUSTOMERNOTE?note=[note]\n
-* SET?key=value	 (for setting attributes)
-* SPLITORDER
-* MERGEORDER?oid=src orderid
-* ADDPAYMENT?tender=CREDIT&amt=0.20&UUID=&ts=&note=&CC=&CY=&CI=&amt=
-* ADDPROCESSPAYMENT?VERB=&same_params_as_addpayment<br>
-	NOTE: unlike 'ADDPAYMENT' the 'ADDPROCESSPAYMENT' this will add then run the specified verb.
-	Verbs are: 'INIT' the payment as if it had been entered by the buyer at checkout,
-	other verbs: AUTHORIZE|CAPTURE|CHARGE|VOID|REFUND
-* PROCESSPAYMENT?VERB=verb&UUID=uuid&amt=<br>
-	Possible verbs: AUTHORIZE|CAPTURE|CHARGE|VOID|REFUND
-* SETSHIPADDR?ship/company=&ship/firstname=&ship/lastname=&ship/phone=&ship/address1=&ship/address2=&ship/city=&ship/country=&ship/email=&ship/state=&ship/province=&ship/zip=&ship/int_zip=
-* SETBILLADDR?bill/company=&bill/firstname=&bill/lastname=&bill/phone=&bill/address1=&bill/address2=&bill/city=&bill/country=&bill/email=&bill/state=&bill/province=&bill/zip=&bill/int_zip=
-* SETSHIPPING?shp_total=&shp_taxable=&shp_carrier=&hnd_total=&hnd_taxable=&ins_total=&ins_taxable=&spc_total=&spc_taxable=
-* SETADDRS?any=attribute&anyother=attribute
-* SETTAX?sum/tax_method=&sum/tax_total&sum/tax_rate_state=&sum/tax_rate_zone=&
-* SETSTUFFXML?xml=encodedstuffxml
-* ITEMADD?uuid=&sku=xyz&
-* ITEMREMOVE?uuid=
-* ITEMUPDATE?uuid=&qty=&price=&
-* SAVE
-* ECHO
-
-]]>
-</hint>
-</API>
-
-=cut
-
- 
-sub adminCartOrderMacro {
-	my ($self,$v) = @_;
-
-	my %R = ();	
-
-	my $CART2 = undef;
-	if ($v->{'_cmd'} eq 'adminCartMacro') {
-		my $cartid = $v->{'_cartid'};
-		$CART2 = $self->cart2($cartid,'create'=>1);
-		if (not defined $CART2) { 
-			&JSONAPI::set_error(\%R, 'apperr', 94839,sprintf("cart '%s' not initialized for adminCartMacro",$cartid));		
-			}
-		}
-	elsif ($v->{'_cmd'} eq 'adminOrderMacro') {
-		my $ORDERID = $v->{'orderid'};
-		if (not &JSONAPI::validate_required_parameter(\%R,$v,'orderid') ) {
-			}
-		elsif (($CART2) = CART2->new_from_oid($self->username(),$v->{'orderid'})) {
-			## yay
-			}
-		else {
-			&JSONAPI::append_msg_to_response(\%R,'apperr',9004,'Invalid/corrupt orderid');
-			}
-		}
-	else {
-		&JSONAPI::append_msg_to_response(\%R,'apperr',9001,'request _cmd is invalid for adminCartOrderMacro');
-		}
-
-
-	my @CMDS = ();
-	if (&JSONAPI::hadError(\%R)) {
-		## shit happened!
-		}
-	elsif (not defined $v->{'@updates'}) {
-		&JSONAPI::append_msg_to_response(\%R,'apperr',9002,'Could not find any @updates for order');
-		}
-	elsif (ref($v->{'@updates'}) eq 'ARRAY') {
-		my $count = 0;
-		foreach my $line (@{$v->{'@updates'}}) {
-			my $CMDSETS = &CART2::parse_macro_script($line);
-			foreach my $cmdset (@{$CMDSETS}) {
-				$cmdset->[1]->{'luser'} = $self->luser();
-				$cmdset->[2] = $line;		
-				$cmdset->[3] = $count++;
-				push @CMDS, $cmdset;
-				}
-			}
-		my $LM = LISTING::MSGS->new();
-		$CART2->run_macro_cmds(\@CMDS,'*LM'=>$LM,'*SITE'=>$self->_SITE());
-
-#		if ($CART2->is_cart()) {
-#			$CART2->cart_save();
-#			}
-#		else {
-#			$CART2->order_save();
-#			}
-
-		if (my $iseref = $LM->had(['WARNING'])) {
-			&JSONAPI::append_msg_to_response(\%R,"warning",7200,$iseref->{'+'});
-			}
-		elsif (my $appref = $LM->had(['ERROR'])) {
-			&JSONAPI::append_msg_to_response(\%R,"apperr",7201,$appref->{'+'});
-			}
-		else {
-			&JSONAPI::append_msg_to_response(\%R,'success',0);		
-			}
-		}
-	else {
-		&JSONAPI::append_msg_to_response(\%R,'apperr',9005,'Issue with @updates formatting [we did not understand the format you sent]');
-		}
-
-   return(\%R);
-	}
-		
-
-
-#################################################################################
-##
-##
-
-=pod
-
-<API id="adminOrderPaymentAction">
-<purpose>interally runs the PAYMENTACTION orderUpdate Macro, but can be called as a separate API</purpose>
-<response id="orderid"> 2011-01-1234</response>
-<response id="payment"> </response>
-
-</API>
-
-=cut
-
-sub adminOrderPaymentAction {
-	my ($self,$v) = @_;
-
-	my %R = ();
-
-	my $ORDERID = $v->{'orderid'};
-	my $O2 = undef;
-	if (not &JSONAPI::validate_required_parameter(\%R,$v,'orderid') ) {
-		}
-	elsif (($O2) = CART2->new_from_oid($self->username(),$v->{'orderid'})) {
-		## yay
-		}
-	else {
-		&JSONAPI::append_msg_to_response(\%R,'apperr',9004,'Invalid/corrupt orderid');
-		}
-
-	my $LM = LISTING::MSGS->new();
-	my %ref = ();
-	$ref{'luser'} = $self->luser();
-	$ref{'ACTION'} = uc($v->{'ACTION'});
-	$ref{'amt'} = $v->{'amt'};
-	$ref{'ps'} = $v->{'ps'};
-	$ref{'uuid'} = $v->{'uuid'};
-	$ref{'note'} = $v->{'note'};
-
-	$O2->run_macro_cmds([ [ 'PAYMENTACTION', \%ref ] ],'*LM'=>$LM);		
-
-	if (my $iseref = $LM->had(['WARNING'])) {
-		&JSONAPI::append_msg_to_response(\%R,"warning",200,$iseref->{'+'});
-		}
-	elsif (my $appref = $LM->had(['ERROR'])) {
-		&JSONAPI::append_msg_to_response(\%R,"apperr",201,$appref->{'+'});
-		}
-	else {
-		&JSONAPI::append_msg_to_response(\%R,'success',0);		
-		}
-	return(\%R);	
-	}
-
-
-
-
-
-
-
-
-=pod
-
-<API id="adminImageDetail">
-<purpose>returns stored details about an media library image file.</purpose>
-<input id="file" example="path/to/image.jpg">filename of the image</input>
-<response id="FILENAME"></response>
-<response id="EXT"></response>
-<response id="H"></response>
-<response id="W"></response>
-<response id="SIZE"></response>
-<response id="TS"></response>
-<response id="FID"></response>
-</API>
-
-=cut
-
- 
-sub adminImageDetail {
-	my ($self,$v) = @_;
-
-	my %R = ();	
-
-	if (not &JSONAPI::validate_required_parameter(\%R,$v,'file') ) {
-		}
-	else {
-		require MEDIA;
-		my $result = &MEDIA::getinfo($self->username(),$v->{'file'});
-		if (not defined $result) {
-			&JSONAPI::set_error(\%R,'apperr',5162,sprintf("file referenced '%s' is invalid",$v->{'file'}));
-			}
-		else {
-			%R = %{$result};
-			}
-		}
-
-	if (&JSONAPI::hadError(\%R)) {
-		## shit happened!
-		}
-	else {
-		&JSONAPI::append_msg_to_response(\%R,'success',0);		
-		}	
-	$R{'file'} = $v->{'file'};
-
-   return(\%R);
-	}
-
-
-=pod
-
-<API id="adminImageFolderList">
-<purpose>returns a list of image categories and timestamps for each category</purpose>
-<response id="@folders"></response>
-<example>
-<![CDATA[
-<Folder ImageCount="5" TS="123" Name="Path1" FID="1" ParentFID="0" ParentName="|"/>
-<Folder ImageCount="2" TS="456" Name="Path1b" FID="2" ParentFID="1" ParentName="|Path1"/>
-<Folder ImageCount="1" TS="567" Name="Path1bI" FID="3" ParentFID="2" ParentName="|Path1|Pathb"/>
-<Folder ImageCount="0" TS="789" Name="Path2" FID="4" ParentFID="0" ParentName="|"/>
-]]>
-</example>
-</API>
-
-
-=cut
-
- 
-sub adminImageFolderList {
-	my ($self,$v) = @_;
-
-	my %R = ();	
-
-	require MEDIA;
-	$R{'@folders'} = [];
-	foreach my $fref (@{&MEDIA::folderlist($self->username())}) {
-		push @{$R{'@folders'}}, $fref;
-		}
-
-	if (not &JSONAPI::hadError(\%R)) {
-		&JSONAPI::append_msg_to_response(\%R,'success',0);		
-		}
-
-   return(\%R);
-	}
-
-
-
-=pod
-
-<API id="adminImageList">
-<purpose>returns the list of images for a given folder (if specified). </purpose>
-<input id="folder">folder to view</input>
-<input id="reindex">if a folder is requested, this will reindex the current folder</input>
-<input id="keyword">keyword (uses case insensitive substring)</input>
-<input id="orderby">NONE|TS|TS_DESC|NAME|NAME_DESC|DISKSIZE|DISKSIZE_DESC|PIXEL|PIXEL_DESC</input>
-<input id="detail">NONE|FOLDER</input>
-<response id="@images"></response>
-<example>
-<![CDATA[
-<Image Name="abc" TS="1234" Format="jpg" />
-<Image Name="abc2" TS="1234" Format="jpg" />
-<Image Name="abc3" TS="1234" Format="jpg" />
-<Image Name="abc4" TS="1234" Format="jpg" />
-<Image Name="abc5" TS="1234" Format="jpg" />
-]]>
-</example>
-</API>
-
-=cut
-
- 
-sub adminImageList {
-	my ($self,$v) = @_;
-
-	my %R = ();	
-	$R{'@images'} = [];	
-
-	my ($USERNAME) = $self->username();
-
-	my $udbh = &DBINFO::db_user_connect($USERNAME);
-	my $MID = &ZOOVY::resolve_mid($USERNAME);
-
-	my %result = ();
-	my $DETAIL = $v->{'detail'};
-
-	my $pstmt = "select I.ImgName,I.Format,I.TS from IMAGES I where I.MID=$MID ";
-	if ($DETAIL eq '') {}
-	elsif ($DETAIL eq 'NONE') { $DETAIL = ''; }
-	elsif ($DETAIL eq 'FOLDER') {
-		$pstmt = "select I.ImgName,I.Format,I.TS,F.FID,F.FName from IMAGES I,IFOLDERS F where F.MID=$MID and I.MID=$MID and F.FID=I.FID ";
-		}
-	else {
-		&JSONAPI::set_error(\%R,'apperr',74230,'invalid detail parameter (NONE|FOLDER)');
-		}
-
-
-	if (defined $v->{'folder'}) { 
-		require MEDIA;
-
-		if ((substr($v->{'folder'},0,1) eq '_') || ($v->{'reindex'})) {
-			## _ebay/something -- force a reindex
-			MEDIA::reindex($self->username(),$v->{'folder'},1);
-			}
-
-		my $FID = &MEDIA::resolve_fid($USERNAME,$v->{'folder'});
-		if ($FID > 0) { 
-			$pstmt .= " and I.FID=".$FID; 
-			}
-		else {
-			&JSONAPI::set_error(\%R,'youerr',74231,'Invalid folder requested');
-			}
-		}
-
-	if ($v->{'keyword'} ne '') {
-		if ($v->{'keyword'} eq '') {
-			&JSONAPI::set_error(\%R,'apperr',74232,'keyword parameter is required for adminImageFolderSearch cmd');
-			}
-		else {
-			my $qtKEYWORD = $udbh->quote($v->{'keyword'});
-			$pstmt .= " and I.ImgName like concat('%',$qtKEYWORD,'%') ";
-			}
-		}
-
-	if (($v->{'folder'} eq '') && ($v->{'keyword'} eq '')) {
-		&JSONAPI::set_error(\%R,'apperr',74233,'sorry i will not return all images, folder or keyword parameter must be specified');
-		}
-
-	if ($v->{'orderby'}) {
-		# NONE|TS|TS_DESC|NAME|NAME_DESC|DISK|DISK_DESC|PIXEL|PIXEL_DESC";
-		my $direction = ($v->{'orderby'} =~ /\_DESC$/)?'DESC':'ASC';
-		$v->{'orderby'} =~ s/\_DESC$//gs;	# strip _DESC so we just have TS, NAME, etc.
-		if ($v->{'orderby'} eq 'NONE') {
-			$direction = '';
-			}
-		elsif ($v->{'orderby'} eq 'TS') {
-			$pstmt .= " order by I.TS $direction";
-			}
-		elsif ($v->{'orderby'} eq 'NAME') {
-			$pstmt .= " order by I.ImgName $direction";
-			}
-		elsif ($v->{'orderby'} eq 'DISKSIZE') {
-			$pstmt .= " order by I.Size $direction";
-			}
-		elsif ($v->{'orderby'} eq 'PIXEL') {
-			$pstmt .= " order by I.H*I.W $direction";
-			}
-		else {
-			&JSONAPI::set_error(\%R,'apperr',74233,'invalid orderby requested');
-			}
-		}
-
-	## at this point we're going to run the actual query OR we have an error
-	if (not &JSONAPI::hadError(\%R)) {
-		# print STDERR "$pstmt\n";
-		my $sth = $udbh->prepare($pstmt);
-		$sth->execute();
-		while ( my ($i,$e,$ts,$fid,$fname) = $sth->fetchrow() ) { 
-			my $filename = $i.(($e ne '')?'.'.$e:'');
-			if ($DETAIL eq '') {
-				push @{$R{'@images'}}, { 'Name'=>$filename, 'TS'=>$ts };
-				}
-			elsif ($DETAIL eq 'FOLDER') {
-				push @{$R{'@images'}}, { 'FID'=>$fid, 'Folder'=>$fname, 'Name'=>$filename, 'TS'=>$ts };
-				}
-			}
-		$sth->finish();
-		}
-
-	&DBINFO::db_user_close();
-
-	if (not &JSONAPI::hadError(\%R)) {
-		&JSONAPI::append_msg_to_response(\%R,'success',0);		
-		}
-
-   return(\%R);
-	}
-
-
-=pod
-
-<API id="adminImageFolderCreate">
-<purpose>creates a new folder in the media library, folder names must be in lower case.</purpose>
-<input id="folder">DIR1|DIR2</input>
-<response id="fid">the internal folder id#</response>
-<response id="name">the name the folder was created</response>
-<hint>you can call these in any order, subpaths will be created.</hint>
-<example>
-<![CDATA[
-<Category FID="1234" Name=""/>
-]]>
-</example>
-</API>
-
-=cut
-
- 
-sub adminImageFolderCreate {
-	my ($self,$v) = @_;
-
-	my %R = ();	
-
-	require MEDIA;
-	my $PWD = &MEDIA::mkfolder($self->username(),$v->{'folder'});
-	if ($PWD eq '') {
-		# $XML = "<Category FID=\"-1\" Error=\"Could not create category $PARAMS[0]\"/>\n";
-		}
-	else {
-		my $FID = &MEDIA::resolve_fid($self->username(),$PWD);
-		$R{'fid'} = $FID;
-		$R{'name'} = $PWD;
-		}
-
-	if (&JSONAPI::hadError(\%R)) {
-		## shit happened!
-		}
-	else {
-		&JSONAPI::append_msg_to_response(\%R,'success',0);		
-		}	
-
-   return(\%R);
-	}
-
-=pod
-
-<API id="adminImageFolderDelete">
-<purpose>request the deletion of a category (do not implement this right now)</purpose>
-<input id="folder"></input>
-</API>
-
-=cut
-
- 
-sub adminImageFolderDelete {
-	my ($self,$v) = @_;
-
-	my %R = ();	
-
-	require MEDIA;
-	require WEBAPI;
-	$self->accesslog("IMAGE.FOLDERDELETE","Deleted $v->{'folder'}");
-	&MEDIA::rmfolder($self->username(),$v->{'folder'});
-
-	if (&JSONAPI::hadError(\%R)) {
-		## shit happened!
-		}
-	else {
-		&JSONAPI::append_msg_to_response(\%R,'success',0);		
-		}	
-
-   return(\%R);
-	}
-
-
-=pod
-
-<API id="adminImageUpload">
-<purpose>uses the file upload api to link a fileguid into a media library directory.</purpose>
-<input id="folder">folder</input>
-<input id="filename"></input>
-<input optional="1" id="base64">base64 encoded image data</input>
-<input optional="1" id="fileguid">fileguid (from file upload)</input>
-</API>
-
-<API id="adminImageMagick">
-<purpose>accepts an image, and performs Image::Magick functions on it.</purpose>
-<input optional="1" id="base64">base64 encoded image data</input>
-<input optional="1" id="fileguid">fileguid (from file upload)</input>
-<input optional="1" id="@updates"><![CDATA[
-a list of macros which will convert/mogrify the image
-see: http://www.imagemagick.org/script/perl-magick.php#manipulate
-@updates:[
+@api {POST} adminImageMagick adminImageMagick
+@apiName adminImageMagick
+@apiGroup admin
+@apiDescription
+accepts an image, and performs Image::Magick functions on it.</purpose>
+@apiParam (Request) {String} [base64base64] encoded image data
+@apiParam (Request) {String} [fileguid]  fileguid (from file upload)
+@apiParam (Request) {String} [@updates] list of macros which will convert/mogrify the image see: http://www.imagemagick.org/script/perl-magick.php#manipulate
+@apiParamExample {json} Updates
+{
+'@updates':[
 	'Resize?width=100&height=100,blur=1'
 	]
-]]>
-<output id="mime">image/png|image/gif|image/jpg</output>
-<output id="base64">base64 encoded copy of the result file</output>
-<output id="%properties.area">integer - 	current area resource consumed</output>
-<output id="%properties.base-columns">integer - base image width (before transformations)</output>
-<output id="%properties.base-filename">string - base image filename (before transformations)</output>
-<output id="%properties.base-rows">integer - base image height (before transformations)</output>
-<output id="%properties.class">{Direct - Pseudo} 	image class</output>
-<output id="%properties.colors">integer - number of unique colors in the image</output>
-<output id="%properties.columns">integer - image width</output>
-<output id="%properties.copyright">string - get PerlMagick's copyright</output>
-<output id="%properties.directory">string - tile names from within an image montage</output>
-<output id="%properties.elapsed-time">double - elapsed time in seconds since the image was created</output>
-<output id="%properties.error">double - the mean error per pixel computed with methods Compare() or Quantize()</output>
-<output id="%properties.bounding-box">string - image bounding box</output>
-<output id="%properties.disk">integer - current disk resource consumed</output>
-<output id="%properties.filesize">integer - number of bytes of the image on disk</output>
-<output id="%properties.format">string - get the descriptive image format</output>
-<output id="%properties.geometry">string - image geometry</output>
-<output id="%properties.height">integer - the number of rows or height of an image</output>
-<output id="%properties.id">integer - ImageMagick registry id</output>
-<output id="%properties.mean-error">double - the normalized mean error per pixel computed with methods Compare() or Quantize()</output>
-<output id="%properties.map">integer - current memory-mapped resource consumed</output>
-<output id="%properties.matte">{True - False} 	whether or not the image has a matte channel</output>
-<output id="%properties.maximum-error">double - the normalized max error per pixel computed with methods Compare() or Quantize()</output>
-<output id="%properties.memory">integer - current memory resource consumed</output>
-<output id="%properties.mime">string - MIME of the image format</output>
-<output id="%properties.montage">geometry - tile size and offset within an image montage</output>
-<output id="%properties.page.x">integer - x offset of image virtual canvas</output>
-<output id="%properties.page.y">integer - y offset of image virtual canvas</output>
-<output id="%properties.rows">integer - the number of rows or height of an image</output>
-<output id="%properties.signature">string - SHA-256 message digest associated with the image pixel stream</output>
-<output id="%properties.taint">{True - False} 	True if the image has been modified</output>
-<output id="%properties.total-ink-density">double - returns the total ink density for a CMYK image</output>
-<output id="%properties.transparent-color">color - ame 	set the image transparent color</output>
-<output id="%properties.user-time">double - user time in seconds since the image was created</output>
-<output id="%properties.version">string - get PerlMagick's version</output>
-<output id="%properties.width">integer - the number of columns or width of an image</output>
-<output id="%properties.x-resolution">integer - x resolution of the image</output>
-<output id="%properties.y-resolution">integer - y resolution of the image</output>
+}
 
-</API>
+@apiParam (Response) mime image/png|image/gif|image/jpg
+@apiParam (Response) base64 base64 encoded copy of the result file
+@apiParam (Response) %properties.area integer - current area resource consumed
+@apiParam (Response) %properties.base-columns integer - base image width (before transformations)
+@apiParam (Response) %properties.base-filename string - base image filename (before transformations)
+@apiParam (Response) %properties.base-rows integer - base image height (before transformations)
+@apiParam (Response) %properties.class {Direct - Pseudo} 	image class
+@apiParam (Response) %properties.colors integer - number of unique colors in the image
+@apiParam (Response) %properties.columns integer - image width
+@apiParam (Response) %properties.copyright string - get PerlMagick's copyright
+@apiParam (Response) %properties.directory string - tile names from within an image montage
+@apiParam (Response) %properties.elapsed-time double - elapsed time in seconds since the image was created
+@apiParam (Response) %properties.error double - the mean error per pixel computed with methods Compare() or Quantize()
+@apiParam (Response) %properties.bounding-box string - image bounding box
+@apiParam (Response) %properties.disk integer - current disk resource consumed
+@apiParam (Response) %properties.filesize integer - number of bytes of the image on disk
+@apiParam (Response) %properties.format string - get the descriptive image format
+@apiParam (Response) %properties.geometry string - image geometry
+@apiParam (Response) %properties.height integer - the number of rows or height of an image
+@apiParam (Response) %properties.id integer - ImageMagick registry id
+@apiParam (Response) %properties.mean-error double - the normalized mean error per pixel computed with methods Compare() or Quantize()
+@apiParam (Response) %properties.map integer - current memory-mapped resource consumed
+@apiParam (Response) %properties.matte {True - False} 	whether or not the image has a matte channel
+@apiParam (Response) %properties.maximum-error double - the normalized max error per pixel computed with methods Compare() or Quantize()
+@apiParam (Response) %properties.memory integer - current memory resource consumed
+@apiParam (Response) %properties.mime string - MIME of the image format
+@apiParam (Response) %properties.montage geometry - tile size and offset within an image montage
+@apiParam (Response) %properties.page.x integer - x offset of image virtual canvas
+@apiParam (Response) %properties.page.y integer - y offset of image virtual canvas
+@apiParam (Response) %properties.rows integer - the number of rows or height of an image
+@apiParam (Response) %properties.signature string - SHA-256 message digest associated with the image pixel stream
+@apiParam (Response) %properties.taint {True - False} 	True if the image has been modified
+@apiParam (Response) %properties.total-ink-density double - returns the total ink density for a CMYK image
+@apiParam (Response) %properties.transparent-color color - ame 	set the image transparent color
+@apiParam (Response) %properties.user-time double - user time in seconds since the image was created
+@apiParam (Response) %properties.version string - get PerlMagick's version
+@apiParam (Response) %properties.width integer - the number of columns or width of an image
+@apiParam (Response) %properties.x-resolution integer - x resolution of the image
+@apiParam (Response) %properties.y-resolution integer - y resolution of the image
 
 =cut
+
 
  
 sub adminImageUploadMagick {
@@ -6172,12 +5156,14 @@ sub adminImageUploadMagick {
 	}
 
 =pod
+@api {POST} adminImageDelete adminImageDelete
+@apiName adminImageDelete
+@apiGroup admin
+@apiDescription
+deletes an image
 
-<API id="adminImageDelete">
-<purpose>deletes an image</purpose>
-<input id="file">filename</input>
-<input id="folder">folder</input>
-</API>
+@apiParam (Request) {String} filefilename
+@apiParam (Request) {String} folderfolder
 
 =cut
 
@@ -6211,61 +5197,80 @@ sub adminImageDelete {
 
 
 =pod
+@api {POST} adminSupplierList adminSupplierList
+@apiName adminSupplierList
+@apiGroup admin
+@apiUse supplier
+@apiDescription TODO
+=cut
 
-<API id="adminSupplierList">
-<purpose></purpose>
-<concept>supplier</concept>
-</API>
+=pod
+@api {POST} adminSupplierMacro adminSupplierMacro
+@apiName adminSupplierMacro
+@apiGroup admin
+@apiDescription TODO
+@apiUse supplier
+=cut
 
+=pod
+@api {POST} adminSupplierCreate adminSupplierCreate
+@apiName adminSupplierCreate
+@apiGroup admin
+@apiDescription TODO
+@apiUse supplier
+=cut
 
-<API id="adminSupplierMacro">
-<purpose></purpose>
-<concept>supplier</concept>
-</API>
+=pod
+@api {POST} adminSupplierDetail adminSupplierDetail
+@apiName adminSupplierDetail
+@apiGroup admin
+@apiDescription TODO
+@apiUse supplier
+@apiParam (Request) {String} VENDORID6-8 digit supplier/vendor id
+=cut
 
-<API id="adminSupplierCreate">
-<purpose></purpose>
-<concept>supplier</concept>
-</API>
+=pod
+@api {POST} adminSupplierRemove adminSupplierRemove
+@apiName adminSupplierRemove
+@apiGroup admin
+@apiDescription TODO
+@apiUse supplier
+@apiParam (Request) {String} VENDORID6-8 digit supplier/vendor id
+@apiParam (Request) {String} products0|1
+=cut
 
-<API id="adminSupplierDetail">
-<purpose></purpose>
-<concept>supplier</concept>
-<input id="VENDORID">6-8 digit supplier/vendor id</input>
-</API>
+=pod
+@api {POST} adminSupplierOrderList adminSupplierOrderList
+@apiName adminSupplierOrderList
+@apiGroup admin
+@apiDescription TODO
+@apiUse supplier
+@apiParam (Request) {String} VENDORID6-8 digit supplier/vendor id
+@apiParam (Request) {String} FILTER UNCONFIRMED|RECENT
+@apiParam (Request) {String} [FILTER:UNCONFIRMED] The last 300 non corrupt/non error orders which have no confirmed timestamp
+@apiParam (Request) {String} [FILTER:RECENT] The last 100 unarchived orders
+@apiParam (Request) {String} DETAIL 1|0 includes an optional @ORDERDETAIL in response
+@apiParam (Response) @ORDERS detail about the vendor/supplier orders
+@apiParam (Response) @ORDERDETAIL 
+=cut
 
-<API id="adminSupplierRemove">
-<purpose></purpose>
-<concept>supplier</concept>
-<input id="VENDORID">6-8 digit supplier/vendor id</input>
-<input id="products">0|1</input>
-</API>
+=pod
+@api {POST} adminSupplierOrderItemList adminSupplierOrderItemList
+@apiName adminSupplierOrderItemList
+@apiGroup admin
+@apiDescription TODO
+@apiUse supplier
+@apiParam (Request) {String} FILTER OPEN
+=cut
 
-<API id="adminSupplierOrderList">
-<purpose></purpose>
-<concept>supplier</concept>
-<input id="VENDORID">6-8 digit supplier/vendor id</input>
-<input id="FILTER" required="1">UNCONFIRMED|RECENT</input>
-<input id="FILTER=UNCONFIRMED" optional="1">The last 300 non corrupt/non error orders which have no confirmed timestamp</input>
-<input id="FILTER=RECENT" optional="1">The last 100 unarchived orders</input>
-<input id="DETAIL" required="1">1|0 includes an optional @ORDERDETAIL in response</input>
-<output id="@ORDERS">detail about the vendor/supplier orders</output>
-<output id="@ORDERDETAIL"></output>
-</API>
+=pod
+@api {POST} adminSupplierProductList adminSupplierProductList
+@apiName adminSupplierProductList
+@apiGroup admin
+@apiDescription TODO
 
-<API id="adminSupplierOrderItemList">
-<purpose></purpose>
-<concept>supplier</concept>
-<input id="FILTER" required="1">OPEN</input>
-</API>
-
-<API id="adminSupplierProductList">
-<purpose></purpose>
-<concept>supplier|product</concept>
-</API>
-
-
-
+@apiUse supplier
+@apiUse product
 =cut
 
 sub adminSupplier {
@@ -6763,23 +5768,25 @@ sub adminSupplier {
 
 
 =pod
+@api {POST} adminPrivateFileDownload adminPrivateFileDownload
+@apiName adminPrivateFileDownload
+@apiGroup admin
+@apiDescription TODO
+@apiUse report
+@apiParam (Request) {String} GUID
+=cut
 
-<API id="adminPrivateFileDownload">
-<purpose></purpose>
-<concept>report</concept>
-<input id="GUID"></input>
-</API>
-
-<API id="adminPrivateFileList">
-<purpose></purpose>
-<concept>report</concept>
-<input optional="1" id="type"></input>
-<input optional="1" id="guid"></input>
-<input optional="1" id="active"></input>
-<input optional="1" id="keyword"></input>
-<input optional="1" id="limit"></input>
-</API>
-
+=pod
+@api {POST} adminPrivateFileList adminPrivateFileList
+@apiName adminPrivateFileList
+@apiGroup admin
+@apiDescription TODO
+@apiUse report
+@apiParam (Request) {String} [type]
+@apiParam (Request) {String} [guid]
+@apiParam (Request) {String} [active]
+@apiParam (Request) {String} [keyword]
+@apiParam (Request) {String} [limit]
 =cut
 
 sub adminPrivateFile {
@@ -6890,10 +5897,10 @@ sub adminPrivateFile {
 
 
 =pod
-
-<API id="adminReportDownload">
-<purpose>
-<![CDATA[
+@api {POST} adminReportDownload adminReportDownload
+@apiName adminReportDownload
+@apiGroup admin
+@apiDescription
 Inside "$R" (the REPORT object) there are following output values:
 @HEAD the header object (below)
 @BODY the body object (further below)
@@ -6954,16 +5961,13 @@ Inside "$R" (the REPORT object) there are following output values:
 
 	NUM=numeric
 	CHR=character
-	ACT=VERB (e.g. button) "<input type=\"button\" value=\"Start Dispute\" class=\"button2\" onClick=\"customAction('OPEN','$claim');\">";
 	ROW 
 ]]>
-</purpose>
-<concept>report</concept>
-<input id="GUID">the globally unique id assigned to this report (probably obtained from a batch job list)</input>
-</API>
+
+@apiUse report
+@apiParam (Request) {String} GUID the globally unique id assigned to this report (probably obtained from a batch job list)
 
 =cut
-
 
 sub adminReportDownload {
 	my ($self,$v) = @_;
@@ -7008,16 +6012,20 @@ sub adminReportDownload {
 
 
 =pod
-
-<API id="adminNavTreeList">
-<output id="@NAVS">
+@api {POST} adminNavTreeList adminNavTreeList
+@apiName adminNavTreeList
+@apiDescription 
 a list of nav elements
-[
-{	"type":"navcat", "prt":"0", "nav":"PRT000", "title":"Partition 0"  },
-{	"type":"navcat", "prt":"1", "nav":"PRT001", "title":"Partition 1"  },
-]
-</output>
-</API>
+
+@apiGroup admin
+@apiParam (Response) {Array} @NAVS
+@apiSuccessExample Request Example
+{
+'@NAVS':[
+	{	"type":"navcat", "prt":"0", "nav":"PRT000", "title":"Partition 0"  },
+	{	"type":"navcat", "prt":"1", "nav":"PRT001", "title":"Partition 1"  },
+	]
+}
 
 =cut
 
@@ -7103,70 +6111,64 @@ sub adminNavcat {
 		}
 
 =pod
+@api {POST} appCategoryDetail appCategoryDetail
+@apiName appCategoryDetail
+@apiGroup app
+@apiDescription TODO
 
-<API id="appCategoryDetail">
-<purpose></purpose>
-<input id="safe">.safe.path</input>
-<input id="detail">fast|more|max</input>
-<input hint="detail:max only" id="depth">#changes pretty from "Category C" to "Category A / Category B / Category C", 0 = no breadcrumbs</input>
-<input hint="detail:max only" id="delimiter">xyz the separator between category names in the breadcrumb (default " / ")</input>
-<note>skips hidden categories</note>
-<response id="exists">1|0</response>
-<response id="pretty"></response>
-<response id="sort"></response>
-<response id="%meta">[ "dst":"value", "dst":"value" ]</response>
-<response id="@products">[pid1,pid2,pid3]</response>
-<note>detail=fast is the same as detail=more</note>
-<response id="subcategoryCount"># of children</response>
-<response id="@subcategories">[ '.safe.sub1', 'safe.sub2', '.safe.sub3' ];</response>
-<input id="@subcategoryDetail" hint="detail:more or detail:max">
+
+@apiParam (Request) {String} safe.safe.path
+@apiParam (Request) {String} detail fast|more|max
+@apiParam (Request) {String} [detail:max] depth#changes pretty from "Category C" to "Category A / Category B / Category C", 0 = no breadcrumbs
+@apiParam (Request) {String} [detail:max] delimiter xyz the separator between category names in the breadcrumb (default " / ") note: skips hidden categories
+@apiParam (Response) {String} exists	1|0
+@apiParam (Response) {String} pretty	
+@apiParam (Response) {String} sort	
+@apiParam (Response) {String} %meta	[ "dst":"value", "dst":"value" ]
+@apiParam (Response) {String} @products	[pid1,pid2,pid3]  detail=fast is the same as detail=more
+@apiParam (Response) {String} subcategoryCount	# of children
+@apiParam (Response) {String} @subcategories	[ '.safe.sub1', 'safe.sub2', '.safe.sub3' ];
+@apiParam (Request) {String} @subcategoryDetail detail:more or detail:max
+@apiParamExample
 	[
 	[ 'id':'.safe.sub1', 'pretty':'Sub Category 1', '@products':['pid1','pid2','pid3'] ],
 	[ 'id':'.safe.sub2', 'pretty':'Sub Category 2', '@products':['pid1','pid2','pid3'] ],
 	];
-</input>
+
+@apiErrorExample
 <errors>
 	<err id="8001" type="warning">Requested Category does not exist.</err>
 </errors>
+=cut
 
-</API>
+=pod
+@api {POST} adminNavcatDetail adminNavcatDetail
+@apiName adminNavcatDetail
+@apiGroup admin
+@apiDescription
+returns detailed information about a navigation category or product list.</purpose>\
+@apiParam (Request) {String} [prt] returns the navigation for partition
+@apiParam (Request) {String} [navtree] returns the navigation for navtree specified (use the navtree parameter from adminNavTreeList)
+@apiUse navcat
+@apiSuccessExample Request Example
 
-<API id="adminNavcatDetail">
-<purpose>returns detailed information about a navigation category or product list.</purpose>\
-<input optional="1" id="prt">returns the navigation for partition</input>
-<input optional="1" id="navtree">returns the navigation for navtree specified (use the navtree parameter from adminNavTreeList)</input>
-<concept>navcat</concept>
-<output>
 path:.safe.name or path:$listname
 returns:
 pretty:'some pretty name',
 @products:['pid1','pid2','pid3'],
 %meta:['prop1':'data1','prop2':'data2']
-</output>
-</API>
 
-<API id="appNavcatDetail">
-<purpose>see adminNavcatDetail (identical)</purpose>
-</API>
+=cut
+
+=pod
+@api {POST} appNavcatDetail appNavcatDetail
+@apiName appNavcatDetail
+@apiGroup app
+@apiDescription
+see adminNavcatDetail (identical)
 
 =cut
 	
-#	if ($VERB eq 'adminNavcatList') {
-#		my $root = $v->{'safe'};
-#		my $depth = int($v->{'depth'});
-#		my %RESULT = ();
-#		foreach my $safe (@{$NC->paths($root)}) {
-#			my @branches = split(/\./,$safe);
-#			my $PTR = \%RESULT;
-#			foreach my $branch (@branches) {
-#				next if ($branch eq '');
-#				if (not defined $PTR->{ $branch }) {
-#					}
-#				$PTR = $PTR->{$branch};
-#				}
-#			}
-#		}
-
 	if (($VERB eq 'adminNavcatDetail') || ($VERB eq 'appNavcatDetail')) {
 		my ($pretty,$children,$products,$sort,$meta) = $NC->get($safe);
 		$R{'path'} = $safe;
@@ -7214,12 +6216,14 @@ pretty:'some pretty name',
 		}
 
 =pod
+@api {POST} adminNavcatDelete adminNavcatDelete
+@apiName adminNavcatDelete
+@apiGroup admin
+@apiDescription
+permanently removes a navigation category or list.</purpose>
 
-<API id="adminNavcatDelete">
-<purpose>permanently removes a navigation category or list.</purpose>
-<concept>navcat</concept>
-<input id="path">.safe.name or path:$listname</input>
-</API>
+@apiUse navcat
+@apiParam (Request) {String} path.safe.name or path:$listname
 
 =cut
 
@@ -7229,18 +6233,19 @@ pretty:'some pretty name',
 		}	
 
 =pod
+@api {POST} adminNavcatModify adminNavcatModify
+@apiName adminNavcatModify
+@apiGroup admin
+@apiDescription
+changes the pretty name of a navigation category or list</purpose>
 
-<API id="adminNavcatModify">
-<purpose>changes the pretty name of a navigation category or list</purpose>
-<concept>navcat</concept>
-<input id="path">.safe.name or path:$listname</input>
-<input id="pretty">new name for category</input>
-<hint>
-will support %meta tags in the future.
-</hint>
-</API>
+note: will support %meta tags in the future.
 
+@apiUse navcat
+@apiParam (Request) {String} path.safe.name or path:$listname
+@apiParam (Request) {String} prettynew name for category
 =cut
+
 
 	if ($VERB eq 'adminNavcatModify') {
 		my $pretty = $v->{'pretty'};
@@ -7250,13 +6255,15 @@ will support %meta tags in the future.
 		}
 
 =pod
+@api {POST} adminNavcatCreate adminNavcatCreate
+@apiName adminNavcatCreate
+@apiGroup admin
+@apiDescription
+Creates a new navigation category or product list with a given pretty name.</purpose>
 
-<API id="adminNavcatCreate">
-<purpose>Creates a new navigation category or product list with a given pretty name.</purpose>
-<concept>navcat</concept>
-<input id="pretty">new name for category</input>
-<input id="root">.root.category (set to $ for list)</input>
-</API>
+@apiUse navcat
+@apiParam (Request) {String} prettynew name for category
+@apiParam (Request) {String} root.root.category (set to $ for list)
 
 =cut
 
@@ -7280,13 +6287,15 @@ will support %meta tags in the future.
 		}
 
 =pod
+@api {POST} adminNavcatProductInsert adminNavcatProductInsert
+@apiName adminNavcatProductInsert
+@apiGroup admin
+@apiDescription
+adds a single product to a navigation category or list.
 
-<API id="adminNavcatProductInsert">
-<purpose>adds a single product to a navigation category or list.</purpose>
-<input id="path">.root.category or $list</input>
-<input id="pid">pid1</input>
-<input id="position"># (0=first element in the list, -1=last element in the list)</input>
-</API>
+@apiParam (Request) {String} path.root.category or $list
+@apiParam (Request) {String} pid pid1
+@apiParam (Request) {String} position # (0=first element in the list, -1=last element in the list)
 
 =cut
 
@@ -7296,14 +6305,15 @@ will support %meta tags in the future.
 		}
 
 =pod
-
-<API id="adminNavcatProductDelete">
-<purpose>removes a single product from a navigation category or list.</purpose>
-<input id="path">.root.category or $list</input>
-<input id="pid">pid1</input>
-</API>
-
+@api {POST} adminNavcatProductDelete adminNavcatProductDelete
+@apiName adminNavcatProductDelete
+@apiGroup admin
+@apiDescription
+removes a single product from a navigation category or list.
+@apiParam (Request) {String} path.root.category or $list
+@apiParam (Request) {String} pidpid1
 =cut
+
 
 	if ($VERB eq 'adminNavcatProductDelete') {
 		$NC->set($safe,delete_product=>$v->{'pid'});			
@@ -7410,21 +6420,22 @@ will support %meta tags in the future.
 
 
 =pod
-
-<API id="adminProductList">
-<purpose>accesses the product database to return a specific hardcoded list of products</purpose>
-<input id="CREATED_BEFORE">modified since timestamp</input>
-<input id="CREATED_SINCE">modified since timestamp</input>
-<input id="SUPPLIER">supplier id</input>
+@api {POST} adminProductList adminProductList
+@apiName adminProductList
+@apiGroup admin
+@apiDescription
+accesses the product database to return a specific hardcoded list of products
 <hint>
 indexed attributes: zoovy:prod_id,zoovy:prod_name,
 zoovy:prod_supplierid,  zoovy:prod_salesrank, zoovy:prod_mfgid,
 zoovy:prod_upc, zoovy:profile
 </hint>
-</API>
 
-=cut 
- 
+@apiParam (Request) {String} [CREATED_BEFORE] modified since timestamp
+@apiParam (Request) {String} [CREATED_SINCE] modified since timestamp
+@apiParam (Request) {String} [SUPPLIER] supplier id
+=cut
+
 sub adminProductList {
 	my ($self,$v) = @_;
 
@@ -7446,12 +6457,973 @@ sub adminProductList {
 
 
 
-=pod
 
-<API id="adminProductSelectorDetail">
-<purpose>a product selector is a relative pointer to a grouping of products.</purpose>
-<concept>product</concept>
-<input id="selector">
+=pod
+@api {POST} adminDataQuery adminDataQuery
+@apiName adminDataQuery
+@apiGroup admin
+@apiUse ebay
+@apiDescription
+accesses local management database for a variety of fields/reports</purpose>
+@apiParam (Request) {String} query
+	listing-active,listing-active-fixed,listing-active-store,listing-active-auction,listing-all,listing-allwattempts,
+	event-warnings,event-success,event-pending,event-target-powr.auction,event-target-ebay.auction,event-target-ebay.fixed
+
+@apiParam (Request) {String} since_gmtepoch timestamp - returns all data since that time
+@apiParam (Request) {String} batchidbatchid (only valid with event- requests)
+@apiParam (Response) {String} @HEADER
+@apiParam (Response) {String} @ROWS
+
+=cut 
+
+sub adminDataQuery {
+	my ($self, $v) = @_;
+
+	my %R = ();
+	my @HEADERS = ();
+	my @ROWS = ();
+
+	my ($udbh) = &DBINFO::db_user_connect($self->username());
+	my $PRT = $self->prt();
+	my $MID = $self->mid();
+	my $USERNAME = $self->username();
+	my $PERIOD_GMT = int($v->{'since_gmt'});
+
+	if (not $self->checkACL(\%R,'LISTING','L')) {
+		}
+	elsif (not &JSONAPI::validate_required_parameter(\%R,$v,'query')) {
+		}
+	elsif ($v->{'query'} =~ /^listing\-(active|active-fixed|active-store|active-auction|all|allwattempts)$/) {
+
+		push @HEADERS, "EBAY_ID";
+		push @HEADERS, "PRODUCT";
+		push @HEADERS, "TYPE";
+		push @HEADERS, "TITLE";
+		push @HEADERS, "ENDS";
+		push @HEADERS, "PROFILE";
+		push @HEADERS, "IS_GTC";
+		push @HEADERS, "CLASS";
+		push @HEADERS, 'ITEMS_REMAIN';
+
+		my $pstmt = "select EBAY_ID,PRODUCT,TITLE,ENDS_GMT,IS_GTC,PROFILE,CLASS,ITEMS_REMAIN from EBAY_LISTINGS where MID=$MID /* $USERNAME */ and PRT=$PRT ";
+		if ($v->{'query'} eq 'listing-active') {
+			$pstmt .= " and IS_ENDED=0 and EBAY_ID>0";
+			}
+		elsif ($v->{'query'} eq 'listing-active-fixed') {
+			$pstmt .= " and CLASS='FIXED' and IS_ENDED=0 and EBAY_ID>0";
+			}
+		elsif ($v->{'query'} eq 'listing-active-store') {
+			$pstmt .= " and CLASS='STORE' and IS_ENDED=0 and EBAY_ID>0";
+			}
+		elsif ($v->{'query'} eq 'listing-active-auction') {
+			$pstmt .= " and CLASS='AUCTION' and IS_ENDED=0 and EBAY_ID>0";
+			}
+		elsif ($v->{'query'} eq 'listing-all') {
+			$pstmt .= " and EBAY_ID>0";
+			}
+		elsif ($v->{'query'} eq 'listing-allwattempts') {
+			# $pstmt .= "";
+			}
+
+		print STDERR $pstmt."\n";
+		my $sth = $udbh->prepare($pstmt);
+		$sth->execute();
+		while ( my $ref = $sth->fetchrow_hashref() ) {
+			my @row = ();
+			if ($ref->{'IS_GTC'}) {
+				$ref->{'ENDS'} = 'GTC';
+				}
+			else {
+				$ref->{'ENDS'} = &ZTOOLKIT::pretty_date($ref->{'ENDS_GMT'},2);
+				}
+			
+			foreach my $h (@HEADERS) {
+				push @row, $ref->{$h};
+				}
+			push @ROWS, \@row;
+			}
+		}
+	elsif ($v->{'query'} =~ /^event\-(error|success|pending|target-)/) {
+		push @HEADERS, "ID";
+		push @HEADERS, "PRODUCT";
+		push @HEADERS, "VERB";
+		push @HEADERS, "SKU";
+		push @HEADERS, "QTY";
+		push @HEADERS, "CREATED";
+		push @HEADERS, "TARGET";
+		push @HEADERS, "TARGET_LISTINGID";
+		push @HEADERS, "REQUEST_APP";
+		push @HEADERS, "REQUEST_BATCHID";
+		push @HEADERS, "RESULT";
+		push @HEADERS, "RESULT_ERR_SRC";
+		push @HEADERS, "RESULT_ERR_CODE";
+		push @HEADERS, "RESULT_ERR_MSG";
+		push @HEADERS, "LUSER";
+
+		my $pstmt = "select ID,VERB,REQUEST_APP,REQUEST_BATCHID,PRODUCT,SKU,QTY,from_unixtime(CREATED_GMT) CREATED,TARGET,TARGET_LISTINGID,RESULT,RESULT_ERR_SRC,RESULT_ERR_CODE,RESULT_ERR_MSG,LUSER from LISTING_EVENTS ";
+		$pstmt .= " where MID=$MID /* $USERNAME */ ";
+		if ($v->{'query'} eq 'event-error') {
+			$pstmt .= " and RESULT in ('FAIL-SOFT','FAIL-FATAL') ";
+			}
+		elsif ($v->{'query'} eq 'event-warnings') {
+			$pstmt .= " and RESULT in ('SUCCESS-WARNING') ";
+			}
+		elsif ($v->{'query'} eq 'event-success') {
+			$pstmt .= " and RESULT in ('SUCCESS','SUCCESS-WARNING') ";
+			}
+		elsif ($v->{'query'} eq 'event-pending') {
+			$pstmt .= " and RESULT in ('PENDING','RUNNING') ";
+			}
+		elsif ($v->{'query'} eq 'event-target-ebay.auction') {
+			$pstmt .= " and TARGET='EBAY.AUCTION' ";
+			}
+		elsif ($v->{'query'} eq 'event-target-ebay.fixed') {
+			$pstmt .= " and TARGET='EBAY.FIXED' ";
+			}
+
+		if ($v->{'batchid'} ne '') {
+			$pstmt .= " and REQUEST_BATCHID=".int($v->{'batchid'});
+			}
+		if ($PERIOD_GMT>0) { 
+			$pstmt .= " and CREATED_GMT>".int($PERIOD_GMT); 
+			}
+
+		$pstmt .= " order by ID";
+
+		my $sth = $udbh->prepare($pstmt);
+		$sth->execute();
+		while ( my $ref = $sth->fetchrow_hashref() ) {
+			my @row = ();
+			foreach my $h (@HEADERS) {
+				push @row, $ref->{$h};
+				}
+			push @ROWS, \@row;
+			}
+		}
+
+	&DBINFO::db_user_close();
+
+	$R{'@ROWS'} = \@ROWS;
+	$R{'@HEADER'} = \@HEADERS;
+		
+
+#		print "Content-Type: text/csv\n\n";
+#
+#		my $status  = $csv->combine(@HEADERS);  # combine columns into a string
+#		my $line    = $csv->string();           # get the combined string
+#		print "$line\n";
+#
+#		foreach my $row (@rows) {
+#			$status  = $csv->combine(@{$row});  # combine columns into a string
+#			$line    = $csv->string();           # get the combined string
+#			print "$line\n";
+#			}
+#		}
+
+	return(\%R);
+	}
+
+
+
+
+=pod 
+
+@api {POST} adminOrderSearch adminOrderSearch
+@apiName adminOrderSearch
+@apiGroup admin
+@apiDescription
+returns a list of orders based on the results of an elastic search</purpose>
+@apiParam (Request) {String} ELASTIC elastic search parameters
+@apiParam (Request) {String} [DETAIL]  1,3,5
+@apiParam (Request) {String} [DEBUG]
+=cut
+
+=pod
+@api {POST} adminOrderList adminOrderList
+@apiName adminOrderList
+@apiGroup admin
+@apiDescription
+returns a list of orders based on one or more filter criteria</purpose>
+
+** caution **
+maximum number of records returned is 1,000
+
+Detail level 3 includes POOL, CREATED_GMT
+Detail level 5 includes CUSTOMER ID, ORDER_BILL_NAME, ORDER_BILL_EMAIL, ORDER_BILL_ZONE, ORDER_PAYMENT_STATUS, ORDER_PAYMENT_METHOD, ORDER_TOTAL, ORDER_SPECIAL, MKT, MKT_BITSTR
+
+
+@apiParam (Request) {String} _admin admin session id
+@apiParam (Request) {String} [TS] modified since timestamp
+@apiParam (Request) {String} [EREFID] string (external reference id)
+@apiParam (Request) {String} [CUSTOMER] CID
+@apiParam (Request) {String} [DETAIL] 1,3,5
+@apiParam (Request) {String} [POOL] RECENT,PENDING,PROCESSING
+@apiParam (Request) {String} [PRT] 0
+@apiParam (Request) {String} [BILL_FULLNAME] string
+@apiParam (Request) {String} [BILL_EMAIL] string
+@apiParam (Request) {String} [BILL_PHONE] string
+@apiParam (Request) {String} [SHIP_FULLNAME] string
+@apiParam (Request) {String} [CREATED_GMT] #epoch
+@apiParam (Request) {String} [CREATEDTILL_GMT] #epoch
+@apiParam (Request) {String} [PAID_GMT] #epoch
+@apiParam (Request) {String} [PAIDTILL_GMT] #epoch
+@apiParam (Request) {String} [PAYMENT_STATUS] 001
+@apiParam (Request) {String} [SHIPPED_GMT] 1/0
+@apiParam (Request) {String} [NEEDS_SYNC] 1/0
+@apiParam (Request) {String} [MKT] EBY,AMZ
+@apiParam (Request) {String} [LIMIT] #int (records returned)
+
+@apiParam (Response) {String} @orders	an array of orders containing varied amounts of data based on the detail level requested
+
+@apiSuccessExample Detail Level 1
+{
+'@orders':[
+	[ 'ORDERID':'2012-01-1234', 'MODIFIED_GMT':123456 ],
+	[ 'ORDERID':'2012-01-1235', 'MODIFIED_GMT':123457 ],
+	[ 'ORDERID':'2012-01-1236', 'MODIFIED_GMT':123458 ]
+	]
+}
+
+=cut
+
+sub adminOrderList {
+	my ($self,$v) = @_;
+
+	my %R = ();	
+
+	require ORDER::BATCH;
+	my $res = [];
+
+	if (not $self->checkACL(\%R,'ORDER','L')) {
+		## this will set it's own error
+		}
+	elsif ($v->{'_cmd'} eq 'adminOrderItemList') {
+
+		my ($INV2) = INVENTORY2->new($self->username());
+		if ($v->{'backorder'}) {
+			($R{'@INVDETAIL'},$R{'rowcount'}) = $INV2->pagedetail('+'=>'ALL','BASETYPE'=>'BACKORDER',limit=>($v->{'limit'}||50),page=>($v->{'page'}||0));
+			}
+		elsif ($v->{'preorder'}) {
+			($R{'@INVDETAIL'},$R{'rowcount'}) = $INV2->pagedetail('+'=>'ALL','BASETYPE'=>'PREORDER',limit=>($v->{'limit'}||50),page=>($v->{'page'}||0));
+			}
+		elsif ($v->{'pick_noroute'}) {
+			($R{'@INVDETAIL'},$R{'rowcount'}) = $INV2->pagedetail('+'=>'ALL','BASETYPE'=>'PICK','WHERE'=>[ 'PICK_ROUTE', 'EQ', 'TBD' ] ,limit=>($v->{'limit'}||50),page=>($v->{'page'}||0));
+			}
+		elsif ($v->{'pick_unshipped'}) {
+			($R{'@INVDETAIL'},$R{'rowcount'}) = $INV2->pagedetail('+'=>'ALL','BASETYPE'=>'PICK',
+				'@WHERE'=>
+					[
+					[ 'PICK_DONE_TS', 'EQ', 0 ],
+					[ 'PICK_ROUTE', 'IN', [ 'WMS','SUPPLIER','PARTNER' ] ]
+					]
+				,  limit=>($v->{'limit'}||50),page=>($v->{'page'}||0));
+			}
+		}
+	elsif ($v->{'_cmd'} eq 'adminOrderSearch') {
+		my ($es) = &ZOOVY::getElasticSearch($self->username());
+		if (not defined $es) {
+			&JSONAPI::append_msg_to_response(\%R,"iseerr",201,"elasticsearch object is not available");			
+			}
+		elsif (not $self->checkACL(\%R,'ORDER','S')) {
+			## this will set it's own error
+			}
+
+		if (not &hadError(\%R)) {
+			## try
+			my %params = %{$v->{'ELASTIC'}};
+
+			## these became nested one level deeper in es v1.0
+			if (defined $params{'query'}) { $params{'body'}->{'query'} = $params{'query'}; delete $params{'query'}; }
+			if (defined $params{'filter'}) { $params{'body'}->{'filter'} = $params{'filter'}; delete $params{'filter'}; }
+			$params{'index'} = sprintf("%s.private",$self->username());
+
+			eval { %R = %{$es->search(%params)} };
+			# open F, ">/tmp/foo";	print F Dumper(\%params,\%R);	close F;
+
+			if (scalar(keys %R)==0) {
+				&JSONAPI::append_msg_to_response(\%R,"iseerr",18201,"no keys returned from elastic");
+				}
+		 	elsif (not $@) {
+				## yay, success!
+				$R{'_count'} = scalar(@{$R{'hits'}->{'hits'}});
+				#if ($R{'_count'}>0) {
+				#	foreach my $hit (@{$R{'hits'}->{'hits'}}) {
+				#		#$hit = $hit->{'_source'};
+				#		#delete $hit->{'description'};
+				#		#delete $hit->{'marketplaces'};
+				#		#delete $hit->{'skus'};
+				#		# $hit->{'prod_name'} = 'test';
+				#		}
+				#	}
+				}
+			elsif (ref($@) eq 'ElasticSearch::Error::Request') {
+				my ($e) = $@;
+				my $txt = $e->{'-text'};
+				$txt =~ s/\[inet\[.*?\]\]//gs;	## remove: [inet[/192.168.2.35:9300]]
+				&JSONAPI::append_msg_to_response(\%R,"apperr",18200,"search mode:$v->{'mode'} failed: ".$e->{'-text'});
+			   }
+			elsif (ref($@) eq 'ElasticSearch::Error::Missing') {
+				&JSONAPI::append_msg_to_response(\%R,"iseerr",18202,sprintf("search mode:$v->{'mode'} %s",$@->{'-text'}));
+				$R{'dump'} = Dumper($@);
+				}
+			else {
+				&JSONAPI::append_msg_to_response(\%R,"iseerr",18201,"search mode:$v->{'mode'} failed with unknown error");
+				$R{'dump'} = Dumper($@);
+				}
+			}
+
+		my @OIDS = ();
+		if (not &hadError(\%R)) {
+			foreach my $record (@{$R{'hits'}->{'hits'}}) {
+				push @OIDS, $record->{'_source'}->{'orderid'};
+				}
+			}
+		elsif (not $v->{'DEBUG'}) {
+			%R = ();
+			}
+	
+		if (scalar(@OIDS)>0) {
+			($res) = &ORDER::BATCH::report($self->username(), 'DETAIL'=>$v->{'DETAIL'}, '@OIDS'=>\@OIDS );		
+			}
+		}
+	elsif ($v->{'_cmd'} eq 'adminOrderList') {
+		($res) = &ORDER::BATCH::report($self->username(), %{$v});	
+		}
+	else {
+		&JSONAPI::validate_unknown_cmd(\%R,$v);
+		}
+
+	$R{'@orders'} = [];
+	foreach my $ref (@{$res}) {
+		push @{$R{'@orders'}}, $ref;
+		}
+
+	if (not &JSONAPI::hadError(\%R)) {
+		&JSONAPI::append_msg_to_response(\%R,'success',0);
+		}
+
+	return(\%R);
+	}
+
+
+
+=pod
+@api {POST} adminOrderDetail adminOrderDetail
+@apiName adminOrderDetail
+@apiGroup admin
+@apiDescription
+provides a full dump of data inside an order
+
+@apiParam (Request) {String} _cartid admin session id
+@apiParam (Request) {String} orderi Order ID
+@apiParam (Response) {String} order	a json representation of an order (exact fields depend on version/order source)
+
+=cut
+
+ 
+sub adminOrderRouteList {
+	my ($self, $v) = @_;
+	my %R = ();	
+
+	my ($o) = undef;
+	#($o,my $err) = ORDER->new($self->username(),$v->{'orderid'},new=>0);
+	my ($CART2) = CART2->new_from_oid($self->username(),$v->{'orderid'});
+	$R{'orderid'} = $v->{'orderid'};		## this seemed like a good idea
+	#if (defined $err) {
+	#	&JSONAPI::append_msg_to_response(\%R,'apperr',9901,'error:'.$err);
+	#	}
+	if (not defined $CART2) {
+		&JSONAPI::append_msg_to_response(\%R,'apperr',9901,'orderid is not valid/could not lookup order');
+		}
+	elsif (not $self->checkACL(\%R,'ORDER','R')) {
+		## this will set it's own error
+		}
+
+	if (defined $CART2) {
+		my $UUID = $v->{'uuid'};
+		my ($item) = $CART2->stuff2()->item('uuid'=>$UUID);
+		my $SKU = $item->{'sku'};
+		print STDERR "SKU: $SKU\n";
+
+		my ($LINKEDROUTES) = INVENTORY2->new($self->username())->detail('SKU'=>$SKU,'+'=>'ROUTE','@BASETYPES'=>['SIMPLE','WMS','SUPPLIER']);
+		my @ROUTES = ();
+		foreach my $route (@{$LINKEDROUTES}) {
+			my $title = '';
+			if ($route->{'BASETYPE'} eq 'SIMPLE') { 
+				push @ROUTES, { 
+					'cmdtxt'=>sprintf('Simple Inventory'),
+					'cmd'=>sprintf("ITEM-UUID-ROUTE?SKU=$SKU&UUID=$UUID&ROUTE=SIMPLE"),
+					'qty'=>$route->{'QTY'}
+					};
+				}
+			elsif ($route->{'BASETYPE'} eq 'WMS') { 
+				push @ROUTES, { 
+					'cmdtxt'=>sprintf('WMS %s',$route->{'WMS_GEO'}),
+					'cmd'=>sprintf("ITEM-UUID-ROUTE?SKU=$SKU&UUID=$UUID&ROUTE=WMS&WMS_GEO=%s",$route->{'WMS_GEO'}),
+					'qty'=>$route->{'QTY'}
+					};
+				}
+			elsif ($route->{'BASETYPE'} eq 'SUPPLIER') { 
+				push @ROUTES, { 
+					'cmdtxt'=>sprintf('SUPPLIER %s',$route->{'SUPPLIER_ID'}),
+					'cmd'=>sprintf("ITEM-UUID-ROUTE?SKU=$SKU&UUID=$UUID&ROUTE=SUPPLIER&SUPPLIER_ID=%s",$route->{'SUPPLIER_ID'}),
+					'qty'=>$route->{'QTY'}
+					};
+				}
+			}
+		push @ROUTES, { 'cmdtxt'=>'Backorder', 'cmd'=>"ITEM-UUID-ROUTE?UUID=$UUID&ROUTE=BACKORDER", 'qty'=>0 };
+		$R{'@ROUTES'} = \@ROUTES;
+		}
+	
+	return(\%R);
+	}
+
+
+
+=pod
+@api {POST} adminOrderDetail adminOrderDetail
+@apiName adminOrderDetail
+@apiGroup admin
+@apiDescription
+provides a full dump of data inside an order
+@apiParam (Request) {String} _cartid admin session id
+@apiParam (Request) {String} orderid Order ID
+@apiParam (Response) {String} order	a json representation of an order (exact fields depend on version/order source)
+=cut
+
+
+ 
+sub adminOrderDetail {
+	my ($self,$v) = @_;
+
+	my %R = ();	
+
+	my ($o) = undef;
+	#($o,my $err) = ORDER->new($self->username(),$v->{'orderid'},new=>0);
+	my ($CART2) = CART2->new_from_oid($self->username(),$v->{'orderid'});
+	#if (defined $err) {
+	#	&JSONAPI::append_msg_to_response(\%R,'apperr',9901,'error:'.$err);
+	#	}
+	if (not defined $CART2) {
+		&JSONAPI::append_msg_to_response(\%R,'apperr',9901,'orderid is not valid/could not lookup order');
+		}
+	elsif (not $self->checkACL(\%R,'ORDER','R')) {
+		## this will set it's own error
+		}
+	else {
+		%R = %{$CART2->jsonify()};
+		}
+
+	if (not &JSONAPI::hadError(\%R)) {
+		&JSONAPI::append_msg_to_response(\%R,'success',0);		
+		}
+   return(\%R);
+	}
+
+
+
+=pod
+@api {POST} adminOrderMacro adminOrderMacro
+@apiName adminOrderMacro
+@apiGroup admin
+@apiDescription
+uses the embedded macro language to set order parameters, depending on access levels macros may not be available.
+
+**Using Order Macros (@updates)**
+
+Order Macros provide a developer with a way to make easy, incremental, non-destructive updates to orders. 
+The syntax for a macro payload uses a familiar dsn format cmd?key=value&key=value, along with the same
+uri encoding rules, and one command per line (making the files very easy to read) -- here is an example:
+"SETPOOL?pool=COMPLETED" (without the quotes). A complete list of available commands is below:
+
+* CREATE
+* SETPOOL?pool=[pool]\n
+* CAPTURE?amount=[amount]\n
+* ADDTRACKING?carrier=[UPS|FDX]&track=[1234]\n
+* EMAIL?msg=[msgname]\n
+* ADDPUBLICNOTE?note=[note]\n
+* ADDPRIVATENOTE?note=[note]\n
+* ADDCUSTOMERNOTE?note=[note]\n
+* SET?key=value	 (for setting attributes)
+* SPLITORDER
+* MERGEORDER?oid=src orderid
+* ADDPAYMENT?tender=CREDIT&amt=0.20&UUID=&ts=&note=&CC=&CY=&CI=&amt=
+* ADDPROCESSPAYMENT?VERB=&same_params_as_addpayment<br>
+	NOTE: unlike 'ADDPAYMENT' the 'ADDPROCESSPAYMENT' this will add then run the specified verb.
+	Verbs are: 'INIT' the payment as if it had been entered by the buyer at checkout,
+	other verbs: AUTHORIZE|CAPTURE|CHARGE|VOID|REFUND
+* PROCESSPAYMENT?VERB=verb&UUID=uuid&amt=<br>
+	Possible verbs: AUTHORIZE|CAPTURE|CHARGE|VOID|REFUND
+* SETSHIPADDR?ship/company=&ship/firstname=&ship/lastname=&ship/phone=&ship/address1=&ship/address2=&ship/city=&ship/country=&ship/email=&ship/state=&ship/province=&ship/zip=&ship/int_zip=
+* SETBILLADDR?bill/company=&bill/firstname=&bill/lastname=&bill/phone=&bill/address1=&bill/address2=&bill/city=&bill/country=&bill/email=&bill/state=&bill/province=&bill/zip=&bill/int_zip=
+* SETSHIPPING?shp_total=&shp_taxable=&shp_carrier=&hnd_total=&hnd_taxable=&ins_total=&ins_taxable=&spc_total=&spc_taxable=
+* SETADDRS?any=attribute&anyother=attribute
+* SETTAX?sum/tax_method=&sum/tax_total&sum/tax_rate_state=&sum/tax_rate_zone=&
+* SETSTUFFXML?xml=encodedstuffxml
+* ITEMADD?uuid=&sku=xyz&
+* ITEMREMOVE?uuid=
+* ITEMUPDATE?uuid=&qty=&price=&
+* SAVE
+* ECHO
+
+@apiParam (Request) {String} orderid order id of the order# to update
+@apiParam (Request) {String} @updates macro content
+
+@apiSuccessExample {json} Request Example
+{
+'@updates':[
+	'cmd',
+	'cmd?some=param',
+	]
+}
+
+=cut
+
+ 
+sub adminCartOrderMacro {
+	my ($self,$v) = @_;
+
+	my %R = ();	
+
+	my $CART2 = undef;
+	if ($v->{'_cmd'} eq 'adminCartMacro') {
+		my $cartid = $v->{'_cartid'};
+		$CART2 = $self->cart2($cartid,'create'=>1);
+		if (not defined $CART2) { 
+			&JSONAPI::set_error(\%R, 'apperr', 94839,sprintf("cart '%s' not initialized for adminCartMacro",$cartid));		
+			}
+		}
+	elsif ($v->{'_cmd'} eq 'adminOrderMacro') {
+		my $ORDERID = $v->{'orderid'};
+		if (not &JSONAPI::validate_required_parameter(\%R,$v,'orderid') ) {
+			}
+		elsif (($CART2) = CART2->new_from_oid($self->username(),$v->{'orderid'})) {
+			## yay
+			}
+		else {
+			&JSONAPI::append_msg_to_response(\%R,'apperr',9004,'Invalid/corrupt orderid');
+			}
+		}
+	else {
+		&JSONAPI::append_msg_to_response(\%R,'apperr',9001,'request _cmd is invalid for adminCartOrderMacro');
+		}
+
+
+	my @CMDS = ();
+	if (&JSONAPI::hadError(\%R)) {
+		## shit happened!
+		}
+	elsif (not defined $v->{'@updates'}) {
+		&JSONAPI::append_msg_to_response(\%R,'apperr',9002,'Could not find any @updates for order');
+		}
+	elsif (ref($v->{'@updates'}) eq 'ARRAY') {
+		my $count = 0;
+		foreach my $line (@{$v->{'@updates'}}) {
+			my $CMDSETS = &CART2::parse_macro_script($line);
+			foreach my $cmdset (@{$CMDSETS}) {
+				$cmdset->[1]->{'luser'} = $self->luser();
+				$cmdset->[2] = $line;		
+				$cmdset->[3] = $count++;
+				push @CMDS, $cmdset;
+				}
+			}
+		my $LM = LISTING::MSGS->new();
+		$CART2->run_macro_cmds(\@CMDS,'*LM'=>$LM,'*SITE'=>$self->_SITE());
+
+#		if ($CART2->is_cart()) {
+#			$CART2->cart_save();
+#			}
+#		else {
+#			$CART2->order_save();
+#			}
+
+		if (my $iseref = $LM->had(['WARNING'])) {
+			&JSONAPI::append_msg_to_response(\%R,"warning",7200,$iseref->{'+'});
+			}
+		elsif (my $appref = $LM->had(['ERROR'])) {
+			&JSONAPI::append_msg_to_response(\%R,"apperr",7201,$appref->{'+'});
+			}
+		else {
+			&JSONAPI::append_msg_to_response(\%R,'success',0);		
+			}
+		}
+	else {
+		&JSONAPI::append_msg_to_response(\%R,'apperr',9005,'Issue with @updates formatting [we did not understand the format you sent]');
+		}
+
+   return(\%R);
+	}
+		
+
+
+
+#################################################################################
+##
+##
+
+=pod
+@api {POST} adminOrderPaymentAction adminOrderPaymentAction
+@apiName adminOrderPaymentAction
+@apiGroup admin
+@apiDescription
+interally runs the PAYMENTACTION orderUpdate Macro, but can be called as a separate API</purpose>
+@apiParam (Response) {String} orderid	 2011-01-1234
+@apiParam (Response) {String} payment	 
+
+=cut
+
+
+sub adminOrderPaymentAction {
+	my ($self,$v) = @_;
+
+	my %R = ();
+
+	my $ORDERID = $v->{'orderid'};
+	my $O2 = undef;
+	if (not &JSONAPI::validate_required_parameter(\%R,$v,'orderid') ) {
+		}
+	elsif (($O2) = CART2->new_from_oid($self->username(),$v->{'orderid'})) {
+		## yay
+		}
+	else {
+		&JSONAPI::append_msg_to_response(\%R,'apperr',9004,'Invalid/corrupt orderid');
+		}
+
+	my $LM = LISTING::MSGS->new();
+	my %ref = ();
+	$ref{'luser'} = $self->luser();
+	$ref{'ACTION'} = uc($v->{'ACTION'});
+	$ref{'amt'} = $v->{'amt'};
+	$ref{'ps'} = $v->{'ps'};
+	$ref{'uuid'} = $v->{'uuid'};
+	$ref{'note'} = $v->{'note'};
+
+	$O2->run_macro_cmds([ [ 'PAYMENTACTION', \%ref ] ],'*LM'=>$LM);		
+
+	if (my $iseref = $LM->had(['WARNING'])) {
+		&JSONAPI::append_msg_to_response(\%R,"warning",200,$iseref->{'+'});
+		}
+	elsif (my $appref = $LM->had(['ERROR'])) {
+		&JSONAPI::append_msg_to_response(\%R,"apperr",201,$appref->{'+'});
+		}
+	else {
+		&JSONAPI::append_msg_to_response(\%R,'success',0);		
+		}
+	return(\%R);	
+	}
+
+
+
+
+
+
+
+
+=pod
+@api {POST} adminImageDetail adminImageDetail
+@apiName adminImageDetail
+@apiGroup admin
+@apiDescription
+returns stored details about an media library image file.
+@apiParam (Request) {String} file  filename of the image ex: path/to/image.jpg
+@apiParam (Response) {String} FILENAME	
+@apiParam (Response) {String} EXT	
+@apiParam (Response) {String} H	
+@apiParam (Response) {String} W	
+@apiParam (Response) {String} SIZE	
+@apiParam (Response) {String} TS	
+@apiParam (Response) {String} FID	
+
+=cut
+
+ 
+sub adminImageDetail {
+	my ($self,$v) = @_;
+
+	my %R = ();	
+
+	if (not &JSONAPI::validate_required_parameter(\%R,$v,'file') ) {
+		}
+	else {
+		require MEDIA;
+		my $result = &MEDIA::getinfo($self->username(),$v->{'file'});
+		if (not defined $result) {
+			&JSONAPI::set_error(\%R,'apperr',5162,sprintf("file referenced '%s' is invalid",$v->{'file'}));
+			}
+		else {
+			%R = %{$result};
+			}
+		}
+
+	if (&JSONAPI::hadError(\%R)) {
+		## shit happened!
+		}
+	else {
+		&JSONAPI::append_msg_to_response(\%R,'success',0);		
+		}	
+	$R{'file'} = $v->{'file'};
+
+   return(\%R);
+	}
+
+
+=pod
+@api {POST} adminImageFolderList adminImageFolderList
+@apiName adminImageFolderList
+@apiGroup admin
+@apiDescription
+returns a list of image categories and timestamps for each category</purpose>
+@apiParam (Response) {String} @folders	
+@apiSuccessExample Request Example
+
+<Folder ImageCount="5" TS="123" Name="Path1" FID="1" ParentFID="0" ParentName="|"/>
+<Folder ImageCount="2" TS="456" Name="Path1b" FID="2" ParentFID="1" ParentName="|Path1"/>
+<Folder ImageCount="1" TS="567" Name="Path1bI" FID="3" ParentFID="2" ParentName="|Path1|Pathb"/>
+<Folder ImageCount="0" TS="789" Name="Path2" FID="4" ParentFID="0" ParentName="|"/>
+
+=cut
+
+ 
+sub adminImageFolderList {
+	my ($self,$v) = @_;
+
+	my %R = ();	
+
+	require MEDIA;
+	$R{'@folders'} = [];
+	foreach my $fref (@{&MEDIA::folderlist($self->username())}) {
+		push @{$R{'@folders'}}, $fref;
+		}
+
+	if (not &JSONAPI::hadError(\%R)) {
+		&JSONAPI::append_msg_to_response(\%R,'success',0);		
+		}
+
+   return(\%R);
+	}
+
+
+
+=pod
+@api {POST} adminImageList adminImageList
+@apiName adminImageList
+@apiGroup admin
+@apiDescription
+returns the list of images for a given folder (if specified). 
+
+@apiParam (Request) {String} folderfolder to view
+@apiParam (Request) {String} reindexif a folder is requested, this will reindex the current folder
+@apiParam (Request) {String} keywordkeyword (uses case insensitive substring)
+@apiParam (Request) {String} orderbyNONE|TS|TS_DESC|NAME|NAME_DESC|DISKSIZE|DISKSIZE_DESC|PIXEL|PIXEL_DESC
+@apiParam (Request) {String} detailNONE|FOLDER
+@apiParam (Response) {String} @images	
+
+@apiSuccessExample Request Example 
+<Image Name="abc" TS="1234" Format="jpg" />
+<Image Name="abc2" TS="1234" Format="jpg" />
+<Image Name="abc3" TS="1234" Format="jpg" />
+<Image Name="abc4" TS="1234" Format="jpg" />
+<Image Name="abc5" TS="1234" Format="jpg" />
+
+=cut
+
+ 
+sub adminImageList {
+	my ($self,$v) = @_;
+
+	my %R = ();	
+	$R{'@images'} = [];	
+
+	my ($USERNAME) = $self->username();
+
+	my $udbh = &DBINFO::db_user_connect($USERNAME);
+	my $MID = &ZOOVY::resolve_mid($USERNAME);
+
+	my %result = ();
+	my $DETAIL = $v->{'detail'};
+
+	my $pstmt = "select I.ImgName,I.Format,I.TS from IMAGES I where I.MID=$MID ";
+	if ($DETAIL eq '') {}
+	elsif ($DETAIL eq 'NONE') { $DETAIL = ''; }
+	elsif ($DETAIL eq 'FOLDER') {
+		$pstmt = "select I.ImgName,I.Format,I.TS,F.FID,F.FName from IMAGES I,IFOLDERS F where F.MID=$MID and I.MID=$MID and F.FID=I.FID ";
+		}
+	else {
+		&JSONAPI::set_error(\%R,'apperr',74230,'invalid detail parameter (NONE|FOLDER)');
+		}
+
+
+	if (defined $v->{'folder'}) { 
+		require MEDIA;
+
+		if ((substr($v->{'folder'},0,1) eq '_') || ($v->{'reindex'})) {
+			## _ebay/something -- force a reindex
+			MEDIA::reindex($self->username(),$v->{'folder'},1);
+			}
+
+		my $FID = &MEDIA::resolve_fid($USERNAME,$v->{'folder'});
+		if ($FID > 0) { 
+			$pstmt .= " and I.FID=".$FID; 
+			}
+		else {
+			&JSONAPI::set_error(\%R,'youerr',74231,'Invalid folder requested');
+			}
+		}
+
+	if ($v->{'keyword'} ne '') {
+		if ($v->{'keyword'} eq '') {
+			&JSONAPI::set_error(\%R,'apperr',74232,'keyword parameter is required for adminImageFolderSearch cmd');
+			}
+		else {
+			my $qtKEYWORD = $udbh->quote($v->{'keyword'});
+			$pstmt .= " and I.ImgName like concat('%',$qtKEYWORD,'%') ";
+			}
+		}
+
+	if (($v->{'folder'} eq '') && ($v->{'keyword'} eq '')) {
+		&JSONAPI::set_error(\%R,'apperr',74233,'sorry i will not return all images, folder or keyword parameter must be specified');
+		}
+
+	if ($v->{'orderby'}) {
+		# NONE|TS|TS_DESC|NAME|NAME_DESC|DISK|DISK_DESC|PIXEL|PIXEL_DESC";
+		my $direction = ($v->{'orderby'} =~ /\_DESC$/)?'DESC':'ASC';
+		$v->{'orderby'} =~ s/\_DESC$//gs;	# strip _DESC so we just have TS, NAME, etc.
+		if ($v->{'orderby'} eq 'NONE') {
+			$direction = '';
+			}
+		elsif ($v->{'orderby'} eq 'TS') {
+			$pstmt .= " order by I.TS $direction";
+			}
+		elsif ($v->{'orderby'} eq 'NAME') {
+			$pstmt .= " order by I.ImgName $direction";
+			}
+		elsif ($v->{'orderby'} eq 'DISKSIZE') {
+			$pstmt .= " order by I.Size $direction";
+			}
+		elsif ($v->{'orderby'} eq 'PIXEL') {
+			$pstmt .= " order by I.H*I.W $direction";
+			}
+		else {
+			&JSONAPI::set_error(\%R,'apperr',74233,'invalid orderby requested');
+			}
+		}
+
+	## at this point we're going to run the actual query OR we have an error
+	if (not &JSONAPI::hadError(\%R)) {
+		# print STDERR "$pstmt\n";
+		my $sth = $udbh->prepare($pstmt);
+		$sth->execute();
+		while ( my ($i,$e,$ts,$fid,$fname) = $sth->fetchrow() ) { 
+			my $filename = $i.(($e ne '')?'.'.$e:'');
+			if ($DETAIL eq '') {
+				push @{$R{'@images'}}, { 'Name'=>$filename, 'TS'=>$ts };
+				}
+			elsif ($DETAIL eq 'FOLDER') {
+				push @{$R{'@images'}}, { 'FID'=>$fid, 'Folder'=>$fname, 'Name'=>$filename, 'TS'=>$ts };
+				}
+			}
+		$sth->finish();
+		}
+
+	&DBINFO::db_user_close();
+
+	if (not &JSONAPI::hadError(\%R)) {
+		&JSONAPI::append_msg_to_response(\%R,'success',0);		
+		}
+
+   return(\%R);
+	}
+
+
+=pod
+@api {POST} adminImageFolderCreate adminImageFolderCreate
+@apiName adminImageFolderCreate
+@apiGroup admin
+@apiDescription
+creates a new folder in the media library, folder names must be in lower case.</purpose>
+
+you can call these in any order, subpaths will be created.
+
+@apiParam (Request) {String} folder DIR1|DIR2
+@apiParam (Response) {String} fid	the internal folder id#
+@apiParam (Response) {String} name	the name the folder was created
+
+@apiSuccessExample  Request Example
+<Category FID="1234" Name=""/>
+
+=cut
+
+ 
+sub adminImageFolderCreate {
+	my ($self,$v) = @_;
+
+	my %R = ();	
+
+	require MEDIA;
+	my $PWD = &MEDIA::mkfolder($self->username(),$v->{'folder'});
+	if ($PWD eq '') {
+		# $XML = "<Category FID=\"-1\" Error=\"Could not create category $PARAMS[0]\"/>\n";
+		}
+	else {
+		my $FID = &MEDIA::resolve_fid($self->username(),$PWD);
+		$R{'fid'} = $FID;
+		$R{'name'} = $PWD;
+		}
+
+	if (&JSONAPI::hadError(\%R)) {
+		## shit happened!
+		}
+	else {
+		&JSONAPI::append_msg_to_response(\%R,'success',0);		
+		}	
+
+   return(\%R);
+	}
+
+=pod
+@api {POST} adminImageFolderDelete adminImageFolderDelete
+@apiName adminImageFolderDelete
+@apiGroup admin
+@apiDescription
+request the deletion of a category (do not implement this right now)</purpose>
+
+@apiParam (Request) {String} folder
+
+=cut
+
+ 
+sub adminImageFolderDelete {
+	my ($self,$v) = @_;
+
+	my %R = ();	
+
+	require MEDIA;
+	require WEBAPI;
+	$self->accesslog("IMAGE.FOLDERDELETE","Deleted $v->{'folder'}");
+	&MEDIA::rmfolder($self->username(),$v->{'folder'});
+
+	if (&JSONAPI::hadError(\%R)) {
+		## shit happened!
+		}
+	else {
+		&JSONAPI::append_msg_to_response(\%R,'success',0);		
+		}	
+
+   return(\%R);
+	}
+
+
+
+
+=pod
+@api {POST} adminProductSelectorDetail adminProductSelectorDetail
+@apiName adminProductSelectorDetail
+@apiGroup admin
+@apiDescription
+a product selector is a relative pointer to a grouping of products.</purpose>
+
+@apiUse product
+@apiParam (Request) {String} selector
 NAVCAT=.safe.path
 NAVCAT=$list
 CSV=pid1,pid2,pid3
@@ -7463,13 +7435,10 @@ PROFILE=xyz
 SUPPLIER=xyz
 MFG=xyx
 ALL=your_base_are_belong_to_us
-</input>
-<output id="@products">an array of product id's</output>
-</API>
 
-
-
+@apiParam (Response) {Array} @products an array of product id's
 =cut
+
 
 
 sub adminProductSelectorDetail {
@@ -7490,93 +7459,130 @@ sub adminProductSelectorDetail {
 
 
 =pod
+@api {POST} adminProductDelete adminProductDelete
+@apiName adminProductDelete
+@apiGroup admin
+@apiDescription
+removes a product id (and all variations) from the database</purpose>
+@apiUse product
+@apiParam (Request) {String} pidpid : an A-Z|0-9|-|_ -- max length 20 characters, case insensitive
+=cut
 
+=pod
+@api {POST} adminProductCreate adminProductCreate
+@apiName adminProductCreate
+@apiGroup admin
+@apiDescription
+creates a new product in the database
 
-<API id="adminProductDelete">
-<purpose>removes a product id (and all variations) from the database</purpose>
-<concept>product</concept>
-<input id="pid">pid : an A-Z|0-9|-|_ -- max length 20 characters, case insensitive</input>
-</API>
-
-<API id="adminProductCreate">
-<purpose>creates a new product in the database</purpose>
-<concept>product</concept>
-<input id="pid">pid : an A-Z|0-9|-|_ -- max length 20 characters, case insensitive</input>
-<input id="%attribs">[ 'zoovy:prod_name':'value' ]</input>
+@apiUse product
+@apiParam (Request) {String} pidpid : an A-Z|0-9|-|_ -- max length 20 characters, case insensitive
+@apiParam (Request) {String} %attribs[ 'zoovy:prod_name':'value' ]
 <example>
 %attribs:[ 'zoovy:prod_name':'value' ]
 </example>
-</API>
+=cut
 
-<API id="adminProductUpdate">
-<purpose></purpose>
-<input id="pid">pid : an A-Z|0-9|-|_ -- max length 20 characters, case insensitive</input>
-<input id="%attribs">[ 'attribute':'value', 'anotherattrib':'value' ]</input>
+=pod
+@api {POST} adminProductUpdate adminProductUpdate
+@apiName adminProductUpdate
+@apiGroup admin
+@apiDescription TODO
+
+@apiParam (Request) {String} pidpid : an A-Z|0-9|-|_ -- max length 20 characters, case insensitive
+@apiParam (Request) {String} %attribs[ 'attribute':'value', 'anotherattrib':'value' ]
 <example>
 %attribs:[ 'attribute':'value', 'anotherattrib':'value' ]
 </example>
-</API>
+=cut
 
-<API id="adminProductDetail">
-<purpose></purpose>
-<input id="pid">pid1</input>
-<output id="%attribs">
-</output>
-<output id="@skus">
+=pod
+@api {POST} adminProductDetail adminProductDetail
+@apiName adminProductDetail
+@apiGroup admin
+@apiDescription TODO
+@apiParam (Request) {String} pidpid1
+@apiParam (Response) {Hash} %attribs 
+@apiParam (Response) {Array} @skus 
 @skus = [
   { 'sku':'sku1', '%attribs':{ key1a:val1a, key1b:val1b } },
   { 'sku':'sku2', '%attribs':{ key2b:val2a, key2b:val2b } }
   ]
-</output>
-</API>
 
-<API id="adminProductDebugLog">
-<purpose>see reports for @HEAD,@BODY format</purpose>
-<input id="pid">pid1</input>
-<input id="GUID"></input>
-<output id="@HEAD"></output>
-<output id="@BODY"></output>
-</API>
+=cut
 
-<API id="adminProductEBAYDetail">
-</API>
+=pod
+@api {POST} adminProductDebugLog adminProductDebugLog
+@apiName adminProductDebugLog
+@apiGroup admin
+@apiDescription
+see reports for @HEAD,@BODY format</purpose>
+@apiParam (Request) {String} pidpid1
+@apiParam (Request) {String} GUID
+@apiParam (Response) {Array} @HEAD 
+@apiParam (Response) {Array} @BODY
+=cut
 
-<API id="adminProductAmazonDetail">
-<output id="%thesaurus"></output>
-<output id="@DETAIL"></output>
-</API>
+=pod
+@api {POST} adminProductEBAYDetail adminProductEBAYDetail
+@apiName adminProductEBAYDetail
+@apiGroup admin
+=cut
 
-<API id="adminProductAmazonVerify">
-<output id="@MSGS"></output>
+=pod
+@api {POST} adminProductAmazonDetail adminProductAmazonDetail
+@apiName adminProductAmazonDetail
+@apiGroup admin
+@apiParam (Response) {Hash} %thesaurus
+@apiParam (Response) {Array} @DETAIL
+=cut
+
+=pod
+@api {POST} adminProductAmazonVerify adminProductAmazonVerify
+@apiName adminProductAmazonVerify
+@apiGroup admin
+@apiParam (Response) {String} @MSGS
+
 <note>
 TITLE|SUCCESS|INFO|WARN|STOP|PAUSE|ERROR|DEPRECATION|DEBUG|XML
 </note>
-</API>
-
-<API id="adminProductBUYDetail">
-<input id="pid">pid1</input>
-<output id="@DBMAPS"></output>
-<output id="buycom/dbmap"></output>
-<output id="%FLEX"></output>
-</API>
-
-
-<API id="adminProductOptionsUpdate">
-<input id="pid">pid1</input>
-<input id="@pogs">an array of pog options</input>
-</API>
-
-<API id="adminProductEventsDetail">
-<input id="pid">pid1</input>
-</API>
-
-<API id="adminProductMacro">
-<purpose></purpose>
-<input id="pid">pid1</input>
-<input id="@updates"></input>
-</API>
-
 =cut
+
+=pod
+@api {POST} adminProductBUYDetail adminProductBUYDetail
+@apiName adminProductBUYDetail
+@apiGroup admin
+@apiParam (Request) {String} pidpid1
+@apiParam (Response) {Array} @DBMAPS
+@apiParam (Response) {String} buycom/dbmap
+@apiParam (Response) {String} %FLEX
+=cut
+
+=pod
+@api {POST} adminProductOptionsUpdate adminProductOptionsUpdate
+@apiName adminProductOptionsUpdate
+@apiGroup admin
+@apiParam (Request) {String} pidpid1
+@apiParam (Request) {String} @pogsan array of pog options
+=cut
+
+=pod
+@api {POST} adminProductEventsDetail adminProductEventsDetail
+@apiName adminProductEventsDetail
+@apiGroup admin
+@apiParam (Request) {String} pidpid1
+=cut
+
+=pod
+@api {POST} adminProductMacro adminProductMacro
+@apiName adminProductMacro
+@apiGroup admin
+@apiDescription TODO
+
+@apiParam (Request) {String} pidpid1
+@apiParam (Request) {Array} @updates
+=cut
+
 
 
 sub adminProduct {
@@ -9309,56 +9315,63 @@ sub adminProduct {
 
 
 
-
-
-
+=pod
+@api {POST} adminTaskList adminTaskList
+@apiName adminTaskList
+@apiGroup admin
+@apiDescription TODO
+@apiParam (Request) {String} sort id
+@apiParam (Request) {String} class 
+=cut
 
 =pod
+@api {POST} adminTaskCreate adminTaskCreate
+@apiName adminTaskCreate
+@apiGroup admin
+@apiDescription TODO
+@apiParam (Request) {String} INFO|WARN|ERROR|SETUP|TODO		## SETUP = setup tasks, TODO=user created.
+@apiParam (Request) {String} titl 100 character short message
+@apiParam (Request) {String} detail long description
+@apiParam (Request) {String} errcode AMZ#1234,EBAY#1234,		## see %TODO::CODES below
+@apiParam (Request) {String} dstcode GOO check SYNDICATION.pm for dstcodes
+@apiParam (Request) {String} link order:####-##-###|product:ABC|ticket:1234" or: ticket=>$ticketid, order=>$oid, pid=>$pid,		## this is preferred because it will set other fields.
+@apiParam (Request) {String} guid $related_private_file_guid|$bj->guid(),
+@apiParam (Request) {String} priority 1|2|3		## you don't need to set this unless you want to override 1=high,2=warn,3=error
+@apiParam (Request) {String} group another way of referencing errcode.
+@apiParam (Request) {String} panel the name of the panel which contains a tutorial video (for SETUP tasks)
+=cut
 
-<API id="adminTaskList">
-<purpose></purpose>
-sort=id
-class=
-</API>
+=pod
+@api {POST} adminTaskRemove adminTaskRemove
+@apiName adminTaskRemove
+@apiGroup admin
+@apiDescription TODO
+@apiParam (Request) {String} taskid 
+@apiParam (Request) {String} pid+dstcode
+@apiParam (Request) {String} class+panel
+@apiParam (Request) {String} class+group
+@apiParam (Request) {String} class
+=cut
 
-<API id="adminTaskCreate">
-<purpose></purpose>
-class=INFO|WARN|ERROR|SETUP|TODO
-class=>"INFO|WARN|ERROR|SETUP|TODO",		## SETUP = setup tasks, TODO=user created.
-title=>"100 character short message",
-detail=>"long description",
-errcode=>"AMZ#1234,EBAY#1234,",		## see %TODO::CODES below
-dstcode=>"GOO", ## check SYNDICATION.pm for dstcodes
-link=>"order:####-##-###|product:ABC|ticket:1234", 
-		or: ticket=>$ticketid, order=>$oid, pid=>$pid,		## this is preferred because it will set other fields.
-guid=>$related_private_file_guid|$bj->guid(),
-priority=>1|2|3		## you don't need to set this unless you want to override 1=high,2=warn,3=error
-group=>		## another way of referencing errcode.
-panel=>		## the name of the panel which contains a tutorial video (for SETUP tasks)
-</API>
+=pod
+@api {POST} adminTaskUpdate adminTaskUpdate
+@apiName adminTaskUpdate
+@apiGroup admin
+@apiDescription TODO
+=cut
 
-<API id="adminTaskRemove">
-<purpose></purpose>
-taskid 
-pid+dstcode
-class+panel
-class+group
-class
+=pod
+@api {POST} adminTaskDetail adminTaskDetail
+@apiName adminTaskDetail
+@apiGroup admin
+@apiDescription TODO
+=cut
 
-</API>
-
-<API id="adminTaskUpdate">
-<purpose></purpose>
-</API>
-
-<API id="adminTaskDetail">
-<purpose></purpose>
-</API>
-
-<API id="adminTaskComplete">
-<purpose></purpose>
-</API>
-
+=pod
+@api {POST} adminTaskComplete adminTaskComplete
+@apiName adminTaskComplete
+@apiGroup admin
+@apiDescription TODO
 =cut
 
 sub adminTask {
@@ -9412,56 +9425,76 @@ sub adminTask {
 
 
 =pod
+@api {POST} adminTicketList adminTicketList
+@apiName adminTicketList
+@apiGroup admin
+@apiDescription TODO
+@apiParam (Request) {String} detail open|all|projects|waiting
+@apiParam (Response) {String} @FILES
+=cut
 
-<API id="adminTicketList">
-<purpose></purpose>
-<input id="detail" required="1">open|all|projects|waiting</input>
-<output id="@FILES"></output>
-</API>
+=pod
+@api {POST} adminTicketCreate adminTicketCreate
+@apiName adminTicketCreate
+@apiGroup admin
+@apiDescription TODO
+@apiParam (Request) {String} disposition
+@apiParam (Request) {String} body
+@apiParam (Request) {String} subject
+@apiParam (Request) {String} callback
+@apiParam (Request) {String} private
+@apiParam (Request) {String} priority
+=cut
 
-<API id="adminTicketCreate">
-<purpose></purpose>
-<input id="disposition"></input>
-<input id="body"></input>
-<input id="subject"></input>
-<input id="callback"></input>
-<input id="private"></input>
-<input id="priority"></input>
-</API>
+=pod
+@api {POST} adminTicketMacro adminTicketMacro
+@apiName adminTicketMacro
+@apiGroup admin
+@apiDescription TODO
+=cut
 
-<API id="adminTicketMacro">
-<purpose></purpose>
-Not finished
-</API>
 
-<API id="adminTicketDetail">
-<purpose></purpose>
-Not finished
-</API>
+## BLOCK 100
 
-<API id="adminTicketFileList">
-<purpose></purpose>
-</API>
-
-<API id="adminTicketFileAttach">
-<purpose></purpose>
-ticketid,
-uuid
-</API>
-
-<API id="adminTicketFileGet">
-<purpose>download a file attached to a ticket.</purpose>
-<input id="ticketid">ticket #</input>
-<input optional="1" id="remote">remote stored filename obtained from @FILES[] in adminTicketFileList</input>
-<input optional="1" id="orig">original (uploaded) file name obtained from @FILES[] in adminTicketFileList</input>
-</API>
-
-<API id="adminTicketFileRemove">
-<purpose></purpose>
-</API>
-
+=pod
+@api {POST} adminTicketDetail adminTicketDetail
+@apiName adminTicketDetail
+@apiGroup admin
+@apiDescription TODO
 
 =cut
+
+=pod
+@api {POST} adminTicketFileList adminTicketFileList
+@apiName adminTicketFileList
+@apiGroup admin
+=cut
+
+=pod
+@api {POST} adminTicketFileAttach adminTicketFileAttach
+@apiName adminTicketFileAttach
+@apiGroup admin
+@apiDescription ticketid, uuid
+=cut
+
+=pod
+@api {POST} adminTicketFileGet adminTicketFileGet
+@apiName adminTicketFileGet
+@apiGroup admin
+@apiDescription
+download a file attached to a ticket.</purpose>
+@apiParam (Request) {String} ticketid ticket #
+@apiParam (Request) {String} [remote] remote stored filename obtained from @FILES[] in adminTicketFileList
+@apiParam (Request) {String} [orig] original (uploaded) file name obtained from @FILES[] in adminTicketFileList
+=cut
+
+=pod
+@api {POST} adminTicketFileRemove adminTicketFileRemove
+@apiName adminTicketFileRemove
+@apiGroup admin
+@apiDescription TODO
+=cut
+
 
 sub adminTicket {
 	my ($self,$v) = @_;
@@ -9478,43 +9511,58 @@ sub adminTicket {
 
 
 =pod
+@api {POST} adminBlastMacroPropertyDetail adminBlastMacroPropertyDetail
+@apiName adminBlastMacroPropertyDetail
+@apiGroup admin
+@apiParam (Response) {String} %PRT
+=cut
 
-<API id="adminBlastMacroPropertyDetail">
-<output id="%PRT">
-</output>
-</API>
+=pod
+@api {POST} adminBlastMacroPropertyUpdate adminBlastMacroPropertyUpdate
+@apiName adminBlastMacroPropertyUpdate
+@apiGroup admin
+@apiParam (Request) {String} %PRT.PHONE
+@apiParam (Request) {String} %PRT.DOMAIN
+@apiParam (Request) {String} %PRT.MAILADDR
+@apiParam (Request) {String} %PRT.EMAIL
+@apiParam (Request) {String} %PRT.LINKSYNTAXAPP|VSTORE
+=cut
 
-<API id="adminBlastMacroPropertyUpdate">
-<input id="%PRT.PHONE"></input>
-<input id="%PRT.DOMAIN"></input>
-<input id="%PRT.MAILADDR"></input>
-<input id="%PRT.EMAIL"></input>
-<input id="%PRT.LINKSYNTAX">APP|VSTORE</input>
-</API>
+=pod
+@api {POST} adminBlastMacroUpdate adminBlastMacroUpdate
+@apiName adminBlastMacroUpdate
+@apiGroup admin
+@apiParam (Response) {String} @MSGS
+=cut
 
-<API id="adminBlastMacroUpdate">
-<output id="@MSGS"></output>
-</API>
+=pod
+@api {POST} adminBlastMacroList adminBlastMacroList
+@apiName adminBlastMacroList
+@apiGroup admin
+@apiParam (Request) {String} [custom] set to zero to exclude custom macros
+@apiParam (Request) {String} [system] set to zero to exclude system macros (note: if a CUSTOM macro has been created with the same name it will NOT appear in the system list)
+@apiParam (Response) {String} @MACROS
+=cut
 
-<API id="adminBlastMacroList">
-<input id="custom" default="1" optional="1">set to zero to exclude custom macros</input>
-<input id="system" default="1" optional="1">set to zero to exclude system macros (note: if a CUSTOM macro has been created with the same name it will NOT appear in the system list)</input>
-<output id="@MACROS">
-</output>
-</API>
+=pod
+@api {POST} adminBlastMacroCreate adminBlastMacroCreate
+@apiName adminBlastMacroCreate
+@apiGroup admin
+@apiParam (Request) {String} MSGID
+=cut
 
-<API id="adminBlastMacroCreate">
-<input id="MSGID"></input>
-</API>
+=pod
+@api {POST} adminBlastMacroUpdate adminBlastMacroUpdate
+@apiName adminBlastMacroUpdate
+@apiGroup admin
+@apiParam (Request) {String} MSGID
+=cut
 
-<API id="adminBlastMacroUpdate">
-<input id="MSGID"></input>
-</API>
-
-<API id="adminBlastMacroRemove">
-<input id="MSGID"></input>
-</API>
-
+=pod
+@api {POST} adminBlastMacroRemove adminBlastMacroRemove
+@apiName adminBlastMacroRemove
+@apiGroup admin
+@apiParam (Request) {String} MSGID
 =cut
 
 sub adminBlastMacro {
@@ -9608,37 +9656,49 @@ sub adminBlastMacro {
 
 
 =pod
+@api {POST} adminBlastMsgList adminBlastMsgList
+@apiName adminBlastMsgList
+@apiGroup admin
+@apiParam (Response) {String} @MSGS
+=cut
 
-<API id="adminBlastMsgList">
-<output id="@MSGS"></output>
-</API>
+=pod
+@api {POST} adminBlastMsgDetail adminBlastMsgDetail
+@apiName adminBlastMsgDetail
+@apiGroup admin
+@apiParam (Request) {String} MSGID
+@apiParam (Response) {String} %MSG
+=cut
 
-<API id="adminBlastMsgDetail">
-<input id="MSGID"></input>
-<output id="%MSG"></output>
-</API>
+=pod
+@api {POST} adminBlastMsgCreate adminBlastMsgCreate
+@apiName adminBlastMsgCreate
+@apiGroup admin
+@apiParam (Request) {String} MSGID
+=cut
 
-<API id="adminBlastMsgCreate">
-<input id="MSGID"></input>
-</API>
+=pod
+@api {POST} adminBlastMsgUpdate adminBlastMsgUpdate
+@apiName adminBlastMsgUpdate
+@apiGroup admin
+@apiParam (Request) {String} MSGID
+=cut
 
-<API id="adminBlastMsgUpdate">
-<input id="MSGID"></input>
-</API>
+=pod
+@api {POST} adminBlastMsgRemove adminBlastMsgRemove
+@apiName adminBlastMsgRemove
+@apiGroup admin
+@apiParam (Request) {String} MSGID
+=cut
 
-<API id="adminBlastMsgRemove">
-<input id="MSGID"></input>
-</API>
-
-<API id="adminBlastMsgSend">
-<input id="FORMAT">HTML5|LEGACY</input>
-<input id="MSGID">ORDER.CREATED</input>
-<input id="RECIEVER">EMAIL|CUSTOMER|GCN|APNS|ADN</input>
-<input id="EMAIL" optional="1" hint="only if RECIPIENT=EMAIL">user@domain.com</input>
-<input id=""></input>
-</API>
-
-
+=pod
+@api {POST} adminBlastMsgSend adminBlastMsgSend
+@apiName adminBlastMsgSend
+@apiGroup admin
+@apiParam (Request) {String} FORMAT HTML5|LEGACY
+@apiParam (Request) {String} MSGID ORDER.CREATED
+@apiParam (Request) {String} RECIEVER EMAIL|CUSTOMER|GCN|APNS|ADN
+@apiParam (Request) {String} [EMAIL] only needed if RECIPIENT=EMAILuser@domain.com
 =cut
 
 sub adminBlastMsg {
@@ -9860,27 +9920,38 @@ sub adminBlastMsg {
 
 
 =pod
+@api {POST} billingTransactions billingTransactions
+@apiName billingTransactions
+@apiGroup admin
+@apiDescription TODO
+=cut
 
-<API id="billingTransactions">
-<purpose></purpose>
-</API>
+=pod
+@api {POST} billingInvoiceList billingInvoiceList
+@apiName billingInvoiceList
+@apiGroup admin
+@apiDescription TODO
+=cut
 
-<API id="billingInvoiceList">
-<purpose></purpose>
-</API>
+=pod
+@api {POST} billingInvoiceDetail billingInvoiceDetail
+@apiName billingInvoiceDetail
+@apiGroup admin
+@apiDescription TODO
+=cut
 
-<API id="billingInvoiceDetail">
-<purpose></purpose>
-</API>
+=pod
+@api {POST} billingPaymentMacro billingPaymentMacro
+@apiName billingPaymentMacro
+@apiGroup admin
+@apiDescription TODO
+=cut
 
-<API id="billingPaymentMacro">
-<purpose></purpose>
-</API>
-
-<API id="billingPaymentList">
-<purpose></purpose>
-</API>
-
+=pod
+@api {POST} billingPaymentList billingPaymentList
+@apiName billingPaymentList
+@apiGroup admin
+@apiDescription TODO
 =cut
 
 
@@ -9912,50 +9983,59 @@ sub billingInvoice {
 
 
 =pod
+@api {POST} adminProductReviewList adminProductReviewList
+@apiName adminProductReviewList
+@apiGroup admin
+@apiDescription
+returns a list of all reviews with a filter</purpose>
+@apiParam (Request) {String} filterALL|UNAPPROVED|RECENT
+@apiParam (Request) {String} [PID] product id
+=cut
 
-<API id="adminProductReviewList">
-<purpose>returns a list of all reviews with a filter</purpose>
-<input id="filter">ALL|UNAPPROVED|RECENT</input>
-<input id="PID" optional="1">product id</input>
-</API>
+=pod
+@api {POST} adminProductReviewCreate adminProductReviewCreate
+@apiName adminProductReviewCreate
+@apiGroup admin
+@apiDescription TODO
+=cut
 
-<API id="adminProductReviewCreate">
-<purpose></purpose>
-Not finished
-</API>
+=pod
+@api {POST} adminProductReviewApprove adminProductReviewApprove
+@apiName adminProductReviewApprove
+@apiGroup admin
+@apiDescription TODO
+@apiParam (Request) {String} RIDreview id
+=cut
 
-<API id="adminProductReviewApprove">
-<purpose></purpose>
-<input id="RID">review id</input>
-Not finished
-</API>
+=pod
+@api {POST} adminProductReviewRemove adminProductReviewRemove
+@apiName adminProductReviewRemove
+@apiGroup admin
+@apiParam (Request) {String} RIDreview id
+@apiDescription TODO
+=cut
 
-<API id="adminProductReviewRemove">
-<input id="RID">review id</input>
-<purpose></purpose>
-Not finished
-</API>
+=pod
+@api {POST} adminProductReviewUpdate adminProductReviewUpdate
+@apiName adminProductReviewUpdate
+@apiGroup admin
+@apiParam (Request) {String} RIDreview id
+@apiParam (Request) {String} CUSTOMER_NAME
+@apiParam (Request) {String} LOCATION
+@apiParam (Request) {String} RATING
+@apiParam (Request) {String} SUBJECT
+@apiParam (Request) {String} MESSAGE
+@apiParam (Request) {String} BLOG_URL
+@apiDescription TODO
+=cut
 
-<API id="adminProductReviewUpdate">
-<input id="RID">review id</input>
-<input id="CUSTOMER_NAME"></input>
-<input id="LOCATION"></input>
-<input id="RATING"></input>
-<input id="SUBJECT"></input>
-<input id="MESSAGE"></input>
-<input id="BLOG_URL"></input>
-<purpose></purpose>
-Not finished
-</API>
-
-<API id="adminProductReviewDetail">
-<input id="RID">review id</input>
-<input id="PID">review id</input>
-<purpose></purpose>
-Not finished
-</API>
-
-
+=pod
+@api {POST} adminProductReviewDetail adminProductReviewDetail
+@apiName adminProductReviewDetail
+@apiGroup admin
+@apiParam (Request) {String} RIDreview id
+@apiParam (Request) {String} PIDreview id
+@apiDescription TODO
 =cut
 
 sub adminProductReview {
@@ -10031,28 +10111,38 @@ sub adminProductReview {
 
 
 =pod
+@api {POST} adminDSAgentList adminDSAgentList
+@apiName adminDSAgentList
+@apiGroup admin
+@apiDescription returns a list of projects
+=cut
 
-<API id="adminDSAgentList">
-<purpose>returns a list of projects</purpose>
-</API>
+=pod
+@api {POST} adminDSAgentCreate adminDSAgentCreate
+@apiName adminDSAgentCreate
+@apiGroup admin
+@apiDescription TODO
+=cut
 
-<API id="adminDSAgentCreate">
-<purpose></purpose>
-</API>
+=pod
+@api {POST} adminDSAgentRemove adminDSAgentRemove
+@apiName adminDSAgentRemove
+@apiGroup admin
+@apiDescription TODO
+=cut
 
-<API id="adminDSAgentRemove">
-<purpose></purpose>
-</API>
+=pod
+@api {POST} adminDSAgentUpdate adminDSAgentUpdate
+@apiName adminDSAgentUpdate
+@apiGroup admin
+@apiDescription TODO
+=cut
 
-<API id="adminDSAgentUpdate">
-<purpose></purpose>
-</API>
-
-<API id="adminDSAgentDetail">
-<purpose></purpose>
-</API>
-
-
+=pod
+@api {POST} adminDSAgentDetail adminDSAgentDetail
+@apiName adminDSAgentDetail
+@apiGroup admin
+@apiDescription TODO
 =cut
 
 sub adminDSAgent {
@@ -10088,46 +10178,65 @@ sub adminDSAgent {
 
 
 =pod
+@api {POST} adminCIEngineConfig adminCIEngineConfig
+@apiName adminCIEngineConfig
+@apiGroup admin
+@apiUse CIENGINE
+=cut
 
-<API id="adminCIEngineConfig">
-<concept>CIENGINE</concept>
-</API>
+=pod
+@api {POST} adminCIEngineMacro adminCIEngineMacro
+@apiName adminCIEngineMacro
+@apiGroup admin
+@apiUse CIENGINE
+=cut
 
-<API id="adminCIEngineMacro">
-<concept>CIENGINE</concept>
-</API>
+=pod
+@api {POST} adminCIEngineAgentList adminCIEngineAgentList
+@apiName adminCIEngineAgentList
+@apiGroup admin
+@apiUse CIENGINE
+=cut
 
-<API id="adminCIEngineAgentList">
-<concept>CIENGINE</concept>
-</API>
+=pod
+@api {POST} adminCIEngineAgentCreate adminCIEngineAgentCreate
+@apiName adminCIEngineAgentCreate
+@apiGroup admin
+@apiUse CIENGINE
+@apiParam (Request) {String} NAME
+@apiParam (Request) {String} GUID
+@apiParam (Request) {String} SCRIPT
+=cut
 
-<API id="adminCIEngineAgentCreate">
-<concept>CIENGINE</concept>
-<input id="NAME"></input>
-<input id="GUID"></input>
-<input id="SCRIPT"></input>
-</API>
+=pod
+@api {POST} adminCIEngineAgentUpdate adminCIEngineAgentUpdate
+@apiName adminCIEngineAgentUpdate
+@apiGroup admin
+@apiUse CIENGINE
+@apiParam (Request) {String} NAME
+@apiParam (Request) {String} GUID
+@apiParam (Request) {String} SCRIPT
+=cut
 
-<API id="adminCIEngineAgentUpdate">
-<concept>CIENGINE</concept>
-<input id="NAME"></input>
-<input id="GUID"></input>
-<input id="SCRIPT"></input>
-</API>
+=pod
+@api {POST} adminCIEngineAgentDetail adminCIEngineAgentDetail
+@apiName adminCIEngineAgentDetail
+@apiGroup admin
+@apiUse CIENGINE
+=cut
 
-<API id="adminCIEngineAgentDetail">
-<concept>CIENGINE</concept>
-</API>
+=pod
+@api {POST} adminCIEngineAgentRemove adminCIEngineAgentRemove
+@apiName adminCIEngineAgentRemove
+@apiGroup admin
+@apiUse CIENGINE
+=cut
 
-<API id="adminCIEngineAgentRemove">
-<concept>CIENGINE</concept>
-</API>
-
-<API id="adminCIEngineLogSearch">
-<concept>CIENGINE</concept>
-</API>
-
-
+=pod
+@api {POST} adminCIEngineLogSearch adminCIEngineLogSearch
+@apiName adminCIEngineLogSearch
+@apiGroup admin
+@apiUse CIENGINE
 =cut
 
 sub adminCIEngine {
@@ -10291,41 +10400,52 @@ sub adminCIEngine {
 
 
 
+
 =pod
+@api {POST} adminTemplateList adminTemplateList
+@apiName adminTemplateList
+@apiGroup admin
+@apiDescription TODO
+@apiParam (Request) {String} CONTAINERIDebay profile or campaign id
+@apiParam (Request) {String} TYPEEBAY|CPG|CIA|APP
+@apiParam (Response) {String} @TEMPLATES
+=cut
 
+=pod
+@api {POST} adminTemplateInstall adminTemplateInstall
+@apiName adminTemplateInstall
+@apiGroup admin
+@apiDescription
+installs a template into a containerTODO
+@apiParam (Request) {String} CONTAINERIDebay profile or campaign id
+@apiParam (Request) {String} TYPEEBAY|CPG|CIA|APP
+@apiParam (Request) {String} PROJECTIDoptional (defaults to TEMPLATES)
+@apiParam (Request) {String} SUBDIR
+=cut
 
-<API id="adminTemplateList">
-<purpose></purpose>
-<input id="CONTAINERID">ebay profile or campaign id</input>
-<input id="TYPE">EBAY|CPG|CIA|APP</input>
-<output id="@TEMPLATES"></output>
-</API>
+=pod
+@api {POST} adminTemplateCreateFrom adminTemplateCreateFrom
+@apiName adminTemplateCreateFrom
+@apiGroup admin
+@apiDescription
+copies from a container into a templateTODO
+@apiParam (Request) {String} CONTAINERIDebay profile or campaign id
+@apiParam (Request) {String} TYPEEBAY|CPG|CIA|APP
+@apiParam (Request) {String} PROJECTIDoptional (defaults to TEMPLATES)
+@apiParam (Request) {String} SUBDIR
+@apiParam (Response) {String} files# of files copied
+@apiParam (Response) {String} dirs# of sub-directories copied
+=cut
 
-<API id="adminTemplateInstall">
-<purpose>installs a template into a container</purpose>
-<input id="CONTAINERID">ebay profile or campaign id</input>
-<input id="TYPE">EBAY|CPG|CIA|APP</input>
-<input id="PROJECTID">optional (defaults to TEMPLATES)</input>
-<input id="SUBDIR"></input>
-</API>
-
-<API id="adminTemplateCreateFrom">
-<purpose>copies from a container into a template</purpose>
-<input id="CONTAINERID">ebay profile or campaign id</input>
-<input id="TYPE">EBAY|CPG|CIA|APP</input>
-<input id="PROJECTID">optional (defaults to TEMPLATES)</input>
-<input id="SUBDIR"></input>
-<output id="files"># of files copied</output>
-<output id="dirs"># of sub-directories copied</output>
-</API>
-
-<API id="adminTemplateDetail">
-<purpose>displays the details of a TEMPLATE</purpose>
-<input id="TYPE">EBAY|CPG|CIA|APP</input>
-<input id="PROJECTID"></input>
-<input id="SUBDIR"></input>
-</API>
-
+=pod
+@api {POST} adminTemplateDetail adminTemplateDetail
+@apiName adminTemplateDetail
+@apiGroup admin
+@apiDescription
+displays the details of a TEMPLATETODO
+@apiParam (Request) {String} TYPEEBAY|CPG|CIA|APP
+@apiParam (Request) {String} PROJECTID
+@apiParam (Request) {String} SUBDIR
 =cut
 
 
@@ -10532,12 +10652,37 @@ sub adminTemplate {
 
 
 =pod
-
-
-
-
-
+@apiName adminEBAYProfileZipDownload
 =cut
+
+=pod
+@apiName adminCampaignZipDownload
+=cut
+
+=pod
+@apiName adminSiteZipDownload
+=cut
+
+=pod
+@apiName adminCIAgentZipDownload
+=cut
+
+=pod
+@apiName adminFileContents
+=cut
+
+=pod
+@apiName adminFileSave
+=cut
+
+=pod
+@apiName adminFileUpload
+=cut
+
+=pod
+@apiName adminZipDownload
+=cut
+
 
 
 sub adminFile {
@@ -10759,74 +10904,93 @@ sub adminFile {
 
 
 
-
-
-
-
-
-
+=pod
+@api {POST} adminCampaignDetail adminCampaignDetail
+@apiName adminCampaignDetail
+@apiGroup admin
+@apiDescription
+returns a campaign object in %CAMPAIGNTODO
+@apiParam (Request) {String} CAMPAIGNID
+@apiParam (Response) {String} %CAMPAIGN
+=cut
 
 
 =pod
+@api {POST} adminCampaignAvailableCoupons adminCampaignAvailableCoupons
+@apiName adminCampaignAvailableCoupons
+@apiGroup admin
+@apiDescription
+a campaign can be associated with a couponTODO
+@apiParam (Response) {String} @COUPONS
+=cut
 
-<API id="adminCampaignDetail">
-<purpose>returns a campaign object in %CAMPAIGN</purpose>
-<input id="CAMPAIGNID"></input>
-<output id="%CAMPAIGN"></output>
-</API>
+=pod
+@api {POST} adminCampaignCreate adminCampaignCreate
+@apiName adminCampaignCreate
+@apiGroup admin
+@apiDescription
+Creates a new campaignTODO
+@apiParam (Request) {String} CAMPAIGNID
+@apiParam (Request) {String} TITLE
+@apiParam (Request) {String} SEND_EMAIL1|0
+@apiParam (Request) {String} SEND_APPLEIOS1|0
+@apiParam (Request) {String} SEND_ANDROID1|0
+@apiParam (Request) {String} SEND_FACEBOOK1|0
+@apiParam (Request) {String} SEND_TWITTER1|0
+@apiParam (Request) {String} SEND_SMS1|0
+@apiParam (Request) {String} QUEUEMODEFRONT|BACK|OVERWRITE
+@apiParam (Request) {String} EXPIRESYYYYMMDD
+@apiParam (Request) {String} COUPONCODE
+=cut
 
-<API id="adminCampaignAvailableCoupons">
-<purpose>a campaign can be associated with a coupon</purpose>
-<output id="@COUPONS"></output>
-</API>
+=pod
+@api {POST} adminCampaignUpdate adminCampaignUpdate
+@apiName adminCampaignUpdate
+@apiGroup admin
+@apiDescription
+see adminCampaignCreate for parametersTODO
+@apiParam (Request) {String} CPGcampaign id#
+=cut
 
-<API id="adminCampaignCreate">
-<purpose>Creates a new campaign</purpose>
-<input id="CAMPAIGNID"></input>
-<input id="TITLE"></input>
-<input id="SEND_EMAIL">1|0</input>
-<input id="SEND_APPLEIOS">1|0</input>
-<input id="SEND_ANDROID">1|0</input>
-<input id="SEND_FACEBOOK">1|0</input>
-<input id="SEND_TWITTER">1|0</input>
-<input id="SEND_SMS">1|0</input>
-<input id="QUEUEMODE">FRONT|BACK|OVERWRITE</input>
-<input id="EXPIRES">YYYYMMDD</input>
-<input id="COUPON">CODE</input>
-</API>
+=pod
+@api {POST} adminCampaignRemove adminCampaignRemove
+@apiName adminCampaignRemove
+@apiGroup admin
+@apiParam (Request) {String} CAMPAIGNIDcampaign id#
+=cut
 
-<API id="adminCampaignUpdate">
-<purpose>see adminCampaignCreate for parameters</purpose>
-<input id="CPG">campaign id#</input>
-</API>
 
-<API id="adminCampaignRemove">
-<input id="CAMPAIGNID">campaign id#</input>
-</API>
-
-<API id="adminCampaignMacro">
-<purpose></purpose>
-<input id="CPG"></input>
-<input id="@updates">
+=pod
+@api {POST} adminCampaignMacro adminCampaignMacro
+@apiName adminCampaignMacro
+@apiGroup admin
+@apiDescription
+TODO
+@apiParam (Request) {String} CPG
+@apiParam (Request) {String} @updates
 * CPGCOPY
 * CPGTEST?
 * CPGSTART?STARTTS=timestamp
 * CPGSTOP?
 * SUBADD?email=
 * SUBDEL?email=
-* 
-</input>
+=cut
 
-</API>
+=pod
+@api {POST} adminCampaign adminCampaign
+@apiName adminCampaign
+@apiGroup admin
+@apiDescription
+TODO
+=cut
 
-<API id="adminCampaign">
-<purpose></purpose>
-</API>
 
-<API id="adminCampaign">
-<purpose></purpose>
-</API>
-
+=pod
+@api {POST} adminCampaign adminCampaign
+@apiName adminCampaign
+@apiGroup admin
+@apiDescription
+TODO
 =cut
 
 sub adminCampaign {
@@ -11222,92 +11386,121 @@ sub adminCampaign {
 
 
 
+=pod
+@api {POST} adminEBAYTemplateDownload adminEBAYTemplateDownload
+@apiName adminEBAYTemplateDownload
+@apiGroup admin
+@apiDescription
+lists the fields on an html wizardTODO
+@apiParam (Request) {String} ebay:template
+=cut
 
+=pod
+@api {POST} adminEBAYAPI-AddItem adminEBAYAPI-AddItem
+@apiName adminEBAYAPI-AddItem
+@apiGroup admin
+@apiDescription
+runs an eBay API callsTODO
+@apiParam (Request) {String} Item/SKUproduct id
+@apiParam (Request) {String} Item/Quantityquantity to launch (must be 1 for auctions)
+@apiParam (Request) {String} Item/UUIDa unique # for this request
+@apiParam (Request) {String} Profilezoovy launch profile to load settings from, if profile is not set, then ebay:profile will be used.
+=cut
 
+=pod
+@api {POST} adminEBAYAPI-VerifyAddItem adminEBAYAPI-VerifyAddItem
+@apiName adminEBAYAPI-VerifyAddItem
+@apiGroup admin
+@apiDescription
+runs an eBay VerifyAddItem (see adminEBAYAPI-AddItem)TODO
+=cut
 
+=pod
+@api {POST} adminEBAYAPI-AddFixedPriceItem adminEBAYAPI-AddFixedPriceItem
+@apiName adminEBAYAPI-AddFixedPriceItem
+@apiGroup admin
+@apiDescription
+runs an eBay AddFixedPriceItem (see adminEBAYAPI-AddItem)TODO
+=cut
 
+=pod
+@api {POST} adminEBAYAPI-VerifyAddFixedPriceItem adminEBAYAPI-VerifyAddFixedPriceItem
+@apiName adminEBAYAPI-VerifyAddFixedPriceItem
+@apiGroup admin
+@apiDescription
+runs an eBay VerifyAddFixedPriceItem (see adminEBAYAPI-AddItem)TODO
+=cut
 
+=pod
+@api {POST} adminEBAYTokenList adminEBAYTokenList
+@apiName adminEBAYTokenList
+@apiGroup admin
+@apiDescription
+lists all tokens across all partitions (one token per partition)TODO
+@apiParam (Response) {String} @ACCOUNTS
+=cut
 
+=pod
+@api {POST} adminEBAYTokenDetail adminEBAYTokenDetail
+@apiName adminEBAYTokenDetail
+@apiGroup admin
+@apiDescription
+performs ebay 'GetUser' call to verify current token, returns info associated with the partitionTODO
+@apiParam (Response) {String} @PROFILES
+@apiParam (Response) {String} %TOKEN
+=cut
 
+=pod
+@api {POST} adminEBAYProfileDetail adminEBAYProfileDetail
+@apiName adminEBAYProfileDetail
+@apiGroup admin
+@apiDescription
+Returns the data in an eBay launch profileTODO
+=cut
 
+=pod
+@api {POST} adminEBAYProfileList adminEBAYProfileList
+@apiName adminEBAYProfileList
+@apiGroup admin
+@apiDescription
+Returns the list of possible profilesTODO
+=cut
 
-
-
-
-
-
+=pod
+@api {POST} adminEBAYShippingDetail adminEBAYShippingDetail
+@apiName adminEBAYShippingDetail
+@apiGroup admin
+@apiDescription
+Parses and returns a structured version of the shipping configuration for the profile requestedTODO
+@apiParam (Request) {String} PROFILE
+@apiParam (Response) {String} @OUR_DOMESTIC
+@apiParam (Response) {String} @OUR_INTERNATIONAL
+@apiParam (Response) {String} @ALL_LOCATIONS
+@apiParam (Response) {String} @OUR_LOCATIONS
+@apiParam (Response) {String} @PREFERENCES
+@apiParam (Response) {String} @SERVICES_DOMESTIC
+@apiParam (Response) {String} @SERVICES_INTERNATIONAL
+=cut
 
 
 
 =pod
-
-<API id="adminEBAYTemplateDownload">
-<purpose>lists the fields on an html wizard</purpose>
-<input id="ebay:template"></input>
-</API>
-
-<API id="adminEBAYAPI-AddItem">
-<purpose>runs an eBay API calls</purpose>
-<input id="Item/SKU">product id</input>
-<input id="Item/Quantity">quantity to launch (must be 1 for auctions)</input>
-<input id="Item/UUID">a unique # for this request</input>
-<input id="Profile">zoovy launch profile to load settings from, if profile is not set, then ebay:profile will be used.</input>
-</API>
-
-<API id="adminEBAYAPI-VerifyAddItem">
-<purpose>runs an eBay VerifyAddItem (see adminEBAYAPI-AddItem)</purpose>
-</API>
-
-<API id="adminEBAYAPI-AddFixedPriceItem">
-<purpose>runs an eBay AddFixedPriceItem (see adminEBAYAPI-AddItem)</purpose>
-</API>
-
-<API id="adminEBAYAPI-VerifyAddFixedPriceItem">
-<purpose>runs an eBay VerifyAddFixedPriceItem (see adminEBAYAPI-AddItem)</purpose>
-</API>
-
-
-<API id="adminEBAYTokenList">
-<purpose>lists all tokens across all partitions (one token per partition)</purpose>
-<output id="@ACCOUNTS"></output>
-</API>
-
-<API id="adminEBAYTokenDetail">
-<purpose>performs ebay 'GetUser' call to verify current token, returns info associated with the partition</purpose>
-<output id="@PROFILES"></output>
-<output id="%TOKEN"></output>
-</API>
-
-<API id="adminEBAYProfileDetail">
-<purpose>Returns the data in an eBay launch profile</purpose>
-</API>
-
-<API id="adminEBAYProfileList">
-<purpose>Returns the list of possible profiles</purpose>
-</API>
-
-<API id="adminEBAYShippingDetail">
-<purpose>Parses and returns a structured version of the shipping configuration for the profile requested</purpose>
-<input id="PROFILE"></input>
-<output id="@OUR_DOMESTIC"></output>
-<output id="@OUR_INTERNATIONAL"></output>
-<output id="@ALL_LOCATIONS"></output>
-<output id="@OUR_LOCATIONS"></output>
-<output id="@PREFERENCES"></output>
-<output id="@SERVICES_DOMESTIC"></output>
-<output id="@SERVICES_INTERNATIONAL"></output>
-</API>
-
-<API id="adminEBAYWizardPreview">
-<purpose>-- will need some love --</purpose>
-</API>
-
-<API id="adminEBAYMacro">
-<purpose>Modify the eBay Configuration</purpose>
-<input id="PROFILE" optional="1">Profile specific calls require admin</input>
-</API>
-
+@api {POST} adminEBAYWizardPreview adminEBAYWizardPreview
+@apiName adminEBAYWizardPreview
+@apiGroup admin
+@apiDescription
+-- will need some love --TODO
 =cut
+
+=pod
+@api {POST} adminEBAYMacro adminEBAYMacro
+@apiName adminEBAYMacro
+@apiGroup admin
+@apiDescription
+Modify the eBay ConfigurationTODO
+@apiParam (Request) {String} PROFILE Profile specific calls require admin
+=cut
+
 
 
 sub adminEBAY {
@@ -11704,134 +11897,159 @@ sub adminEBAY {
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+=pod
+@api {POST} adminSyndicationList adminSyndicationList
+@apiName adminSyndicationList
+@apiGroup admin
+@apiDescription
+returns a list of marketplaces and their configuration statusTODO
+=cut
 
 
 =pod
-
-<API id="adminSyndicationList">
-<purpose>returns a list of marketplaces and their configuration status</purpose>
-</API>
-
-<API id="adminSyndicationDetail">
-<purpose></purpose>
-<input id="DST">marketplace destination code (usually 3 or 4 digits) which can be obtained from the dst code in appResourceGet 'integrations' file</input>
-</API>
+@api {POST} adminSyndicationDetail adminSyndicationDetail
+@apiName adminSyndicationDetail
+@apiGroup admin
+@apiDescription
+TODO
+@apiParam (Request) {String} DSTmarketplace destination code (usually 3 or 4 digits) which can be obtained from the dst code in appResourceGet 'integrations' file
+=cut
 
 
-<API id="adminSyndicationPublish">
-<input id="DST">marketplace destination code (usually 3 or 4 digits) which can be obtained from the dst code in appResourceGet 'integrations' file</input>
-<input id="FEEDTYPE">PRODUCT|INVENTORY</input>
-<output id="JOBID"></output>
-<purpose>creates a batch job for publishing</purpose>
-</API>
+=pod
+@api {POST} adminSyndicationPublish adminSyndicationPublish
+@apiName adminSyndicationPublish
+@apiGroup admin
+@apiParam (Request) {String} DSTmarketplace destination code (usually 3 or 4 digits) which can be obtained from the dst code in appResourceGet 'integrations' file
+@apiParam (Request) {String} FEEDTYPEPRODUCT|INVENTORY
+@apiParam (Response) {String} JOBID
+@apiDescription
+creates a batch job for publishingTODO
+=cut
 
-<API id="adminSyndicationHistory">
-<input id="DST">marketplace destination code (usually 3 or 4 digits) which can be obtained from the dst code in appResourceGet 'integrations' file</input>
-<output id="@ROWS">
+=pod
+@api {POST} adminSyndicationHistory adminSyndicationHistory
+@apiName adminSyndicationHistory
+@apiGroup admin
+@apiParam (Request) {String} DSTmarketplace destination code (usually 3 or 4 digits) which can be obtained from the dst code in appResourceGet 'integrations' file
+@apiParam (Response) {String} @ROWS
 	[ msgtype1, timestamp1, message1 ],
 	[ msgtype2, timestamp2, message2 ],
-</output>
-<purpose></purpose>
-</API>
 
-<API id="adminSyndicationFeedErrors">
-<input id="DST">marketplace destination code (usually 3 or 4 digits) which can be obtained from the dst code in appResourceGet 'integrations' file</input>
-<purpose>displays up to 500 to remove/hide these.</purpose>
-<output id="@ROWS">
+@apiDescription
+TODO
+=cut
+
+=pod
+@api {POST} adminSyndicationFeedErrors adminSyndicationFeedErrors
+@apiName adminSyndicationFeedErrors
+@apiGroup admin
+@apiParam (Request) {String} DSTmarketplace destination code (usually 3 or 4 digits) which can be obtained from the dst code in appResourceGet 'integrations' file
+@apiDescription
+displays up to 500 to remove/hide these.TODO
+@apiParam (Response) {String} @ROWS
 	[ timestamp1, sku1, feedtype1, errcode1, errmsg1, batchjob#1 ],
 	[ timestamp2, sku2, feedtype2, errcode2, errmsg2, batchjob#2 ],
-</output>
-</API>
 
-<API id="adminSyndicationDebug">
-<input id="DST">marketplace destination code (usually 3 or 4 digits) which can be obtained from the dst code in appResourceGet 'integrations' file</input>
-<input id="FEEDTYPE">PRODUCT|INVENTORY</input>
-<input id="PID" optional="1">PRODUCTID</input>
-<output id="HTML">Html messaging describing the syndication process + any errors</output>
-<purpose>runs the syndication process in realtime and returns an html response describing 'what happened'</purpose>
-</API>
+=cut
 
+=pod
+@api {POST} adminSyndicationDebug adminSyndicationDebug
+@apiName adminSyndicationDebug
+@apiGroup admin
+@apiParam (Request) {String} DSTmarketplace destination code (usually 3 or 4 digits) which can be obtained from the dst code in appResourceGet 'integrations' file
+@apiParam (Request) {String} FEEDTYPEPRODUCT|INVENTORY
+@apiParam (Request) {String} [PID] PRODUCTID
+@apiParam (Response) {String} HTMLHtml messaging describing the syndication process + any errors
+@apiDescription
+runs the syndication process in realtime and returns an html response describing 'what happened'TODO
+=cut
 
+=pod
+@api {POST} adminSyndicationBUYDownloadDBMaps adminSyndicationBUYDownloadDBMaps
+@apiName adminSyndicationBUYDownloadDBMaps
+@apiGroup admin
+@apiParam (Request) {String} DSTBUY|BST
+@apiDescription
 
-
-<API id="adminSyndicationBUYDownloadDBMaps">
-<input id="DST">BUY|BST</input>
-<purpose>
 	buy.com/bestbuy.com have support for json dbmaps, which allow uses to create ad-hoc schema that maps existing product attributes to buy.com data.
 	since buy.com product feeds are no longer sent in an automated fasion the utility of this feature is somewhat limited, but can still be used to perform additional validation
 	during/prior to export.
 	each dbmap has a 1-8 digit code, and associated json (which uses a modified flexedit syntax).
 	each product would then have a corresponding buycom:dbmap or bestbuy:dbmap field set.
-</purpose>
-</API>
+TODO
+=cut
 
-<API id="adminSyndicationAMZThesaurii">
-<input id="DST">AMZ</input>
-<output id="@CATEGORIES">
+=pod
+@api {POST} adminSyndicationAMZThesaurii adminSyndicationAMZThesaurii
+@apiName adminSyndicationAMZThesaurii
+@apiGroup admin
+@apiParam (Request) {String} DSTAMZ
+@apiParam (Response) {String} @CATEGORIES
 	[ safename, prettyname, thesauruskey, thesaurusvalue ]
-</output>
-<purpose>
+
+@apiDescription
+
 	store categories may have one or more amazon thesauruses associated with it a thesaurus helps amazon classify a product similar to a category+tag might in other systems.
 	for example 'color' 'navy' in the amazon system might be equivalent to 'color' 'blue' when somebody does a search, but not 'color' 'teal' (which might also map to both blue/green).
 	a single category may have many thesaurus keys/values.
-</purpose>
-</API>
+TODO
+=cut
 
-<API id="adminSyndicationAMZOrders">
-<input id="DST">AMZ</input>
-<purpose>displays orders created in the last 50 days which have not been flagged as fulfilled/processed. </purpose>
-</API>
+=pod
+@api {POST} adminSyndicationAMZOrders adminSyndicationAMZOrders
+@apiName adminSyndicationAMZOrders
+@apiGroup admin
+@apiParam (Request) {String} DSTAMZ
+@apiDescription
+displays orders created in the last 50 days which have not been flagged as fulfilled/processed. TODO
+=cut
 
-<API id="adminSyndicationAMZLogs">
-<input id="DST">marketplace destination code (usually 3 or 4 digits) which can be obtained from the dst code in appResourceGet 'integrations' file</input>
-<output id="@ROWS">
+
+=pod
+@api {POST} adminSyndicationAMZLogs adminSyndicationAMZLogs
+@apiName adminSyndicationAMZLogs
+@apiGroup admin
+@apiParam (Request) {String} DSTmarketplace destination code (usually 3 or 4 digits) which can be obtained from the dst code in appResourceGet 'integrations' file
+@apiParam (Response) {String} @ROWS
 	[ pid, sku, feed, ts, msgtype, msg ]
-</output>
-<purpose>returns up to 1000 products where the amazon error flag is set in the SKU Lookup table.</purpose>
-</API>
 
-<API id="adminSyndicationListFiles">
-<input id="DST">marketplace destination code (usually 3 or 4 digits) which can be obtained from the dst code in appResourceGet 'integrations' file</input>
-<output id="@FILES">
+@apiDescription
+returns up to 1000 products where the amazon error flag is set in the SKU Lookup table.TODO
+=cut
+
+=pod
+@api {POST} adminSyndicationListFiles adminSyndicationListFiles
+@apiName adminSyndicationListFiles
+@apiGroup admin
+@apiParam (Request) {String} DSTmarketplace destination code (usually 3 or 4 digits) which can be obtained from the dst code in appResourceGet 'integrations' file
+@apiParam (Response) {String} @FILES
 	{ FILENAME, FILETYPE, GUID }
-</output>
-<purpose></purpose>
-</API>
 
-<API id="adminSyndicationMacro">
-<input id="DST">marketplace destination code (usually 3 or 4 digits) which can be obtained from the dst code in appResourceGet 'integrations' file</input>
-<input id="@updates"><![CDATA[
-DELETE
-ENABLE
-DISABLE
-UNSUSPEND
-CLEAR-FEED-ERRORS
-SAVE?fields=from&input=form
-DBMAP-NUKE?MAPID=
-DBMAP-SAVE?MAPID=&CATID=&STOREID=&MAPTXT=
-AMZ-THESAURUS-DELETE?guid=
-AMZ-THESAURUS-SAVE?name=&guid=&search_terms&itemtype=&subjectcontent&targetaudience&isgiftwrapavailable&
-AMZ-SHIPPING-SAVE?Standard=XXX&Expedited=XXY&Scheduled=XXZ&NextDay=XYY&SecondDay=XYZ
-AMZ-TOKEN-UPDATE?marketplaceId=&merchantId=
-]]>
-</input>
-<purpose></purpose>
-</API>
+@apiDescription
+TODO
+=cut
 
+=pod
+@api {POST} adminSyndicationMacro adminSyndicationMacro
+@apiName adminSyndicationMacro
+@apiGroup admin
+@apiParam (Request) {String} DSTmarketplace destination code (usually 3 or 4 digits) which can be obtained from the dst code in appResourceGet 'integrations' file
+@apiParam (Request) {String} @updates
+
+@apiDescription
+	DELETE
+	ENABLE
+	DISABLE
+	UNSUSPEND
+	CLEAR-FEED-ERRORS
+	SAVE?fields=from&input=form
+	DBMAP-NUKE?MAPID=
+	DBMAP-SAVE?MAPID=&CATID=&STOREID=&MAPTXT=
+	AMZ-THESAURUS-DELETE?guid=
+	AMZ-THESAURUS-SAVE?name=&guid=&search_terms&itemtype=&subjectcontent&targetaudience&isgiftwrapavailable&
+	AMZ-SHIPPING-SAVE?Standard=XXX&Expedited=XXY&Scheduled=XXZ&NextDay=XYY&SecondDay=XYZ
+	AMZ-TOKEN-UPDATE?marketplaceId=&merchantId=
 
 =cut
 
@@ -12793,48 +13011,50 @@ sub adminSyndication {
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
+=pod
+@api {POST} adminAffiliateList adminAffiliateList
+@apiName adminAffiliateList
+@apiGroup admin
+@apiDescription
+returns a list of projectsTODO
+=cut
 
 =pod
-
-<API id="adminAffiliateList">
-<purpose>returns a list of projects</purpose>
-</API>
-
-<API id="adminAffiliateCreate">
-<purpose></purpose>
+@api {POST} adminAffiliateCreate adminAffiliateCreate
+@apiName adminAffiliateCreate
+@apiGroup admin
+@apiDescription
+TODO
 Not finished
-</API>
-
-<API id="adminAffiliateRemove">
-<purpose></purpose>
-Not finished
-</API>
-
-<API id="adminAffiliateUpdate">
-<purpose></purpose>
-Not finished
-</API>
-
-<API id="adminAffiliateDetail">
-<purpose></purpose>
-Not finished
-</API>
-
-
 =cut
+
+=pod
+@api {POST} adminAffiliateRemove adminAffiliateRemove
+@apiName adminAffiliateRemove
+@apiGroup admin
+@apiDescription
+TODO
+Not finished
+=cut
+
+=pod
+@api {POST} adminAffiliateUpdate adminAffiliateUpdate
+@apiName adminAffiliateUpdate
+@apiGroup admin
+@apiDescription
+TODO
+Not finished
+=cut
+
+=pod
+@api {POST} adminAffiliateDetail adminAffiliateDetail
+@apiName adminAffiliateDetail
+@apiGroup admin
+@apiDescription
+TODO
+Not finished
+=cut
+
 
 sub adminAffiliate {
 	my ($self,$v) = @_;
@@ -12970,54 +13190,75 @@ sub adminAffiliate {
 
 
 =pod
-
-<API id="adminGiftcardList">
-<purpose>returns a list of projects</purpose>
-</API>
-
-<API id="adminGiftcardSeriesList">
-<purpose>returns a list of projects</purpose>
-</API>
-
-<API id="adminGiftcardSearch">
-</API>
-
-<API id="adminGiftcardSetupProduct">
-</API>
-
-<API id="adminGiftcardCreate">
-<purpose></purpose>
-<input id="expires">YYYYMMDD</input>
-<input id="balance">currency</input>
-<input id="quantity">defaults to 1 (if not specified)</input>
-<input id="email" optional="1">if a customer exists this will be matched to the cid, if a customer cannot be found a new customer account will be created, not compatible with qty > 1</input>
-<input id="series" optional="1">a mechanism for grouping cards, usually used with quantity greater than 1</input>
-</API>
-
-<API id="adminGiftcardMacro">
-<purpose></purpose>
-<example>
-<![CDATA[
-[1:00:00 PM] Brian Horakh: @updates
-[1:00:10 PM] Brian Horakh: SET/EMAIL?email=&note=
-[1:00:11 PM] jt: adminGiftcardMacro
-[1:00:18 PM] Brian Horakh: SET/BALANCE?email=&note=
-[1:00:35 PM] Brian Horakh: SET/EXPIRES?expires=&note=
-[1:00:43 PM] Brian Horakh: SET/CARDTYPE?cardtype=&note=
-Not finished
-]]></example>
-</API>
-
-<API id="adminGiftcardDetail">
-<purpose></purpose>
-Not finished
-</API>
-
-<API id="adminGiftcardSetupProduct">
-<purpose>creates a product that when purchased automatically creates a giftcard</purpose>
-</API>
-
+@api {POST} adminGiftcardList adminGiftcardList
+@apiName adminGiftcardList
+@apiGroup admin
+@apiDescription
+returns a list of projectsTODO
 =cut
+
+=pod
+@api {POST} adminGiftcardSeriesList adminGiftcardSeriesList
+@apiName adminGiftcardSeriesList
+@apiGroup admin
+@apiDescription
+returns a list of projectsTODO
+=cut
+
+=pod
+@api {POST} adminGiftcardSearch adminGiftcardSearch
+@apiName adminGiftcardSearch
+@apiGroup admin
+=cut
+
+=pod
+@api {POST} adminGiftcardSetupProduct adminGiftcardSetupProduct
+@apiName adminGiftcardSetupProduct
+@apiGroup admin
+=cut
+
+=pod
+@api {POST} adminGiftcardCreate adminGiftcardCreate
+@apiName adminGiftcardCreate
+@apiGroup admin
+@apiDescription
+TODO
+@apiParam (Request) {String} expiresYYYYMMDD
+@apiParam (Request) {String} balancecurrency
+@apiParam (Request) {String} quantitydefaults to 1 (if not specified)
+@apiParam (Request) {String} [email] if a customer exists this will be matched to the cid, if a customer cannot be found a new customer account will be created, not compatible with qty > 1
+@apiParam (Request) {String} [series] a mechanism for grouping cards, usually used with quantity greater than 1
+=cut
+
+=pod
+@api {POST} adminGiftcardMacro adminGiftcardMacro
+@apiName adminGiftcardMacro
+@apiGroup admin
+@apiParam (Request) {Array} @updates
+@apiDescription
+SET/EMAIL?email=&note=
+SET/BALANCE?email=&note=
+SET/EXPIRES?expires=&note=
+SET/CARDTYPE?cardtype=&note=
+=cut
+
+=pod
+@api {POST} adminGiftcardDetail adminGiftcardDetail
+@apiName adminGiftcardDetail
+@apiGroup admin
+@apiDescription
+TODO
+Not finished
+=cut
+
+=pod
+@api {POST} adminGiftcardSetupProduct adminGiftcardSetupProduct
+@apiName adminGiftcardSetupProduct
+@apiGroup admin
+@apiDescription
+creates a product that when purchased automatically creates a giftcardTODO
+=cut
+
 
 sub adminGiftcard {
 	my ($self,$v) = @_;
@@ -13365,101 +13606,74 @@ sub adminGiftcard {
 
 
 
-=pod
-
-<API id="adminEmailMessageList">
-<purpose>returns a list of projects</purpose>
-</API>
-
-<API id="adminEmailMessageCreate">
-<purpose></purpose>
-<input id="feed_title"></input>
-<input id="feed_link"></input>
-<input id="feed_link_override"></input>
-<input id="feed_subject"></input>
-<input id="max_products"></input>
-<input id="cycle_interval"></input>
-<input id="schedule"></input>
-<input id="profile"></input>
-<input id="list"></input>
-<input id="image_h"></input>
-<input id="image_w"></input>
-<input id="translation"></input>
-<input id="coupon"></input>
-</API>
-
-<API id="adminEmailMessageClone">
-<purpose></purpose>
-<input id="CPG"></input>
-</API>
-
-<API id="adminEmailMessageRemove">
-<purpose></purpose>
-<input id="CPG"></input>
-</API>
-
-<API id="adminEmailMessageUpdate">
-<purpose></purpose>
-<input id="CPG"></input>
-</API>
-
-<API id="adminEmailMessageDetail">
-</API>
-
-
-=cut
-
-sub adminEmailMessage {
-	
-	}
-
-
-
 
 
 =pod
-
-<API id="adminRSSList">
-<purpose>returns a list of projects</purpose>
-</API>
-
-<API id="adminRSSCreate">
-<purpose></purpose>
-<input id="feed_title"></input>
-<input id="feed_link"></input>
-<input id="feed_link_override"></input>
-<input id="feed_subject"></input>
-<input id="max_products"></input>
-<input id="cycle_interval"></input>
-<input id="schedule"></input>
-<input id="profile"></input>
-<input id="list"></input>
-<input id="image_h"></input>
-<input id="image_w"></input>
-<input id="translation"></input>
-<input id="coupon"></input>
-</API>
-
-<API id="adminRSSClone">
-<purpose></purpose>
-<input id="CPG"></input>
-</API>
-
-<API id="adminRSSRemove">
-<purpose></purpose>
-<input id="CPG"></input>
-</API>
-
-<API id="adminRSSUpdate">
-<purpose></purpose>
-<input id="CPG"></input>
-</API>
-
-<API id="adminRSSDetail">
-</API>
-
-
+@api {POST} adminRSSList adminRSSList
+@apiName adminRSSList
+@apiGroup admin
+@apiDescription
+returns a list of projectsTODO
 =cut
+
+=pod
+@api {POST} adminRSSCreate adminRSSCreate
+@apiName adminRSSCreate
+@apiGroup admin
+@apiDescription
+TODO
+@apiParam (Request) {String} feed_title
+@apiParam (Request) {String} feed_link
+@apiParam (Request) {String} feed_link_override
+@apiParam (Request) {String} feed_subject
+@apiParam (Request) {String} max_products
+@apiParam (Request) {String} cycle_interval
+@apiParam (Request) {String} schedule
+@apiParam (Request) {String} profile
+@apiParam (Request) {String} list
+@apiParam (Request) {String} image_h
+@apiParam (Request) {String} image_w
+@apiParam (Request) {String} translation
+@apiParam (Request) {String} coupon
+=cut
+
+## BLOCK 200
+
+=pod
+@api {POST} adminRSSClone adminRSSClone
+@apiName adminRSSClone
+@apiGroup admin
+@apiDescription
+TODO
+@apiParam (Request) {String} CPG
+=cut
+
+=pod
+@api {POST} adminRSSRemove adminRSSRemove
+@apiName adminRSSRemove
+@apiGroup admin
+@apiDescription
+TODO
+@apiParam (Request) {String} CPG
+=cut
+
+
+
+=pod
+@api {POST} adminRSSUpdate adminRSSUpdate
+@apiName adminRSSUpdate
+@apiGroup admin
+@apiDescription
+TODO
+@apiParam (Request) {String} CPG
+=cut
+
+=pod
+@api {POST} adminRSSDetail adminRSSDetail
+@apiName adminRSSDetail
+@apiGroup admin
+=cut
+
 
 sub adminRSS {
 	my ($self,$v) = @_;
@@ -13631,43 +13845,67 @@ sub adminRSS {
 
 
 =pod
-
-<API id="adminProjectList">
-<purpose>returns a list of projects</purpose>
-</API>
-
-<API id="adminProjectCreate">
-<purpose></purpose>
-Not finished
-</API>
-
-<API id="adminProjectClone">
-<purpose></purpose>
-Not finished
-</API>
-
-<API id="adminProjectRemove">
-<purpose></purpose>
-Not finished
-</API>
-
-<API id="adminProjectUpdate">
-<purpose></purpose>
-Not finished
-</API>
-
-<API id="adminProjectDetail">
-<purpose></purpose>
-Not finished
-</API>
-
-<API id="adminProjectGitMacro">
-<purpose></purpose>
-Not finished
-</API>
-
-
+@api {POST} adminProjectList adminProjectList
+@apiName adminProjectList
+@apiGroup admin
+@apiDescription
+returns a list of projectsTODO
 =cut
+
+=pod
+@api {POST} adminProjectCreate adminProjectCreate
+@apiName adminProjectCreate
+@apiGroup admin
+@apiDescription
+TODO
+Not finished
+=cut
+
+=pod
+@api {POST} adminProjectClone adminProjectClone
+@apiName adminProjectClone
+@apiGroup admin
+@apiDescription
+TODO
+Not finished
+=cut
+
+=pod
+@api {POST} adminProjectRemove adminProjectRemove
+@apiName adminProjectRemove
+@apiGroup admin
+@apiDescription
+TODO
+Not finished
+=cut
+
+=pod
+@api {POST} adminProjectUpdate adminProjectUpdate
+@apiName adminProjectUpdate
+@apiGroup admin
+@apiDescription
+TODO
+Not finished
+=cut
+
+=pod
+@api {POST} adminProjectDetail adminProjectDetail
+@apiName adminProjectDetail
+@apiGroup admin
+@apiDescription
+TODO
+Not finished
+=cut
+
+=pod
+@api {POST} adminProjectGitMacro adminProjectGitMacro
+@apiName adminProjectGitMacro
+@apiGroup admin
+@apiDescription
+TODO
+Not finished
+=cut
+
 
 sub adminProject {
 	my ($self,$v) = @_;
@@ -13910,45 +14148,47 @@ sub adminProject {
 
 
 =pod
+@api {POST} adminFAQList adminFAQList
+@apiName adminFAQList
+@apiGroup admin
+@apiDescription
+TODO
+=cut
 
-<API id="adminFAQList">
-<purpose></purpose>
-</API>
+=pod
+@api {POST} adminFAQCreate adminFAQCreate
+@apiName adminFAQCreate
+@apiGroup admin
+@apiDescription
+TODO
+=cut
 
-<API id="adminFAQSearch">
-<purpose></purpose>
-<input optional="1" id="lookup">any string</input>
-<input optional="1" id="lookup-orderid">order #</input>
-<input optional="1" id="lookup-email">email</input>
-<input optional="1" id="lookup-phone">phone</input>
-<input optional="1" id="lookup-ticket">ticket #</input>
-</API>
+=pod
+@api {POST} adminFAQRemove adminFAQRemove
+@apiName adminFAQRemove
+@apiGroup admin
+@apiDescription
+TODO
+=cut
 
-<API id="adminFAQCreate">
-<purpose></purpose>
-</API>
-
-<API id="adminFAQRemove">
-<purpose></purpose>
-</API>
-
-<API id="adminFAQMacro">
-<purpose></purpose>
-<example>
-<![CDATA[
+=pod
+@api {POST} adminFAQMacro adminFAQMacro
+@apiName adminFAQMacro
+@apiGroup admin
+@apiDescription
+TODO
 * ADDNOTE?note=xyz&private=1|0
 * ASK?
 * UPDATE?escalate=1|0&class=PRESALE|POSTSALE|EXCHANGE|RETURN
 * CLOSE
-* 
-]]>
-</example>
-</API>
+=cut
 
-<API id="adminFAQDetail">
-<purpose></purpose>
-</API>
-
+=pod
+@api {POST} adminFAQDetail adminFAQDetail
+@apiName adminFAQDetail
+@apiGroup admin
+@apiDescription
+TODO
 =cut
 
 sub adminFAQ {
@@ -14041,46 +14281,62 @@ sub adminFAQ {
 
 
 =pod
+@api {POST} adminAppTicketList adminAppTicketList
+@apiName adminAppTicketList
+@apiGroup admin
+@apiDescription
+TODO
+=cut
 
-<API id="adminAppTicketList">
-<purpose></purpose>
-</API>
+=pod
+@api {POST} adminAppTicketSearch adminAppTicketSearch
+@apiName adminAppTicketSearch
+@apiGroup admin
+@apiDescription
+TODO
+@apiParam (Request) {String} onal="1" id="lookupany string
+@apiParam (Request) {String} onal="1" id="lookup-orderidorder #
+@apiParam (Request) {String} onal="1" id="lookup-emailemail
+@apiParam (Request) {String} onal="1" id="lookup-phonephone
+@apiParam (Request) {String} onal="1" id="lookup-ticketticket #
+=cut
 
-<API id="adminAppTicketSearch">
-<purpose></purpose>
-<input optional="1" id="lookup">any string</input>
-<input optional="1" id="lookup-orderid">order #</input>
-<input optional="1" id="lookup-email">email</input>
-<input optional="1" id="lookup-phone">phone</input>
-<input optional="1" id="lookup-ticket">ticket #</input>
-</API>
+=pod
+@api {POST} adminAppTicketCreate adminAppTicketCreate
+@apiName adminAppTicketCreate
+@apiGroup admin
+@apiDescription
+TODO
+=cut
 
-<API id="adminAppTicketCreate">
-<purpose></purpose>
-</API>
+=pod
+@api {POST} adminAppTicketRemove adminAppTicketRemove
+@apiName adminAppTicketRemove
+@apiGroup admin
+@apiDescription
+TODO
+=cut
 
-<API id="adminAppTicketRemove">
-<purpose></purpose>
-</API>
-
-<API id="adminAppTicketMacro">
-<purpose></purpose>
-<example>
-<![CDATA[
+=pod
+@api {POST} adminAppTicketMacro adminAppTicketMacro
+@apiName adminAppTicketMacro
+@apiGroup admin
+@apiDescription
+TODO
 * ADDNOTE?note=xyz&private=1|0
 * ASK?
 * UPDATE?escalate=1|0&class=PRESALE|POSTSALE|EXCHANGE|RETURN
 * CLOSE
-* 
-]]>
-</example>
-</API>
-
-<API id="adminAppTicketDetail">
-<purpose></purpose>
-</API>
-
 =cut
+
+=pod
+@api {POST} adminAppTicketDetail adminAppTicketDetail
+@apiName adminAppTicketDetail
+@apiGroup admin
+@apiDescription
+TODO
+=cut
+
 
 sub adminAppTicket {
 	my ($self,$v) = @_;
@@ -14424,37 +14680,56 @@ sub adminAppTicket {
 
 
 =pod
-
-<API id="adminPriceScheduleList">
-<purpose>Returns a list of available schedule id's.  
+@api {POST} adminPriceScheduleList adminPriceScheduleList
+@apiName adminPriceScheduleList
+@apiGroup admin
+@apiDescription
+Returns a list of available schedule id's.  
 Each schedule has a unique 6 digit alphanumeric code that is used as an identifier.
-</purpose>
-<output id="@SCHEDULES">
+TODO
+@apiParam (Response) {String} @SCHEDULES
+@apiSuccessExample Request Example
+{
+'@SCHEDULES':[
 { 'id':'SCHED1' },
 { 'id':'SCHED2' },
-{ 'id':'SCHED3' },
-</output>
-</API>
+{ 'id':'SCHED3' }
+]
+}
+=cut
 
-<API id="adminPriceScheduleCreate">
-<purpose></purpose>
-</API>
+=pod
+@api {POST} adminPriceScheduleCreate adminPriceScheduleCreate
+@apiName adminPriceScheduleCreate
+@apiGroup admin
+@apiDescription
+TODO
+=cut
 
-<API id="adminPriceScheduleRemove">
-<purpose></purpose>
-<input id="SID">schedule</input>
-</API>
+=pod
+@api {POST} adminPriceScheduleRemove adminPriceScheduleRemove
+@apiName adminPriceScheduleRemove
+@apiGroup admin
+@apiDescription
+TODO
+@apiParam (Request) {String} SIDschedule
+=cut
 
-<API id="adminPriceScheduleUpdate">
-<purpose></purpose>
-</API>
+=pod
+@api {POST} adminPriceScheduleUpdate adminPriceScheduleUpdate
+@apiName adminPriceScheduleUpdate
+@apiGroup admin
+@apiDescription
+TODO
+=cut
 
-<API id="adminPriceScheduleDetail">
-<purpose></purpose>
-<input id="SID">schedule</input>
-</API>
-
-
+=pod
+@api {POST} adminPriceScheduleDetail adminPriceScheduleDetail
+@apiName adminPriceScheduleDetail
+@apiGroup admin
+@apiDescription
+TODO
+@apiParam (Request) {String} SIDschedule
 =cut
 
 sub adminPriceSchedule {
@@ -14538,59 +14813,82 @@ sub adminPriceSchedule {
 
 
 =pod
+@api {POST} adminKPIDBCollectionList adminKPIDBCollectionList
+@apiName adminKPIDBCollectionList
+@apiGroup admin
+@apiDescription TODO
+@apiParam (Response) {String} @COLLECTIONS
+=cut
 
+=pod
+@api {POST} adminKPIDBCollectionCreate adminKPIDBCollectionCreate
+@apiName adminKPIDBCollectionCreate
+@apiGroup admin
+@apiDescription
+TODO
+@apiParam (Request) {String} title Title of the Collection
+@apiParam (Request) {String} uuid Unique identifier (36 characters) for the collection
+@apiParam (Request) {String} priority The position/priority/sequence of the collection
+@apiParam (Request) {String} @GRAPH San array of graphs which will be serialized and returned
+=cut
 
-<API id="adminKPIDBCollectionList">
-<purpose></purpose>
-<output id="@COLLECTIONS"></output>
-</API>
+=pod
+@api {POST} adminKPIDBCollectionUpdate adminKPIDBCollectionUpdate
+@apiName adminKPIDBCollectionUpdate
+@apiGroup admin
+@apiDescription
+same as collection create (pass uuid of previous collection)TODO
+=cut
 
-<API id="adminKPIDBCollectionCreate">
-<purpose></purpose>
-<input id="title">Title of the Collection</input>
-<input id="uuid">Unique identifier (36 characters) for the collection</input>
-<input id="priority">The position/priority/sequence of the collection</input>
-<input id="@GRAPHS">an array of graphs which will be serialized and returned</input>
-</API>
+=pod
+@api {POST} adminKPIDBCollectionRemove adminKPIDBCollectionRemove
+@apiName adminKPIDBCollectionRemove
+@apiGroup admin
+@apiDescription
+removes a collectionTODO
+@apiParam (Request) {String} uuid Unique identifier (36 characters) for the collection
+=cut
 
-<API id="adminKPIDBCollectionUpdate">
-<purpose>same as collection create (pass uuid of previous collection)</purpose>
-</API>
+=pod
+@api {POST} adminKPIDBCollectionDetail adminKPIDBCollectionDetail
+@apiName adminKPIDBCollectionDetail
+@apiGroup admin
+@apiDescription
+returns the contents of a collectionTODO
+@apiParam (Request) {String} uuid Unique identifier for this collection
+=cut
 
-<API id="adminKPIDBCollectionRemove">
-<purpose>removes a collection</purpose>
-<input id="uuid">Unique identifier (36 characters) for the collection</input>
-</API>
-
-<API id="adminKPIDBCollectionDetail">
-<purpose>returns the contents of a collection</purpose>
-<input id="uuid">Unique identifier for this collection</input>
-</API>
-
-<API id="adminKPIDBUserDataSetsList">
-<purpose>returns a list of datasets accessible to the user</purpose>
-<output id="@DATASETS">
+=pod
+@api {POST} adminKPIDBUserDataSetsList adminKPIDBUserDataSetsList
+@apiName adminKPIDBUserDataSetsList
+@apiGroup admin
+@apiDescription
+returns a list of datasets accessible to the userTODO
+@apiParam (Response) {String} @DATASETS
 [ 'GROUP', 'DATASET-ID', 'Pretty name' ],
 [ 'GROUP', 'DATASET-ID', 'Pretty name' ],
 [ 'GROUP', 'DATASET-ID', 'Pretty name' ],
-</output>
+
 <hint>
 The DATASET-ID is what is passed into adminKPIDBDataQuery as the "dataset" parameter
 </hint>
-</API>
-
-<API id="adminKPIDBDataQuery">
-<purpose></purpose>
-<input required="1" id="@datasets">['dataset1','dataset2']</input>
-<input required="1" id="grpby">day|dow|quarter|month|week|none</input>
-<input required="1" id="column">gms|distinct|total</input>
-<input required="1" id="function">sum|min|max|avg</input>
-<input optional="1" id="period">a formula ex: months.1, weeks.1</input>
-<input optional="1" id="startyyyymmdd">(not needed if period is passed)</input>
-<input optional="1" id="stopyyyymmdd">(not needed if period is passed)</input>
-</API>
-
 =cut
+
+=pod
+@api {POST} adminKPIDBDataQuery adminKPIDBDataQuery
+@apiName adminKPIDBDataQuery
+@apiGroup admin
+@apiDescription
+TODO
+@apiParam (Request) {String} @datasets ['dataset1','dataset2']
+@apiParam (Request) {String} grpby day|dow|quarter|month|week|none
+@apiParam (Request) {String} column gms|distinct|total
+@apiParam (Request) {String} function sum|min|max|avg
+@apiParam (Request) {String} [period] a formula ex: months.1, weeks.1
+@apiParam (Request) {String} [start] yyyymmdd(not needed if period is passed)
+@apiParam (Request) {String} [stop] yyyymmdd(not needed if period is passed)
+=cut
+
 
 sub adminKPIDB {
 	my ($self,$v) = @_;
@@ -14768,82 +15066,13 @@ sub adminKPIDB {
 
 
 
-
-
-
-
-#=pod
-#
-#<API id="adminInventoryUpdate">
-#<input id="sku">sku : an A-Z|0-9|-|_ -- max length 20 characters, case insensitive</input>
-#<input id="type">type</input>
-#</API>
-#
-#=cut
-#sub adminInventoryUpdate {
-#	my ($self,$v) = @_;
-#
-#
-#
-#	}
-
-
-=pod 
-
-<API id="adminIncompleteList">
-</API>
-
-<API id="adminIncompleteCreate">
-</API>
-
-<API id="adminIncompleteUpdate">
-</API>
-
-=cut
-
-
-
-sub adminIncomplete {
-	my ($self,$v) = @_;
-
-	my %R = ();	
-
-	if (not &JSONAPI::hadError(\%R)) {
-		&JSONAPI::append_msg_to_response(\%R,'success',0);		
-		}	
-
-	#elsif ($v->{'_cmd'} =~ /^adminIncomplete(List|Create|Update)$/) {
-   return(\%R);
-	}
-
-
-
-=pod 
-
-<API id="adminPageGet">
-<purpose></purpose>
-<input id="PATH"> .path.to.page or @CAMPAIGNID</input>
-<input id="@get"> [ 'attrib1', 'attrib2', 'attrib3' ]</input>
-<input id="all"> set to 1 to return all fields (handy for json libraries which don't return @get=[]) </input>
-<example>
-attrib1:xyz
-attrib2:xyz
-</example>
-<note>leave @get blank for all page attributes</note>
-</API>
-
-<API id="adminPageSet">
-<purpose></purpose>
-<input id="PATH">.path.to.page or @CAMPAIGNID</input>
-<input id="%set"> { 'attrib1'=>'newvalue', 'attrib2'=>'new value', 'attrib3'=>undefined }</input>
-<hint>set value to "undefined" to delete it.</hint>
-</API>
-
-<API id="adminPageList">
-<purpose></purpose>
-<input id="@PAGES"></input>
-</API>
-
+=pod
+@api {POST} adminPageList adminPageList
+@apiName adminPageList
+@apiGroup admin
+@apiDescription
+TODO
+@apiParam (Request) {String} @PAGES
 =cut
 
 sub adminPageList {
@@ -14863,9 +15092,38 @@ sub adminPageList {
 	}
 
 
+=pod 
+
+@api {POST} adminPageGet adminPageGet
+@apiName adminPageGet
+@apiGroup admin
+@apiDescription
+TODO
+@apiParam (Request) {String} PATH .path.to.page or @CAMPAIGNID
+@apiParam (Request) {String} @get [ 'attrib1', 'attrib2', 'attrib3' ]
+@apiParam (Request) {String} all set to 1 to return all fields (handy for json libraries which don't return @get=[]) 
+<example>
+attrib1:xyz
+attrib2:xyz
+</example>
+<note>leave @get blank for all page attributes</note>
+=cut
+
+=pod
+@api {POST} adminPageSet adminPageSet
+@apiName adminPageSet
+@apiGroup admin
+@apiDescription
+TODO
+@apiParam (Request) {String} PATH.path.to.page or @CAMPAIGNID
+@apiParam (Request) {String} %set { 'attrib1'=>'newvalue', 'attrib2'=>'new value', 'attrib3'=>undefined }
+<hint>set value to "undefined" to delete it.</hint>
+=cut
+
+
+
 sub adminPage {
 	my ($self,$v) = @_;
-
 	my %R = ();	
 
 	## adminPageGet adminPageSet
@@ -14929,28 +15187,28 @@ sub adminPage {
 
 
 =pod
+@api {POST} adminCustomerOrganizationSearch adminCustomerOrganizationSearch
+@apiName adminCustomerOrganizationSearch
+@apiGroup admin
+@apiDescription
+find an organizationTODO
+@apiParam (Request) {String} CONTACT
+@apiParam (Request) {String} PHONE
+@apiParam (Request) {String} DOMAIN
+@apiParam (Request) {String} EMAIL
+@apiParam (Request) {String} ORGID
+@apiParam (Request) {String} IS_LOCKED
+@apiParam (Request) {String} ACCOUNT_MANAGER
+@apiParam (Request) {String} ACCOUNT_TYPE
+@apiParam (Request) {String} SCHEDULE
+=cut
 
-<API id="adminCustomerOrganizationSearch">
-<purpose>find an organization</purpose>
-<input id="CONTACT"></input>
-<input id="PHONE"></input>
-<input id="DOMAIN"></input>
-<input id="EMAIL"></input>
-<input id="ORGID"></input>
-<input id="IS_LOCKED"></input>
-<input id="ACCOUNT_MANAGER"></input>
-<input id="ACCOUNT_TYPE"></input>
-<input id="SCHEDULE"></input>
-
-
-<response id=""></response>
-</API>
-
-<API id="adminCustomerOrganizationCreate">
-<purpose></purpose>
-<code><![CDATA[
-** THESE WILL PROBABLY CHANGE **
-
+=pod
+@api {POST} adminCustomerOrganizationCreate adminCustomerOrganizationCreate
+@apiName adminCustomerOrganizationCreate
+@apiGroup admin
+@apiDescription
+TODO
 | ID              | int(10) unsigned    | NO   | PRI | NULL    | auto_increment |
 | MID             | int(10) unsigned    | NO   | MUL | 0       |                |
 | USERNAME        | varchar(20)         | NO   |     |         |                |
@@ -14981,31 +15239,36 @@ sub adminPage {
 | ACCOUNT_TYPE    | varchar(20)         | NO   |     |         |                |
 | ACCOUNT_REFID   | varchar(36)         | NO   |     |         |                |
 | JEDI_MID        | int(11)             | NO   |     | 0       |                |
-| BUYER_PASSWORD
-
-]]></code>
-<response id=""></response>
-</API>
-
-<API id="adminCustomerOrganizationUpdate">
-<purpose></purpose>
-<input id="ORGID"></input>
-<response id=""></response>
-</API>
-
-<API id="adminCustomerOrganizationDetail">
-<purpose></purpose>
-<input id="ORGID"></input>
-<response id=""></response>
-</API>
-
-<API id="adminCustomerOrganizationRemove">
-<purpose>remove an organization</purpose>
-<input id="ORGID"></input>
-<response id=""></response>
-</API>
 
 =cut
+
+=pod
+@api {POST} adminCustomerOrganizationUpdate adminCustomerOrganizationUpdate
+@apiName adminCustomerOrganizationUpdate
+@apiGroup admin
+@apiDescription
+TODO
+@apiParam (Request) {String} ORGID
+=cut
+
+=pod
+@api {POST} adminCustomerOrganizationDetail adminCustomerOrganizationDetail
+@apiName adminCustomerOrganizationDetail
+@apiGroup admin
+@apiDescription
+TODO
+@apiParam (Request) {String} ORGID
+=cut
+
+=pod
+@api {POST} adminCustomerOrganizationRemove adminCustomerOrganizationRemove
+@apiName adminCustomerOrganizationRemove
+@apiGroup admin
+@apiDescription
+remove an organizationTODO
+@apiParam (Request) {String} ORGID
+=cut
+
 
 sub adminCustomerOrganization {
 	my ($self,$v) = @_;
@@ -15114,33 +15377,34 @@ sub adminCustomerOrganization {
 
 =pod 
 
-<API id="adminCustomerSearch">
-<purpose></purpose>
-<concept>customer</concept>
-<input id="scope">GIFTCARD|SCHEDULE|ORDER|NAME|CID|EMAIL|PHONE|NOTES</input>
-<input id="searchfor">any text</input>
-<response id="@CUSTOMERS">Customer ID</response>
-<deprecated version="201318">
-	<input id="email"></input>
-	<response id="CID"></response>
-</deprecated>
-</API>
+@api {POST} adminCustomerSearch adminCustomerSearch
+@apiName adminCustomerSearch
+@apiGroup admin
+@apiDescription
+TODO
+@apiUse customer
+@apiParam (Request) {String} scopeGIFTCARD|SCHEDULE|ORDER|NAME|CID|EMAIL|PHONE|NOTES
+@apiParam (Request) {String} searchforany text
+@apiParam (Response) {String} @CUSTOMERS	Customer ID
+=cut
 
-<API id="adminCustomerSelectorDetail">
-<purpose>a product customer is a relative pointer to a grouping of customers.</purpose>
-<concept>customer</concept>
-<input id="selector">
+=pod
+@api {POST} adminCustomerSelectorDetail adminCustomerSelectorDetail
+@apiName adminCustomerSelectorDetail
+@apiGroup admin
+@apiDescription
+a product customer is a relative pointer to a grouping of customers.TODO
+@apiUse customer
+@apiParam (Request) {String} selector
 CIDS=1,2,3,4
 EMAILS=user@domain.com,user2@domain.com
 SUBLIST=0	all subscribers (any list)
 SUBLIST=1-15	a specific subscriber list
 ALL=*			all customers (regardless of subscriber status)
-</input>
-<output id="@CIDS">an array of product id's</output>
-</API>
 
-
+@apiParam (Response) {String} @CIDSan array of product id's
 =cut
+
 
 sub adminCustomer {
 	my ($self,$v) = @_;
@@ -15202,12 +15466,14 @@ sub adminCustomer {
 
 =pod 
 
-<API id="adminCustomerRemove">
-<purpose></purpose>
-<input id="CID">customer id #</input>
-</API>
-
+@api {POST} adminCustomerRemove adminCustomerRemove
+@apiName adminCustomerRemove
+@apiGroup admin
+@apiDescription
+TODO
+@apiParam (Request) {String} CIDcustomer id #
 =cut
+
 
 sub adminCustomerRemove {
 	my ($self,$v) = @_;
@@ -15234,12 +15500,14 @@ sub adminCustomerRemove {
 
 =pod 
 
-<API id="adminCustomerWalletPeek">
-<concept>wallet</concept>
-<purpose></purpose>
-</API>
-
+@api {POST} adminCustomerWalletPeek adminCustomerWalletPeek
+@apiName adminCustomerWalletPeek
+@apiGroup admin
+@apiUse wallet
+@apiDescription
+TODO
 =cut
+
 
 sub adminCustomerWalletPeek {
 	my ($self,$v) = @_;
@@ -15277,25 +15545,27 @@ sub adminCustomerWalletPeek {
 
 =pod 
 
-<API id="adminCustomerDetail">
+@api {POST} adminCustomerDetail adminCustomerDetail
+@apiName adminCustomerDetail
+@apiGroup admin
 
-<purpose></purpose>
-<input id="CID">Customer ID</input>
+@apiDescription
+TODO
+@apiParam (Request) {String} CID Customer ID
 adminCustomerDetail supports additional parameters:
-<input id="newsletters">1 (returns @NEWSLETTERS)</input>
-<input id="addresses">1  (returns @BILLING @SHIPPING)   [[ this may duplicate data from %CUSTOMER ]]</input>
-<input id="wallets">1   (returns @WALLETS)</input>
-<input id="wholesale">1  (returns %WS)</input>
-<input id="giftcards">1 (returns @GIFTCARDS)</input>
-<input id="tickets">1 (returns @TICKETS)</input>
-<input id="notes">1 (returns @NOTES)</input>
-<input id="events">1 (returns @EVENTS)</input>
-<input id="orders">1 (returns @ORDERS)</input>
-<response id="%CUSTOMER">Customer Object</response>
-<concept>wallet</concept>
-</API>
-
+@apiParam (Request) {String} [newsletters] 1 (returns @NEWSLETTERS)
+@apiParam (Request) {String} [addresses] 1  (returns @BILLING @SHIPPING)   [[ this may duplicate data from %CUSTOMER ]]
+@apiParam (Request) {String} [wallets] 1   (returns @WALLETS)
+@apiParam (Request) {String} [wholesale] 1  (returns %WS)
+@apiParam (Request) {String} [giftcards] 1 (returns @GIFTCARDS)
+@apiParam (Request) {String} [tickets] 1 (returns @TICKETS)
+@apiParam (Request) {String} [notes] 1 (returns @NOTES)
+@apiParam (Request) {String} [events] 1 (returns @EVENTS)
+@apiParam (Request) {String} [orders] 1 (returns @ORDERS)
+@apiParam (Response) {String} %CUSTOMER	Customer Object
+@apiUse wallet
 =cut
+
 
 sub adminCustomerDetail {
 	my ($self,$v) = @_;
@@ -15445,12 +15715,10 @@ sub adminCustomerDetail {
 
 =pod 
 
-<API id="adminCustomerUpdate">
-<purpose></purpose>
-<input id="CID">Customer ID</input>
-<input id="@updates">
-<![CDATA[
-<ul>
+@api {POST} adminCustomerUpdate adminCustomerUpdate
+@apiName adminCustomerUpdate
+@apiGroup admin
+@apiDescription
 * PASSWORDRESET?password=xyz    (or leave blank for random)
 * HINTRESET
 * SET?firstname=&lastname=&is_locked=&newsletter_1=
@@ -15470,36 +15738,37 @@ sub adminCustomerDetail {
 * ADDTODO?title=&note=
 * ADDTICKET?title=&note=
 * DEPRECATED: WSSET?SCHEDULE=&ALLOW_PO=&RESALE=&RESALE_PERMIT=&CREDIT_LIMIT=&CREDIT_BALANCE=&ACCOUNT_MANAGER=& 
+
+
+@apiParam (Request) {String} CIDCustomer ID
+@apiParam (Request) {String} @updates
 </ul>
 ]]>
-</input>
-<response id="*C">Customer Object</response>
-<example>
-<![CDATA[
-example needed.
-]]>
-</example>
-<concept>wallet</concept>
-</API>
 
-<API id="adminCustomerCreate">
-<purpose></purpose>
-<input id="@updates">
+@apiParam (Response) {String} %CUSTOMER	Customer Object
+@apiUse wallet
+=cut
+
+=pod
+@api {POST} adminCustomerCreate adminCustomerCreate
+@apiName adminCustomerCreate
+@apiGroup admin
+@apiDescription
+TODO
+@apiParam (Request) {String} @updates
 <![CDATA[
 * CREATE?email=
 see adminCustomerUpdate
 ]]>
-</input>
-<response id="*C">Customer Object</response>
+
+@apiParam (Response) {String} %CUSTOMER	Customer Object
 <example>
 <![CDATA[
 example needed.
 ]]>
 </example>
-</API>
-
-
 =cut
+
 
 sub adminCustomerCreateUpdate {
 	my ($self,$v) = @_;
@@ -15588,15 +15857,16 @@ sub adminCustomerCreateUpdate {
 
 
 
-
 =pod 
 
-<API id="adminProductManagementCategoriesList">
-<purpose></purpose>
-<response id="@CATEGORIES"></response>
-</API>
+@api {POST} adminProductManagementCategoriesList adminProductManagementCategoriesList
+@apiName adminProductManagementCategoriesList
+@apiGroup admin
+@apiDescription
+TODO
+@apiParam (Response) {String} @CATEGORIES	
+=cut
 
-=cut 
 
 sub adminProductManagementCategoriesList {
 	my ($self, $v) = @_;
@@ -15609,12 +15879,14 @@ sub adminProductManagementCategoriesList {
 
 =pod 
 
-<API id="adminProductManagementCategoriesComplete">
-<purpose></purpose>
-<response id="%CATEGORIES"></response>
-</API>
+@api {POST} adminProductManagementCategoriesComplete adminProductManagementCategoriesComplete
+@apiName adminProductManagementCategoriesComplete
+@apiGroup admin
+@apiDescription
+TODO
+@apiParam (Response) {String} %CATEGORIES	
+=cut
 
-=cut 
 
 sub adminProductManagementCategoriesComplete {
 	my ($self, $v) = @_;
@@ -15628,13 +15900,15 @@ sub adminProductManagementCategoriesComplete {
 
 =pod 
 
-<API id="adminProductManagementCategoriesDetail">
-<purpose></purpose>
-<input id="category"></input>
-<response id="@PRODUCTS"></response>
-</API>
+@api {POST} adminProductManagementCategoriesDetail adminProductManagementCategoriesDetail
+@apiName adminProductManagementCategoriesDetail
+@apiGroup admin
+@apiDescription
+TODO
+@apiParam (Request) {String} category
+@apiParam (Response) {String} @PRODUCTS	
+=cut
 
-=cut 
 
 sub adminProductManagementCategoriesDetail {
 	my ($self, $v) = @_;
@@ -15647,39 +15921,50 @@ sub adminProductManagementCategoriesDetail {
 
 
 =pod
+@api {POST} adminDomainList adminDomainList
+@apiName adminDomainList
+@apiGroup admin
+@apiDescription
+TODO
+@apiParam (Request) {String} onal="1" id="prtpartition (optional)
+@apiParam (Request) {String} onal="1" id="hosts0|1  (optional)
+@apiParam (Response) {String} @DOMAINS	an array of domains, each row contains { id:domainname prt:# }
+=cut
 
-<API id="adminDomainList">
-<purpose></purpose>
-<input optional="1" id="prt">partition (optional)</input>
-<input optional="1" id="hosts">0|1  (optional)</input>
-<response id="@DOMAINS">an array of domains, each row contains { id:domainname prt:# }</response>
-</API>
+=pod
+@api {POST} adminDomainDetail adminDomainDetail
+@apiName adminDomainDetail
+@apiGroup admin
+@apiParam (Request) {String} DOMAINNAME
+@apiParam (Response) {String} @MSGS
+=cut
 
-<API id="adminDomainDetail">
-<input id="DOMAINNAME"></input>
-<output id="@MSGS"></output>
-</API>
-
-<API id="adminDomainDetail">
-<input id="DOMAINNAME"></input>
-<output id="@HOSTS">
+=pod
+@api {POST} adminDomainDetail adminDomainDetail
+@apiName adminDomainDetail
+@apiGroup admin
+@apiParam (Request) {String} DOMAINNAME
+@apiParam (Response) {String} @HOSTS
 	{ "HOSTNAME":"www", "HOSTTYPE":"APP|REDIR|VSTORE|CUSTOM" },
 	HOSTTYPE=APP		will have "PROJECT"
 	HOSTTYPE=REDIR	will have "REDIR":"www.domain.com" "URI":"/path/to/301"  (if URI is blank then it will redirect with previous path)
 	HOSTTYPE=VSTORE	will have @REWRITES
-<output id="%EMAIL">
+@apiParam (Response) {String} %EMAIL
 	EMAIL_TYPE=FUSEMAIL
 	EMAIL_TYPE=GOOGLE
 	EMAIL_TYPE=NONE
 	EMAIL_TYPE=MX		MX1,MX2 parameters
 	
-</output>
-</output>
-</API>
 
-<API id="adminDomainMacro">
-<input id="DOMAINNAME">domain.com</input>
-<input id="@updates">
+
+=cut
+
+=pod
+@api {POST} adminDomainMacro adminDomainMacro
+@apiName adminDomainMacro
+@apiGroup admin
+@apiParam (Request) {String} DOMAINNAMEdomain.com
+@apiParam (Request) {String} @updates
 <![CDATA[
 DOMAIN-RESERVE		(note: leave DOMAINNAME blank/empty)
 DOMAIN-TRANSFER
@@ -15696,12 +15981,9 @@ VSTORE-MAKE-PRIMARY
 VSTORE-KILL-REWRITE?PATH=
 VSTORE-ADD-REWRITE?PATH=&TARGETURL=
 ]]>
-</input>
-</API>
-
-
 
 =cut
+
 
 sub adminDomain {
 	my ($self, $v) = @_;
@@ -16199,14 +16481,14 @@ sub adminDomain {
 
 
 =pod
-
-
-<API id="adminPartitionList">
-<purpose></purpose>
-<response id="@PRTS">An array of partitions</response>
-</API>
-
+@api {POST} adminPartitionList adminPartitionList
+@apiName adminPartitionList
+@apiGroup admin
+@apiDescription
+TODO
+@apiParam (Response) {String} @PRTS	An array of partitions
 =cut
+
 
 
 sub adminPartitionList {
@@ -16224,14 +16506,15 @@ sub adminPartitionList {
 
 #	'adminUIExecuteCGI'=>[\&JSONAPI::adminUIExecuteCGI, { 'admin'=>1, 'cart'=>0 }, 'admin-ui', ],
 =pod
-
-<API id="adminUIExecuteCGI">
-<purpose></purpose>
-<input id="uri">/biz/setup/shipping/index.cgi</input>
-<input id="%vars">{ x:1, y:2, z:3 }</input>
-</API>
-
+@api {POST} adminUIExecuteCGI adminUIExecuteCGI
+@apiName adminUIExecuteCGI
+@apiGroup admin
+@apiDescription
+TODO
+@apiParam (Request) {String} uri/biz/setup/shipping/index.cgi
+@apiParam (Request) {String} %vars{ x:1, y:2, z:3 }
 =cut
+
 
 sub adminUIExecuteCGI {
    my ($self, $v) = @_;
@@ -16245,18 +16528,19 @@ sub adminUIExecuteCGI {
 
 
 =pod
+@api {POST} adminUIBuilderPanelExecute adminUIBuilderPanelExecute
+@apiName adminUIBuilderPanelExecute
+@apiGroup admin
+@apiDescription
+TODO
+@apiParam (Request) {String} subEDIT|SAVE|SAVE-EDIT
+@apiParam (Request) {String} idelement id
 
-<API id="adminUIBuilderPanelExecute">
-<purpose></purpose>
-<input id="sub">EDIT|SAVE|SAVE-EDIT</input>
-<input id="id">element id</input>
-
-<input id="panel">Panel Identifier (the 'id' field returned by adminUIProductList</input>
-<response id="html">the html content of the product editor panel</response>
-<response id="js">the js which is required by the panel.</response>
-</API>
-
+@apiParam (Request) {String} panelPanel Identifier (the 'id' field returned by adminUIProductList
+@apiParam (Response) {String} html	the html content of the product editor panel
+@apiParam (Response) {String} js	the js which is required by the panel.
 =cut
+
 
 sub adminUIBuilderPanelExecute {
 	my ($self,$v) = @_;
@@ -16447,16 +16731,17 @@ sub adminUIBuilderPanelExecute {
 
 
 =pod
-
-<API id="adminUIMediaLibraryExecute">
-<purpose></purpose>
-<input id="verb">LOAD|SAVE</input>
-<input id="src">(required for LOAD|SAVE)</input>
-<input id="IMG">(required for SAVE)</input>
-<response id="IMG"></response>
-</API>
-
+@api {POST} adminUIMediaLibraryExecute adminUIMediaLibraryExecute
+@apiName adminUIMediaLibraryExecute
+@apiGroup admin
+@apiDescription
+TODO
+@apiParam (Request) {String} verbLOAD|SAVE
+@apiParam (Request) {String} src(required for LOAD|SAVE)
+@apiParam (Request) {String} IMG(required for SAVE)
+@apiParam (Response) {String} IMG	
 =cut
+
 
 sub adminUIMediaLibraryExecute {
 	my ($self,$v) = @_;
@@ -16648,15 +16933,16 @@ sub adminUIMediaLibraryExecute {
 
 
 =pod
-
-<API id="adminTOXMLSetFavorite">
-<purpose></purpose>
-<input id="format">WRAPPER|LAYOUT|EMAIL</input>
-<input id="docid"></input>
-<input id="favorite">true|false</input>
-</API>
-
+@api {POST} adminTOXMLSetFavorite adminTOXMLSetFavorite
+@apiName adminTOXMLSetFavorite
+@apiGroup admin
+@apiDescription
+TODO
+@apiParam (Request) {String} formatWRAPPER|LAYOUT|EMAIL
+@apiParam (Request) {String} docid
+@apiParam (Request) {String} favoritetrue|false
 =cut
+
 
 #	'adminTOXMLRemember'=>[\&JSONAPI::adminTOXMLRemember, { 'admin'=>1, }, 'admin-ui', ],
 sub adminTOXMLSetFavorite {
@@ -16686,27 +16972,34 @@ sub adminTOXMLSetFavorite {
 
 
 =pod
-
-<API id="adminLUserTagList">
-<purpose></purpose>
-<input id="tag"></input>
-</API>
-
-
-<API id="adminLUserTagSet">
-<purpose></purpose>
-<input id="tag">data	</input>
-<hint>Limited to 128 bytes per tag, 10,000 tags max (then old tags are auto-expired)</hint>
-</API>
-
-
-<API id="adminLUserTagGet">
-<purpose></purpose>
-<input id="tag1">''</input>
-<input id="tag2">''</input>
-</API>
-
+@api {POST} adminLUserTagList adminLUserTagList
+@apiName adminLUserTagList
+@apiGroup admin
+@apiDescription
+TODO
+@apiParam (Request) {String} tag
 =cut
+
+=pod
+@api {POST} adminLUserTagSet adminLUserTagSet
+@apiName adminLUserTagSet
+@apiGroup admin
+@apiDescription
+TODO
+@apiParam (Request) {String} tagdata	
+<hint>Limited to 128 bytes per tag, 10,000 tags max (then old tags are auto-expired)</hint>
+=cut
+
+=pod
+@api {POST} adminLUserTagGet adminLUserTagGet
+@apiName adminLUserTagGet
+@apiGroup admin
+@apiDescription
+TODO
+@apiParam (Request) {String} tag1''
+@apiParam (Request) {String} tag2''
+=cut
+
 
 sub adminLUserTag {
 	my ($self,$v) = @_;
@@ -16745,34 +17038,50 @@ sub adminLUserTag {
 
 
 =pod
-
-<API id="bossUserCreate">
-<purpose></purpose>
-<input id="tag"></input>
-</API>
-
-<API id="bossUserList">
-<purpose></purpose>
-<input id="tag"></input>
-</API>
-
-<API id="bossUserUpdate">
-<purpose></purpose>
-<input id="tag"></input>
-</API>
-
-<API id="bossUserDelete">
-<purpose></purpose>
-<input id="tag"></input>
-</API>
-
-<API id="bossUserDetail">
-<purpose></purpose>
-<input id="tag"></input>
-</API>
-
-
+@api {POST} bossUserCreate bossUserCreate
+@apiName bossUserCreate
+@apiGroup admin
+@apiDescription
+TODO
+@apiParam (Request) {String} tag
 =cut
+
+=pod
+@api {POST} bossUserList bossUserList
+@apiName bossUserList
+@apiGroup admin
+@apiDescription
+TODO
+@apiParam (Request) {String} tag
+=cut
+
+=pod
+@api {POST} bossUserUpdate bossUserUpdate
+@apiName bossUserUpdate
+@apiGroup admin
+@apiDescription
+TODO
+@apiParam (Request) {String} tag
+=cut
+
+=pod
+@api {POST} bossUserDelete bossUserDelete
+@apiName bossUserDelete
+@apiGroup admin
+@apiDescription
+TODO
+@apiParam (Request) {String} tag
+=cut
+
+=pod
+@api {POST} bossUserDetail bossUserDetail
+@apiName bossUserDetail
+@apiGroup admin
+@apiDescription
+TODO
+@apiParam (Request) {String} tag
+=cut
+
 
 sub bossUser {
 	my ($self,$v) = @_;
@@ -16967,28 +17276,41 @@ sub bossUser {
 
 
 =pod
-
-<API id="bossRoleCreate">
-<purpose></purpose>
-<input id="tag"></input>
-</API>
-
-<API id="bossRoleList">
-<purpose></purpose>
-<input id="tag"></input>
-</API>
-
-<API id="bossRoleUpdate">
-<purpose></purpose>
-<input id="tag"></input>
-</API>
-
-<API id="bossRoleDelete">
-<purpose></purpose>
-<input id="tag"></input>
-</API>
-
+@api {POST} bossRoleCreate bossRoleCreate
+@apiName bossRoleCreate
+@apiGroup admin
+@apiDescription
+TODO
+@apiParam (Request) {String} tag
 =cut
+
+=pod
+@api {POST} bossRoleList bossRoleList
+@apiName bossRoleList
+@apiGroup admin
+@apiDescription
+TODO
+@apiParam (Request) {String} tag
+=cut
+
+=pod
+@api {POST} bossRoleUpdate bossRoleUpdate
+@apiName bossRoleUpdate
+@apiGroup admin
+@apiDescription
+TODO
+@apiParam (Request) {String} tag
+=cut
+
+=pod
+@api {POST} bossRoleDelete bossRoleDelete
+@apiName bossRoleDelete
+@apiGroup admin
+@apiDescription
+TODO
+@apiParam (Request) {String} tag
+=cut
+
 
 sub bossRole {
 	my ($self,$v) = @_;
@@ -17032,31 +17354,48 @@ sub bossRole {
 
 
 =pod
-
-<API id="adminSOGDetail">
-<purpose>Returns a list of Store Option Groups (SOGs), see the SOG xml format for more specific information.</purpose>
-<input id="id">sog-id</input>
-</API>
-
-<API id="adminSOGList">
-<purpose></purpose>
-</API>
-
-<API id="adminSOGComplete">
-<purpose></purpose>
-</API>
-
-<API id="adminSOGCreate">
-<purpose></purpose>
-<input id="%sog">json nested sog structure</input>
-</API>
-
-<API id="adminSOGUpdate">
-<purpose></purpose>
-<input id="%sog">json nested sog structure</input>
-</API>
-
+@api {POST} adminSOGDetail adminSOGDetail
+@apiName adminSOGDetail
+@apiGroup admin
+@apiDescription
+Returns a list of Store Option Groups (SOGs), see the SOG xml format for more specific information.TODO
+@apiParam (Request) {String} idsog-id
 =cut
+
+=pod
+@api {POST} adminSOGList adminSOGList
+@apiName adminSOGList
+@apiGroup admin
+@apiDescription
+TODO
+=cut
+
+=pod
+@api {POST} adminSOGComplete adminSOGComplete
+@apiName adminSOGComplete
+@apiGroup admin
+@apiDescription
+TODO
+=cut
+
+=pod
+@api {POST} adminSOGCreate adminSOGCreate
+@apiName adminSOGCreate
+@apiGroup admin
+@apiDescription
+TODO
+@apiParam (Request) {String} %sogjson nested sog structure
+=cut
+
+=pod
+@api {POST} adminSOGUpdate adminSOGUpdate
+@apiName adminSOGUpdate
+@apiGroup admin
+@apiDescription
+TODO
+@apiParam (Request) {String} %sogjson nested sog structure
+=cut
+
 
 
 sub adminSOG {
@@ -17193,14 +17532,16 @@ sub adminSOG {
 ##
 
 =pod
-<API id="ping">
-<purpose></purpose>
+@api {POST} ping ping
+@apiName ping
+@apiGroup site
+@apiDescription
+TODO
 <note>Accepts: nothing</note>
 <note>Returns: (nothing of importance)</note>
-<response id="pong">1</response>
-</API>
-
+@apiParam (Response) {String} pong	1
 =cut
+
 
 sub ping {
 	my ($self,$v) = @_;
@@ -17218,19 +17559,20 @@ sub ping {
 ##
 
 =pod
-
-<API id="whoAmI">
-<purpose>Utility function that returns who the current session is authenticated as.</purpose>
-<response id="cid"> #### (customer [buyer] id)</response>
-<response id="email"> user@fromloggedindomain.com</response>
+@api {POST} whoAmI whoAmI
+@apiName whoAmI
+@apiGroup utility
+@apiDescription
+Utility function that returns who the current session is authenticated as.TODO
+@apiParam (Response) {String} cid	 #### (customer [buyer] id)
+@apiParam (Response) {String} email	 user@fromloggedindomain.com
 
 <hint>
 If logged in as an admin sessino you'll get fun stuff like USERNAME,MID,RESELLER and more.
 </hint>
 
-</API>
-
 =cut
+
 
 sub whoAmI {
 	my ($self,$v) = @_;
@@ -17303,17 +17645,19 @@ sub whoAmI {
 ##
 
 =pod
-
-<API id="whereAmI">
-<purpose></purpose>
-<purpose>Utility function that returns the city/state/zip of the IP making the call.</purpose>
-<response id="city"></response>
-<response id="state"></response>
-<response id="zip"></response>
-<response id="country"></response>
-</API>
-
+@api {POST} whereAmI whereAmI
+@apiName whereAmI
+@apiGroup utility
+@apiDescription
+TODO
+@apiDescription
+Utility function that returns the city/state/zip of the IP making the call.TODO
+@apiParam (Response) {String} city	
+@apiParam (Response) {String} state	
+@apiParam (Response) {String} zip	
+@apiParam (Response) {String} country	
 =cut
+
 
 sub whereAmI {
 	my ($self,$v) = @_;
@@ -17379,14 +17723,15 @@ sub whereAmI {
 ##
 
 =pod
-
-<API id="canIUse">
-<purpose>Utility function which checks access to a specific bundle ex: CRM, XSELL</purpose>
-<input id="flag"></input>
-<response id="allowed">1|0</response>
-</API>
-
+@api {POST} canIUse canIUse
+@apiName canIUse
+@apiGroup utility
+@apiDescription
+Utility function which checks access to a specific bundle ex: CRM, XSELLTODO
+@apiParam (Request) {String} flag
+@apiParam (Response) {String} allowed	1|0
 =cut
+
 
 sub canIUse {
 	my ($self,$v) = @_;
@@ -17418,16 +17763,17 @@ sub canIUse {
 ##
 
 =pod
-
-<API id="time">
-<purpose>Utility/Diagnostic Function</purpose>
-<response id="unix"> ########</response>
+@api {POST} time time
+@apiName time
+@apiGroup utility
+@apiDescription
+Utility/Diagnostic FunctionTODO
+@apiParam (Response) {String} unix	 ########
 <hint>
 Unix is an epoch timestamp (which represents the number of seconds since midnight january 1st, 1970)
 </hint>
-</API>
-
 =cut
+
 
 sub utilityTime {
 	my ($self,$v) = @_;
@@ -17442,20 +17788,21 @@ sub utilityTime {
 
 
 =pod
-
-<API id="info">
-<purpose>Utility Function</purpose>
-<response id="time">########</response>
-<response id="media-host">########</response>
-<response id="api-max-version">########</response>
-<response id="api-min-version">########</response>
-<response id="api-our-version">########</response>
+@api {POST} platformInfo platformInfo
+@apiName platforminfo
+@apiGroup site
+@apiDescription
+Utility FunctionTODO
+@apiParam (Response) {String} time	########
+@apiParam (Response) {String} media-host	########
+@apiParam (Response) {String} api-max-version	########
+@apiParam (Response) {String} api-min-version	########
+@apiParam (Response) {String} api-our-version	########
 <hint>
 Time is an epoch timestamp (which represents the number of seconds since midnight january 1st, 1970)
 </hint>
-</API>
-
 =cut
+
 
 
 sub platformInfo {
@@ -17490,15 +17837,16 @@ sub platformInfo {
 ##
 
 =pod
-
-<API id="appCategoryList">
-<purpose></purpose>
+@api {POST} appCategoryList appCategoryList
+@apiName appCategoryList
+@apiGroup app
+@apiDescription
+TODO
 <note>Accepts no parameters</note>
-<input id="root" optional="1">.root.category.path</input>
-<response id="@paths">['.','.safe1','.safe2']</response>
-</API>
-
+@apiParam (Request) {String} [root] .root.category.path
+@apiParam (Response) {String} @paths	['.','.safe1','.safe2']
 =cut
+
 
 sub appCategoryList {
 	my ($self,$v) = @_;
@@ -17558,13 +17906,14 @@ sub appCategoryList {
 ##
 
 =pod
-
-<API id="appConfig">
-<purpose></purpose>
+@api {POST} appConfig appConfig
+@apiName appConfig
+@apiGroup app
+@apiDescription
+TODO
 <note>Accepts no parameters</note>
-</API>
-
 =cut
+
 
 sub appConfig {
 	my ($self,$v) = @_;
@@ -17661,14 +18010,15 @@ sub appConfig {
 ##
 
 =pod
-
-<API id="cartDetail">
-<purpose>Lists the contents/settings in a cart along with summary values</purpose>
-<input id="_cartid"></input>
-<input id="create">1/0 - shall we create a cart if the cart requested doesn't exit?</input>
-</API>
-
+@api {POST} cartDetail cartDetail
+@apiName cartDetail
+@apiGroup cart
+@apiDescription
+Lists the contents/settings in a cart along with summary valuesTODO
+@apiParam (Request) {String} _cartid
+@apiParam (Request) {String} create1/0 - shall we create a cart if the cart requested doesn't exit?
 =cut
+
 
 sub cartDetail {
 	my ($self,$v) = @_;
@@ -17722,28 +18072,29 @@ sub cartDetail {
 ##
 
 =pod
+@api {POST} appEventAdd appEventAdd
+@apiName appEventAdd
+@apiGroup app
+@apiDescription
 
-<API id="appEventAdd">
-<purpose>
 User events are the facility for handling a variety of "future" and "near real time" backend operations.
 Each event has a name that describes what type of object it is working with ex: CART, ORDER, PRODUCT, CUSTOMER
 then a period, and what happened (or should happen in the future) ex: CART.GOTSTUFF, ORDER.CREATED, PRODUCT.CHANGED
 custom program code can be associated with a users account to "listen" for specific events and then take action.
-</purpose>
-<input id="event">CART.REMARKET</input>
-<input id="pid" optional="1">product id</input>
-<input id="pids" optional="1">multiple product id's (comma separated)</input>
-<input id="safe" optional="1">category id</input>
-<input id="sku" optional="1">inventory id</input>
-<input id="cid" optional="1">customer(buyer) id</input>
-<input id="email" optional="1">customer email</input>
-<input id="more" optional="1">a user defined field (for custom events)</input>
+TODO
+@apiParam (Request) {String} event CART.REMARKET
+@apiParam (Request) {String} [pid] product id
+@apiParam (Request) {String} [pids] multiple product id's (comma separated)
+@apiParam (Request) {String} [safe] category id
+@apiParam (Request) {String} [sku] inventory id
+@apiParam (Request) {String} [cid] customer(buyer) id
+@apiParam (Request) {String} [email] customer email
+@apiParam (Request) {String} [more] a user defined field (for custom events)
 <note>in addition each event generated will record: sdomain, ip, and cartid</note>
-<input id="uuid" optional="1" hint="to create a future event" >a unique identifier (cart id will be used if not specified)</input>
-<input id="dispatch_gmt" optional="1" hint="to create a future event"> an epoch timestamp when the future event should dispatch</input>
-</API>
-
+@apiParam (Request) {String} [uuid] to create a future event, a unique identifier (cart id will be used if not specified)
+@apiParam (Request) {String} [dispatch_gmt] to create a future event an epoch timestamp when the future event should dispatch
 =cut
+
 
 sub appEventAdd {
 	my ($self,$v) = @_;
@@ -17798,18 +18149,19 @@ sub appEventAdd {
 ##
 
 =pod
-
-<API id="appBuyerAuthenticate">
-<purpose>Authenticates a buyer against an enabled/supported trust service</purpose>
-<input id="auth">facebook|google</input>
-<input id="create">0|1</input>
-<input hint="auth=facebook" id="token">token</input>
-<input hint="auth=google" id="id_token">required for auth=google, only id_token or access_token are required (but both can safely be passed)</input>
-<input hint="auth=google" id="access_token">required for auth=google, only id_token or access_token are required (but both can safely be passed)</input>
-<output id="CID"></output>
-</API>
-
+@api {POST} appBuyerAuthenticate appBuyerAuthenticate
+@apiName appBuyerAuthenticate
+@apiGroup app
+@apiDescription
+Authenticates a buyer against an enabled/supported trust serviceTODO
+@apiParam (Request) {String} authfacebook|google
+@apiParam (Request) {String} create0|1
+@apiParam (Request) {String} [token]  when auth=facebook 
+@apiParam (Request) {String} [id_token] required for auth=google, only id_token or access_token are required (but both can safely be passed)
+@apiParam (Request) {String} [access_token] required for auth=google, only id_token or access_token are required (but both can safely be passed)
+@apiParam (Response) {String} CID
 =cut
+
 
 sub appBuyerAuthenticate {
 	my ($self,$v) = @_;
@@ -18019,18 +18371,19 @@ sub appBuyerAuthenticate {
 ##
 
 =pod
-
-<API id="appCartCreate">
-<purpose></purpose>
-<input id="_cartid"></input>
-<input id="cartDetail"></input>
+@api {POST} appCartCreate appCartCreate
+@apiName appCartCreate
+@apiGroup app
+@apiDescription
+TODO
+@apiParam (Request) {String} _cartid
+@apiParam (Request) {String} cartDetail
 <hint>
 You should take care to maintain your cart in a local persisent cookie.  
 This is *your* responsibility to pass this value on subsequent requests. (use appCartExists to test to see if it's valid)
 </hint>
-</API>
-
 =cut
+
 
 sub appCartCreate {
 	my ($self,$v) = @_;
@@ -18077,15 +18430,16 @@ sub appCartCreate {
 ##
 
 =pod
-
-<API id="appCartExists">
-<purpose>This call tells if a cart/session has been previously created/saved. Since release 201314 it is not necessary to use because cart id's can now be created on the fly by an app.</purpose>
-<input id="_cartid"></input>
-<response id="_cartid"> </response>
-<response id="exists"> 1/0</response>
-</API>
-
+@api {POST} appCartExists appCartExists
+@apiName appCartExists
+@apiGroup app
+@apiDescription
+This call tells if a cart/session has been previously created/saved. Since release 201314 it is not necessary to use because cart id's can now be created on the fly by an app.TODO
+@apiParam (Request) {String} _cartid
+@apiParam (Response) {String} _cartid	 
+@apiParam (Response) {String} exists	 1/0
 =cut
+
 
 sub appCartExists {
 	my ($self,$v) = @_;
@@ -18119,12 +18473,13 @@ sub appCartExists {
 
 
 =pod
-
-<API id="cartItemAppend">
-<purpose></purpose>
-</API>
-
+@api {POST} cartItemAppend cartItemAppend
+@apiName cartItemAppend
+@apiGroup cart
+@apiDescription
+TODO
 =cut
+
 
 sub cartItemAppend {
 	my ($self,$v) = @_;
@@ -18318,14 +18673,16 @@ sub cartItemAppend {
 ##
 
 =pod
-
-<API id="cartItemUpdate">
-<purpose></purpose>
-<input id="_cartid"></input>
-<input id="stid">xyz</input>
-<input id="uuid">xyz</input>
-<input id="quantity">1</input>
-<input id="_msgs">(contains a count of the number of messages)</input>
+@api {POST} cartItemUpdate cartItemUpdate
+@apiName cartItemUpdate
+@apiGroup cart
+@apiDescription
+TODO
+@apiParam (Request) {String} _cartid
+@apiParam (Request) {String} stidxyz
+@apiParam (Request) {String} uuidxyz
+@apiParam (Request) {String} quantity1
+@apiParam (Request) {String} _msgs(contains a count of the number of messages)
 <errors>
 <err id="9101" type="cfgerr">Item cannot be added to cart due to price not set.</err>
 <err id="9102" type="cfgerr">could not lookup pogs</err>
@@ -18335,9 +18692,8 @@ sub cartItemAppend {
 <err id="9002" type="cfgerr">Product xyz has already been purchased</err>
 </errors>
 
-</API>
-
 =cut
+
 
 sub cartItemUpdate {
 	my ($self,$v) = @_;
@@ -18448,19 +18804,26 @@ sub cartItemUpdate {
 ##
 
 =pod
+@api {POST} appProductList appProductList
+@apiName appProductList
+@apiGroup app
+@apiDescription
+deprecatedTODO
+@apiUse product
+@apiUse PRODUCT_SELECTOR
+@apiParam (Request) {String} srcnavcat:.path.to.safename
+@apiParam (Request) {String} srcsearch:keywords
+@apiParam (Request) {String} srccart:
+@apiParam (Response) {String} @products	['pid1','pid2','pid3']
+=cut
 
-<API id="appProductList">
-<purpose>deprecated</purpose>
-<concept>PRODUCT,PRODUCT_SELECTOR</concept>
-<input id="src">navcat:.path.to.safename</input>
-<input id="src">search:keywords</input>
-<input id="src">cart:</input>
-<response id="@products">['pid1','pid2','pid3']</response>
-</API>
-
-<API id="appProductSelect">
-<purpose></purpose>
-<input id="product_selector">
+=pod
+@api {POST} appProductSelect appProductSelect
+@apiName appProductSelect
+@apiGroup app
+@apiDescription
+TODO
+@apiParam (Request) {String} product_selector
 navcat=.path.to.safename
 CSV=pid1,pid2,pid3
 CREATED=STARTYYYMMDD|ENDYYYMMDD
@@ -18468,12 +18831,10 @@ RANGE=pid1|pid2
 MANAGECAT=/managecat
 SEARCH=keyword
 PROFILE=PROFILE
-</input>
-<response id="@products">['pid1','pid2','pid3']</response>
-</API>
 
-
+@apiParam (Response) {String} @products	['pid1','pid2','pid3']
 =cut
+
 
 sub appProduct {
 	my ($self,$v) = @_;
@@ -18577,19 +18938,21 @@ sub appProduct {
 ##
 
 =pod
-
-<API id="getKeywordAutoComplete">
-<purpose>returns a list of matching possible keywords (note: currently disabled pending rewrite)</purpose>
-<input id="_cartid"></input>
-<input id="keywords"></input>
-<input id="catalog"></input>
+@api {POST} getKeywordAutoComplete getKeywordAutoComplete
+@apiName getKeywordAutoComplete
+@apiGroup admin
+@apiDescription
+** Deprecated ** don't use this, use elasticsearch instead.
+returns a list of matching possible keywords (note: currently disabled pending rewrite)
+@apiParam (Request) {String} _cartid
+@apiParam (Request) {String} keywords
+@apiParam (Request) {String} catalog
 <hint>
 pass value of catalog=TESTING to always generate an auto-complete result
 </hint>
 
-</API>
-
 =cut
+
 
 # dictionary
 sub getKeywordAutoComplete {
@@ -18628,28 +18991,30 @@ sub getKeywordAutoComplete {
 ##
 
 =pod
+@api {POST} searchResult searchResult
+@apiName searchResult
+@apiGroup site
+@apiDescription
+This is deprecated, it is the old legacy search system. Don't use this, it will be removed. 
 
-<API id="searchResult">
-<purpose></purpose>
-<input id="_cartid"></input>
-<input hint="Required" id="KEYWORDS"></input>
-<input hint="Recommended" id="MODE">EXACT|STRUCTURED|AND|OR</input>
-<input hint="Recommended" id="CATALOG"></input>
-<input hint="Override" id="PRT">0</input>
-<input hint="Override" id="ISOLATION_LEVEL">0-9</input>
-<input hint="Override" id="ROOT">.</input>
-<input hint="Diagnostic" id="LOG">1</input>
-<input hint="Diagostic" id="TRACEPID">productid</input>
-<response id="@products">an array of product ids</response>
-<response id="@LOG">an array of strings explaining how the search was performed (if LOG=1 or TRACEPID non-blank)</response>
+@apiParam (Request) {String} _cartid
+@apiParam (Request) {String} KEYWORDS
+@apiParam (Request) {String} [MODE] EXACT|STRUCTURED|AND|OR
+@apiParam (Request) {String} [CATALOG]
+@apiParam (Request) {String} [PRT] 0
+@apiParam (Request) {String} [ISOLATION_LEVEL] 0-9
+@apiParam (Request) {String} [ROOT] 
+@apiParam (Request) {String} [LOG] 1 (dianostic)
+@apiParam (Request) {String} [TRACE] PID productid
+@apiParam (Response) {String} @products	an array of product ids
+@apiParam (Response) {String} @LOG	an array of strings explaining how the search was performed (if LOG=1 or TRACEPID non-blank)
 <caution>
 Using LOG=1 or TRACEPID in a product (non debug) environment will result in the search feature being
 disabled on a site.
 </caution>
 
-</API>
-
 =cut
+
 
 sub searchResult {
 	my ($self,$v) = @_;
@@ -18679,13 +19044,16 @@ sub searchResult {
 ##
 
 =pod
+@api {POST} getSearchCatalogs getSearchCatalogs
+@apiName getSearchCatalogs
+@apiGroup site
+@apiDescription
+This is the old search catalog interface, don't use this, it will be removed.
+use elasticsearch instead.
 
-<API id="getSearchCatalogs">
-<purpose></purpose>
-<input id="_cartid"></input>
-</API>
-
+@apiParam (Request) {String} _cartid
 =cut
+
 
 
 sub getSearchCatalogs {
@@ -18714,17 +19082,19 @@ sub getSearchCatalogs {
 ##
 
 =pod
-
-<API id="appPublicSearch">
-<purpose></purpose>
-<input id="_cartid"></input>
-<input id="type">product|faq|blog</input>
-<input id="type">['product','blog']</input>
+@api {POST} appPublicSearch appPublicSearch
+@apiName appPublicSearch
+@apiGroup app
+@apiDescription
+TODO
+@apiParam (Request) {String} _cartid
+@apiParam (Request) {String} typeproduct|faq|blog
+@apiParam (Request) {String} type['product','blog']
 <note>if not specified then: type:_all is assumed.</note>
 <note>www.elasticsearch.org/guide/reference/query-dsl/</note>
 
-<input id="mode">elastic-search,elastic-count,elastic-msearch,
-elastic-mlt,elastic-suggest,elastic-explain,elastic-scroll,elastic-scroll-helper,elastic-scroll-clear</input>
+@apiParam (Request) {String} modeelastic-search,elastic-count,elastic-msearch,
+elastic-mlt,elastic-suggest,elastic-explain,elastic-scroll,elastic-scroll-helper,elastic-scroll-clear
 <hint>
 elastic-search: a query or filter search, this is probably what you want.
 elastic-count: same parameters as query or search, but simply returns a count of matches
@@ -18739,15 +19109,15 @@ elastic-scroll,elastic-scroll-helper,elastic-scroll-clear: used to interate thro
 
 http://search.cpan.org/~drtech/Search-Elasticsearch-1.10/lib/Search/Elasticsearch/Client/Direct.pm
 </a>
-<input hint="mode:elastic-*" id="filter"> { 'term':{ 'profile':'DEFAULT' } };</input>
-<input hint="mode:elastic-*" id="filter"> { 'term':{ 'profile':['DEFAULT','OTHER'] } };	## invalid: a profile can only be one value and this would fail</input>
-<input hint="mode:elastic-*" id="filter"> { 'or':{ 'filters':[ {'term':{'profile':'DEFAULT'}},{'term':{'profile':'OTHER'}}  ] } };</input>
-<input hint="mode:elastic-*" id="filter"> { 'constant_score'=>{ 'filter':{'numeric_range':{'base_price':{"gte":"100","lt":"200"}}}};</input>
-<input hint="mode:elastic-*" id="query"> {'text':{ 'profile':'DEFAULT' } };</input>
-<input hint="mode:elastic-*" id="query"> {'text':{ 'profile':['DEFAULT','OTHER'] } }; ## this would succeed, </input>
+@apiParam (Request) {String} [filter] mode "mode:elastic-*" id="filter { 'term':{ 'profile':'DEFAULT' } };
+@apiParam (Request) {String} [filter] mode "mode:elastic-*" id="filter { 'term':{ 'profile':['DEFAULT','OTHER'] } };	## invalid: a profile can only be one value and this would fail
+@apiParam (Request) {String} [filter] mode "mode:elastic-*" id="filter { 'or':{ 'filters':[ {'term':{'profile':'DEFAULT'}},{'term':{'profile':'OTHER'}}  ] } };
+@apiParam (Request) {String} [filter] mode "mode:elastic-*" id="filter { 'constant_score'=>{ 'filter':{'numeric_range':{'base_price':{"gte":"100","lt":"200"}}}};
+@apiParam (Request) {String} [query] mode "mode:elastic-*" id="query {'text':{ 'profile':'DEFAULT' } };
+@apiParam (Request) {String} [query] mode "mode:elastic-*" id="query {'text':{ 'profile':['DEFAULT','OTHER'] } }; ## this would succeed, 
 
-<input hint="mode:elastic-mlt" id="id">the document id you want to use for the mlt operation</input>
-<input hint="mode:elastic-mlt" id="more_like_this">
+@apiParam (Request) {String} mode "mode:elastic-mlt" id="id the document id you want to use for the mlt operation
+@apiParam (Request) {String} mode "mode:elastic-mlt" id="more_like_this
 "more_like_this" : {
         "fields" : ["name.first", "name.last"],
         "like_text" : "text like this one",
@@ -18755,12 +19125,12 @@ http://search.cpan.org/~drtech/Search-Elasticsearch-1.10/lib/Search/Elasticsearc
         "max_query_terms" : 12
     }
 http://www.elasticsearch.org/guide/en/elasticsearch/reference/current/query-dsl-mlt-query.html
-</input>
 
-<response id="size">100 # number of results</response>
-<response id="sort">['_score','base_price','prod_name']</response>
-<response id="from">100	# start from result # 100</response>
-<response id="scroll">30s,1m,5m</response>
+
+@apiParam (Response) {String} size	100 # number of results
+@apiParam (Response) {String} sort	['_score','base_price','prod_name']
+@apiParam (Response) {String} from	100	# start from result # 100
+@apiParam (Response) {String} scroll	30s,1m,5m
 
 <note>
 <![CDATA[
@@ -18791,16 +19161,15 @@ when the exact value is known (ex: tags, profiles, upc, etc.)
 ]]>
 </note>
 
-<response id="@products">an array of product ids</response>
-<response id="@LOG">an array of strings explaining how the search was performed (if LOG=1 or TRACEPID non-blank)</response>
+@apiParam (Response) {String} @products	an array of product ids
+@apiParam (Response) {String} @LOG	an array of strings explaining how the search was performed (if LOG=1 or TRACEPID non-blank)
 <caution>
 Using LOG=1 or TRACEPID in a product (non debug) environment will result in the search feature being
 disabled on a site.
 </caution>
 
-</API>
-
 =cut
+
 
 sub appPublicSearch {
 	my ($self,$v) = @_;
@@ -19035,15 +19404,17 @@ sub appPublicSearch {
 ##
 
 =pod
-
-<API id="appProductGet">
-<purpose></purpose>
-<input id="_cartid"></input>
-<input id="pid">productid</input>
-<input id="ver">version#</input>
-<input id="withVariations">1</input>
-<input id="withInventory">1</input>
-<input id="withSchedule">1</input>
+@api {POST} appProductGet appProductGet
+@apiName appProductGet
+@apiGroup app
+@apiDescription
+TODO
+@apiParam (Request) {String} _cartid
+@apiParam (Request) {String} pidproductid
+@apiParam (Request) {String} verversion#
+@apiParam (Request) {String} withVariations1
+@apiParam (Request) {String} withInventory1
+@apiParam (Request) {String} withSchedule1
 <note>NOT IMPLEMENTED: navcatsPlease=1 = showOnlyCategories=1</note>
 <example>
 [
@@ -19061,9 +19432,8 @@ to tell if a product exists check the value "zoovy:prod_created_gmt".
 It will not exist, or be set to zero if the product has been deleted or does not exist OR is not 
 accessible on the current partition.
 </hint>
-</API>
-
 =cut
+
 sub appProductGet {
 	my ($self,$v) = @_;
 
@@ -19214,19 +19584,20 @@ sub appProductGet {
 ##
 
 =pod
+@api {POST} appProductCategories appProductCategories
+@apiName appProductCategories
+@apiGroup app
+@apiDescription
+TODO
+@apiParam (Request) {String} _cartid
+@apiParam (Request) {String} pidproductid
+@apiParam (Request) {String} showOnlyCategories1
+@apiParam (Request) {String} detailless
 
-<API id="appProductCategories">
-<purpose></purpose>
-<input id="_cartid"></input>
-<input id="pid">productid</input>
-<input id="showOnlyCategories">1</input>
-<input id="detail">less</input>
-
-<response id="@categories">[ '.safe.path.1', '.safe.path.2' ];</response>
-
-</API>
+@apiParam (Response) {String} @categories	[ '.safe.path.1', '.safe.path.2' ];
 
 =cut
+
 sub appProductCategories {
 	my ($self,$v) = @_;
 
@@ -19271,21 +19642,22 @@ sub appProductCategories {
 ##
 
 =pod
-
-<API id="appReviewAdd">
-<purpose></purpose>
-<input id="_cartid"></input>
-<input id="pid">productid</input>
-<input id="SUBJECT"></input>
-<input id="RATING"></input>
-<input id="CUSTOMER_NAME"></input>
-<input id="LOCATION"></input>
-<input id="SUBJECT"></input>
-<input id="MESSAGE"></input>
-<input id="BLOG_URL"></input>
-</API>
-
+@api {POST} appReviewAdd appReviewAdd
+@apiName appReviewAdd
+@apiGroup app
+@apiDescription
+TODO
+@apiParam (Request) {String} _cartid
+@apiParam (Request) {String} pidproductid
+@apiParam (Request) {String} SUBJECT
+@apiParam (Request) {String} RATING
+@apiParam (Request) {String} CUSTOMER_NAME
+@apiParam (Request) {String} LOCATION
+@apiParam (Request) {String} SUBJECT
+@apiParam (Request) {String} MESSAGE
+@apiParam (Request) {String} BLOG_URL
 =cut
+
 
 sub appReviewAdd {
 	my ($self,$v) = @_;
@@ -19323,14 +19695,15 @@ sub appReviewAdd {
 ##
 
 =pod
-
-<API id="appReviewsList">
-<purpose></purpose>
-<input id="_cartid"></input>
-<input id="pid">productid</input>
-</API>
-
+@api {POST} appReviewsList appReviewsList
+@apiName appReviewsList
+@apiGroup app
+@apiDescription
+TODO
+@apiParam (Request) {String} _cartid
+@apiParam (Request) {String} pidproductid
 =cut
+
 
 sub appReviewsList {
 	my ($self,$v) = @_;
@@ -19361,23 +19734,23 @@ sub appReviewsList {
 ##
 ##
 #
-#=pod
-#
-#<API id="appProfileInfo">
-#<purpose></purpose>
-#<input id="_cartid"></input>
-#<input id="profile"></input>
-#<input id="domain"></input>
-#<note>Returns: profile data in key value format. </note>
-#<errors>
-#<err id="10000" type="apperr">Profile %s could not be loaded.</err>
-#<err id="10001" type="apperr">Profile request was blank/empty.</err>
-#<err id="10002" type="apperr">No profile was requested.</err>
-#</errors>
-#</API>
-#
-#=cut
-#
+=pod
+@api {POST} appProfileInfo appProfileInfo
+@apiName appProfileInfo
+@apiGroup app
+#@apiDescription
+TODO
+@apiParam (Request) {String} _cartid
+@apiParam (Request) {String} profile
+@apiParam (Request) {String} domain
+<note>Returns: profile data in key value format. </note>
+<errors>
+<err id="10000" type="apperr">Profile %s could not be loaded.</err>
+<err id="10001" type="apperr">Profile request was blank/empty.</err>
+<err id="10002" type="apperr">No profile was requested.</err>
+</errors>
+=cut
+
 sub appProfileInfo {
 	my ($self,$v) = @_;
 
@@ -19424,19 +19797,20 @@ sub appProfileInfo {
 ##
 
 =pod
-
-<API id="appCaptchaGet">
-<purpose></purpose>
-<input id="_cartid"></input>
+@api {POST} appCaptchaGet appCaptchaGet
+@apiName appCaptchaGet
+@apiGroup app
+@apiDescription
+TODO
+@apiParam (Request) {String} _cartid
 <errors>
 <err id="10000" type="apperr">Profile %s could not be loaded.</err>
 <err id="10001" type="apperr">Profile request was blank/empty.</err>
 <err id="10002" type="apperr">No profile was requested.</err>
 </errors>
 <note>***** NOT FINISHED ****</note>
-</API>
-
 =cut
+
 
 sub appCaptchaGet {
 	my ($self,$v) = @_;
@@ -19471,17 +19845,18 @@ sub appCaptchaGet {
 ##
 
 =pod
-
-<API id="buyerNotificationAdd">
-<purpose>Used to register a buyer for a notification when a inventory is back in stock.</purpose>
-<input id="_cartid"></input>
-<input id="type">inventory</input>
-<input hint="type:inventory" id="email">user@somedomain.com</input>
-<input hint="type:inventory" id="sku"></input>
-<input hint="type:inventory" id="msgid"></input>
-</API>
-
+@api {POST} buyerNotificationAdd buyerNotificationAdd
+@apiName buyerNotificationAdd
+@apiGroup buyer
+@apiDescription
+Used to register a buyer for a notification when a inventory is back in stock.TODO
+@apiParam (Request) {String} _cartid
+@apiParam (Request) {String} type inventory
+@apiParam (Request) {String} [email] "type:inventory" ex: user@somedomain.com
+@apiParam (Request) {String} [sku] "type:inventory" sku
+@apiParam (Request) {String} [msgid] "type:inventory" msgid
 =cut
+
 sub buyerNotificationAdd {
 	my ($self,$vref) = @_;
 	my ($v) = @_;
@@ -19530,13 +19905,15 @@ sub buyerNotificationAdd {
 ##
 
 =pod
-<API id="appGiftcardValidate">
-<purpose></purpose>
+@api {POST} appGiftcardValidate appGiftcardValidate
+@apiName appGiftcardValidate
+@apiGroup app
+@apiDescription
+TODO
 <caution>a single ip is limited to 25 requests in a 24 hour period.</caution>
-<input id="giftcard"></input>
-</API>
-
+@apiParam (Request) {String} giftcard
 =cut
+
 
 sub appGiftcardValidate {
 	my ($self,$v) = @_;
@@ -19579,19 +19956,21 @@ sub appGiftcardValidate {
 ##
 
 =pod
-<API id="cartPaymentQ">
-<purpose>Manipulate or display the PaymentQ (a list of payment types for a given cart/order)</purpose>
-<input id="cmd" required="1">reset|delete|insert|sync</input>
-<input id="ID" optional="0">required for cmd=delete|insert</input>
-<input id="TN" optional="0">required for cmd=insert ex: CASH|CREDIT|PO|etc.</input>
-<input id="$$" optional="0">optional for cmd=insert (max to charge on this payment method)</input>
-<input id="TWO_DIGIT_TENDER_VARIABLES" optional="0">required for cmd=insert, example: CC, MM, YY, CV for credit card</input>
-<response id="paymentQ[].ID">unique id # for this</response>
-<response id="paymentQ[].TN">ex: CASH|CREDIT|ETC.</response>
-<response id="paymentQ[].OTHER_TWO_DIGIT_TENDER_VARIABLES"></response>
-</API>
-
+@api {POST} cartPaymentQ cartPaymentQ
+@apiName cartPaymentQ
+@apiGroup cart
+@apiDescription
+Manipulate or display the PaymentQ (a list of payment types for a given cart/order)TODO
+@apiParam (Request) {String} cmd reset|delete|insert|sync
+@apiParam (Request) {String} [ID] required for cmd=delete|insert
+@apiParam (Request) {String} TN required for cmd=insert ex: CASH|CREDIT|PO|etc.
+@apiParam (Request) {String} AMOUNT (passed as variable $$) optional for cmd=insert (max to charge on this payment method)
+@apiParam (Request) {String} TWO_DIGIT_TENDER_VARIABLES required for cmd=insert, example: CC, MM, YY, CV for credit card
+@apiParam (Response) {String} paymentQ[].ID	unique id # for this
+@apiParam (Response) {String} paymentQ[].TN	ex: CASH|CREDIT|ETC.
+@apiParam (Response) {String} paymentQ[].OTHER_TWO_DIGIT_TENDER_VARIABLES	
 =cut
+
 
 sub cartPaymentQ {
 	my ($self, $v) = @_;
@@ -19638,27 +20017,36 @@ sub cartPaymentQ {
 
 
 =pod
-
-<API id="cartGiftcardAdd">
-<purpose></purpose>
-<input id="_cartid"></input>
-<input id="giftcard"></input>
-</API>
-
-<API id="cartCouponAdd">
-<purpose></purpose>
-<input id="_cartid"></input>
-<input id="coupon"></input>
-</API>
-
-<API id="cartPromoCodeAdd">
-<purpose></purpose>
-<note>A promo code can be either a giftcard, or a coupon (we'll detect which it is)</note>
-<input id="_cartid"></input>
-<input id="promocode"></input>
-</API>
-
+@api {POST} cartGiftcardAdd cartGiftcardAdd
+@apiName cartGiftcardAdd
+@apiGroup cart
+@apiDescription
+TODO
+@apiParam (Request) {String} _cartid
+@apiParam (Request) {String} giftcard
 =cut
+
+=pod
+@api {POST} cartCouponAdd cartCouponAdd
+@apiName cartCouponAdd
+@apiGroup cart
+@apiDescription
+TODO
+@apiParam (Request) {String} _cartid
+@apiParam (Request) {String} coupon
+=cut
+
+=pod
+@api {POST} cartPromoCodeAdd cartPromoCodeAdd
+@apiName cartPromoCodeAdd
+@apiGroup cart
+@apiDescription
+TODO
+<note>A promo code can be either a giftcard, or a coupon (we'll detect which it is)</note>
+@apiParam (Request) {String} _cartid
+@apiParam (Request) {String} promocode
+=cut
+
 
 sub cartPromoCodeOrGiftcardOrCouponToCartAdd {
 	my ($self,$v) = @_;
@@ -19872,16 +20260,18 @@ sub cartPromoCodeOrGiftcardOrCouponToCartAdd {
 ##
 
 =pod
-<API id="appEmailSend">
-<purpose></purpose>
+@api {POST} appEmailSend appEmailSend
+@apiName appEmailSend
+@apiGroup app
+@apiDescription
+TODO
 <caution>a single ip is limited to 25 emails in a 24 hour period.</caution>
-<input id="_cartid"></input>
-<input id="method">tellafriend</input>
-<input hint="method:tellafriend" id="product">productid</input>
-<input hint="method:tellafriend" id="recipient">user@someotherdomain.com</input>
-</API>
-
+@apiParam (Request) {String} _cartid
+@apiParam (Request) {String} [method] tellafriend
+@apiParam (Request) {String} [product] for "method:tellafriend" productid
+@apiParam (Request) {String} [recipient] for "method:tellafriend" user@someotherdomain.com
 =cut
+
 
 sub appEmailSend {
 	my ($self,$v) = @_;
@@ -19946,21 +20336,27 @@ sub appEmailSend {
 ##
 
 =pod
-
-<API id="buyerProductLists">
-<purpose></purpose>
-<input id="_cartid"></input>
+@api {POST} buyerProductLists buyerProductLists
+@apiName buyerProductLists
+@apiGroup buyer
+@apiDescription
+TODO
+@apiParam (Request) {String} _cartid
 <example>
 @lists = [
 	[ LISTID:listid1, ITEMS:# ],
 	[ LISTID:listid2, ITEMS:# ],
 	]
 </example>
-</API>
+=cut
 
-<API id="buyerProductListDetail">
-<purpose></purpose>
-<input id="_cartid"></input>
+=pod
+@api {POST} buyerProductListDetail buyerProductListDetail
+@apiName buyerProductListDetail
+@apiGroup buyer
+@apiDescription
+TODO
+@apiParam (Request) {String} _cartid
 listid:
 <example>
 @listid = [
@@ -19968,11 +20364,15 @@ listid:
 	[ SKU:sku1, QTY:#, NOTE:"", PRIORITY:"", MODIFIED_TS:"YYYY-MM-DD HH:MM:SS" ],
 	]
 </example>
-</API>
+=cut
 
-<API id="buyerProductListAppendTo">
-<purpose></purpose>
-<input id="_cartid"></input> 
+=pod
+@api {POST} buyerProductListAppendTo buyerProductListAppendTo
+@apiName buyerProductListAppendTo
+@apiGroup buyer
+@apiDescription
+TODO
+@apiParam (Request) {String} _cartid 
 listid=
 sku=
 OPTIONAL:
@@ -19980,17 +20380,19 @@ OPTIONAL:
 	priority=# (will defualt to zero)
 	note=	(optional string up to 255 characters)
 	replace=1	(will delete any existing value from the list, and re-add this one)
-</API>
+=cut
 
-
-<API id="buyerProductListRemoveFrom">
-<purpose></purpose>
-<input id="_cartid"></input>
+=pod
+@api {POST} buyerProductListRemoveFrom buyerProductListRemoveFrom
+@apiName buyerProductListRemoveFrom
+@apiGroup buyer
+@apiDescription
+TODO
+@apiParam (Request) {String} _cartid
 listid=
 sku=
-</API>
-
 =cut
+
 
 sub buyerProductLists {
 	my ($self,$v) = @_;
@@ -20070,10 +20472,12 @@ sub buyerProductListRemoveFrom {
 ##
 
 =pod
-
-<API id="buyerAddressList">
-<purpose></purpose>
-<input id="_cartid"></input>
+@api {POST} buyerAddressList buyerAddressList
+@apiName buyerAddressList
+@apiGroup buyer
+@apiDescription
+TODO
+@apiParam (Request) {String} _cartid
 Returns:
 <CODE>
 @bill : [
@@ -20083,12 +20487,15 @@ Returns:
 	... format may change ...
 	]
 </CODE>
-</API>
+=cut
 
-
-<API id="buyerAddressAddUpdate">
-<purpose></purpose>
-<input id="_cartid"></input>
+=pod
+@api {POST} buyerAddressAddUpdate buyerAddressAddUpdate
+@apiName buyerAddressAddUpdate
+@apiGroup buyer
+@apiDescription
+TODO
+@apiParam (Request) {String} _cartid
 <notes>
 <![CDATA[
 shortcut:tag for this address ex: 'HOME' (must be unique within bill or ship)
@@ -20119,32 +20526,43 @@ NOTE: (fullname) or (firstname lastname)
 NOTE: (country) or (countrycode) 
 ]]>
 </notes>
-</API>
+=cut
 
-<API id="buyerAddressDelete">
-<purpose></purpose>
-<concept>buyer</concept>
-<input id="_cartid"></input>
+=pod
+@api {POST} buyerAddressDelete buyerAddressDelete
+@apiName buyerAddressDelete
+@apiGroup buyer
+@apiDescription
+TODO
+@apiUse buyer
+@apiParam (Request) {String} _cartid
 Returns:
 <CODE>
 type:SHIP|BILL
 shortcut:DEFAULT
 </CODE>
-</API>
-
-<API id="buyerDetail">
-<purpose></purpose>
-<concept>buyer</concept>
-</API>
-
-<API id="buyerUpdate">
-<purpose></purpose>
-<concept>buyer</concept>
-<input id="@updates"></input>
-Returns:
-</API>
-
 =cut
+
+=pod
+@api {POST} buyerDetail buyerDetail
+@apiName buyerDetail
+@apiGroup buyer
+@apiDescription
+TODO
+@apiUse buyer
+=cut
+
+=pod
+@api {POST} buyerUpdate buyerUpdate
+@apiName buyerUpdate
+@apiGroup buyer
+@apiDescription
+TODO
+@apiUse buyer
+@apiParam (Request) {String} @updates
+Returns:
+=cut
+
 
 
 sub buyerInfo {
@@ -20297,13 +20715,15 @@ sub buyerInfo {
 ##
 
 =pod
+@api {POST} buyerWalletList buyerWalletList
+@apiName buyerWalletList
+@apiGroup buyer
+@apiUse wallet
+@apiUse buyer
+@apiDescription
+Displays a list of walletsTODO
+@apiParam (Response) {String} @walletsan array of wallets
 
-<API id="buyerWalletList">
-<concept>wallet</concept>
-<concept>buyer</concept>
-<purpose>Displays a list of wallets</purpose>
-<output id="@wallets">an array of wallets
-</output>
 <code type="json" title="@wallets sample output">
 [
 	{ ID:walletid1, IS_DEFAULT:1|0, DESCRIPTION:description },
@@ -20311,9 +20731,8 @@ sub buyerInfo {
 	{ ID:walletid3, IS_DEFAULT:1|0, DESCRIPTION:description },
 ]
 </code>
-</API>
-
 =cut
+
 
 sub buyerWalletList {
 	my ($self,$v) = @_;
@@ -20341,18 +20760,19 @@ sub buyerWalletList {
 ##
 
 =pod
-
-<API id="buyerWalletAdd">
-<concept>wallet</concept>
-<purpose>creates a new wallet for the associated buyer</purpose>
-<input id="CC">Credit Card #</input>
-<input id="YY">2 Digit Year</input>
-<input id="MM">2 Digit Month</input>
-<input id="IP">4 digit numeric ip address</input>
-<output id="ID">wallet id # (on success)</output>
-</API>
-
+@api {POST} buyerWalletAdd buyerWalletAdd
+@apiName buyerWalletAdd
+@apiGroup buyer
+@apiUse wallet
+@apiDescription
+creates a new wallet for the associated buyerTODO
+@apiParam (Request) {String} CCCredit Card #
+@apiParam (Request) {String} YY2 Digit Year
+@apiParam (Request) {String} MM2 Digit Month
+@apiParam (Request) {String} IP4 digit numeric ip address
+@apiParam (Response) {String} IDwallet id # (on success)
 =cut
+
 
 sub buyerWalletAdd {
 	my ($self,$v) = @_;
@@ -20394,14 +20814,15 @@ sub buyerWalletAdd {
 ##
 
 =pod
-
-<API id="buyerWalletDelete">
-<purpose></purpose>
-<input id="_cartid"></input>
+@api {POST} buyerWalletDelete buyerWalletDelete
+@apiName buyerWalletDelete
+@apiGroup buyer
+@apiDescription
+TODO
+@apiParam (Request) {String} _cartid
 walletid:#####
-</API>
-
 =cut
+
 
 sub buyerWalletDelete {
 	my ($self,$v) = @_;
@@ -20431,14 +20852,15 @@ sub buyerWalletDelete {
 ##
 
 =pod
-
-<API id="buyerWalletSetPreferred">
-<purpose></purpose>
-<input id="_cartid"></input>
+@api {POST} buyerWalletSetPreferred buyerWalletSetPreferred
+@apiName buyerWalletSetPreferred
+@apiGroup buyer
+@apiDescription
+TODO
+@apiParam (Request) {String} _cartid
 walletid:#####
-</API>
-
 =cut
+
 
 sub buyerWalletSetPreferred {
 	my ($self,$v) = @_;
@@ -20477,17 +20899,18 @@ sub buyerWalletSetPreferred {
 ##
 
 =pod
-
-<API id="appBuyerLogin">
-<purpose></purpose>
-<input id="method">unsecure</input>
-<input id="login">email address</input>
-<input id="password">clear text password</input>
-<output id="cid">customer id</output>
-<output id="schedule">schedule</output>
-</API>
-
+@api {POST} appBuyerLogin appBuyerLogin
+@apiName appBuyerLogin
+@apiGroup app
+@apiDescription
+TODO
+@apiParam (Request) {String} methodunsecure
+@apiParam (Request) {String} loginemail address
+@apiParam (Request) {String} passwordclear text password
+@apiParam (Response) {String} cidcustomer id
+@apiParam (Response) {String} scheduleschedule
 =cut
+
 
 #customerlogin
 sub appBuyerLogin {
@@ -20541,21 +20964,22 @@ sub appBuyerLogin {
 
 
 =pod
-
-<API id="appBuyerDeviceRegistration">
-<purpose>verify or create a client registration</purpose>
-<input id="verb">verifyonly|create</input>
-<input id="deviceid">client generated device key (guid), or well known identifier from device</input>
-<input id="os">android|appleios</input>
-<input optional="1" id="devicetoken">devicetoken (appleios) or registrationid (android) is required 
-	(to avoid religious debatesboth are equivalent -- either is acceptable)</input>
-<input optional="1" id="registrationid">devicetoken (appleios) or registrationid (android) is required 
-	(to avoid relgious debates, both are equivalent -- either is acceptable)</input>
-<input optional="1" id="email">email registration is insecure and may not always be available</input>
-<output id="CID">client id</output>
-</API>
-
+@api {POST} appBuyerDeviceRegistration appBuyerDeviceRegistration
+@apiName appBuyerDeviceRegistration
+@apiGroup app
+@apiDescription
+verify or create a client registrationTODO
+@apiParam (Request) {String} verbverifyonly|create
+@apiParam (Request) {String} deviceidclient generated device key (guid), or well known identifier from device
+@apiParam (Request) {String} osandroid|appleios
+@apiParam (Request) {String} onal="1" id="devicetokendevicetoken (appleios) or registrationid (android) is required 
+	(to avoid religious debatesboth are equivalent -- either is acceptable)
+@apiParam (Request) {String} onal="1" id="registrationiddevicetoken (appleios) or registrationid (android) is required 
+	(to avoid relgious debates, both are equivalent -- either is acceptable)
+@apiParam (Request) {String} onal="1" id="emailemail registration is insecure and may not always be available
+@apiParam (Response) {String} CIDclient id
 =cut
+
 
 
 sub appBuyer {
@@ -20609,19 +21033,20 @@ sub appBuyer {
 ##
 
 =pod
+@api {POST} appBuyerCreate appBuyerCreate
+@apiName appBuyerCreate
+@apiGroup app
+@apiDescription
 
-<API id="appBuyerCreate">
-<purpose>
 create a buyer account (currently requires form=wholesale)
 long term goal is to support flexible *per project* account signups w/parameters
-</purpose>
-<input id="form">wholesale</input>
+TODO
+@apiParam (Request) {String} formwholesale
 <note>
 See adminCustomerUpdate for a full list of macros
 </note>
-</API>
-
 =cut
+
 
 sub appBuyerCreate {
 	my ($self, $v) = @_;
@@ -20742,17 +21167,18 @@ sub appBuyerCreate {
 ##
 
 =pod
-
-<API id="appBuyerExists">
-<purpose></purpose>
-<input id="_cartid"></input>
+@api {POST} appBuyerExists appBuyerExists
+@apiName appBuyerExists
+@apiGroup app
+@apiDescription
+TODO
+@apiParam (Request) {String} _cartid
 login=email address
 
 buyer: returns a positive number if buyer exists, or zero if it does not.
 
-</API>
-
 =cut
+
 
 #appBuyerExists
 sub appBuyerExists {
@@ -20789,16 +21215,17 @@ sub appBuyerExists {
 ##
 
 =pod
-
-<API id="buyerPasswordUpdate">
-<purpose></purpose>
-<input id="_cartid"></input>
+@api {POST} buyerPasswordUpdate buyerPasswordUpdate
+@apiName buyerPasswordUpdate
+@apiGroup buyer
+@apiDescription
+TODO
+@apiParam (Request) {String} _cartid
 
 password:newpassword
 
-</API>
-
 =cut
+
 
 sub buyerPasswordUpdate {
 	my ($self,$v) = @_;
@@ -20838,16 +21265,18 @@ sub buyerPasswordUpdate {
 ##
 
 =pod
+@api {POST} buyerOrderUpdate buyerOrderUpdate
+@apiName buyerOrderUpdate
+@apiGroup buyer
+@apiDescription
 
-<API id="buyerOrderUpdate">
-<purpose>
 A macro is a set of commands that will be applied to an order, they are useful because they are applied (whenever possible)
 as a single atomic transaction. buyers have access to a subset of macros from full order processing, but enough to adjust
 payment, and in some cases cancel orders.
-</purpose>
-<input id="_cartid"></input>
-<input id="orderid">2012-01-1234</input>
-<input id="@updates">see example below</input>
+TODO
+@apiParam (Request) {String} _cartid
+@apiParam (Request) {String} orderid2012-01-1234
+@apiParam (Request) {String} @updatessee example below
 <note>
 This uses the same syntax as adminCartMacro adminOrderMacro, but only a subset are supported (actually at this point ALL commands are supported, but we'll restrict this eventually), 
 and may (eventually) differ based on business logic and/or add some custom ones. 
@@ -20863,9 +21292,8 @@ Allowed commands:
 ADDNOTE
 </example>
 
-</API>
-
 =cut
+
 
 sub buyerOrderUpdate {
 	my ($self,$v) = @_;
@@ -20990,38 +21418,43 @@ sub buyerOrderUpdate {
 ##
 
 =pod
+@api {POST} buyerOrderPaymentAdd buyerOrderPaymentAdd
+@apiName buyerOrderPaymentAdd
+@apiGroup buyer
+@apiDescription
 
-<API id="buyerOrderPaymentAdd">
-<purpose>
 Adds and processes a new payment transaction on an order.
-</purpose>
-<input id="_cartid"></input>
-<input id="orderid">2012-01-1234</input>
-<input id="tender">CREDIT</input>
-<input id="amt">(optional - will default to order balance_due) transaction amount</input>
-<input id="uuid">(optional - will be autogenerated if not supplied) unique identifier for this transaction</input>
-<input id="payment.cc">(required on tender=CREDIT) Credit card #</input>
-<input id="payment.yy">(required on tender=CREDIT) Credit card Expiration Year</input>
-<input id="payment.mm">(required on tender=CREDIT) Credit card Expiration Month</input>
-<input id="payment.cv">(required on tender=CREDIT) Credit card CVV/CID #</input>
-
-</API>
-
-<API id="buyerOrderGet">
-<purpose>
-Grabs a raw order object (buyer perspective) so that status information can be displayed. 
-</purpose>
-<input id="_cartid"></input>
-<hint>In order to access an order status the user must either be an authenticated buyer, OR use softauth=order with
-cartid + either orderid or erefid</hint>
-<input id="softauth">order</input>
-<input id="erefid">(conditionally-required for softauth=order) external reference identifier (ex: ebay sale #) or amazon order #</input>
-<input id="orderid">(conditionally-required for softauth=order) internal zoovy order #</input>
-<input id="cartid">(conditionally-required for softauth=order) internal cartid #</input>
-<input id="orderid">(required for softauth=order) original cart session id</input>
-</API>
+TODO
+@apiParam (Request) {String} _cartid
+@apiParam (Request) {String} orderid2012-01-1234
+@apiParam (Request) {String} tenderCREDIT
+@apiParam (Request) {String} amt(optional - will default to order balance_due) transaction amount
+@apiParam (Request) {String} uuid(optional - will be autogenerated if not supplied) unique identifier for this transaction
+@apiParam (Request) {String} payment.cc(required on tender=CREDIT) Credit card #
+@apiParam (Request) {String} payment.yy(required on tender=CREDIT) Credit card Expiration Year
+@apiParam (Request) {String} payment.mm(required on tender=CREDIT) Credit card Expiration Month
+@apiParam (Request) {String} payment.cv(required on tender=CREDIT) Credit card CVV/CID #
 
 =cut
+
+=pod
+@api {POST} buyerOrderGet buyerOrderGet
+@apiName buyerOrderGet
+@apiGroup buyer
+@apiDescription
+
+Grabs a raw order object (buyer perspective) so that status information can be displayed. 
+TODO
+@apiParam (Request) {String} _cartid
+<hint>In order to access an order status the user must either be an authenticated buyer, OR use softauth=order with
+cartid + either orderid or erefid</hint>
+@apiParam (Request) {String} softauthorder
+@apiParam (Request) {String} erefid(conditionally-required for softauth=order) external reference identifier (ex: ebay sale #) or amazon order #
+@apiParam (Request) {String} orderid(conditionally-required for softauth=order) internal zoovy order #
+@apiParam (Request) {String} cartid(conditionally-required for softauth=order) internal cartid #
+@apiParam (Request) {String} orderid(required for softauth=order) original cart session id
+=cut
+
 
 sub buyerOrder {
 	my ($self,$v, $CACHEREF) = @_;
@@ -21177,15 +21610,16 @@ sub buyerOrder {
 ##
 
 =pod
+@api {POST} buyerTicketList buyerTicketList
+@apiName buyerTicketList
+@apiGroup buyer
+@apiDescription
 
-<API id="buyerTicketList">
-<purpose>
 shows a list of ticket for a buyer
-</purpose>
-<input id="_cartid"></input>
-</API>
-
+TODO
+@apiParam (Request) {String} _cartid
 =cut
+
 
 sub buyerTicketList {
 	my ($self,$v) = @_;
@@ -21202,16 +21636,17 @@ sub buyerTicketList {
 ##
 
 =pod
+@api {POST} buyerTicketCreate buyerTicketCreate
+@apiName buyerTicketCreate
+@apiGroup buyer
+@apiDescription
 
-<API id="buyerTicketCreate">
-<purpose>
 creates a new ticket for a customer
-</purpose>
-<input id="_cartid"></input>
-
-</API>
+TODO
+@apiParam (Request) {String} _cartid
 
 =cut
+
 
 sub buyerTicketCreate {
 	my ($self,$v) = @_;
@@ -21227,15 +21662,16 @@ sub buyerTicketCreate {
 ##
 
 =pod
+@api {POST} buyerTicketUpdate buyerTicketUpdate
+@apiName buyerTicketUpdate
+@apiGroup buyer
+@apiDescription
 
-<API id="buyerTicketUpdate">
-<purpose>
 updates a ticket for a buyer
-</purpose>
-<input id="_cartid"></input>
-</API>
-
+TODO
+@apiParam (Request) {String} _cartid
 =cut
+
 
 sub buyerTicketUpdate {
 	my ($self,$v) = @_;
@@ -21256,13 +21692,14 @@ sub buyerTicketUpdate {
 ##
 
 =pod
-
-<API id="buyerLogout">
-<purpose></purpose>
-<input id="_cartid"></input>
-</API>
-
+@api {POST} buyerLogout buyerLogout
+@apiName buyerLogout
+@apiGroup buyer
+@apiDescription
+TODO
+@apiParam (Request) {String} _cartid
 =cut
+
 
 sub buyerLogout {
 	my ($self,$v) = @_;
@@ -21285,15 +21722,16 @@ sub buyerLogout {
 ##
 
 =pod
-
-<API id="appBuyerPasswordRecover">
-<purpose></purpose>
-<input id="_cartid"></input>
-<input id="login"></input>
-<input id="method">email</input>
-</API>
-
+@api {POST} appBuyerPasswordRecover appBuyerPasswordRecover
+@apiName appBuyerPasswordRecover
+@apiGroup app
+@apiDescription
+TODO
+@apiParam (Request) {String} _cartid
+@apiParam (Request) {String} login
+@apiParam (Request) {String} methodemail
 =cut
+
 
 sub appBuyerPasswordRecover {
 	my ($self,$v) = @_;
@@ -21351,9 +21789,11 @@ sub appBuyerPasswordRecover {
 ##
 
 =pod
+@api {POST} adminOrderPaymentMethods adminOrderPaymentMethods
+@apiName adminOrderPaymentMethods
+@apiGroup admin
+@apiDescription
 
-<API id="adminOrderPaymentMethods">
-<purpose>
 displays a list of payment methods available for an order (optional), there are a few scenarios where things
 get wonky.
 first - if the logged in user is admin, then additional methods like cash, check, all become available (assuming they are
@@ -21361,14 +21801,14 @@ enabled).
 second - if the order has a zero dollar total, only ZERO will be returned.
 third - if the order has giftcards, no paypalec is available. (which is fine, because paypalec is only available for the client)
 fourth - if the order has paypalec payment (already) then other methods aren't available, because paypal doesn't support mixing and matching payment types.
-</purpose>
-<input id="_cartid"></input>
-<input optional="1" id="orderid">orderid #</input>
-<input optional="1" id="customerid">customerid #</input>
-<input optional="1" id="country">ISO country cod</input>
-<input optional="1" id="ordertotal">#####.##</input>
+TODO
+@apiParam (Request) {String} _cartid
+@apiParam (Request) {String} onal="1" id="orderidorderid #
+@apiParam (Request) {String} onal="1" id="customeridcustomerid #
+@apiParam (Request) {String} onal="1" id="countryISO country cod
+@apiParam (Request) {String} onal="1" id="ordertotal#####.##
 
-<response id="@methods"></response>
+@apiParam (Response) {String} @methods	
 <example>
 @methods = [
 	[ id:"method", pretty:"pretty title", fee:"##.##" ],
@@ -21377,9 +21817,8 @@ fourth - if the order has paypalec payment (already) then other methods aren't a
 </example>
 
 
-</API>
-
 =cut
+
 
 sub adminOrderPaymentMethods {
 	my ($self,$v) = @_;
@@ -21430,14 +21869,16 @@ sub adminOrderPaymentMethods {
 ##
 
 =pod
+@api {POST} appPaymentMethods appPaymentMethods
+@apiName appPaymentMethods
+@apiGroup app
+@apiDescription
+TODO
+@apiParam (Request) {String} _cartid
+@apiParam (Request) {String} onal="1" id="countryISO country cod
+@apiParam (Request) {String} onal="1" id="ordertotal#####.##
 
-<API id="appPaymentMethods">
-<purpose></purpose>
-<input id="_cartid"></input>
-<input optional="1" id="country">ISO country cod</input>
-<input optional="1" id="ordertotal">#####.##</input>
-
-<response id="@methods"></response>
+@apiParam (Response) {String} @methods	
 <example>
 @methods = [
 	[ id:"method", pretty:"pretty title", fee:"##.##" ],
@@ -21446,9 +21887,8 @@ sub adminOrderPaymentMethods {
 </example>
 
 
-</API>
-
 =cut
+
 
 sub appPaymentMethods {
 	my ($self,$v) = @_;
@@ -21494,19 +21934,20 @@ sub appPaymentMethods {
 ##
 
 =pod
-
-<API id="appCheckoutDestinations">
-<purpose></purpose>
-<input id="_cartid"></input>
+@api {POST} appCheckoutDestinations appCheckoutDestinations
+@apiName appCheckoutDestinations
+@apiGroup app
+@apiDescription
+TODO
+@apiParam (Request) {String} _cartid
 <example>
 @destinations = [
 	[ z:"Pretty Name", iso:"US", isox:"USA" ],
 	[ z:"Pretty Name", iso:"US", isox:"USA" ],
 	]
 </example>
-</API>
-
 =cut
+
 
 sub appCheckoutDestinations {
 	my ($self,$v) = @_;
@@ -21534,32 +21975,33 @@ sub appCheckoutDestinations {
 ##
 
 =pod
+@api {POST} cartPaypalSetExpressCheckout cartPaypalSetExpressCheckout
+@apiName cartPaypalSetExpressCheckout
+@apiGroup cart
+@apiDescription
+TODO
+@apiParam (Request) {String} _cartid
+@apiParam (Request) {String} useMobile0|1 (if true - we'll tell paypal to use the mobile version)
+@apiParam (Request) {String} onal="1" id="drt'device token' - obtain them from the native IOS paypal library (not required, but useful)
+@apiParam (Request) {String} onal="1" id="useractioncommit - accoring to Paypal: If the buyer checks out on your website, also set useraction=commit
+@apiParam (Request) {String} getBuyerAddress 0|1 (if true - paypal will ask shopper for address)
+@apiParam (Request) {String} cancelURL ''   (required, but may be blank for legacy checkout)
+@apiParam (Request) {String} returnURL ''	 (required, but may be blank for legacy checkout)
 
-<API id="cartPaypalSetExpressCheckout">
-<purpose></purpose>
-<input id="_cartid"></input>
-<input id="useMobile">0|1 (if true - we'll tell paypal to use the mobile version)</input>
-<input optional="1" id="drt">'device token' - obtain them from the native IOS paypal library (not required, but useful)</input>
-<input optional="1" id="useraction">commit - accoring to Paypal: If the buyer checks out on your website, also set useraction=commit</input>
-<input id="getBuyerAddress"> 0|1 (if true - paypal will ask shopper for address)</input>
-<input id="cancelURL"> ''   (required, but may be blank for legacy checkout)</input>
-<input id="returnURL"> ''	 (required, but may be blank for legacy checkout)</input>
-
-<input optional="1" id="useShippingCallbacks"> 0|1 (if true - forces shipping callbacks,
+@apiParam (Request) {String} onal="1" id="useShippingCallbacks 0|1 (if true - forces shipping callbacks,
 generates an error when giftcards are present and shipping is not free) 
 if set to zero, then store settings (enable/disabled) will be used.
-</input>
 
-<response id="URL">url to redirect checkout to (checkout will finish with legacy method, but you CAN build your own)</response>
-<response id="TOKEN">paypal token</response>
-<response id="ACK">paypal "ACK" message</response>
-<response id="ERR">(optional message from paypal api)</response>
-<response id="_ADDRESS_CHANGED">1|0</response>
-<response id="_SHIPPING_CHANGED">methodid (the new value of CART->ship.selected_id)</response>
 
-</API>
+@apiParam (Response) {String} URL	url to redirect checkout to (checkout will finish with legacy method, but you CAN build your own)
+@apiParam (Response) {String} TOKEN	paypal token
+@apiParam (Response) {String} ACK	paypal "ACK" message
+@apiParam (Response) {String} ERR	(optional message from paypal api)
+@apiParam (Response) {String} _ADDRESS_CHANGED	1|0
+@apiParam (Response) {String} _SHIPPING_CHANGED	methodid (the new value of CART->ship.selected_id)
 
 =cut
+
 
 sub cartPaypalSetExpressCheckout {
 	my ($self,$v) = @_;
@@ -21658,15 +22100,17 @@ sub cartPaypalSetExpressCheckout {
 ##
 
 =pod
-
-<API id="cartGoogleCheckoutURL">
-<purpose></purpose>
-<input id="_cartid"></input>
-<input id="analyticsdata"> (required, but may be blank) obtained by calling getUrchinFieldValue() 
+@api {POST} cartGoogleCheckoutURL cartGoogleCheckoutURL
+@apiName cartGoogleCheckoutURL
+@apiGroup cart
+@apiDescription
+TODO
+@apiParam (Request) {String} _cartid
+@apiParam (Request) {String} analyticsdata (required, but may be blank) obtained by calling getUrchinFieldValue() 
 in the pageTracker or _gaq Google Analytics object.
-</input>
-<input id="edit_cart_url"></input>
-<input id="continue_shopping_url"></input>
+
+@apiParam (Request) {String} edit_cart_url
+@apiParam (Request) {String} continue_shopping_url
 
 <hint>
 <![CDATA[
@@ -21706,12 +22150,11 @@ Here is example HTML that would be used with the Asynchronous Google Analytics t
 ]]>
 </hint>
 
-<response id="googleCheckoutMerchantId"></response>
-<response id="URL"></response>
-
-</API>
+@apiParam (Response) {String} googleCheckoutMerchantId	
+@apiParam (Response) {String} URL	
 
 =cut
+
 
 sub cartGoogleCheckoutURL {
 	my ($self,$v) = @_;
@@ -21735,14 +22178,16 @@ sub cartGoogleCheckoutURL {
 ##
 
 =pod
-
-<API id="cartAmazonPaymentURL">
-<purpose></purpose>
-<input id="_cartid"></input>
-<input id="shipping"> 1|0 	(prompt for shipping address)</input>
-<input id="CancelUrl"> URL to redirect user to if cancel is pressed.</input>
-<input id="ReturnUrl"> URL to redirect user to upon order completion</input>
-<input id="YourAccountUrl"> URL where user can be directed to by amazon if they wish to lookup order status. (don't stree about this, rarely used)</input>
+@api {POST} cartAmazonPaymentURL cartAmazonPaymentURL
+@apiName cartAmazonPaymentURL
+@apiGroup cart
+@apiDescription
+TODO
+@apiParam (Request) {String} _cartid
+@apiParam (Request) {String} shipping 1|0 	(prompt for shipping address)
+@apiParam (Request) {String} CancelUrl URL to redirect user to if cancel is pressed.
+@apiParam (Request) {String} ReturnUrl URL to redirect user to upon order completion
+@apiParam (Request) {String} YourAccountUrl URL where user can be directed to by amazon if they wish to lookup order status. (don't stree about this, rarely used)
 
 <hint>
 <![CDATA[
@@ -21773,15 +22218,15 @@ https://payments-sandbox.amazon.com/checkout/[merchantid]?debug=true
 <script type="text/javascript" src="https://images-na.ssl-images-amazon.com/images/G/01/cba/js/widget/widget.js"></script>
 <form method=POST action="https://payments.amazon.com/checkout/[merchantid]">
 <input type="hidden" name="order-input" value="type:merchant-signed-order/aws-accesskey/1;order:[b64xml];signature:[signature];aws-access-key-id:[aws-access-key-id]">
-<input type="image" id="cbaImage" name="cbaImage" src="**your button image url**" onClick="this.form.action='[formurl]'; checkoutByAmazon(this.form)">
+<input type="image" id="cbaImage" name="cbaImage" src="**your button image url**"
+onClick="this.form.action='[formurl]'; checkoutByAmazon(this.form)">
 </form>
 
 ]]>
 </example>
 
-</API>
-
 =cut
+
 
 sub cartAmazonPaymentURL {
 	my ($self,$v) = @_;
@@ -21859,6 +22304,7 @@ sub cartAmazonPaymentURL {
 
 
 
+## BLOCK 300
 
 
 #################################################################################
@@ -21867,13 +22313,14 @@ sub cartAmazonPaymentURL {
 ##
 
 =pod
-
-<API id="cartSet">
-<purpose></purpose>
-<input id="_cartid"></input>
-</API>
-
+@api {POST} cartSet cartSet
+@apiName cartSet
+@apiGroup cart
+@apiDescription
+TODO
+@apiParam (Request) {String} _cartid
 =cut
+
 
 sub cartSet {
 	my ($self,$v) = @_;
@@ -21926,15 +22373,16 @@ sub cartSet {
 ##
 
 =pod
-
-<API id="cartCSRShortcut">
-<purpose>Returns a 4-6 digit authorization token that can be used by a 
-call center operator to identify a session.  CSR shortcuts are only valid for approximately 10 minutes.</purpose>
-<input id="_cartid"></input>
-<output id="csr"></output>
-</API>
-
+@api {POST} cartCSRShortcut cartCSRShortcut
+@apiName cartCSRShortcut
+@apiGroup cart
+@apiDescription
+Returns a 4-6 digit authorization token that can be used by a 
+call center operator to identify a session.  CSR shortcuts are only valid for approximately 10 minutes.TODO
+@apiParam (Request) {String} _cartid
+@apiParam (Response) {String} csr
 =cut
+
 
 sub cartCSRShortcut {
 	my ($self,$v) = @_;
@@ -21975,15 +22423,15 @@ sub cartCSRShortcut {
 
 
 =pod
-
-<API id="adminCSRLookup">
-<purpose>Lookups a 4-6 digit code</purpose>
-<input id="csr"></input>
-<input id="cartid"></input>
-</API>
-
-
+@api {POST} adminCSRLookup adminCSRLookup
+@apiName adminCSRLookup
+@apiGroup admin
+@apiDescription
+Lookups a 4-6 digit codeTODO
+@apiParam (Request) {String} csr
+@apiParam (Request) {String} cartid
 =cut
+
 
 sub adminCSRLookup {
 	my ($self,$v) = @_;
@@ -22009,7 +22457,6 @@ sub adminCSRLookup {
 
 
 =pod
-
 cart.change	: a message informing either side the cart has changed and should be reloaded
 
 chat.join	: should be posted whenever a person enters a channel
@@ -22061,7 +22508,6 @@ sub cartMessagePush {
 	}
 
 =pod
-
 SEQ
 SINCE
 
@@ -22101,12 +22547,14 @@ sub cartMessageList {
 ##
 
 =pod
-
-<API id="cartShippingMethods">
-<purpose></purpose>
-<input id="_cartid"></input>
-<input id="trace">0|1	(optional)</input>
-<input id="update">0|1 (optional - defaults to 0): set the shipping address, etc. in the cart to the new values.</input>
+@api {POST} cartShippingMethods cartShippingMethods
+@apiName cartShippingMethods
+@apiGroup cart
+@apiDescription
+TODO
+@apiParam (Request) {String} _cartid
+@apiParam (Request) {String} trace0|1	(optional)
+@apiParam (Request) {String} update0|1 (optional - defaults to 0): set the shipping address, etc. in the cart to the new values.
 
 <hint>
 in cart the following pieces of data must be set:
@@ -22121,9 +22569,8 @@ in cart the following pieces of data must be set:
 	]
 </example>
 
-</API>
-
 =cut
+
 
 ## NOTE: JT says this may not be necessary since 201311 -- need to check
 sub cartShippingMethods {
@@ -22173,19 +22620,20 @@ sub cartShippingMethods {
 ##
 
 =pod
-
-<API id="cartItemsInventoryVerify">
-<purpose></purpose>
-<input id="_cartid"></input>
-<input id="trace">0|1	(optional)</input>
+@api {POST} cartItemsInventoryVerify cartItemsInventoryVerify
+@apiName cartItemsInventoryVerify
+@apiGroup cart
+@apiDescription
+TODO
+@apiParam (Request) {String} _cartid
+@apiParam (Request) {String} trace 0|1	(optional)
 <example>
 %changes = [
 	[ sku1: newqty, sku2:newqty ]
 	]
 </example>
-</API>
-
 =cut
+
 
 sub cartItemsInventoryVerify {
 	my ($self,$v) = @_;
@@ -22219,27 +22667,29 @@ sub cartItemsInventoryVerify {
 ##
 
 =pod
-
-<API id="adminPrivateSearch">
-<purpose></purpose>
-<input id="_cartid"></input>
-<input id="type">order</input>
-<input id="type">['order']</input>
+@api {POST} adminPrivateSearch adminPrivateSearch
+@apiName adminPrivateSearch
+@apiGroup admin
+@apiDescription
+TODO
+@apiParam (Request) {String} _cartid
+@apiParam (Request) {String} typeorder
+@apiParam (Request) {String} type['order']
 <note>if not specified then: type:_all is assumed.</note>
 <note>www.elasticsearch.org/guide/reference/query-dsl/</note>
 
-<input id="mode">elastic-native</input>
-<input hint="mode:elastic-native" id="filter"> { 'term':{ 'profile':'DEFAULT' } };</input>
-<input hint="mode:elastic-native" id="filter"> { 'term':{ 'profile':['DEFAULT','OTHER'] } };	## invalid: a profile can only be one value and this would fail</input>
-<input hint="mode:elastic-native" id="filter"> { 'or':{ 'filters':[ {'term':{'profile':'DEFAULT'}},{'term':{'profile':'OTHER'}}  ] } };</input>
-<input hint="mode:elastic-native" id="filter"> { 'constant_score'=>{ 'filter':{'numeric_range':{'base_price':{"gte":"100","lt":"200"}}}};</input>
-<input hint="mode:elastic-native" id="query"> {'text':{ 'profile':'DEFAULT' } };</input>
-<input hint="mode:elastic-native" id="query"> {'text':{ 'profile':['DEFAULT','OTHER'] } }; ## this would succeed, </input>
+@apiParam (Request) {String} mode elastic-native
+@apiParam (Request) {String} [filter] "mode:elastic-native" id="filter { 'term':{ 'profile':'DEFAULT' } };
+@apiParam (Request) {String} [filter] "mode:elastic-native" id="filter { 'term':{ 'profile':['DEFAULT','OTHER'] } };	## invalid: a profile can only be one value and this would fail
+@apiParam (Request) {String} [filter] "mode:elastic-native" id="filter { 'or':{ 'filters':[ {'term':{'profile':'DEFAULT'}},{'term':{'profile':'OTHER'}}  ] } };
+@apiParam (Request) {String} [filter] "mode:elastic-native" id="filter { 'constant_score'=>{ 'filter':{'numeric_range':{'base_price':{"gte":"100","lt":"200"}}}};
+@apiParam (Request) {String} [query] "mode:elastic-native" id="query {'text':{ 'profile':'DEFAULT' } };
+@apiParam (Request) {String} [query] "mode:elastic-native" id="query {'text':{ 'profile':['DEFAULT','OTHER'] } }; ## this would succeed, 
 
-<response id="size">100 # number of results</response>
-<response id="sort">['_score','base_price','prod_name']</response>
-<response id="from">100	# start from result # 100</response>
-<response id="scroll">30s,1m,5m</response>
+@apiParam (Response) {String} size	100 # number of results
+@apiParam (Response) {String} sort	['_score','base_price','prod_name']
+@apiParam (Response) {String} from	100	# start from result # 100
+@apiParam (Response) {String} scroll	30s,1m,5m
 
 <note>
 <![CDATA[
@@ -22252,16 +22702,15 @@ when the exact value is known (ex: tags, profiles, upc, etc.)
 ]]>
 </note>
 
-<response id="@products">an array of product ids</response>
-<response id="@LOG">an array of strings explaining how the search was performed (if LOG=1 or TRACEPID non-blank)</response>
+@apiParam (Response) {String} @products	an array of product ids
+@apiParam (Response) {String} @LOG	an array of strings explaining how the search was performed (if LOG=1 or TRACEPID non-blank)
 <caution>
 Using LOG=1 or TRACEPID in a product (non debug) environment will result in the search feature being
 disabled on a site.
 </caution>
 
-</API>
-
 =cut
+
 
 sub adminPrivateSearch {
 	my ($self,$v) = @_;
@@ -22358,33 +22807,41 @@ sub adminPrivateSearch {
 
 
 
+
+
+
 #################################################################################
 ##
 ##
 ##
 
 =pod
-
-<API id="adminPartnerSet">
-<purpose></purpose>
-<input id="partner">EBAY</input>
+@api {POST} adminPartnerSet adminPartnerSet
+@apiName adminPartnerSet
+@apiGroup admin
+@apiDescription
+TODO
+@apiParam (Request) {String} partnerEBAY
 <note>
 <![CDATA[
 Generic call to save data retrieved from partner return URL's, parameters vary.
 ]]>
 </note>
-</API>
+=cut
 
-<API id="adminPartnerGet">
-<purpose></purpose>
-<input id="partner">EBAY</input>
+=pod
+@api {POST} adminPartnerGet adminPartnerGet
+@apiName adminPartnerGet
+@apiGroup admin
+@apiDescription
+TODO
+@apiParam (Request) {String} partnerEBAY
 <note>
 <![CDATA[
 ]]>
 </note>
-</API>
-
 =cut
+
 
 sub adminPartner {
 	my ($self,$v) = @_;
@@ -22569,38 +23026,47 @@ sub adminPartner {
 ## cartCreateOrder (you mean cartOrderCreate)
 
 =pod
-
-<API id="adminOrderCreate">
-<purpose></purpose>
-<input id="_cartid"></input>
-<input id="@PAYMENTS">
+@api {POST} adminOrderCreate adminOrderCreate
+@apiName adminOrderCreate
+@apiGroup admin
+@apiDescription
+TODO
+@apiParam (Request) {String} _cartid
+@apiParam (Request) {String} @PAYMENTS
 @PAYMENTS : [
   'insert?ID=xyz&TN=credit',
   'insert?ID=xyz&TN=credit'
 ]
-</input>
-<response id="orderid"> 2011-01-1234</response>
-<response id="payment"> </response>
-</API>
 
-<API id="cartOrderCreate">
-<purpose></purpose>
-<input id="_cartid"></input>
-<response id="iama"> some string that makes sense to you</response>
-<response id="orderid"> 2011-01-1234</response>
-<response id="payment"> </response>
-<response id="_uuid"></response>
-</API>
-
-<API id="cartOrderStatus">
-<purpose></purpose>
-<input id="cartid"></input>
-<input id="orderid"></input>
-<response id="orderid"> 2011-01-1234</response>
-<response id="payment"> </response>
-</API>
-
+@apiParam (Response) {String} orderid	 2011-01-1234
+@apiParam (Response) {String} payment	 
 =cut
+
+=pod
+@api {POST} cartOrderCreate cartOrderCreate
+@apiName cartOrderCreate
+@apiGroup cart
+@apiDescription
+TODO
+@apiParam (Request) {String} _cartid
+@apiParam (Response) {String} iama	 some string that makes sense to you
+@apiParam (Response) {String} orderid	 2011-01-1234
+@apiParam (Response) {String} payment	 
+@apiParam (Response) {String} _uuid	
+=cut
+
+=pod
+@api {POST} cartOrderStatus cartOrderStatus
+@apiName cartOrderStatus
+@apiGroup cart
+@apiDescription
+TODO
+@apiParam (Request) {String} cartid
+@apiParam (Request) {String} orderid
+@apiParam (Response) {String} orderid	 2011-01-1234
+@apiParam (Response) {String} payment	 
+=cut
+
 
 sub cartOrder {
 	my ($self,$v) = @_;
@@ -23013,16 +23479,16 @@ sub cartOrder {
 ##
 
 =pod
-
-<API id="cartCheckoutValidate">
-<purpose></purpose>
-<input id="_cartid"></input>
-<input id="sender"> stage (LOGIN,BILLING_LOCATION,SHIPPING_LOCATION,ORDER_CONFIRMATION,ADMIN)</input>
-<response id="@issues"></response>
-</API>
-
-
+@api {POST} cartCheckoutValidate cartCheckoutValidate
+@apiName cartCheckoutValidate
+@apiGroup cart
+@apiDescription
+TODO
+@apiParam (Request) {String} _cartid
+@apiParam (Request) {String} sender stage (LOGIN,BILLING_LOCATION,SHIPPING_LOCATION,ORDER_CONFIRMATION,ADMIN)
+@apiParam (Response) {String} @issues	
 =cut
+
 
 sub cartCheckoutValidate { 
 	my ($self,$v) = @_;
@@ -23046,16 +23512,21 @@ sub cartCheckoutValidate {
 ##
 
 =pod
-
-<API id="appNewsletterList">
-<purpose>shows all publically available newsletters/lists</purpose>
-</API>
-
-<API id="adminNewsletterList">
-<purpose>see appNewsletterList, unlike public call also show hidden and not provisioned newsletters</purpose>
-</API>
-
+@api {POST} appNewsletterList appNewsletterList
+@apiName appNewsletterList
+@apiGroup app
+@apiDescription
+shows all publically available newsletters/listsTODO
 =cut
+
+=pod
+@api {POST} adminNewsletterList adminNewsletterList
+@apiName adminNewsletterList
+@apiGroup admin
+@apiDescription
+see appNewsletterList, unlike public call also show hidden and not provisioned newslettersTODO
+=cut
+
 
 sub appNewsletterList {
 	my ($self,$v) = @_;
@@ -23088,65 +23559,6 @@ sub appNewsletterList {
 
 
 
-#################################################################################
-##
-##
-##
-#
-#=pod
-#
-#<API id="buyerNewsletters">
-#<purpose></purpose>
-#<input id="_cartid"></input>
-#<input id="login"> email address</input>
-#<input id="fullname"> (optional)</input>
-#<input id="newsletter-1"> 1/0</input>
-#<input id="newsletter-2"> 1/0</input>
-#<caution>
-#Displays a list of newsletters the customer is/isn't subscribed to.
-#</caution>
-#
-#</API>
-#
-#=cut
-#
-#sub buyerNewsletters {
-#	my ($self,$v) = @_;
-#	my %R = ();
-#
-#
-#	my $login = $v->{'login'};
-#	if ($login eq '') {
-#		&JSONAPI::append_msg_to_response(\%R,"apperr",2600,"No Login provided.");
-#		}
-#
-#	my $fullname = $v->{'fullname'};
-#	my $IP = $ENV{'REMOTE_ADDR'};
-#
-#	if (not &JSONAPI::hadError(\%R)) {
-#		my $SUBSCRIPTIONS = 0;
-#		for my $i (0..15) {
-#			if ($v->{sprintf("newsletter-%d",$i+1)}) { $SUBSCRIPTIONS += (1<<$i); }
-#			}
-#		my ($err,$message) = &CUSTOMER::new_subscriber($self->username(), $self->prt(), $login, $fullname, $IP, 3, $SUBSCRIPTIONS);
-#		if ($err) {
-#			&JSONAPI::append_msg_to_response(\%R,"youerr",2600,"$message");
-#			}
-#		}
-#
-#
-#	if (&JSONAPI::hadError(\%R)) {
-#		## shit happened!
-#		}
-#	else {
-#		&JSONAPI::append_msg_to_response(\%R,'success',0);		
-#		}
-#	
-#	return(\%R);
-#	}
-
-
-
 
 
 
@@ -23156,13 +23568,15 @@ sub appNewsletterList {
 ##
 
 =pod
-
-<API id="getMerchandising">
-<purpose></purpose>
-<input id="_cartid"></input>
-<input optional="1" id="category"> .some.path|.some.other.path</input>
-<input optional="1" id="tags"> x|y|z</input>
-<input optional="1" id="keywords">	word1|word2|word3</input>
+@api {POST} getMerchandising getMerchandising
+@apiName getMerchandising
+@apiGroup admin
+@apiDescription
+TODO
+@apiParam (Request) {String} _cartid
+@apiParam (Request) {String} onal="1" id="category .some.path|.some.other.path
+@apiParam (Request) {String} onal="1" id="tags x|y|z
+@apiParam (Request) {String} onal="1" id="keywords	word1|word2|word3
 
 <example>
 	@ELEMENTS = [
@@ -23180,9 +23594,8 @@ myControl.registerMerchandizerific("/","category","/accessories\..*?/");
 
 
 
-</API>
-
 =cut
+
 
 sub getMerchandising {
 	my ($self,$v) = @_;
@@ -23212,36 +23625,37 @@ sub getMerchandising {
 ##
 
 =pod
-
-<API id="buyerPurchaseHistory">
-<purpose></purpose>
-<input id="_cartid"></input>
-<input optional="1" id="POOL"> RECENT,COMPLETED, etc.</input>
-<input optional="1" id="TS"> modified timestamp from</input>
-<input optional="1" id="CREATED_GMT"> created since ts</input>
-<input optional="1" id="CREATEDTILL_GMT"> created since ts</input>
-<input optional="1" id="PAID_GMT"> paid since</input>
-<input optional="1" id="PAIDTILL_GMT"> paid until ts</input>
-<input optional="1" id="PAYMENT_STATUS"> </input>
-<input optional="1" id="PAYMENT_METHOD"> tender type (ex: CREDIT)</input>
-<input optional="1" id="SDOMAIN"> </input>
-<input optional="1" id="MKT">  a report by market (use bitwise value)</input>
-<input optional="1" id="EREFID"> </input>
-<input optional="1" id="LIMIT"> max record sreturns</input>
-<input optional="1" id="CUSTOMER">  the cid of a particular buyer.</input>
-<input optional="1" id="DETAIL">  1 - minimal (orderid + modified)
+@api {POST} buyerPurchaseHistory buyerPurchaseHistory
+@apiName buyerPurchaseHistory
+@apiGroup buyer
+@apiDescription
+TODO
+@apiParam (Request) {String} _cartid
+@apiParam (Request) {String} onal="1" id="POOL RECENT,COMPLETED, etc.
+@apiParam (Request) {String} onal="1" id="TS modified timestamp from
+@apiParam (Request) {String} onal="1" id="CREATED_GMT created since ts
+@apiParam (Request) {String} onal="1" id="CREATEDTILL_GMT created since ts
+@apiParam (Request) {String} onal="1" id="PAID_GMT paid since
+@apiParam (Request) {String} onal="1" id="PAIDTILL_GMT paid until ts
+@apiParam (Request) {String} onal="1" id="PAYMENT_STATUS 
+@apiParam (Request) {String} onal="1" id="PAYMENT_METHOD tender type (ex: CREDIT)
+@apiParam (Request) {String} onal="1" id="SDOMAIN 
+@apiParam (Request) {String} onal="1" id="MKT  a report by market (use bitwise value)
+@apiParam (Request) {String} onal="1" id="EREFID 
+@apiParam (Request) {String} onal="1" id="LIMIT max record sreturns
+@apiParam (Request) {String} onal="1" id="CUSTOMER  the cid of a particular buyer.
+@apiParam (Request) {String} onal="1" id="DETAIL  1 - minimal (orderid + modified)
          3 - all of 1 + created, pool
 			5 - full detail
          0xFF - just return objects
-</input>
+
 
 <caution>
 This can ONLY be used for authenticated buyers.
 </caution>
 
-</API>
-
 =cut
+
 
 sub buyerPurchaseHistory {
 	my ($self,$v) = @_;
@@ -23294,18 +23708,19 @@ sub buyerPurchaseHistory {
 ##
 
 =pod
-
-<API id="buyerPurchaseHistoryDetail">
-<purpose></purpose>
-<input id="_cartid"></input>
-<input id="orderid"></input>
+@api {POST} buyerPurchaseHistoryDetail buyerPurchaseHistoryDetail
+@apiName buyerPurchaseHistoryDetail
+@apiGroup buyer
+@apiDescription
+TODO
+@apiParam (Request) {String} _cartid
+@apiParam (Request) {String} orderid
 <caution>
 This can ONLY be used for authenticated buyers.
 </caution>
 
-</API>
-
 =cut
+
 
 sub buyerPurchaseHistoryDetail {
 	my ($self,$v) = @_;
@@ -23353,18 +23768,19 @@ sub buyerPurchaseHistoryDetail {
 ##
 
 =pod
-
-<API id="appFAQs">
-<purpose></purpose>
-<input id="_cartid"></input>
-<input optional="1" id="filter-keywords"> keywords</input>
-<input optional="1" id="filter-topic"> id</input>
-<input optional="1" hint="default:all" id="method"> topics|detail|all</input>
-<response hint="method:topics|all" id="@topics"> an array of faq topics</response>
-<response hint="method:detail|all" id="@detail"> an array of detail faq data for topics</response>
-</API>
-
+@api {POST} appFAQs appFAQs
+@apiName appFAQs
+@apiGroup app
+@apiDescription
+TODO
+@apiParam (Request) {String} _cartid
+@apiParam (Request) {String} [filter-keywords] keywords
+@apiParam (Request) {String} [filter-topic] id
+@apiParam (Request) {String} [method] "default:all" topics|detail|all
+@apiParam (Response) {String} [@topics] "method:topics|all" an array of faq topics
+@apiParam (Response) {String} [@detail] "method:detail|all" an array of detail faq data for topics
 =cut
+
 
 sub appFAQs {
 	my ($self,$v) = @_;
@@ -23422,25 +23838,26 @@ sub appFAQs {
 ##
 
 =pod
-
-<API id="appSendMessage">
-<purpose></purpose>
-<input id="_cartid"></input>
-<input id="msgtype"> feedback</input>
-<input id="sender"> user@domain.com   [the sender of the message]</input>
-<input id="subject"> subject of the message</input>
-<input id="body"> body of the message</input>
-<input optional="1" id="PRODUCT">product-id-this-tellafriend-is-about</input>
-<input optional="1" id="OID">2012-01-1234  [the order this feedback is about]</input>
+@api {POST} appSendMessage appSendMessage
+@apiName appSendMessage
+@apiGroup app
+@apiDescription
+TODO
+@apiParam (Request) {String} _cartid
+@apiParam (Request) {String} msgtype feedback
+@apiParam (Request) {String} sender user@domain.com   [the sender of the message]
+@apiParam (Request) {String} subject subject of the message
+@apiParam (Request) {String} body body of the message
+@apiParam (Request) {String} [PRODUCT] product-id-this-tellafriend-is-about
+@apiParam (Request) {String} [OID] 2012-01-1234  [the order this feedback is about]
 <note>
 msgtype:feedback requires 'sender', but ignores 'recipient'
 msgtype:tellafriend requires 'recipient', 'product'
 msgtype:tellafriend requi 'product'
 </note>
 
-</API>
-
 =cut
+
 
 sub appSendMessage {
 	my ($self,$v) = @_;
@@ -23513,17 +23930,18 @@ sub appSendMessage {
 ##
 
 =pod
-
-<API id="appPageGet">
-<purpose></purpose>
-<input id="PATH"> .path.to.page or @CAMPAIGNID</input>
-<input id="@get"> [ 'attrib1', 'attrib2', 'attrib3' ]</input>
-<input id="all"> set to 1 to return all fields (handy for json libraries which don't return @get=[]) </input>
-<response id="%page"> [ 'attrib1':'xyz', 'attrib2':'xyz' ],</response>
+@api {POST} appPageGet appPageGet
+@apiName appPageGet
+@apiGroup app
+@apiDescription
+TODO
+@apiParam (Request) {String} PATH .path.to.page or @CAMPAIGNID
+@apiParam (Request) {String} @get [ 'attrib1', 'attrib2', 'attrib3' ]
+@apiParam (Request) {String} all set to 1 to return all fields (handy for json libraries which don't return @get=[]) 
+@apiParam (Response) {String} %page	 [ 'attrib1':'xyz', 'attrib2':'xyz' ],
 <note>leave @get empty @get = [] for all page attributes</note>
-</API>
-
 =cut
+
 
 sub appPageGet {
 	my ($self,$v) = @_;
@@ -23623,23 +24041,26 @@ sub appPageGet {
 
 
 
-
+=pod
+@api {POST} appStash appStash
+@apiName appStash
+@apiGroup app
+@apiDescription
+store a keyTODO
+@apiParam (Request) {String} key key you want to store
+@apiParam (Request) {String} value value you want to store
+=cut
 
 =pod
-
-<API id="appStash">
-<purpose>store a key</purpose>
-<input id="key">key you want to store</input>
-<input id="value">value you want to store</input>
-</API>
-
-<API id="appSuck">
-<purpose>retrieve a key</purpose>
-<input id="key">key you want to store</input>
-<response id="value">key you want to store</response>
-</API>
-
+@api {POST} appSuck appSuck
+@apiName appSuck
+@apiGroup app
+@apiDescription
+retrieve a keyTODO
+@apiParam (Request) {String} key key you want to store
+@apiParam (Response) {String} value	value you want to store
 =cut
+
 
 
 sub appStashSuck {
@@ -23674,17 +24095,22 @@ sub appStashSuck {
 
 
 =pod
-
-<API id="appSearchLogList">
-<purpose>lists available search log files</purpose>
-</API>
-
-<API id="appSearchLogRemove">
-<purpose>permanently remove/delete all search logs</purpose>
-<input id="FILE">reference file id</input>
-</API>
-
+@api {POST} appSearchLogList appSearchLogList
+@apiName appSearchLogList
+@apiGroup app
+@apiDescription
+lists available search log filesTODO
 =cut
+
+=pod
+@api {POST} appSearchLogRemove appSearchLogRemove 
+@apiName appSearchLogRemove 
+@apiGroup app
+@apiDescription
+permanently remove/delete all search logsTODO
+@apiParam (Request) {String} FILE reference file id
+=cut
+
 
 sub adminSearchLog {
 	my ($self,$v) = @_;
@@ -23730,14 +24156,15 @@ sub adminSearchLog {
 
 
 =pod
-
-<API id="adminDebugSearch">
-<purpose>runs a debug search query through the analyzer</purpose>
-<input id="VERB">RAWE-QUERY|RAWE-SCHEMA-PID-LIVE|RAWE-SCHEMA-PID-CONFIGURED|RAWE-SHOWPID|RAWE-INDEXPID</input>
-<input id="PID">product id (optional)</input>
-</API>
-
+@api {POST} adminDebugSearch adminDebugSearch 
+@apiName adminDebugSearch 
+@apiGroup admin
+@apiDescription
+runs a debug search query through the analyzerTODO
+@apiParam (Request) {String} VERB RAWE-QUERY|RAWE-SCHEMA-PID-LIVE|RAWE-SCHEMA-PID-CONFIGURED|RAWE-SHOWPID|RAWE-INDEXPID
+@apiParam (Request) {String} PID product id (optional)
 =cut
+
 
 sub adminDebugSearch {
 	my ($self,$v) = @_;
@@ -23854,14 +24281,15 @@ sub adminDebugSearch {
 
 
 =pod
-
-<API id="adminDebugSite">
-<purpose></purpose>
-<input id="check-global"></input>
-<input id="check-domains"></input>
-</API>
-
+@api {POST} adminDebugSite adminDebugSite 
+@apiName adminDebugSite 
+@apiGroup admin
+@apiDescription
+TODO
+@apiParam (Request) {String} check-global
+@apiParam (Request) {String} check-domains
 =cut
+
 
 
 sub adminDebugSite {
@@ -24047,13 +24475,14 @@ sub adminDebugSite {
 
 
 =pod
-
-<API id="adminDebugProduct">
-<purpose></purpose>
-<input id="PID">product id</input>
-</API>
-
+@api {POST} adminDebugProduct adminDebugProduct 
+@apiName adminDebugProduct 
+@apiGroup admin
+@apiDescription
+TODO
+@apiParam (Request) {String} PID product id
 =cut
+
 
 
 sub adminDebugProduct {
@@ -24308,51 +24737,56 @@ sub adminDebugProduct {
 
 
 =pod
-
-
-<API id="adminDebugShipping">
-<purpose>does a shipping debug</purpose>
-<input id="SRC">ORDER|DEST|CART</input>
-<input id="_cartid">SRC:CART</input>
-<input id="ITEM1">SRC=DEST: ITEM1,ITEM2,ITEM3</input>
-<input id="QTY1">SRC=DEST: QTY1, QTY2, QTY3</input>
-<input id="ZIP">SRC=DEST:</input>
-<input id="ZIP">SRC=DEST:</input>
-<input id="STATE">SRC=DEST:</input>
-<input id="COUNTRY">SRC=DEST:</input>
-<input id="ORDERID">SRC=ORDER</input>
-<input id=""></input>
-</API>
-
-<API id="adminDebugPromotion">
-<purpose>does a promotion debug</purpose>
-<input id="SRC">ORDER|DEST|CART</input>
-<input id="_cartid">SRC:CART</input>
-<input id="ITEM1">SRC=DEST: ITEM1,ITEM2,ITEM3</input>
-<input id="QTY1">SRC=DEST: QTY1, QTY2, QTY3</input>
-<input id="ZIP">SRC=DEST:</input>
-<input id="ZIP">SRC=DEST:</input>
-<input id="STATE">SRC=DEST:</input>
-<input id="COUNTRY">SRC=DEST:</input>
-<input id="ORDERID">SRC=ORDER</input>
-<input id=""></input>
-</API>
-
-<API id="adminDebugTaxes">
-<purpose>does a tax debug</purpose>
-<input id="SRC">ORDER|DEST|CART</input>
-<input id="_cartid">SRC:CART</input>
-<input id="ITEM1">SRC=DEST: ITEM1,ITEM2,ITEM3</input>
-<input id="QTY1">SRC=DEST: QTY1, QTY2, QTY3</input>
-<input id="ZIP">SRC=DEST:</input>
-<input id="ZIP">SRC=DEST:</input>
-<input id="STATE">SRC=DEST:</input>
-<input id="COUNTRY">SRC=DEST:</input>
-<input id="ORDERID">SRC=ORDER</input>
-<input id=""></input>
-</API>
-
+@api {POST} adminDebugShipping adminDebugShipping 
+@apiName adminDebugShipping 
+@apiGroup admin
+@apiDescription
+does a shipping debugTODO
+@apiParam (Request) {String} SRC ORDER|DEST|CART
+@apiParam (Request) {String} _cartid SRC:CART
+@apiParam (Request) {String} ITEM1 SRC=DEST: ITEM1,ITEM2,ITEM3
+@apiParam (Request) {String} QTY1 SRC=DEST: QTY1, QTY2, QTY3
+@apiParam (Request) {String} ZIP SRC=DEST:
+@apiParam (Request) {String} ZIP SRC=DEST:
+@apiParam (Request) {String} STATE SRC=DEST:
+@apiParam (Request) {String} COUNTRY SRC=DEST:
+@apiParam (Request) {String} ORDERID SRC=ORDER
 =cut
+
+=pod
+@api {POST} adminDebugPromotion adminDebugPromotion 
+@apiName adminDebugPromotion 
+@apiGroup admin
+@apiDescription
+does a promotion debugTODO
+@apiParam (Request) {String} SRC ORDER|DEST|CART
+@apiParam (Request) {String} _cartid SRC:CART
+@apiParam (Request) {String} ITEM1 SRC=DEST: ITEM1,ITEM2,ITEM3
+@apiParam (Request) {String} QTY1 SRC=DEST: QTY1, QTY2, QTY3
+@apiParam (Request) {String} ZIP SRC=DEST:
+@apiParam (Request) {String} ZIP SRC=DEST:
+@apiParam (Request) {String} STATE SRC=DEST:
+@apiParam (Request) {String} COUNTRY SRC=DEST:
+@apiParam (Request) {String} ORDERID SRC=ORDER
+=cut
+
+=pod
+@api {POST} adminDebugTaxes adminDebugTaxes 
+@apiName adminDebugTaxes 
+@apiGroup admin
+@apiDescription
+does a tax debugTODO
+@apiParam (Request) {String} SRC ORDER|DEST|CART
+@apiParam (Request) {String} _cartid SRC:CART
+@apiParam (Request) {String} ITEM1 SRC=DEST: ITEM1,ITEM2,ITEM3
+@apiParam (Request) {String} QTY1 SRC=DEST: QTY1, QTY2, QTY3
+@apiParam (Request) {String} ZIP SRC=DEST:
+@apiParam (Request) {String} ZIP SRC=DEST:
+@apiParam (Request) {String} STATE SRC=DEST:
+@apiParam (Request) {String} COUNTRY SRC=DEST:
+@apiParam (Request) {String} ORDERID SRC=ORDER
+=cut
+
 
 
 
@@ -24525,22 +24959,23 @@ sub adminDebugShippingPromoTaxes {
 
 
 =pod
-
-<API id="adminConfigDetail">
-<purpose>to obtain detail on a configuration object</purpose>
-<input id="order">include %ORDER in response (contains current order sequence #)</input>
-<input id="wms">include %WMS in response</input>
-<input id="plugins">include @PLUGINS in response</input>
-<input id="erp">include %ERP in response</input>
-<input id="inv">include %INVENTORY in response</input>
-<input id="prts">include @PRTS in response</input>
-<input id="payments">include @PAYMENTS in response</input>
-<input id="shipping">include %SHIPPING in response</input>
-<input id="shipmethods">include @SHIPMENTS in response</input>
-<input id="blast">include %BLAST in response</input>
-</API>
-
+@api {POST} adminConfigDetail adminConfigDetail 
+@apiName adminConfigDetail 
+@apiGroup admin
+@apiDescription
+to obtain detail on a configuration objectTODO
+@apiParam (Request) {String} [order] include %ORDER in response (contains current order sequence #)
+@apiParam (Request) {String} [wms] include %WMS in response
+@apiParam (Request) {String} [plugins] include @PLUGINS in response
+@apiParam (Request) {String} [erp] include %ERP in response
+@apiParam (Request) {String} [inv] include %INVENTORY in response
+@apiParam (Request) {String} [prts] include @PRTS in response
+@apiParam (Request) {String} [payments] include @PAYMENTS in response
+@apiParam (Request) {String} [shipping] include %SHIPPING in response
+@apiParam (Request) {String} [shipmethods] include @SHIPMENTS in response
+@apiParam (Request) {String} [blast] include %BLAST in response
 =cut
+
 
 # adminConfigDump
 sub adminConfigDetail {
@@ -25314,7 +25749,7 @@ sub adminConfigDetail {
 			push @{$GOOGLE_PAYMENT{'@WARNINGS'}}, "WARNING|The tag 'parameterized-url' appears the Pixel URL field, this is almost certainly not correct and will not work.";
 			$has_bad_pixel++;
 			}
-		if ($webdbref->{'google_pixelurls'} =~ /\<input/s) {
+    if ($webdbref->{'google_pixelurls'} =~ /\<input/s) {
 			push @{$GOOGLE_PAYMENT{'@WARNINGS'}}, "WARNING|The xml/html tag 'input' appears the Pixel URL field, this absolutely not correct and will not work. ";
 			$has_bad_pixel++;
 			}
@@ -25446,26 +25881,41 @@ sub adminConfigDetail {
 
 
 =pod
-
-<API id="adminVendorSearch">
-</API>
-
-<API id="adminVendorCreate">
-</API>
-
-<API id="adminVendorUpdate">
-</API>
-
-<API id="adminVendorMacro">
-</API>
-
-<API id="adminVendorDetail">
-</API>
-
-<API id="adminVendorRemove">
-</API>
-
+@api {POST} adminVendorSearch adminVendorSearch 
+@apiName adminVendorSearch 
+@apiGroup admin
 =cut
+
+=pod
+@api {POST} adminVendorCreate adminVendorCreate 
+@apiName adminVendorCreate 
+@apiGroup admin
+=cut
+
+=pod
+@api {POST} adminVendorUpdate adminVendorUpdate 
+@apiName adminVendorUpdate 
+@apiGroup admin
+=cut
+
+=pod
+@api {POST} adminVendorMacro adminVendorMacro 
+@apiName adminVendorMacro 
+@apiGroup admin
+=cut
+
+=pod
+@api {POST} adminVendorDetail adminVendorDetail 
+@apiName adminVendorDetail 
+@apiGroup admin
+=cut
+
+=pod
+@api {POST} adminVendorRemove adminVendorRemove 
+@apiName adminVendorRemove 
+@apiGroup admin
+=cut
+
 
 sub adminVendor {
 	my ($self,$v) = @_;
@@ -25566,34 +26016,43 @@ sub adminVendor {
 
 
 =pod
+@api {POST} adminWarehouseList adminWarehouseList 
+@apiName adminWarehouseList 
+@apiGroup admin
+@apiParam (Response) {String} @WAREHOUSES
+=cut
 
-<API id="adminWarehouseList">
-<output id="@WAREHOUSES"></output>
-</API>
+=pod
+@api {POST} adminWarehouseDetail adminWarehouseDetail 
+@apiName adminWarehouseDetail 
+@apiGroup admin
+=cut
 
-<API id="adminWarehouseDetail">
-</API>
+=pod
+@api {POST} adminWarehouseInventoryQuery adminWarehouseInventoryQuery 
+@apiName adminWarehouseInventoryQuery 
+@apiGroup admin
+@apiParam (Request) {String} GEO geocode of warehouse
+@apiParam (Request) {String} [SKU] SKU to filter by
+@apiParam (Request) {String} [SKUS] SKU1,SKU2,SKU3 to filter by
+@apiParam (Request) {String} [LOC] LOC to filter by
+@apiParam (Response) {String} @ROWS
 
-<API id="adminWarehouseInventoryQuery">
-<input id="GEO">geocode of warehouse</input>
-<input id="SKU" optional="1">SKU to filter by</input>
-<input id="SKUS" optional="1">SKU1,SKU2,SKU3 to filter by</input>
-<input id="LOC" optional="1">LOC to filter by</input>
-<output id="@ROWS">
-</output>
-</API>
+=cut
 
-<API id="adminWarehouseMacro">
-<purpose>to create/update/delete/modify (via macro) the wms system</purpose>
-<input id="WAREHOUSE"></input>
-<input id="@updates">an array of cmd objects</input>
+=pod
+@api {POST} adminWarehouseMacro adminWarehouseMacro 
+@apiName adminWarehouseMacro 
+@apiGroup admin
+@apiDescription
+to create/update/delete/modify (via macro) the wms systemTODO
+@apiParam (Request) {String} WAREHOUSE
+@apiParam (Request) {String} @updates an array of cmd objects
 <example><![CDATA[
 * 
 ]]></example>
-</API>
-
-
 =cut
+
 
 sub adminWarehouse {
 	my ($self,$v) = @_;
@@ -25869,11 +26328,12 @@ sub adminWarehouse {
 
 
 =pod
+@api {POST} adminConfigMacro adminConfigMacro 
+@apiName adminConfigMacro 
+@apiGroup admin
+@apiDescription
+to create/update/delete/modify (via macro) a configuration object
 
-<API id="adminConfigMacro">
-<purpose>to create/update/delete/modify (via macro) a configuration object</purpose>
-<input id="@updates">an array of cmd objects</input>
-<example><![CDATA[
 * PLUGIN/SET?plugin=domain.com
 * PLUGIN/DATATABLE-(INSERT|EMPTY|REMOVE)?plugin=domain.com&id=
 * BLAST/SET?from_email=
@@ -25928,10 +26388,10 @@ sub adminWarehouse {
 * PAYMENT/WALLET-PAYPALEC?tender=PAYPALEC&paypal_api_env&paypal_api_reqconfirmship&paypal_api_callbacks&paypal_email&paypal_api_user&paypal_api_pass&paypal_api_sig&paypal_paylater&
 * PAYMENT/CUSTOM?tender=CUSTOM&description=
 
-]]></example>
-</API>
+@apiParam (Request) {String} @updates an array of cmd objects
 
 =cut
+
 
 
 sub adminConfigMacro {
@@ -27411,16 +27871,17 @@ sub adminConfigMacro {
 ##
 
 =pod
-
-<API id="appPageSet">
-<purpose></purpose>
-<input id="PATH"> .path.to.page or @CAMPAIGNID</input>
-<input id="%page"> an associative array of values you want updated</input>
-<response id="attrib"></response>
+@api {POST} appPageSet appPageSet 
+@apiName appPageSet 
+@apiGroup app
+@apiDescription
+TODO
+@apiParam (Request) {String} PATH .path.to.page or @CAMPAIGNID
+@apiParam (Request) {String} %page an associative array of values you want updated
+@apiParam (Response) {String} attrib	
 <note>leave @get empty @get = [] for all page attributes</note>
-</API>
-
 =cut
+
 
 sub appPageSet {
 	my ($self,$v) = @_;
@@ -27473,15 +27934,17 @@ sub appPageSet {
 
 
 =pod
-
-<API id="appShippingTransitEstimate">
-<purpose></purpose>
-<input id="@products">[pid1,pid2,pid3]</input>
-<input id="ship_postal">92012</input>
-<input id="ship_country">US</input>
+@api {POST} appShippingTransitEstimate appShippingTransitEstimate 
+@apiName appShippingTransitEstimate 
+@apiGroup app
+@apiDescription
+TODO
+@apiParam (Request) {String} @products [pid1,pid2,pid3]
+@apiParam (Request) {String} ship_postal 92012
+@apiParam (Request) {String} ship_country US
 <note></note>
-<response hint="@Services">
-<![CDATA[
+@apiParam (Response) {String} @Services	
+@apiSuccessExample
                            {
                              'arrival_time' => '23:00:00',
                              'amzcc' => 'UPS',
@@ -27500,14 +27963,13 @@ sub appPageSet {
                              'UPS.EstimatedArrival.PickupDate' => '2012-07-10',
                              'transit_days' => 5
                            } 
-]]></response>
-<response hint="ships_yyyymmdd">which day the order is expected to ship (not arrive)</response>
-<response hint="cutoff_hhmm">hour and minute (pst) that the order must be placed by</response>
-<response hint="latency_days">maximum days before order ships</response>
 
-</API>
+@apiParam (Response) {String} ships_yyyymmdd	which day the order is expected to ship (not arrive)
+@apiParam (Response) {String} cutoff_hhmm	hour and minute (pst) that the order must be placed by
+@apiParam (Response) {String} latency_days	maximum days before order ships
 
 =cut
+
 
 sub appShippingTransitEstimate {
 	my ($self,$v) = @_;
@@ -27551,29 +28013,34 @@ sub appShippingTransitEstimate {
 ##
 
 =pod
+@api {POST} appSupplierInit appSupplierInit 
+@apiName appSupplierInit 
+@apiGroup admin
+@apiDescription
+Allow an external supplier to authorize to commerceRack (NOT FULLY IMPLEMENTED)
 
-<API id="appSupplierInit">
-<purpose></purpose>
-<input id="supplier">xyz\@domain.com</input>
-<input id="password">1234</input>
-</API>
+@apiParam (Request) {String} supplierxyz\@domain.com
+@apiParam (Request) {String} password1234
+=cut
 
-<API id="appSupplierAuthorize">
-<purpose></purpose>
-<input id="_cartid"> (must start with a ':') as returned by appSupplierInit</input>
-<input id="hashtype"> md5|sha1</input>
-<input id="hashpass"> hashtype(password+_cartid)</input>
-<hint>
+=pod
+@api {POST} appSupplierAuthorize appSupplierAuthorize 
+@apiName appSupplierAuthorize 
+@apiGroup admin
+@apiDescription
+
 hashpass is generated by computing the md5 or sha1 hexadecimal value of the concatenation 
 of both the plain text password, and the _cartid. Here are some examples (all examples assume password is 'secret' and 
 the cartid is ':1234' 
 MySQL: md5(concat('secret',':1234')) = 1ed15901cfc0cb8c61b43a440d853d45
 MySQL: sha1(concat('secret',':1234')) = d9bc94d9c90e5de7a1c43a34f262d348244e9505
-</hint>
 
-</API>
+@apiParam (Request) {String} _cartid (must start with a ':') as returned by appSupplierInit
+@apiParam (Request) {String} hashtype md5|sha1
+@apiParam (Request) {String} hashpass hashtype(password+_cartid)
 
 =cut
+
 
 ##
 ##
@@ -27636,11 +28103,10 @@ sub appSupplierAuthorize {
 ##
 
 =pod
-
-<API id="appResource">
-<purpose></purpose>
-<input id="filename">filename.json</input>
-<note>
+@api {POST} appResource appResource 
+@apiName appResource 
+@apiGroup app
+@apiDescription
 * shipcodes.json
 * shipcountries.json
 * payment_status.json
@@ -27655,16 +28121,17 @@ sub appSupplierAuthorize {
 * syndication_wsh_categories.json
 * syndication_goo_categories.json
 * definitions/amz/[catalog].json : replace [catalog] with contents of amz:catalog field.
-</note>
-<response id="json">content to eval</response>
-
-
 
 NOTE: You may also request filename.yaml or filename.xml (and the corresponding xml: or yaml: format will be returned)
 
-</API>
+@apiParam (Request) {String} filename filename.json
+@apiParam (Response) {String} json	content to eval
+
+
+
 
 =cut
+
 
 sub appResource {
 	my ($self,$v) = @_;
@@ -27868,27 +28335,6 @@ sub appResource {
 
 
 
-#################################################################################
-##
-##
-##
-
-=pod
-
-<API id="stub">
-<purpose></purpose>
-<input id="_cartid"></input>
-<note>Does nothing, just a stub.</note>
-</API>
-
-=cut
-
-sub stub {
-	my ($self,$v) = @_;
-	my %R = ();
-	return(\%R);
-	}
-
 
 
 ##
@@ -27934,48 +28380,6 @@ sub js_encode {
 
 
 
-=pod
-
-<SECTION>
-<h1>Releases Notes</h1>
-* 2011/05/04: Added CUSTOMERPROCESS API call.
-[[/SUBSECTION]]
-
-
-</SECTION>
-
-<SECTION>
-<h1>Compatibility Levels</h1>
-Current minimum compatibility level: 200 (released 11/15/10)
-[[BREAK]]
-[[STAFF]]
-** when bumping compatibility level we should also change $WEBAPI::MAX_ALLOWED_COMPAT_LEVEL 
-[[/STAFF]]
-
-* 210: 9/17/12	 addition of uuid= in stuff
-* 205: 1/5/12   ADDPRIVATE macro does an overrite, not an append. (backward compatibility release)
-* 204: 12/29/11 fixes issues with payment processing (not explicitly declared in code, because they're "SAFE"/forward compat)
-* 203: 10/24/11	has strict encoding rules for options, modifier must be encoded or there will be an error.
-* 202: 10/24/11	(version 202 and lower adds backward support (via strip) for double quotes in stuff item options modifier=)
-* 202: 5/6/11	 extends MSGID in emails node from 24 characters from 10
-* 201: 2/16/11   adds MSGTYPE TICKET in emails node to WEBDBSYNC
-* 200: 11/15/10  order generation version 5
-* 117: 4/7/09  changes webdb sync in versioncheck
-* 116: 5/21/08 re-enables image delete (for 116 and higher)
-* 116: 4/10/08 note: 115 is was never apparently released due to bugs, skipping to 116 to be safe.
-* 115: 2/23/08  [note: released to 114] changed format for stids (cheap hack: e.g.  abc/123*xyz:ffff  becomes 12
-* 114: 12/26/07 new email changes (shuts down sendmail)
-* 113: skipped for bad luck
-* 112: 10/27/07 versions below have backward compatibility for company_logo in merchant sync
-* 111: 10/09/07 convert ZOM and ZWM clients to ZID
-* 110: 8/21/07 changes to events (ts was time)
-* 109: 4/19/07 implements zoovy.virtual zoovy.prod_supplier zoovy.prod_supplierid removes supplier from skulist.
-* 108: 3/13/07 changes xml output of stuff for orders
-</SECTION>
-
-=cut
-
-
 
 ## goes through and replaces all the keys that have colons with dashes e.g.
 ##		zoovy:prod_name becomes zoovy-prod_name
@@ -27994,55 +28398,6 @@ sub hashref_colon_to_dashxml {
 	}
 
 
-##
-## SUPPLIERSYNC
-##	
-#=pod
-#
-#<SECTION>
-#<h1>API: SUPPLIERSYNC</h1>
-#sends XML data from pub1 to Supply Chain
-#ie Order Confirmations
-#</SECTION>
-#
-#=cut
-#
-sub supplierSync {
-	my ($USERNAME,$XAPI,$ID,$DATA) = @_;
-	
-	require SUPPLIER;
-	my ($API,$METHOD,$ACTION) = split(/\//,$XAPI,3);
-
-	## SUPPLIER::from_xml deals with error handling
-	my ($ERROR,$XML) = SUPPLIER::from_xml($USERNAME,$DATA,$METHOD,$ACTION,$::XCOMPAT);
-
-	## embed error in XML as needed
-	if ($ERROR ne '') { $XML .= "<Errors><Error>$ERROR</Error></Errors>"; }
-	$XML = "<supplier$METHOD$ACTION>$XML</supplier$METHOD$ACTION>";
-
-	return($ERROR,$XML);
-	}
-
-
-##
-## Records the registration of a client.
-##
-sub registerSync {
-	my ($USERNAME,$XAPI,$ID,$DATA) = @_;
-
-	require ZTOOLKIT::SECUREKEY;
-	my $securekey = &ZTOOLKIT::SECUREKEY::gen_key($USERNAME,'ZO');
-
-	##
-	## insert overly elaborate seat registration process here.
-	##
-
-	my $XML = qq~<SecureKey>$securekey</SecureKey>~;
-	$XML = "<Registration>$XML</Registration>";
-	
-	return($XML);
-	}
-
 
 
 
@@ -28051,63 +28406,109 @@ sub registerSync {
 ##
 
 =pod
-
-
-<API id="adminBatchJobParametersList">
-<purpose></purpose>
-<input id="BATCH_EXEC" value=""></input>
-<output id="@PARAMETERS">
+@api {POST} adminBatchJobParametersList adminBatchJobParametersList 
+@apiName adminBatchJobParametersList 
+@apiGroup admin
+@apiDescription
+TODO
+@apiParam (Request) {String} BATCH_EXEC" value="
+@apiParam (Response) {String} @PARAMETERS
 [
 { UUID:"", TITLE:"", BATCH_EXEC:"", LASTRUN_TS:"", LASTJOB_ID:"", PRIVATE:1  }
 ]
-</output>
-</API> 
 
-<API id="adminBatchJobParametersCreate">
-<purpose></purpose>
+=cut
+
+=pod
+ 
+
+@api {POST} adminBatchJobParametersCreate adminBatchJobParametersCreate 
+@apiName adminBatchJobParametersCreate 
+@apiGroup admin
+@apiDescription
+TODO
 UUID:(optional)
 TITLE: 
 BATCH_EXEC: 
 %vars: { variables based on type }
 PRIVATE : 1|0 (will only appear in list for this user)
-</API> 
+=cut
 
-<API id="adminBatchJobParametersRemove">
-<purpose></purpose>
+=pod
+ 
+
+@api {POST} adminBatchJobParametersRemove adminBatchJobParametersRemove 
+@apiName adminBatchJobParametersRemove 
+@apiGroup admin
+@apiDescription
+TODO
 UUID:(optional)
-</API> 
+=cut
 
-<API id="adminBatchJobList">
-<purpose></purpose>
-<output id="@JOBS">
+=pod
+ 
+
+@api {POST} adminBatchJobList adminBatchJobList 
+@apiName adminBatchJobList 
+@apiGroup admin
+@apiDescription
+TODO
+@apiParam (Response) {String} @JOBS
 type:job, id:####, guid:(guid), status:, title:
-</output>
-</API> 
 
-<API id="adminBatchJobCreate">
-<purpose></purpose>
+=cut
+
+=pod
+ 
+
+@api {POST} adminBatchJobCreate adminBatchJobCreate 
+@apiName adminBatchJobCreate 
+@apiGroup admin
+@apiDescription
+TODO
 guid:(optional)
 type: SYNDICATION|REPORT|UTILITY,etc.
 %vars: { variables based on type }
-</API> 
+=cut
+
+=pod
+ 
 
 
-<API id="adminBatchJobStatus">
-<purpose></purpose>
-</API> 
+@api {POST} adminBatchJobStatus adminBatchJobStatus 
+@apiName adminBatchJobStatus 
+@apiGroup admin
+@apiDescription
+TODO
+=cut
 
-<API id="adminBatchJobCleanup">
-<purpose></purpose>
-</API> 
+=pod
+ 
 
-<API id="adminBatchJobDownload">
-<purpose></purpose>
-<input id="GUID"></input>
-<input id="base64"></input>
-<output id="FILENAME"></output>
-<output id="MIME"></output>
-<output id="body"></output>
-</API> 
+@api {POST} adminBatchJobCleanup adminBatchJobCleanup 
+@apiName adminBatchJobCleanup 
+@apiGroup admin
+@apiDescription
+TODO
+=cut
+
+=pod
+ 
+
+@api {POST} adminBatchJobDownload adminBatchJobDownload 
+@apiName adminBatchJobDownload 
+@apiGroup admin
+@apiDescription
+TODO
+@apiParam (Request) {String} GUID
+@apiParam (Request) {String} base64
+@apiParam (Response) {String} FILENAME
+@apiParam (Response) {String} MIME
+@apiParam (Response) {String} body
+=cut
+
+=pod
+ 
 
 =cut
 
@@ -28394,9 +28795,11 @@ sub adminBatchJob {
 
 
 =pod
+@api {POST} adminMySystemHealth adminMySystemHealth 
+@apiName adminMySystemHealth 
+@apiGroup admin
+@apiDescription
 
-<API id="adminMySystemHealth">
-<purpose>
 Runs a series of diagnostics and returns 3 arrays @SYSTEM, @MYAPPS, @MARKET
 the call itself may be *VERY* slow - taking up to 30 seconds.
 
@@ -28412,13 +28815,12 @@ marketplace tracking notifications and more could be delayed.',
 	'debug':'xozo some internal crap that means something to a developer',
 }
 
-</purpose>
-<response id="@SYSTEM"></response>
-<response id="@MYAPPS"></response>
-<response id="@MARKET"></response>
-</API>
-
+TODO
+@apiParam (Response) {String} @SYSTEM	
+@apiParam (Response) {String} @MYAPPS	
+@apiParam (Response) {String} @MARKET	
 =cut
+
 
 sub adminMySystemHealth {
 	my ($self,$v) = @_;
@@ -28453,13 +28855,14 @@ sub adminMySystemHealth {
 
 
 =pod
-
-<API id="adminTechnicalRequest">
-<purpose></purpose>
-<input id="METHOD">CREATE</input>
-</API>
-
+@api {POST} adminTechnicalRequest adminTechnicalRequest 
+@apiName adminTechnicalRequest 
+@apiGroup admin
+@apiDescription
+TODO
+@apiParam (Request) {String} METHODCREATE
 =cut
+
 
 sub adminTechnicalRequest {
 	my ($self,$v) = @_;
@@ -28526,7 +28929,6 @@ sub adminTechnicalRequest {
 ##
 
 =pod
-
 ## &ZOOVY::msgAppend($self->username(),"",{
 ##         origin=>sprintf("job.%d",$self->id()),
 ##         icon=>"done",
@@ -28534,28 +28936,33 @@ sub adminTechnicalRequest {
 ##         note=>sprintf("Job #%d $exec $verb has completed",$self->id()),
 ##         });
 
-<API id="adminMessagesList">
-<purpose></purpose>
-<input id="msgid"></input>
+@api {POST} adminMessagesList adminMessagesList 
+@apiName adminMessagesList 
+@apiGroup admin
+@apiDescription
+TODO
+@apiParam (Request) {String} msgid
 <example><![CDATA[
 ConfigVersion
 Response
 ResponseMsg
 ]]></example>
-</API>
-
-<API id="adminMessagesRemove">
-<purpose></purpose>
-<input id="msgid"></input>
-<example><![CDATA[
-ConfigVersion
-Response
-ResponseMsg
-]]></example>
-</API>
-
-
 =cut
+
+=pod
+@api {POST} adminMessagesRemove adminMessagesRemove 
+@apiName adminMessagesRemove 
+@apiGroup admin
+@apiDescription
+TODO
+@apiParam (Request) {String} msgid
+<example><![CDATA[
+ConfigVersion
+Response
+ResponseMsg
+]]></example>
+=cut
+
 
 sub adminMessages {
 	my ($self,$v) = @_;
@@ -28585,12 +28992,13 @@ sub adminMessages {
 ##
 
 =pod
-
-<API id="adminAccountDetail">
-<purpose>Generates a new securekey for a given client. You must be given a client code by Zoovy to use this.</purpose>
-</API>
-
+@api {POST} adminAccountDetail adminAccountDetail 
+@apiName adminAccountDetail 
+@apiGroup admin
+@apiDescription
+Generates a new securekey for a given client. You must be given a client code by Zoovy to use this.TODO
 =cut
+
 
 sub adminAccountDetail {
 	my ($self,$v) = @_;
@@ -28717,31 +29125,33 @@ sub adminAccountDetail {
 ##
 
 =pod
-
-<API id="adminVersionCheck">
-<purpose></purpose>
-<input id="client"></input>
-<input id="version"></input>
-<input id="stationid"></input>
-<input id="subuser"></input>
-<input id="localip"></input>
-<input id="osver"></input>
-<input id="finger"></input>
-<purpose>Checks the clients version and compatibility level against the API's current compatibility level.</purpose>
-<output><![CDATA[
+@api {POST} adminVersionCheck adminVersionCheck 
+@apiName adminVersionCheck 
+@apiGroup admin
+@apiDescription
+TODO
+@apiParam (Request) {String} client
+@apiParam (Request) {String} version
+@apiParam (Request) {String} stationid
+@apiParam (Request) {String} subuser
+@apiParam (Request) {String} localip
+@apiParam (Request) {String} osver
+@apiParam (Request) {String} finger
+@apiDescription
+Checks the clients version and compatibility level against the API's current compatibility level.TODO
+@apiParam (Response) {String} DATA[
 RESPONSE can be either
 * OKAY - proceed with normal
 * FAIL - a reason for the failure
 * WARN - a warning, but it is okay to proceed
-]]></output>
+]]>
 <example><![CDATA[
 ConfigVersion
 Response
 ResponseMsg
 ]]></example>
-</API>
-
 =cut
+
 
 sub adminVersionCheck {
 	my ($self,$v) = @_;
@@ -28821,16 +29231,17 @@ sub adminVersionCheck {
 
 
 =pod
+@api {POST} adminPublicFileList adminPublicFileList 
+@apiName adminPublicFileList 
+@apiGroup admin
+@apiDescription
 
-<API id="adminPublicFileList">
-<purpose>
 Public files are hosted at a URL and can be downloaded, they are usually things like short videos, etc.
-</purpose>
-<input id="fileguid">guid from fileupload</input>
-<input id="filename"></input>
-</API>
-
+TODO
+@apiParam (Request) {String} fileguidguid from fileupload
+@apiParam (Request) {String} filename
 =cut
+
 
 sub adminPublicFileList {
 	my ($self,$v) = @_;
@@ -28860,16 +29271,17 @@ sub adminPublicFileList {
 
 
 =pod
+@api {POST} adminPublicFileDelete adminPublicFileDelete 
+@apiName adminPublicFileDelete 
+@apiGroup admin
+@apiDescription
 
-<API id="adminPublicFileDelete">
-<purpose>
 Public files are hosted at a URL and can be downloaded, they are usually things like short videos, etc.
-</purpose>
-<input id="fileguid">guid from fileupload</input>
-<input id="filename"></input>
-</API>
-
+TODO
+@apiParam (Request) {String} fileguidguid from fileupload
+@apiParam (Request) {String} filename
 =cut
+
 
 #	'adminPublicFileDelete'=>[ \&JSONAPI::adminPublicFileDelete, { 'admin'=>1, 'cartid'=>0 }, 'admin' ],
 sub adminPublicFileDelete {
@@ -28895,16 +29307,17 @@ sub adminPublicFileDelete {
 
 	
 =pod
+@api {POST} adminPublicFileUpload adminPublicFileUpload 
+@apiName adminPublicFileUpload 
+@apiGroup admin
+@apiDescription
 
-<API id="adminPublicFileUpload">
-<purpose>
 Public files are hosted at a URL and can be downloaded, they are usually things like short videos, etc.
-</purpose>
-<input id="fileguid">guid from fileupload</input>
-<input id="filename"></input>
-</API>
-
+TODO
+@apiParam (Request) {String} fileguidguid from fileupload
+@apiParam (Request) {String} filename
 =cut
+
 
 #	'adminPublicFileList'=>[ \&JSONAPI::adminPublicFileList, { 'admin'=>1, 'cartid'=>0 }, 'admin' ],
 #	'adminPublicFileDelete'=>[ \&JSONAPI::adminPublicFileDelete, { 'admin'=>1, 'cartid'=>0 }, 'admin' ],
@@ -28967,18 +29380,21 @@ sub adminPublicFileUpload {
 
 
 =pod
+@api {POST} adminCSVExport adminCSVExport 
+@apiName adminCSVExport 
+@apiGroup admin
+@apiParam (Request) {String} exportCATEGORY|REWRITES
+@apiParam (Response) {String} lines# of lines in the file
+@apiParam (Response) {String} body
+@apiParam (Response) {String} base64base64
+=cut
 
-
-<API id="adminCSVExport">
-<input id="export">CATEGORY|REWRITES</input>
-<output id="lines"># of lines in the file</output>
-<output id="body"></output>
-<output id="base64">base64</output>
-</API>
-
-
-<API id="adminCSVImport">
-<purpose><![CDATA[
+=pod
+@api {POST} adminCSVImport adminCSVImport 
+@apiName adminCSVImport 
+@apiGroup admin
+@apiDescription
+<![CDATA[
 This is a wrapper around the CSV file import available in the user interface.
 Creates an import batch job. Filetype may be one of the following:
 * PRODUCT
@@ -28991,19 +29407,19 @@ Creates an import batch job. Filetype may be one of the following:
 * RULES
 * LISTINGS
 
-]]></purpose>
+]]>TODO
 <hint>
 The file type may also be overridden in the header. See the CSV import documentation for current
 descriptions of the file. 
 </hint>
-<input id="filetype">PRODUCT|INVENTORY|CUSTOMER|ORDER|CATEGORY|REVIEW|REWRITES|RULES|LISTINGS</input>
-<input id="fileguid" optional="1"> (required if base64 not set) guid from fileupload</input>
-<input id="base64" optional="1"> (required if fileguid not set) base64 encoded payload</input>
-<input id="[headers]">any specific headers for the file import</input>
-<output id="JOBID"></output>
-</API>
+@apiParam (Request) {String} filetype PRODUCT|INVENTORY|CUSTOMER|ORDER|CATEGORY|REVIEW|REWRITES|RULES|LISTINGS
+@apiParam (Request) {String} [fileguid] (required if base64 not set) guid from fileupload
+@apiParam (Request) {String} [base64] (required if fileguid not set) base64 encoded payload
+@apiParam (Request) {String} [headers] any specific headers for the file import
+@apiParam (Response) {String} JOBID
 
 =cut
+
 
 
 sub adminCSVExport {
@@ -29218,44 +29634,60 @@ sub adminCSVImport {
 
 
 =pod
+@api {POST} adminSEOInit adminSEOInit 
+@apiName API: adminSEOInit 
+@apiGroup app
+@apiDescription
+Starts an SEO SessionTODO
+@apiParam (Request) {String} token
+=cut
 
+=pod
+@api {POST} appSEORewriteDebug appSEORewriteDebug 
+@apiName appSEORewriteDebug 
+@apiGroup app
+@apiDescription
+Starts an SEO SessionTODO
+@apiParam (Request) {String} url
+@apiParam (Response) {String} @log
+=cut
 
-<API id="API: adminSEOInit">
-<purpose>Starts an SEO Session</purpose>
-<input id="token"></input>
-</API>
-
-<API id="API: appSEORewriteDebug">
-<purpose>Starts an SEO Session</purpose>
-<input id="url"></input>
-<output id="@log"></output>
-</API>
-
-<API id="API: appSEOFetch">
-<purpose></purpose>
-<input id="token"></input>
-<output id="@OBJECTS">
+=pod
+@api {POST} appSEOFetch appSEOFetch 
+@apiName API: appSEOFetch 
+@apiGroup app
+@apiDescription
+TODO
+@apiParam (Request) {String} token
+@apiParam (Response) {String} @OBJECTS
 [
 { type:"product", pid:"" },
 { type:"product", pid:"", noindex:"1", xyz:"abc" },
 { type:"navcat", pid:"" }
 ]
-</output>
-</API>
-
-<API id="API: appSEOStore">
-<purpose></purpose>
-<input id="token"></input>
-<input id="_escaped_fragment_"></input>
-<input id="html"></input>
-</API>
-
-<API id="API: appSEOFinish">
-<purpose>Makes the token live, generates sitemap.xml based on submitted objects</purpose>
-<input id="token"></input>
-</API>
 
 =cut
+
+=pod
+@api {POST} appSEOStore appSEOStore 
+@apiName API: appSEOStore 
+@apiGroup app
+@apiDescription
+TODO
+@apiParam (Request) {String} token
+@apiParam (Request) {String} _escaped_fragment_
+@apiParam (Request) {String} html
+=cut
+
+=pod
+@api {POST} appSEOFinish appSEOFinish 
+@apiName appSEOFinish 
+@apiGroup app
+@apiDescription
+Makes the token live, generates sitemap.xml based on submitted objectsTODO
+@apiParam (Request) {String} token
+=cut
+
 
 
 sub appSEO {
@@ -29453,16 +29885,16 @@ sub appSEO {
 
 
 =pod
-
-<API id="API: adminOrderReserve">
-<purpose></purpose>
-<input id="count"></input>
-<response>
-Returns an array, a list of order #'s
-</response>
-</API>
+@api {POST} API: adminOrderReserve API: adminOrderReserve 
+@apiName API: adminOrderReserve 
+@apiGroup admin
+@apiDescription
+TODO
+@apiParam (Request) {String} count
+@apiParam (Response) {String} @RESERVED returns an array, a list of order #'s
 
 =cut
+
 
 
 sub adminOrderReserve {
@@ -29490,12 +29922,13 @@ sub adminOrderReserve {
 
 
 =pod
+@api {POST} adminWalletList	
+@apiGroup admin
+@apiDescription
+TODO
 
-<API id="adminWalletList">
-<purpose></purpose>
-
-<input id="method">CHANGED</input>
-<input id="limit">###</input>
+@apiParam (Request) {String} methodCHANGED
+@apiParam (Request) {String} limit###
 <example><![CDATA[
 
 @WALLETS : [
@@ -29505,11 +29938,10 @@ sub adminOrderReserve {
 
 ]]>
 </example>
-<input id="method">ACK</input>
-<input id="@WALLETS">an array of wallets to ack.</input>
-</API>
-
+@apiParam (Request) {String} methodACK
+@apiParam (Request) {String} @WALLETSan array of wallets to ack.
 =cut
+
 
 sub adminWalletList {
 	my ($self,$v) = @_;
@@ -29560,8 +29992,7 @@ sub adminWalletList {
 			}	
 		}
 	elsif ($v->{'method'} eq 'CREATE') {
-		#my ($code) = &GIFTCARD::createCard($USERNAME,$BALANCE);
-		#$XML = "<GIFTCARDS><GIFTCARD CODE=\"$code\"></GIFTCARD></GIFTCARDS>";	
+		## NOT IMPLEMENTED
 		}
 	&DBINFO::db_user_close();
 
