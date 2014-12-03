@@ -4,6 +4,7 @@ use Data::Dumper;
 use strict;
 use POSIX;
 use DateTime;
+use DateTime::TimeZone;
 use URI::Escape::XS;
 use Date::Calc;
 use Text::Soundex;
@@ -919,7 +920,7 @@ sub array_xvals {
 	return(@result);
 	}
 
-$::LocalTZ = DateTime::TimeZone->new( name => 'local');
+$::LocalTZ = DateTime::TimeZone->new( name => 'local' );
 
 #######################################
 ##
@@ -2093,3 +2094,5 @@ sub makejson {
 	}
 
 1;
+
+

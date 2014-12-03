@@ -70,7 +70,7 @@
 	},
 	{
 	'header'=>'g:google_product_category',
-	'@try'=>['gbase:product_type','navcat:meta'],
+	'@try'=>['g:google_product_category','gbase:product_type','navcat:meta'],
 	'@format'=>['stripunicode','lookup-category','replace?this=%2F&with=%3E'],
 	'@skip'=>['if-blank'],
 	},
@@ -79,7 +79,7 @@
 	## g:product_type 				=> merchant category 
 	{
 	'header'=>'g:product_type',
-	'@try'=>['navcat:bc',''],
+	'@try'=>['g:product_type','navcat:bc',''],
 	'@format'=>['stripunicode','replace?this=%2F&with=%3E'],
 	'@skip'=>['if-blank'],
 	},
@@ -171,7 +171,7 @@
 	#### they are also required for APPAREL products
 	{
    'header'=>'g:color',
-	'@try'=>['%OPTION_COLOR','gbase:prod_color','zoovy:prod_color',''],
+	'@try'=>['%OPTION_COLOR','g:color','gbase:prod_color','zoovy:prod_color',''],
 	'@validation'=>['not-blank'],
 	'@skip'=>['if-blank-and-header-not-like:g:google_product_category=Clothing'],
 	},
@@ -185,7 +185,7 @@
 	# 5. Apparel Products
 	{
    'header'=>'g:gender',
-	'@try'=>['gbase:prod_gender','zoovy:prod_gender',''],
+	'@try'=>['g:gender','gbase:prod_gender','zoovy:prod_gender',''],
 	'@validation'=>['not-blank'],
 	'@skip'=>['if-blank-and-header-not-like:g:google_product_category=Clothing'],
 	},

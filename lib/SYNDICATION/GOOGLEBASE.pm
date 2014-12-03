@@ -445,22 +445,24 @@ as <g:product_type></g:product_type>
 
 	if (not $plm->can_proceed()) {
 		my @LABELS = ();
-      ## add merchant-defined labels
+	      ## add merchant-defined labels
 
-      #my ($LEGACY_LABEL) = split(/[,\n]+/,$P->fetch('adwords:labels'));
-      #$LABELS[0] = $LEGACY_LABEL;
-      #$LABELS[1] = $P->fetch('zoovy:prod_folder');
-      #$LABELS[2] = $P->fetch('zoovy:prod_mfg');
-      #$LABELS[3] = $P->fetch('zoovy:prod_brand');
+	      #my ($LEGACY_LABEL) = split(/[,\n]+/,$P->fetch('adwords:labels'));
+	      #$LABELS[0] = $LEGACY_LABEL;
+	      #$LABELS[1] = $P->fetch('zoovy:prod_folder');
+	      #$LABELS[2] = $P->fetch('zoovy:prod_mfg');
+	      #$LABELS[3] = $P->fetch('zoovy:prod_brand');
 
 		## we use the .custom_label_#_attrib in the syndication object to figure out which product attribute we should pull the data from
-      foreach my $i (0..4) {
-         my $attrib = $self->so()->get(".custom_label_$i\_attrib") || "g:custom_label_$i";
-         my ($DATA) = $P->fetch($attrib);
-         next if (not defined $DATA);
-         push @{$arrayref}, [ "g:custom_label_$i", $DATA ];
-         }
 		}
+	else {
+		foreach my $i (0..4) {
+			my $attrib = $self->so()->get(".custom_label_$i\_attrib") || "g:custom_label_$i";
+			 my ($DATA) = $P->fetch($attrib);
+			next if (not defined $DATA);
+         		push @{$arrayref}, [ "g:custom_label_$i", $DATA ];
+    		     	}
+	  	}
 
 =pod
 

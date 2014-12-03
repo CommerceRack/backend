@@ -28266,8 +28266,8 @@ sub appResource {
 			} 
 		}
 	elsif ($FILENAME =~ /^quickstats\/(.*?)\.(.*?)$/) {
-		require KPIBI;		
-		my $ID = $1;
+		require KPIBI;
+		my $ID = ($1);
 		my ($gms,$count,$units) = KPIBI::quick_stats($self->username(),$ID);
 		$ref = { 'id'=>$ID, 'gms'=>$gms, 'count'=>$count, 'units'=>$units };
 		}

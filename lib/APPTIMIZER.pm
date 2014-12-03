@@ -231,7 +231,7 @@ sub rewrites {
 
 	## eventually we should use a better metric for USE_CACHE
 	my $USE_CACHE = (not defined $LOG)?1:0;
-	$USE_CACHE++;
+	if ((defined $options{'cache'}) && ($options{'cache'}==0)) { $USE_CACHE = 0; }	 #debug
 
 	if ($USE_CACHE) {
 		## CACHING
@@ -315,19 +315,22 @@ sub rewrites {
 			#print STDERR "IFMATCH:$ifmatch THEN:$then SRC[$src]\n";
 			my $ifmatch = $row->{'if'};
 			$ifmatch =~ s/"/\\"/g;			# protection from embedded code
+			$ifmatch = "^$ifmatch\$";
 			##print STDERR "IFMATCH: $ifmatch\n";
 			if ($src =~ m/$ifmatch/) {
 				$DID_IT_MATCH++;
-				## print STDERR "GOT-MATCH: 1[$1] 2[$2] 3[$3]\n";
+				#$LOG && push @$LOG, "DEBUG|+GOT-MATCH: src[$src] ifmatch[$ifmatch] 1[$1] 2[$2] 3[$3]\n";
 				my $then = $row->{'.then.val'};
+				
 				$then =~ s/"/\\"/g;		# embedded code protection
-				my $rethen = '"'.$then.'"';
+				my $rethen = "\"$then\"";
 				$src =~ s/$ifmatch/$rethen/ee;
 				##	The issue is that with a single /e, the RHS is understood to be code whose eval'd result is used for the replacement.
 				## What is that RHS? It's $1. If you evaluated $1, you find that contains the string $var. It does not contain the contents of said variable, just $ followed by a v followed by an a followed by an r.
 				## Therefore you must evaluate it twice, once to turn $1 into $var, then again to turn the previous result of $var into the string "testing". You do that by having the double ee modifier on the s operator.
 				## You can check this pretty easily by running it with one /e versus with two of them. Here's a demo a both, plus a third way that uses symbolic dereferencing which, because it references the package symbol table, works on package variables only.
 				$row->{'.then.goto'} = $src;
+				$LOG && push @$LOG, "DEBUG|+FINISH-MATCH -- rethen:$rethen then.goto is now $src";
 				}
 			}
 
