@@ -3646,6 +3646,9 @@ sub __GET__ {
 
 
 
+##
+## sends a blast message .. 
+##
 sub eblast {
 	my ($self, $MSGID) = @_;
 
@@ -3662,7 +3665,7 @@ sub eblast {
 		($rcpt) = $BLAST->recipient('EMAIL',$self->in_get('bill/email'));
 		}
 
-	my ($msg) = $BLAST->msg($MSGID,{'ORDER'=>$self});
+	my ($msg) = $BLAST->msg($MSGID,{'%ORDER'=>$self->TO_JSON()});
 	$BLAST->send($rcpt,$msg);
 	return();
 	}
