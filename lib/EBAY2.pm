@@ -182,7 +182,8 @@ sub sync_inventory {
 		warn "PROD_MODIFIED_GMT is 0 -- probably an error!\n";
 		}
 
-	my ($INVSUMMARY) = INVENTORY2->new($USERNAME,"*EBAY")->summary('@PIDS'=>[ $PID ]);
+	my ($INV2) = INVENTORY2->new($USERNAME,"*EBAY");
+	my ($INVSUMMARY) = $INV2->summary('@PIDS'=>[ $PID ]);
 #$INVSUMMARY = {
 #          'RB338600113:AC0N' => {
 #                                  'TS' => '1399661109',
@@ -204,7 +205,7 @@ sub sync_inventory {
 #                                }
 #        };
 
-	my ($SKU_INVENTORY_AVAILABLE) = $INVSUMMARY->{$SKU}->{'AVAILABLE'};
+	my ($SKU_QTY_TO_SEND) = $INVSUMMARY->{$SKU}->{'AVAILABLE'};
 	my ($PRODUCT_INVENTORY_AVAILABLE) = $INVSUMMARY->{$SKU}->{'AVAILABLE'};
 
 	my $EBAY_FIXED_QTY = $P->fetch('ebay:fixed_qty');
@@ -217,8 +218,8 @@ sub sync_inventory {
 			if ($INVSUMMARY->{$SKU}->{'AVAILABLE'}>0) { $PRODUCT_INVENTORY_AVAILABLE += $INVSUMMARY->{$SKU}->{'AVAILABLE'}; }
 			}
 		}
-	elsif (($EBAY_FIXED_QTY>0) && ($EBAY_FIXED_QTY < $SKU_INVENTORY_AVAILABLE)) {
-		$SKU_INVENTORY_AVAILABLE = $EBAY_FIXED_QTY;
+	elsif (($EBAY_FIXED_QTY>0) && ($EBAY_FIXED_QTY < $SKU_QTY_TO_SEND)) {
+		$SKU_QTY_TO_SEND = $EBAY_FIXED_QTY;
 		}
 	elsif (not defined $INVSUMMARY) {
 		die("fatal user:$USERNAME pid:$PID could not get valid inventory\n");
@@ -444,7 +445,7 @@ sub sync_inventory {
 			$DBREF{'ID'} = $UUID;
 			$DBREF{'PRODTS'} = int($PROD_MODIFIED_GMT);
 
-			$EBREF{'Quantity'} = $SKU_INVENTORY_AVAILABLE;
+			$EBREF{'Quantity'} = $SKU_QTY_TO_SEND;
 			$DBREF{'ITEMS_SOLD'} = 0;
 
 			$EBREF{'StartPrice'} = $CURRENT_PRICE;
@@ -457,6 +458,7 @@ sub sync_inventory {
 			my ($r) = $eb2->api('ReviseInventoryStatus',\%hash,preservekeys=>['Item'],xml=>3);
 
 			my $pstmt = &DBINFO::insert($udbh,'EBAY_LISTINGS',\%DBREF,'key'=>['MID','ID'],'update'=>2,'sql'=>1);
+			$INV2->mktinvcmd('FOLLOW','EBAY',$EBAY_ID,$SKU,'QTY'=>$SKU_QTY_TO_SEND);
 			$udbh->do($pstmt);
 			}
 		}

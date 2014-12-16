@@ -6362,7 +6362,7 @@ sub finalize_order {
 	else {
 		my $ORDER_PS = $self->payment_status();
 		my $ORDER_PS_PRETTY = &ZPAY::payment_status_short_desc($ORDER_PS);	 # PAID|PENDING|DENIED
-		my ($MSGID) = sprintf('ORDER.CONFIRM.%s.%03d',$ORDER_PS,$ORDER_PS);
+		my ($MSGID) = sprintf('ORDER.CONFIRM.%s.%03d',$ORDER_PS_PRETTY,$ORDER_PS);
 		my ($rcpt) = $BLAST->recipient('CART',$self,{'%ORDER'=>$self->TO_JSON()});
 		my ($msg) = $BLAST->msg($MSGID);
 		$BLAST->send($rcpt,$msg);
@@ -12471,14 +12471,16 @@ sub elastic_index {
 ##	note: eventually we might actually want to try and add a log here!
 ##
 sub synced {
-	my ($self) = @_;
+	my ($self, $ts) = @_;
+
+	if (not defined $ts) { $ts = time(); }
 
 	my $USERNAME = $self->username();
 	my ($udbh) = &DBINFO::db_user_connect($USERNAME);
 	my ($MID) = &ZOOVY::resolve_mid($USERNAME);
 	my ($TB) = &DBINFO::resolve_orders_tb($USERNAME,$MID);
 	my $qtOID = $udbh->quote($self->oid());
-	my $pstmt = "update $TB set SYNCED_GMT=".time()." where MID=$MID /* $USERNAME */ and ORDERID=$qtOID";
+	my $pstmt = "update $TB set SYNCED_GMT=".int($ts)." where MID=$MID /* $USERNAME */ and ORDERID=$qtOID";
 	$udbh->do($pstmt);
 	&DBINFO::db_user_close();
 	}	

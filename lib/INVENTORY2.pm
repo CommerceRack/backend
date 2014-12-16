@@ -997,7 +997,11 @@ sub invcmd {
 			$WHERESTMT .= " and MARKET_REFID=".$udbh->quote($options{'MARKET_REFID'}); 
 			}
 		}
-	if ((not defined $options{'PID'}) && (not defined $options{'SKU'}) && (not defined $options{'UUID'}) && (not defined $options{'MARKET_DST'})) {
+
+	if ((defined $options{'ALL_BASETYPE'}) && (defined $options{'BASETYPE'}) && ($options{'ALL_BASETYPE'}==$options{'BASETYPE'})) {
+		## we're going to target an entire basetype -- woot!
+		}
+	elsif ((not defined $options{'PID'}) && (not defined $options{'SKU'}) && (not defined $options{'UUID'}) && (not defined $options{'MARKET_DST'})) {
 		die("INVENTORY::invcmd says SKU or UUID is required");
 		}
 
