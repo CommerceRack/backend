@@ -1270,6 +1270,9 @@ sub __INIT_TAX_RATES__ {
 	return($self);
 	}
 
+##
+##
+##
 sub __SYNC__ {
 	my ($self, %params) = @_;
 
@@ -1278,6 +1281,7 @@ sub __SYNC__ {
 		$CART2::DEBUG && warn "__SYNC__ was not needed, and therefore was not performed\n";
 		return();
 		}
+
 
 	## LOOPBACK DETECTION -- this will prevent a SYNC from starting while a SYNC is running
 	##								 ex. shipping which runs towards the bottom of a sync reads a lot of values about
@@ -1797,12 +1801,11 @@ sub __SYNC__ {
 							# 53 means add discount to the following value for every matching ITEM, qty=1
 							my $DIVIDEBY = 1;
 							if ($DOACTION =~ /ADD\*MATCHITEMS([\d]+)/) { $DIVIDEBY = int($1); }
-
 							my $v = $rule->{'VALUE'};
 							if (index($v, '%') >= 0) { 
 								# 9/9/11 my ($itemtotal) = ($result->{'totalitem'}>0)?$result->{'totalitem'}:0;
 								my ($totalitem) = ($result->{'matches'}>0)?$result->{'totalitem'}:0;
-								$totalitem = int($totalitem / $DIVIDEBY); 
+								$totalitem = sprintf("%0.2f",$totalitem / $DIVIDEBY); 
 								if ($result->{'matches'} <= 0) { $totalitem = 0; }
 								($v) = &ZOOVY::calc_modifier($totalitem, $v, 0);
 								$price += $v;

@@ -135,7 +135,7 @@
 	# These identifiers include UPC (in North America), EAN (in Europe), JAN (in Japan), and ISBN (for books)
 	{
 	'header'=>'g:gtin',
-	'@try'=>['gbase:prod_upc','zoovy:prod_upc','zoovy:prod_fakeupc','zoovy:prod_isbn'],
+	'@try'=>['gbase:prod_upc','zoovy:prod_upc','zoovy:prod_fakeupc','zoovy:prod_isbn','sku:upc'],
 	'@skip'=>['if-blank'],
 	'@format'=>['stripunicode'],
 	},
@@ -177,7 +177,7 @@
 	},
 	{
    'header'=>'g:size',
-	'@try'=>['%OPTION_SIZE','gbase:prod_size','zoovy:prod_size',''],
+	'@try'=>['%OPTION_SIZE','g:size','gbase:prod_size','zoovy:prod_size',''],
 	'@validation'=>['not-blank'],
 	'@skip'=>['if-blank-and-header-not-like:g:google_product_category=Clothing'],
 	},
@@ -191,7 +191,7 @@
 	},
 	{
    'header'=>'g:age_group',
-	'@try'=>['gbase:prod_age_group','zoovy:prod_age_group',''],
+	'@try'=>['g:age_group','gbase:prod_age_group','zoovy:prod_age_group',''],
 	'@validation'=>['not-blank'],
 	'@skip'=>['if-blank-and-header-not-like:g:google_product_category=Clothing'],
 	},
