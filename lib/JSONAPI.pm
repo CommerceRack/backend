@@ -20131,7 +20131,6 @@ sub cartPromoCodeOrGiftcardOrCouponToCartAdd {
 				push @ERRORS, "8205|iseerr|internal logic failure - non-error response from add_coupon, but coupon did not get added.";
 				}
 			}
-		$CART2->__SYNC__();
 		}
 
 	## TODO: eventually it'd be nice to check if a giftcard was passed ONLY on a cartGiftcardAdd call

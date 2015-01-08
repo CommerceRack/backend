@@ -135,7 +135,7 @@
 	# These identifiers include UPC (in North America), EAN (in Europe), JAN (in Japan), and ISBN (for books)
 	{
 	'header'=>'g:gtin',
-	'@try'=>['gbase:prod_upc','zoovy:prod_upc','zoovy:prod_fakeupc','zoovy:prod_isbn','sku:upc'],
+	'@try'=>['gbase:prod_upc','zoovy:prod_upc','zoovy:prod_fakeupc','zoovy:prod_isbn'],
 	'@skip'=>['if-blank'],
 	'@format'=>['stripunicode'],
 	},
