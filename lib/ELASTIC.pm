@@ -429,9 +429,6 @@ sub rebuild_product_index {
 			}
 		
 
-		if ($fref->{'es_null_value'}) {
-			$F{'null_value'} = $fref->{'es_null_value'};
-			}
 
 		## http://www.elasticsearch.org/guide/reference/mapping/multi-field-type/
 		if ($fref->{'type'} eq 'finder') {
@@ -518,6 +515,14 @@ sub rebuild_product_index {
 		else {
 			warn "UNKNOWN TYPE: ".Dumper($fref);
 			# die();
+			}
+
+		## now we handle any special es_xxx_fields
+		foreach my $esk (keys %{$fref}) {
+			## ex: es_null_value => null_value
+			if ($esk =~ /^es\_(.*?)$/) {
+				$F{$1} = $fref->{$esk};
+				}
 			}
 
 		#print Dumper($fref,\%P);
