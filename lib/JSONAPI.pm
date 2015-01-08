@@ -13375,6 +13375,14 @@ sub adminGiftcard {
 		$P->folder("/GIFTCARD");
 		$P->save();
 		$R{'SKU'} = $SKU;
+
+		## setup the INVENTORY record for routing.
+		use INVENTORY2;
+		my ($INV2) = INVENTORY2->new($USERNAME);
+		use SUPPLIER;
+		my ($S) = SUPPLIER->new($USERNAME,"GIFTCARD");
+		$INV2->supplierinvcmd($S,"SUPPLIER/INIT",QTY=>9999,"PID"=>$SKU);
+
 		}
 	elsif ($v->{'_cmd'} eq 'adminGiftcardSeriesList') {
 		$R{'@SERIES'} = GIFTCARD::list_series($USERNAME);

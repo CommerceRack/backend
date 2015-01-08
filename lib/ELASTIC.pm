@@ -429,6 +429,10 @@ sub rebuild_product_index {
 			}
 		
 
+		if ($fref->{'es_null_value'}) {
+			$F{'null_value'} = $fref->{'es_null_value'};
+			}
+
 		## http://www.elasticsearch.org/guide/reference/mapping/multi-field-type/
 		if ($fref->{'type'} eq 'finder') {
 			## finders are lists of products ex. related_products, accessory_products

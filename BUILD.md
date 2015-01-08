@@ -6,6 +6,13 @@ sudo docker build -t my_test .
 docker run -i -t -p 80 -p 443 -p 9000 centos /bin/bash
 
 
+python uwsgiconfig.py --build core
+python uwsgiconfig.py --plugin plugins/psgi core
+python uwsgiconfig.py --plugin plugins/corerouter core
+python uwsgiconfig.py --plugin plugins/http core
+
+
+
 ##
 ## 201407 BUILD process
 ##

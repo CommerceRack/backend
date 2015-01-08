@@ -518,6 +518,7 @@ sub is_valid {
 'g:material' => { 'title' => 'Google Shopping Material', 'type'=>'textbox' },
 'g:pattern' => { 'title' => 'Google Shopping Pattern', 'type'=>'textbox' },
 'g:color' => { 'title' => 'Google Shopping Color', 'type'=>'textbox' },
+'g:size' => { 'title' => 'Google Shopping Size', 'type'=>'textbox' },
 'g:gender' => { 'title' => 'Google Shopping Gender', 'type'=>'textbox' },
 'g:age_group' => { 'title' => 'Google Shopping Age Group', 'type'=>'textbox' },
 'adwords:prefer_for_query' =>  { 'title' => 'One tag/term per line', 'type' => 'textarea' },
