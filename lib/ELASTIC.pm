@@ -520,7 +520,12 @@ sub rebuild_product_index {
 		## now we handle any special es_xxx_fields
 		foreach my $esk (keys %{$fref}) {
 			## ex: es_null_value => null_value
-			if ($esk =~ /^es\_(.*?)$/) {
+			## http://stackoverflow.com/questions/25898055/how-to-deal-with-null-values-in-an-elastic-search-field-value-factor
+			if ($esk eq 'es_null_value') {
+				## this is always a number, used with boost.
+				$F{$1} = int($fref->{$esk});
+				}
+			elsif ($esk =~ /^es\_(.*?)$/) {
 				$F{$1} = $fref->{$esk};
 				}
 			}
