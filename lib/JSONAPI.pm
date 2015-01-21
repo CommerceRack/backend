@@ -22190,21 +22190,15 @@ sub cartGoogleCheckoutURL {
 @apiName cartAmazonPaymentURL
 @apiGroup cart
 @apiDescription
-TODO
-@apiParam (Request) {String} _cartid
-@apiParam (Request) {String} shipping 1|0 	(prompt for shipping address)
-@apiParam (Request) {String} CancelUrl URL to redirect user to if cancel is pressed.
-@apiParam (Request) {String} ReturnUrl URL to redirect user to upon order completion
-@apiParam (Request) {String} YourAccountUrl URL where user can be directed to by amazon if they wish to lookup order status. (don't stree about this, rarely used)
 
-<hint>
-<![CDATA[
+Amazon Documentation: https://payments.amazon.com/help/81696
+
 Returns parameters necessary for CBA interaction:
 
-merchantid: the checkout by amazon assigned merchantid (referred to as [merchantid] in the example below)
-b64xml: a base64 encoded xml order object based on the current cart geometry referred to as [b64xml], BUT passed to amazon following "order:"
-signature: a sha1, base64 encoded concatenation of the b64xml and the configured cba secret key refrerred to as [signature] in the example below, AND passed to amazon following "signature:"
-aws-access-key-id: a public string cba needs to identify this merchant refrred to as [aws-access-key-id] AND passed to amazon following the "aws-access-key-id:" parameter
+* merchantid: the checkout by amazon assigned merchantid (referred to as [merchantid] in the example below)
+* b64xml: a base64 encoded xml order object based on the current cart geometry referred to as [b64xml], BUT passed to amazon following "order:"
+* signature: a sha1, base64 encoded concatenation of the b64xml and the configured cba secret key refrerred to as [signature] in the example below, AND passed to amazon following "signature:"
+* aws-access-key-id: a public string cba needs to identify this merchant refrred to as [aws-access-key-id] AND passed to amazon following the "aws-access-key-id:" parameter
 
 To generate/create a payment button, suggested parameters are: color: orange, size: small, background: white
 https://payments.amazon.com/gp/cba/button?ie=UTF8&color=[color]&background=[background]&size=[size]
@@ -22215,12 +22209,30 @@ Use this as the **your button image url** in the example.
 The [formurl] is created by the developer using the merchant id, specify either sandbox or non-sandbox (live):
 https://payments.amazon.com/checkout/[merchantid]
 https://payments-sandbox.amazon.com/checkout/[merchantid]?debug=true
-]]>
-</hint>
 
-<example title="Example"><![CDATA[
+Buttons can be found here:
+https://payments.amazon.com/help/81738
 
-&lt;!- NOTE: you do NOT need to include jquery if you already are using jquery -&gt;
+@apiParam (Request) {String} _cartid
+@apiParam (Request) {String} shipping 1|0 	(prompt for shipping address)
+@apiParam (Request) {String} CancelUrl URL to redirect user to if cancel is pressed.
+@apiParam (Request) {String} ReturnUrl URL to redirect user to upon order completion
+@apiParam (Request) {String} YourAccountUrl URL where user can be directed to by amazon if they wish to lookup order status. (don't stress about this, rarely used)
+
+@apiSuccess (Response) {String} merchantid 	variable to be interpolated into amazon payments button html
+@apiSuccess (Response) {String} b64xml		variable to be interpolated into amazon payments button html
+@apiSuccess (Response) {String} signature variable to be interpolated into amazon payments button html
+@apiSuccess (Response) {String} aws-access-key-id	variable to be interpolated into amazon payments button html
+@apiSuccess (Response) {String} referenceId	variable to be interpolated into amazon payments button html 
+
+@apiRequest Amazon Payments button html
+
+<!-- 
+	embed this AMAZON CHECKOUT HTML code (or something similar) into the app.
+	 make sure to substitute [variables] returned by. 
+-->
+
+<!-- NOTE: you do NOT need to include jquery if you already are using jquery -->
 <script type="text/javascript" src="https://images-na.ssl-images-amazon.com/images/G/01/cba/js/jquery.js"></script>
 
 <script type="text/javascript" src="https://images-na.ssl-images-amazon.com/images/G/01/cba/js/widget/widget.js"></script>
@@ -22230,8 +22242,6 @@ https://payments-sandbox.amazon.com/checkout/[merchantid]?debug=true
 onClick="this.form.action='[formurl]'; checkoutByAmazon(this.form)">
 </form>
 
-]]>
-</example>
 
 =cut
 
@@ -22297,6 +22307,7 @@ sub cartAmazonPaymentURL {
 			}
 		else {
 			## whitelist parameters
+			$R{'merchantid'} = sprintf("%s",$self->webdb()->{"amz_merchantid"});
 			foreach my $k ('b64xml','signature','aws-access-key-id','referenceId') {
 				$R{$k} = $PBP->{$k};
 				}
@@ -25351,6 +25362,7 @@ sub adminConfigDetail {
 
 		$R{'%SHIPPING'} = {};
 		$R{'primary_shipper'} = $webdb->{'primary_shipper'};
+		$R{'chkout_deny_ship_po'} = $webdb->{'chkout_deny_ship_po'};
 
 		foreach my $k ('ship_int_risk','ship_origin_zip','ship_latency','ship_cutoff') {
 			$R{$k} = $webdbref->{$k};
