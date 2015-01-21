@@ -295,7 +295,7 @@ apply --img --media=$var --width=75 --height=75 --bgcolor='#ffffff' --replace;" 
 |,
 
 	'%ORDERNOTES%'=> q|
-<div data-tlc="bind $var '.%ORDER.%want.order_notes'; apply --append;"></div>
+<div data-tlc="bind $var '.%ORDER.want.order_notes'; apply --append;"></div>
 |,
 
 	'%DEBUG%'=> q|
