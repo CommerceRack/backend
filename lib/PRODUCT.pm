@@ -216,10 +216,16 @@ sub elastic_index {
 
 			next if (ref($dataref) ne 'HASH');
 			my $value = $dataref->{ $ref->{'id'} };
+
+			if (($ref->{'type'} eq 'integer') && (not defined $value) && (defined $ref->{'es_null_value'})) {
+				$value = $ref->{'es_null_value'};
+				}
+
 			next if (not defined $value);		## this is key, because we don't want to index a price as zero
 
 			## reference fields
 			$storeref->{ $ref->{'index'} } = $value;
+
 
 			## CURRENCY
 			if ($ref->{'type'} eq 'currency') {
