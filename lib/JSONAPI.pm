@@ -1674,7 +1674,7 @@ sub loadPlatformJSON {
 	my $json = '';
 	my $cfg = undef;
 	if (not &JSONAPI::hadError($R)) {
-		print STDERR "FILE: $PROJECTDIR/platform/$API-$SCRIPT.json\n";
+		# print STDERR "FILE: $PROJECTDIR/platform/$API-$SCRIPT.json\n";
 		open F, "<$PROJECTDIR/platform/$API-$SCRIPT.json";
 		while (<F>) {
 			next if (substr($_,0,2) eq '//');
@@ -2382,7 +2382,7 @@ sub psgiinit {
 				$self->{'_DEVICEID'} = $DEVICEID;
 				$ROLES = uc($ROLES);
 				$self->{'*LU'} = LUSER->new_trusted($self->username(),$self->luser(),$self->prt(),$ROLES);	
-				print STDERR 'LU ROLES'.Dumper($ROLES,$self->{'*LU'});
+				# print STDERR 'LU ROLES'.Dumper($ROLES,$self->{'*LU'});
 				}
 			else {
 				&JSONAPI::set_error($R = {}, 'apperr', 8082, sprintf("AUTHTOKEN '%s' does not match PRIVATE",$AUTHTOKEN)); 
@@ -2394,7 +2394,7 @@ sub psgiinit {
 			$self->{'_DEVICEID'} = $DEVICEID;
 			}
 		else {
-			print STDERR "IS *NOT* AUTHENTICATED\n";
+			# print STDERR "IS *NOT* AUTHENTICATED\n";
 			&JSONAPI::set_error($R = {}, 'apperr', 10, sprintf("Authentication issue ".$self->username()." ".$self->luser()." - token no longer valid"));
 			}
 		}
@@ -2785,13 +2785,13 @@ sub sessionInit {
 	my ($self, $session) = @_;
 
 	my $REDISKEY = sprintf("session[%s].%s",$self->username(),$session);
-	print STDERR "REDISKEY $REDISKEY\n";
+	# print STDERR "REDISKEY $REDISKEY\n";
 	
 	my ($redis) = &ZOOVY::getRedis($self->username(),0);
 	my $YAML = '';
 	if ($redis) {
 		$YAML = $redis->get($REDISKEY);
-		print STDERR "SESSION YAML [$REDISKEY]: $YAML\n";
+		# print STDERR "SESSION YAML [$REDISKEY]: $YAML\n";
 		}
 	else {
 		warn sprintf("NO REDIS DATABASE FOR: %s\n",$self->username());
@@ -2835,7 +2835,7 @@ sub sessionInit {
 			}
 		$self->paymentQ(\@PAYMENTQ);
 
-		print STDERR "sessionInit: ".Dumper($ref,$self->paymentQ())."\n";
+		# print STDERR "sessionInit: ".Dumper($ref,$self->paymentQ())."\n";
 		}
 
 	## print STDERR "!!!!!! INIT SESSION: [$session]\n";
@@ -2862,7 +2862,7 @@ sub sessionSave {
 
 	my %DATA = ();
 
-	print STDERR sprintf("!!!! SAVE SESION: %s [%s]\n",$self->sessionid(),$self->username());
+	# print STDERR sprintf("!!!! SAVE SESION: %s [%s]\n",$self->sessionid(),$self->username());
 
 	if (($self->sessionid() ne '') && ($self->username() ne '')) {
 
@@ -2905,7 +2905,7 @@ sub sessionSave {
 
 
 		my $YAML = YAML::Syck::Dump(\%DATA);
-		print STDERR "SESSION STORE YAML: $YAML\n".Dumper($self->paymentQ())."\n";
+		#print STDERR "SESSION STORE YAML: $YAML\n".Dumper($self->paymentQ())."\n";
 		if (not defined $redis) {
 			warn "\$redis NOT DEFINED -wtf?\n";
 			}
@@ -3609,7 +3609,7 @@ sub handle {
 
 	# $TRACE++;
 	if ($TRACE) {
-		print STDERR "TRACE:$TRACE ".$self->sdomain()."\n";
+		# print STDERR "TRACE:$TRACE ".$self->sdomain()."\n";
 		push @JSONAPI::TRACE, [ 'cmdlines', \@CMDLINES ];
 		push @JSONAPI::TRACE, "--- END ---";
 
@@ -4018,7 +4018,7 @@ sub appMashUp {
 		}
 
 
-	print STDERR 'FILEREF: '.Dumper($FILEREF,\%SUB,$v,\%R)."\n";
+	# print STDERR 'FILEREF: '.Dumper($FILEREF,\%SUB,$v,\%R)."\n";
 	if (not defined $FILEREF->{'@CART-MACROS'}) {
 		}
 	elsif (not defined $CART2) {
@@ -4375,7 +4375,7 @@ sub authAdminLogin {
 		&JSONAPI::set_error(\%R,'apperr',8802,"Sorry, the authtype md5/sha1 is no longer supported (please shift+refresh to make sure you are on the latest version).");
 		}
 	elsif ($v->{'authtype'} eq 'password') {
-		print STDERR "$USERNAME $LUSER HASH:$v->{'authtype'} $v->{'authid'}\n";
+		# print STDERR "$USERNAME $LUSER HASH:$v->{'authtype'} $v->{'authid'}\n";
 
 		# print STDERR Dumper($v);
 		#my ($ERROR) = OAUTH::verify_credentials($USERNAME,$LUSER,"$v->{'ts'}",$v->{'authtype'},$v->{'authid'});
@@ -4393,11 +4393,11 @@ sub authAdminLogin {
 
 
 		my $pstmt = "select PASSHASH, PASSSALT from LUSERS where MID=".$MID." and LUSER=".$udbh->quote($LUSER);
-		print STDERR "$pstmt\n";
+		# print STDERR "$pstmt\n";
 		my ($ACTUALPASSHASH,$SALT) = $udbh->selectrow_array($pstmt);
 		my $TRYPASSHASH = Digest::SHA1::sha1_hex( $TRYPASS.$SALT );
 
-		print STDERR "ACTUAL: $ACTUALPASSHASH,$SALT TRY:$TRYPASSHASH\n";
+		# print STDERR "ACTUAL: $ACTUALPASSHASH,$SALT TRY:$TRYPASSHASH\n";
 
 		if ($ACTUALPASSHASH ne $TRYPASSHASH) {
 			$FAILURES++
@@ -4510,7 +4510,7 @@ sub authPassword {
 
 			my $qtLOOKFOR = $udbh->quote($EMAIL);
 			my $pstmt = "select LUSER,EMAIL,PASSSALT from LUSERS where EMAIL=$qtLOOKFOR and MID=$MID";
-			print STDERR "$pstmt\n";
+			# print STDERR "$pstmt\n";
 			my $sth = $udbh->prepare($pstmt);
 			$sth->execute();
 			while (my ($LUSER,$EMAIL,$SALT) = $sth->fetchrow() ) {
@@ -4567,7 +4567,7 @@ sub authPassword {
 		my $SUCCESS = 0;
 		if (not &JSONAPI::hadError(\%R)) {
 			my $pstmt = "select UID,PASSHASH,PASSSALT from LUSERS where MID=$MID /* $self->{'USERNAME'} */ and LUSER=".$udbh->quote($self->luser());
-			print STDERR "$pstmt\n";
+			# print STDERR "$pstmt\n";
 			my ($UID,$PASSHASH,$PASSSALT) = $udbh->selectrow_array($pstmt);
 			my $NEWSALTED = Digest::SHA1::sha1_hex($v->{'new'}.$PASSSALT);
 			my $OLDSALTED = Digest::SHA1::sha1_hex($v->{'old'}.$PASSSALT);
@@ -4585,7 +4585,7 @@ sub authPassword {
 				my $qtNEWSALTED = $udbh->quote($NEWSALTED);
 				my $qtNEW = $udbh->quote($v->{'new'});
 				my $pstmt = "update LUSERS set PASSWORD_CHANGED=now(),PASSHASH=$qtNEWSALTED,PASSWORD=$qtNEW where MID=$MID and UID=$UID /* $self->{'LUSER'} */";		
-				print STDERR "$pstmt\n";
+				# print STDERR "$pstmt\n";
 				$udbh->do($pstmt);
 				}
 			else {
@@ -4822,7 +4822,7 @@ sub adminPlatform {
 						foreach my $s (@{$set}) { push @oids, $s->{'ORDERID'}; }
 						my ($tb) = &DBINFO::resolve_orders_tb($USERNAME);
 						my $pstmt = "update $tb set SYNCED_GMT=0 where MID=$MID and ORDERID in ".&DBINFO::makeset($udbh,\@oids);
-						print STDERR $pstmt."\n";
+						# print STDERR $pstmt."\n";
 						if (not &JSONAPI::dbh_do(\%R,$udbh,$pstmt)) {
 							&JSONAPI::set_error(\%R,'youerr','19005',"SQL ERROR<pre>".join(',',@oids));
 							}
@@ -4983,7 +4983,7 @@ sub adminImageUploadMagick {
 		## if we still have xyz here, we should probably use image blob detection
 		## $mimetypes->type('text/plain');
 
-		print STDERR "Assuming Filename is [$filename]\n";
+		# print STDERR "Assuming Filename is [$filename]\n";
 		if (index($filename,'.')>=0) {
 			# has file extension
 			$ext = substr($filename,rindex($filename,'.')+1);
@@ -5500,7 +5500,7 @@ sub adminSupplier {
 			$pstmt = "select * from VENDOR_ORDERS where MID=$MID and VENDOR=$qtVENDORID and ARCHIVED_TS=0 order by ID desc limit 0,100";
 			}
 
-		print STDERR $pstmt."\n";
+		# print STDERR $pstmt."\n";
 		my $sth = $udbh->prepare($pstmt);
 		$sth->execute();
 		my @ORDERS = ();
@@ -5635,7 +5635,7 @@ sub adminSupplier {
 				my $pstmt = &DBINFO::insert($udbh,'VENDOR_ORDERS',\%vars,'verb'=>'update','sql'=>1,'keys'=>['MID','OUR_ORDERID']);
 
 				$pstmt = "update VENDOR_ORDERS set STATUS='CONFIRMED' where STATUS in ('PLACED') and MID=$MID /* $USERNAME */ and OUR_ORDERID=$qtOID";
-				print STDERR "$pstmt\n";
+				# print STDERR "$pstmt\n";
 				&JSONAPI::dbh_do(\%R,$udbh,$pstmt);				
 				}
 	       elsif ($VERB eq 'ORDER:FIXERROR') {
@@ -5643,7 +5643,7 @@ sub adminSupplier {
 				my ($OID) = $pref->{'orderid'};
 				my $qtOID = $udbh->quote($OID);
 				my $pstmt = "update VENDOR_ORDERS set STATUS='OPEN' where STATUS='ERROR' and MID=$MID /* $USERNAME */ and OUR_ORDERID=$qtOID";
-				print STDERR $pstmt."\n";
+				# print STDERR $pstmt."\n";
 				$self->accesslog('SUPPLIER.ORDERS.FIXERROR',"[ORDER: $OID] was reset from ERROR to OPEN",'INFO');
 				my ($rv) = &JSONAPI::dbh_do(\%R,$udbh,$pstmt);
 				if ($rv==1) {
@@ -5658,7 +5658,7 @@ sub adminSupplier {
 				my ($OID) = $pref->{'orderid'};
 				my $qtOID = $udbh->quote($OID);
 				my $pstmt = "update VENDOR_ORDERS set STATUS='OPEN' where STATUS='HOLD' and MID=$MID /* $USERNAME */ and OUR_ORDERID=$qtOID";
-				print STDERR $pstmt."\n";
+				# print STDERR $pstmt."\n";
 				$self->accesslog('SUPPLIER.ORDERS.APPROVE',"[ORDER: $OID] was approved",'INFO');
                my ($rv) = &JSONAPI::dbh_do(\%R,$udbh,$pstmt);
 				if ($rv==1) {
@@ -5674,7 +5674,7 @@ sub adminSupplier {
 				my ($OID) = $pref->{'orderid'};
 				my $qtOID = $udbh->quote($OID);
 				my $pstmt = "update VENDOR_ORDERS set STATUS='CLOSED' where STATUS in ('','OPEN','HOLD') and MID=$MID /* $USERNAME */ and OUR_ORDERID=$qtOID";
-				print STDERR $pstmt."\n";
+				# print STDERR $pstmt."\n";
 				my ($rv) = &JSONAPI::dbh_do(\%R,$udbh,$pstmt);
 				if ($rv==1) {
 					push @MSGS, "SUCCESS|CLOSED ORDER: $OID";
@@ -6525,7 +6525,7 @@ sub adminDataQuery {
 			# $pstmt .= "";
 			}
 
-		print STDERR $pstmt."\n";
+		# print STDERR $pstmt."\n";
 		my $sth = $udbh->prepare($pstmt);
 		$sth->execute();
 		while ( my $ref = $sth->fetchrow_hashref() ) {
@@ -6843,7 +6843,7 @@ sub adminOrderRouteList {
 		my $UUID = $v->{'uuid'};
 		my ($item) = $CART2->stuff2()->item('uuid'=>$UUID);
 		my $SKU = $item->{'sku'};
-		print STDERR "SKU: $SKU\n";
+		# print STDERR "SKU: $SKU\n";
 
 		my ($LINKEDROUTES) = INVENTORY2->new($self->username())->detail('SKU'=>$SKU,'+'=>'ROUTE','@BASETYPES'=>['SIMPLE','WMS','SUPPLIER']);
 		my @ROUTES = ();
@@ -7832,7 +7832,7 @@ sub adminProduct {
 						foreach my $i (1..9999) { push @images, 'zoovy:prod_image'.$i; }
 						foreach my $img (@images) {
 							next if ($P->fetch($img) eq '');
-							print STDERR "NUKE: $img\n";
+							# print STDERR "NUKE: $img\n";
 							$self->log('PRODEDIT.NUKEIMG',"[PID:$PID] Nuking image $img=".$P->fetch($img),'INFO');
 							&MEDIA::nuke($USERNAME,$P->fetch($img));
 							}
@@ -8166,7 +8166,7 @@ sub adminProduct {
 					if (($VERB eq 'END') || ($VERB eq 'REFRESH')) {
 						require LISTING::EVENT;
 						my $TARGET = sprintf("EBAY.%s",$LISTINGTYPE);
-						print STDERR "TARGET:$TARGET\n";
+						# print STDERR "TARGET:$TARGET\n";
 						($TARGET) = LISTING::EVENT::normalize_target($TARGET);
 
 						my $LAUNCH_MESSAGE = undef;
@@ -8524,7 +8524,7 @@ sub adminProduct {
 			push @HEAD, { 'id'=>'DEBUG' };
 			push @HEAD, { 'id'=>'ACK_GMT' };
 			my $pstmt = "select DOCID,MSGID,FEED,SKU,CREATED_TS,DEBUG,ACK_GMT from AMAZON_DOCUMENT_CONTENTS where MID=$MID and SKU REGEXP concat('^',$qtPID,'(\\:[A-Z0-9\\#]{4,4}){0,3}\$') and CREATED_TS>date_sub(now(),interval 60 day) order by DOCID desc limit 30;";
-		   print STDERR "$pstmt\n";
+		  #  print STDERR "$pstmt\n";
 			my $sth = $udbh->prepare($pstmt);
 			$sth->execute();
 			while ( my $row = $sth->fetchrow_arrayref() ) {
@@ -8619,7 +8619,7 @@ sub adminProduct {
 			#my $TB = &INVENTORY::resolve_tb($USERNAME,$MID,'INVENTORY');
 			my $qtPID = $udbh->quote($PID);
 			my $pstmt = "select * from INVENTORY_DETAIL where MID=$MID /* $USERNAME */ and PRODUCT=$qtPID";
-			print STDERR $pstmt."\n";
+			# print STDERR $pstmt."\n";
 			push @HEAD, { 'id'=>'ID' };
 			push @HEAD, { 'id'=>'UUID' };
 			push @HEAD, { 'id'=>'PID' };
@@ -8673,7 +8673,7 @@ sub adminProduct {
 			#my $TB = &INVENTORY::resolve_tb($USERNAME,$MID,'INVENTORY');
 			my $qtPID = $udbh->quote($PID);
 			my $pstmt = "select * from INVENTORY_LOG where MID=$MID /* $USERNAME */ and PID=$qtPID order by TS desc";
-			print STDERR $pstmt."\n";
+			# print STDERR $pstmt."\n";
 			push @HEAD, { 'id'=>'ID' };
 			push @HEAD, { 'id'=>'TS' };
 			push @HEAD, { 'id'=>'UUID' };
@@ -9117,7 +9117,7 @@ sub adminProduct {
 			}
 
 		my $pstmt = "select * from EBAY_LISTINGS where MID=$MID and PRODUCT=".$udbh->quote($PID)." order by ENDS_GMT";
-		print STDERR "$pstmt\n";
+		# print STDERR "$pstmt\n";
 		my $sth = $udbh->prepare($pstmt);
 		$sth->execute();
 		while ( my $hashref = $sth->fetchrow_hashref() ) {
@@ -9182,7 +9182,7 @@ sub adminProduct {
 	elsif ($v->{'_cmd'} eq 'adminProductEventList') {
 		my ($udbh) = &DBINFO::db_user_connect($USERNAME);
 		my $pstmt = "select * from LISTING_EVENTS where MID=$MID /* $USERNAME */ and PRODUCT=".$udbh->quote($PID)." order by ID";
-		print STDERR $pstmt."\n";
+		# print STDERR $pstmt."\n";
 		my $sth = $udbh->prepare($pstmt);
 		$sth->execute();
 		my $t = time();
@@ -9281,7 +9281,7 @@ sub adminProduct {
 		
 		my $pstmt = "select SKU,UUID,BASETYPE,PREFERENCE,SUPPLIER_ID,SUPPLIER_SKU,WMS_GEO,WMS_ZONE,WMS_POS,QTY,COST_I,NOTE,CONTAINER,ORIGIN,MARKET_DST,MARKET_REFID,OUR_ORDERID from INVENTORY_DETAIL where MID=$MID and PID=".$udbh->quote($PID);
 		$pstmt .= " order by PREFERENCE desc";
-		print STDERR "$pstmt\n";
+		# print STDERR "$pstmt\n";
 		my $sth = $udbh->prepare($pstmt);
 		$sth->execute();
 		my @SKU_INVENTORY = ();
@@ -9637,11 +9637,11 @@ sub adminBlastMacro {
 		$params{'*CREATED_TS'} = 'now()';
 		$params{'LUSER'} = $self->luser();
 		my $pstmt = sprintf("select count(*) from BLAST_MACROS where MID=%d and PRT=%d and MACROID=%s",$params{'MID'},$params{'PRT'},$udbh->quote($params{'MACROID'}));
-		print STDERR "$pstmt\n";
+		# print STDERR "$pstmt\n";
 		my ($exists) = $udbh->selectrow_array($pstmt); 
 
 		my $pstmt =	&DBINFO::insert($udbh,'BLAST_MACROS',\%params,debug=>2,key=>['MID','MACROID','PRT'],sql=>1,verb=>($exists)?'update':'insert');
-		print STDERR "$pstmt\n";
+		# print STDERR "$pstmt\n";
 		JSONAPI::dbh_do(\%R,$udbh,$pstmt);
 		}
 	elsif ($v->{'_cmd'} eq 'adminBlastMacroRemove') {
@@ -9841,7 +9841,7 @@ sub adminBlastMsg {
 		my $VERB = ($exists)?'update':'insert';
 	
 		$pstmt =	&DBINFO::insert($udbh,'SITE_EMAILS',\%params,debug=>2,key=>['MID','PRT','MSGID','LANG'],sql=>1,verb=>$VERB);
-		print STDERR "$pstmt\n";
+		# print STDERR "$pstmt\n";
 		$udbh->do($pstmt);
 		}
 	elsif ($v->{'_cmd'} eq 'adminBlastMsgRemove') {
@@ -10364,7 +10364,7 @@ sub adminCIEngine {
 			$db{'*UPDATED_TS'} = 'now()';
 			
 			my ($pstmt) = &DBINFO::insert($udbh,'CIENGINE_AGENTS',\%db,'verb'=>'update','key'=>['GUID','AGENTID','MID'],sql=>1);
-			print STDERR "$pstmt\n";
+			# print STDERR "$pstmt\n";
 			if (&JSONAPI::dbh_do(\%R,$udbh,$pstmt)==0) {
 				 &JSONAPI::set_error(\%R,'apperr',74724,'AGENTID did not exist, or something else in the database went horribly wrong.');
 				}
@@ -10878,7 +10878,7 @@ sub adminFile {
 		else {
 			my $SH = new IO::String($DATA);
 			## NOTE: dont do binmode:utf8, if there is utf8 in the file then raw will handle it properly
-			print STDERR sprintf("FILE: $dir/%s\n",$v->{'FILENAME'});
+			# print STDERR sprintf("FILE: $dir/%s\n",$v->{'FILENAME'});
 			File::Slurp::write_file(sprintf("$dir/%s",$v->{'FILENAME'}),{binmode => ':raw', buf_ref => \$DATA });
 			chmod 0666, sprintf("$dir/%s",$v->{'FILENAME'});
 			}
@@ -11178,7 +11178,7 @@ sub adminCampaign {
 					my $START_GMT = &ZTOOLKIT::mysql_to_unixtime($STARTTIME);
 
 				  	my $pstmt = "update CAMPAIGNS set STATUS='WAITING' where MID=$MID and CAMPAIGNID=".$udbh->quote($CPGID);
-				 	print STDERR $pstmt."\n";
+				 	# print STDERR $pstmt."\n";
 				  	my $rows = &JSONAPI::dbh_do(\%R,$udbh,$pstmt);
 					$LU->log('UTILITIES.NEWSLETTER',"Approved Campaign $CPGID","SAVE");
 				  	if ($rows == 0) {
@@ -11792,7 +11792,7 @@ sub adminEBAY {
 					my $qtEIAS = $udbh->quote($eias);
 					my $mode = int($v->{"MODE!$eias"});
 					my $pstmt = "update EBAY_TOKENS set FB_POLLED_GMT=0,FB_MESSAGE=$qtMSG,FB_MODE=$mode where MID=$MID and PRT=$PRT and EBAY_EIAS=$qtEIAS";
-					print STDERR $pstmt."\n";
+					# print STDERR $pstmt."\n";
 					&JSONAPI::dbh_do(\%R,$udbh,$pstmt);
 					}
 				$sth->finish();	
@@ -11817,7 +11817,7 @@ sub adminEBAY {
 					require LISTING::EBAY;
 					my $fields = &LISTING::EBAY::ebay_fields('UPGRADE');
 					foreach my $field (@{$fields}) {
-						print STDERR " $field->{'ebay'} => $epnsref->{$field->{'id'}}\n";
+						# print STDERR " $field->{'ebay'} => $epnsref->{$field->{'id'}}\n";
 						if ($field->{'ebay'}) { $new{$field->{'ebay'}} = $epnsref->{$field->{'id'}}; }
 						}
 					my @ship_domservices = ();
@@ -11868,7 +11868,7 @@ sub adminEBAY {
 				&JSONAPI::dbh_do(\%R,$udbh,$pstmt);
 
 				$pstmt = "delete from EBAYSTORE_CATEGORIES where MID=$MID /* $USERNAME */ and EIAS=$qtEIAS";
-				print STDERR "$pstmt\n";
+				# print STDERR "$pstmt\n";
 				&JSONAPI::dbh_do(\%R,$udbh,$pstmt);
 				$LU->log("SETUP.EBAY","Token Removed EIAS=$qtEIAS","SAVE");
 				}
@@ -12791,7 +12791,7 @@ sub adminSyndication {
 				}
 			elsif ($VERB eq 'DBMAP-NUKE') {
 				my $pstmt = "delete from BUYCOM_DBMAPS where MID=$MID /* $USERNAME */ and ID=".int($params->{'MAPID'});
-				print STDERR $pstmt."\n";
+				# print STDERR $pstmt."\n";
 				&JSONAPI::dbh_do(\%R,$udbh,$pstmt);
 				&DBINFO::db_user_close();
 				}
@@ -12859,12 +12859,12 @@ sub adminSyndication {
 			elsif ($VERB eq 'AMZ-THESAURUS-DELETE') {
 				if ($self->apiversion() < 201334) {
 					my $pstmt = "delete from AMAZON_THESAURUS where MID=$MID and ID=".int($params->{'ID'});
-					print STDERR $pstmt."\n";
+					# print STDERR $pstmt."\n";
 					&JSONAPI::dbh_do(\%R,$udbh,$pstmt);
 					}
 				else {
 					my $pstmt = "delete from AMAZON_THESAURUS where MID=$MID and GUID=".$udbh->quote($params->{'guid'});
-					print STDERR $pstmt."\n";
+					# print STDERR $pstmt."\n";
 					&JSONAPI::dbh_do(\%R,$udbh,$pstmt);
 					}
 				}
@@ -12912,11 +12912,11 @@ sub adminSyndication {
 				$params->{'search_terms'} =~ s/, /,/g;
 				$params->{'search_terms'} = substr($params->{'search_terms'},0,250);
 				my ($pstmt) = &DBINFO::insert($udbh,'AMAZON_THESAURUS',\%vars,sql=>1,verb=>'insert');
-				print STDERR "$pstmt\n";
+				# print STDERR "$pstmt\n";
 				&JSONAPI::dbh_do(\%R,$udbh,$pstmt);
 				}
 			elsif ($VERB eq 'AMZ-SHIPPING-SAVE') {
-				print STDERR "VERB: $VERB\n";
+				# print STDERR "VERB: $VERB\n";
 				$VERB = 'AMAZON-SHIPPING';
 				my $mapref = {};
 				## THE NEW WAY:
@@ -12930,59 +12930,6 @@ sub adminSyndication {
 				$so->set('.shipping',$map);
 				$so->save();
 				}
-			#elsif ($VERB eq 'BATCH-UPDATE') {
-			#	if (not defined $NC) { $NC = NAVCAT->new($USERNAME,PRT=>$PRT); }
-			#	my $batchregex = '^'.quotemeta($params->{'batch-path'});
-			#	foreach my $safe (sort $NC->paths($ROOTPATH)) {
-			#		next unless ($safe =~ /$batchregex/);
-			#		print STDERR "SAVED: $safe\n";
-			#		my ($pretty, $children, $productstr, $sortby, $metaref) = $NC->get($safe);
-			#		$metaref->{$DST} = $params->{'batch-category'};
-			#		$NC->set($safe,metaref=>$metaref);
-			#		}
-			#	$NC->save(); 
-			#	$VERB = 'CATEGORIES';
-			#	}
-			#elsif ($VERB eq 'SAVE-AMAZON-CATEGORIES') {
-			#	my $changed = 0;
-			#	if (not defined $NC) { ($NC) = NAVCAT->new($USERNAME,PRT=>$PRT); }
-			#	foreach my $safe (sort $NC->paths()) {
-			#		next if (not defined $params->{'navcat-'.$safe});
-			#		#next if ($q->param('navcat-'.$safe) eq '');
-			#		my ($pretty, $children, $productstr, $sortby, $metaref) = $NC->get($safe);
-			#		next if ($metaref->{'AMAZON_THE'} eq $params->{'navcat-'.$safe});
-			#		$metaref->{'AMAZON_THE'} = $params->{'navcat-'.$safe};
-			#		$NC->set($safe,metaref=>$metaref);
-			#		}
-			#	$NC->save();
-			#	}	
-			#elsif ($VERB eq 'SAVE-EBAY-CATEGORIES') {
-			#	if (not defined $NC) { $NC = NAVCAT->new($USERNAME,PRT=>$PRT); }
-			#	foreach my $safe ($NC->paths()) {
-			#		next if (not defined $params->{'navcat-'.$safe});
-			#		my ($pretty, $children, $productstr, $sortby, $metaref) = $NC->get($safe);
-			#		next if (($metaref->{'EBAYSTORE_CAT'} eq $params->{'navcat-'.$safe}) && ($metaref->{'EBAY_CAT'} eq $params->{'ebay-'.$safe}));
-			#		$metaref->{'EBAYSTORE_CAT'} = $params->{'navcat-'.$safe};
-			#		$metaref->{'EBAY_CAT'} = $params->{'ebay-'.$safe};
-			#		$NC->set($safe,metaref=>$metaref);
-			#		}
-			#	$NC->save();
-			#	push @MSGS, "SUCCESS|Updated eBay.com/eBay Store relationships with Website Categories";
-			#	}
-			#elsif ($VERB eq 'SAVE-CATEGORIES') {
-			#	if (not defined $NC) { ($NC) = NAVCAT->new($USERNAME,PRT=>$PRT); }
-			#	foreach my $safe (sort $NC->paths($ROOTPATH)) {
-			#		my ($pretty, $children, $productstr, $sortby, $metaref) = $NC->get($safe);
-			#		my $SUBMIT = ($params->{'navcat-'.$safe} ne '')?$params->{'navcat-'.$safe}:'';
-			#		if ($SUBMIT eq '- Ignore -') { $SUBMIT = ''; }
-			#		## googlebase has GOO as DSTCODE and GOOGLEBASE as navcatMETA
-			#		## - product syndication and index.cgi?VERB=CATEGORIES currently use the navcatMETA vs DSTCODE
-			#		#$metaref->{$DST} = $SUBMIT;
-			#		$metaref->{$DST} = $SUBMIT;
-			#		$NC->set($safe,metaref=>$metaref);
-			#		}
-			#	$NC->save();
-			#	}
 			elsif ($VERB eq 'CLEAR-FEED-ERRORS') {
 				my $pstmt = "update SYNDICATION_PID_ERRORS set ARCHIVE_GMT=$^T where MID=$MID /* $USERNAME */ and DSTCODE=".$udbh->quote($so->dstcode());
 				&JSONAPI::dbh_do(\%R,$udbh,$pstmt);
@@ -13827,7 +13774,7 @@ sub adminRSS {
 		}
 	elsif ($v->{'_cmd'} eq 'adminRSSRemove') {
 		my $pstmt = "delete from RSS_FEEDS where CPG_TYPE='RSS' and MID=$MID and PRT=$PRT and CPG_CODE=".$udbh->quote($CPG);
-		print STDERR "pstmt:$pstmt\n";
+		# print STDERR "pstmt:$pstmt\n";
 		&JSONAPI::dbh_do(\%R,$udbh,$pstmt);
 		$LU->log('SETUP.RSS',"Deleted Campaign $CPG","INFO");
 		}
@@ -14138,7 +14085,7 @@ sub adminProject {
 				GITHUB_TXLOG=>'',
 				TYPE=>$TYPE,
 				},sql=>1);
-			print STDERR $pstmt."\n";
+			# print STDERR $pstmt."\n";
 			&JSONAPI::dbh_do(\%R,$udbh,$pstmt);
 			}
 
@@ -15313,7 +15260,7 @@ sub adminCustomerOrganization {
 			}
 
 		my @ROWS = ();
-		print STDERR "$pstmt\n";		
+		# print STDERR "$pstmt\n";		
 		my $sth = $udbh->prepare($pstmt);
 		$sth->execute();
 		while ( my $row = $sth->fetchrow_hashref() ) {
@@ -15425,7 +15372,7 @@ sub adminCustomer {
 		$R{'@CIDS'} = \@CIDS;
 		}
 	elsif ($v->{'_cmd'} eq 'adminCustomerSearch') {
-		print STDERR sprintf("%s %s %s\n",$self->username(),$self->prt(),$v->{'email'});
+		# print STDERR sprintf("%s %s %s\n",$self->username(),$self->prt(),$v->{'email'});
 
 		$R{'myPRT'} = $self->prt();
 		if ($self->apiversion() < 201318) {
@@ -15488,7 +15435,7 @@ sub adminCustomerRemove {
 
 	my %R = ();	
 
-	print STDERR sprintf("%s %s %s\n",$self->username(),$self->prt(),$v->{'CID'});
+	# print STDERR sprintf("%s %s %s\n",$self->username(),$self->prt(),$v->{'CID'});
 	if (not &JSONAPI::validate_required_parameter(\%R,$v,'CID')) {
 		}
 	elsif (not defined $self->prt()) {
@@ -16602,7 +16549,7 @@ sub adminUIBuilderPanelExecute {
 		## yeah it's all good.
 		}
 
-	print STDERR "LOG TPE $LOGTYPE\n";
+	# print STDERR "LOG TPE $LOGTYPE\n";
 	
 	if (&JSONAPI::hadError(\%R)) {
 		}
@@ -16758,7 +16705,7 @@ sub adminUIMediaLibraryExecute {
 	# $R{'img'} = $s->{'IMG'};
 	my $s = &ZTOOLKIT::parseparams($v->{'src'});
 	my $mode = $s->{'mode'};
-	print STDERR 'MEDIALIB INCOMING PARAMETERS (PARSED): '.Dumper($s);
+	# print STDERR 'MEDIALIB INCOMING PARAMETERS (PARSED): '.Dumper($s);
 
 	my $VERB = $v->{'verb'};
 	my $USERNAME = $self->username();
@@ -16845,13 +16792,13 @@ sub adminUIMediaLibraryExecute {
 		$attrib =~ s/^Image([\d])+:.*$/$1/; 
 		$attrib = lc("zoovy:prod_image$attrib");
 
-		print STDERR "VERB:$VERB\n";
+		# print STDERR "VERB:$VERB\n";
 		if ($VERB eq 'LOAD') {
 			$R{'IMG'} = $P->skufetch($s->{'sku'},$attrib);
 			}
 		elsif ($VERB eq 'SAVE') {
 			# &ZOOVY::fetchsku_as_hashref($USERNAME,$s->{'sku'});
-			print STDERR "$s->{'sku'},$attrib,$v->{'IMG'}\n";
+			# print STDERR "$s->{'sku'},$attrib,$v->{'IMG'}\n";
 			$P->skustore($s->{'sku'},$attrib,$v->{'IMG'});
 			$P->save();
 			}
@@ -17194,14 +17141,14 @@ sub bossUser {
 				$self->accesslog('SETUP.USERMGR',"ACTION: CREATE SUB-USER: $LOGIN",'INFO');
 				if (not defined $UREF{'DATA'}) { $UREF{'DATA'} = ''; }
 				my $pstmt = &DBINFO::insert($udbh,'LUSERS',\%UREF,'verb'=>'insert','sql'=>1);
-				print STDERR "$pstmt\n";
+				# print STDERR "$pstmt\n";
 				$udbh->do($pstmt);
 				}
 			if ($v->{'_cmd'} eq 'bossUserUpdate') {
 				$self->accesslog('SETUP.USERMGR',"ACTION: UPDATE SUB-USER: $LOGIN",'INFO');
 				delete $UREF{'LUSER'};
 				my $pstmt = &DBINFO::insert($udbh,'LUSERS',\%UREF,'verb'=>'update',key=>{'MID'=>$self->mid(),'LUSER'=>$LOGIN},'sql'=>1);
-				print STDERR "$pstmt\n";
+				# print STDERR "$pstmt\n";
 				$udbh->do($pstmt);
 				}
 	
@@ -17221,7 +17168,7 @@ sub bossUser {
 				}
 			$pstmt = "select * from LUSERS where MID=$MID and LUSER=".$udbh->quote($LOGIN);
 			}
-		print STDERR $pstmt."\n";
+		# print STDERR $pstmt."\n";
 		my $sth = $udbh->prepare($pstmt);
 		$sth->execute();
 		my @ROWS = ();
@@ -17265,7 +17212,7 @@ sub bossUser {
 			}
 		elsif ($exists) {
 			my $pstmt = "delete from LUSERS where MID=$MID and LUSER=".$udbh->quote($LOGIN);
-			print STDERR "$pstmt\n";
+			# print STDERR "$pstmt\n";
 			$udbh->do($pstmt);
 			}		
 		else {
@@ -18604,7 +18551,7 @@ sub cartItemAppend {
 		foreach my $msg (@{$lm->msgs()}) {
 			my ($msgref,$status) = LISTING::MSGS::msg_to_disposition($msg);
 
-			print STDERR "MSG:".Dumper($msgref,$status);
+			# print STDERR "MSG:".Dumper($msgref,$status);
 
 			my ($errtype,$errid);
 			if ($status eq 'ERROR') { $errtype = 'youerr'; $errid = 9001; }
@@ -20232,7 +20179,7 @@ sub cartPromoCodeOrGiftcardOrCouponToCartAdd {
 
 					$self->paymentQ(\@NEW_PAYMENTQ);
 
-					print STDERR "paymentQ: ".Dumper($self->paymentQ())."\n";
+					# print STDERR "paymentQ: ".Dumper($self->paymentQ())."\n";
 					# $self->log(Dumper( $self, $newpayq ));
 					}
 				push @{$CART2->{'@CHANGES'}}, [ 'add_giftcard' ];
@@ -20942,7 +20889,7 @@ sub appBuyerLogin {
 			require CUSTOMER;
 			my ($login,$password) = ($v->{'login'},$v->{'password'});
 			my ($customer_id) = &CUSTOMER::authenticate($self->username(), $self->prt(), $login, $password);
-			print STDERR "login:$login password:$password\n";
+			# print STDERR "login:$login password:$password\n";
 
 			## Did we get authenticated
 			if ($customer_id == -100) {
@@ -22957,7 +22904,7 @@ sub adminPartner {
 					GALLERY_NEXT_POLL_GMT=>$^T,
 					GALLERY_VARS=>'',
 					},debug=>1+2);
-				print STDERR $pstmt."\n";
+				# print STDERR $pstmt."\n";
 				&JSONAPI::dbh_do(\%R,$udbh,$pstmt);
 		
 				$pstmt = "select last_insert_id()";
@@ -23130,7 +23077,7 @@ sub cartOrder {
 		}
 
 	my $REDIS_ASYNC_KEY = sprintf("FINALIZE.%s.CART.%s",$self->username(), $CARTID );
-	print STDERR "REDIS_ASYNC_KEY: $REDIS_ASYNC_KEY\n";
+	# print STDERR "REDIS_ASYNC_KEY: $REDIS_ASYNC_KEY\n";
 
 	## SITE::URL is required for SITE::EMAIL ->sendmail
 	my $webdbref = $self->webdb();
@@ -23164,7 +23111,7 @@ sub cartOrder {
 		}
 
 
-	print STDERR 'v: '.Dumper($v);
+	# print STDERR 'v: '.Dumper($v);
 
 
 	if (&JSONAPI::hadError(\%R)) {
@@ -23178,7 +23125,7 @@ sub cartOrder {
 		my @CMDS = ();
 		&JSONAPI::parse_macros($self,$v->{'@PAYMENTS'},\@CMDS);
 
-		print STDERR '@CMDS: '.Dumper(\@CMDS)."\n";
+		# print STDERR '@CMDS: '.Dumper(\@CMDS)."\n";
 		foreach my $CMDSET (@CMDS) {
 			my ($VERB, $pref) = @{$CMDSET};
 			$VERB = lc($VERB);
@@ -23197,7 +23144,7 @@ sub cartOrder {
 			}
 		}
 
-	print STDERR "RESPONSE: ".Dumper($CART2->{'@PAYMENTQ'},\%R);
+	# print STDERR "RESPONSE: ".Dumper($CART2->{'@PAYMENTQ'},\%R);
 
 	##
 	## request processing starts here
@@ -23215,7 +23162,7 @@ sub cartOrder {
 		my ($POLLED_COUNT) = 0;
 		my ($FINISHED) = 0;
 		foreach my $line (split(/[\n]+/,$redis->get($REDIS_ASYNC_KEY))) {
-			print STDERR "$REDIS_ASYNC_KEY: $line\n";
+			# print STDERR "$REDIS_ASYNC_KEY: $line\n";
 			my %MSG = ();
 			($MSG{'_'},$MSG{'+'}) = split(/\|/,$line,2);
 
@@ -23266,7 +23213,7 @@ sub cartOrder {
 		#	$CART2->make_readonly();		
 		#	delete $self->{'%CARTS'}->{ $CART2->cartid() };
 		#	}
-		print STDERR 'CARTORDERSTATUS: '.Dumper(\%R,$LM)."\n";
+		# print STDERR 'CARTORDERSTATUS: '.Dumper(\%R,$LM)."\n";
 		}
 	elsif (($v->{'async'}) && (not $self->is_spooler())) {
 		##
@@ -23286,7 +23233,7 @@ sub cartOrder {
 		$SERIAL{'ASYNC'} = $v->{'async'};
 		$SERIAL{'REDIS_ASYNC_KEY'} = $REDIS_ASYNC_KEY;
 		$SERIAL{'json:@PAYMENTQ'} = JSON::XS->new->ascii->pretty->allow_nonref->encode($self->paymentQ());
-		print STDERR "json:PAYMENTQ: ".$SERIAL{'json:@PAYMENTQ'}."\n";
+		# print STDERR "json:PAYMENTQ: ".$SERIAL{'json:@PAYMENTQ'}."\n";
 
 		my $EREFID = '';
 		if ((not defined $EREFID) || ($EREFID eq '')) { $EREFID = $CART2->in_get('mkt/erefid'); }
@@ -23985,7 +23932,7 @@ sub appPageGet {
 			}
 		elsif (-f "$PROJECTDIR/platform/pages.json") {
 			my $PATH = $v->{'PATH'};
-			print STDERR "LOADFILE:$PROJECTDIR/platform/pages.json [$v->{'PATH'}] for $self->{'_HOSTDOMAIN'}\n";
+			# print STDERR "LOADFILE:$PROJECTDIR/platform/pages.json [$v->{'PATH'}] for $self->{'_HOSTDOMAIN'}\n";
 			my $PAGES = undef;
 			require JSON::Syck;
 			eval { $PAGES = JSON::Syck::LoadFile("$PROJECTDIR/platform/pages.json"); };
@@ -24537,7 +24484,7 @@ sub adminDebugProduct {
 		$R{'@INVENTORY_LOG'} = \@INVENTORY_LOG; 
 		my $LIMIT = 100;
 		my $pstmt = "select * from INVENTORY_LOG where MID=$MID and PID=".$udbh->quote($PID)." order by ID desc limit 0,$LIMIT";
-		print STDERR $pstmt."\n";
+		# print STDERR $pstmt."\n";
 		my $sth = $udbh->prepare($pstmt);
 		$sth->execute();
 		while ( my $hashref = $sth->fetchrow_hashref() ) { 
@@ -24563,7 +24510,7 @@ sub adminDebugProduct {
 		$R{'@AMAZON_DOCUMENT_CONTENTS'} = \@AMAZON_DOCS;
 		## select a PID or any matching SKU of a PID 
 		my $pstmt = "select DOCID,MSGID,FEED,SKU,CREATED_TS,DEBUG,ACK_GMT from AMAZON_DOCUMENT_CONTENTS where MID=$MID and SKU REGEXP concat('^',$qtPID,'(\\:[A-Z0-9\\#]{4,4}){0,3}\$') and CREATED_TS>date_sub(now(),interval 60 day) order by DOCID desc limit 30;";
-		print STDERR "$pstmt\n";
+		# print STDERR "$pstmt\n";
 		# $c .= $pstmt;
 		my $sth = $udbh->prepare($pstmt);
 		$sth->execute();
@@ -24607,7 +24554,7 @@ sub adminDebugProduct {
 		# my $TB = &INVENTORY::resolve_tb($USERNAME,$MID,'INVENTORY');
 		my $qtPID = $udbh->quote($PID);
 		my $pstmt = "select * from INVENTORY_DETAIL where MID=$MID /* $USERNAME */ and PRODUCT=$qtPID";
-		print STDERR $pstmt."\n";
+		# print STDERR $pstmt."\n";
 		my $sth = $udbh->prepare($pstmt);
 		$sth->execute();
 		my @INVENTORY = ();
@@ -24830,7 +24777,7 @@ sub adminDebugShippingPromoTaxes {
 	if ($SRC eq 'ORDER') {
 		## LOAD FROM ORDER
 		my $orderid = $v->{'ORDER'};
-		print STDERR "DEBUGGER USING ORDER: $v->{'ORDER'}\n";
+		# print STDERR "DEBUGGER USING ORDER: $v->{'ORDER'}\n";
 		$CART2 = CART2->new_from_oid($USERNAME,$orderid);
 		$CART2->msgs($lm);
 		$CART2->is_debug($TRACE);
@@ -24868,7 +24815,7 @@ sub adminDebugShippingPromoTaxes {
 			&JSONAPI::set_error(\%R, 'warning', 7232, "The prefix c= is not needed for the cartid and was removed.");
 			$CARTID = $1; 
 			}
-		print STDERR "USING CART:$CARTID PRT:$PRT\n";
+		# print STDERR "USING CART:$CARTID PRT:$PRT\n";
 		$CART2 = CART2->new_persist($USERNAME,$PRT,$CARTID,'is_fresh'=>0,'*SESSION'=>$self);
 		if ((not defined $CART2) && (ref($CART2) ne 'CART2')) {
 			&JSONAPI::set_error(\%R, 'youerr', 7233, "Cart:$CARTID Prt:$PRT does not exist");
@@ -26230,7 +26177,7 @@ sub adminWarehouse {
 				my $ERROR = undef;
 
 				my ($Z) = $W->zone($ZONE);
-				print STDERR "ZONE: ".Dumper($Z)."\n";
+				# print STDERR "ZONE: ".Dumper($Z)."\n";
 				if (not $ZONE) {
 					$ERROR = "No ZONE was passed (and it's kinda required)";
 					}
@@ -27047,7 +26994,7 @@ sub adminConfigMacro {
 					$S->save_property(".ship.meter", "type=UPS&user=$user&pass=$pass&license=$license&shipper_number=$shipper_number");
 					$S->save_property(".ship.meter_createdgmt", time());
 					$S->save();
-					print STDERR "saving supplier: type=UPS&supplier_id=$VENDORID&user=$user&pass=$pass&license=$license&shipper_number=$shipper_number\n";
+					# print STDERR "saving supplier: type=UPS&supplier_id=$VENDORID&user=$user&pass=$pass&license=$license&shipper_number=$shipper_number\n";
 					$LU->log("SETUP.SHIPPING.UPSAPI","Intialized Supplier $VENDORID UPS License","SAVE");
 					push @MSGS, "SUCCESS|+Registered VENDOR $VENDORID";
 					}
@@ -28576,10 +28523,8 @@ sub adminBatchJob {
 		if ($LIMIT == 0) { $LIMIT = 50; }
 		$pstmt .= " order by ID desc limit 0,$LIMIT";
 
-		print STDERR "$pstmt\n";
-		my $sth = $udbh->prepare($pstmt);
-		$sth->execute();
-		while ( my $paramsref = $sth->fetchrow_hashref() ) {
+		# print STDERR "$pstmt\n"; my $sth = $udbh->prepare($pstmt);
+		$sth->execute(); while ( my $paramsref = $sth->fetchrow_hashref() ) {
 			push @{$R{'@PARAMETERS'}}, $paramsref;
 			}
 		$sth->finish();
