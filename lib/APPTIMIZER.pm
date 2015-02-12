@@ -245,13 +245,15 @@ sub rewrites {
 			}
 		}
 
+	$LOG && push @$LOG, sprintf("INFO|+project is: %s",$self->projectid());
+
 
 	if ($RESULT) {
 		$LOG && push @$LOG, "INFO|+rewrites were skipped, found early result.";
 		}
 	elsif ($REWRITES_FILE eq '') {
 		## no rewwrites file
-		$LOG && push @$LOG, "WARN|+domain.json file#rewrites not set in platform/domain.json"; 
+		$LOG && push @$LOG, sprintf("WARN|+file#rewrites not set in platform/%s.json",$self->hostdomain()); 
 		}
 	elsif (! -f "$NFSROOT/$REWRITES_FILE") {
 		## some type of error

@@ -28523,8 +28523,10 @@ sub adminBatchJob {
 		if ($LIMIT == 0) { $LIMIT = 50; }
 		$pstmt .= " order by ID desc limit 0,$LIMIT";
 
-		# print STDERR "$pstmt\n"; my $sth = $udbh->prepare($pstmt);
-		$sth->execute(); while ( my $paramsref = $sth->fetchrow_hashref() ) {
+		# print STDERR "$pstmt\n"; 
+		my $sth = $udbh->prepare($pstmt);
+		$sth->execute(); 
+		while ( my $paramsref = $sth->fetchrow_hashref() ) {
 			push @{$R{'@PARAMETERS'}}, $paramsref;
 			}
 		$sth->finish();

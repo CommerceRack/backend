@@ -60,12 +60,28 @@ $::LMS_APPVER = "L052";
 ##
 my %params = ();
 foreach my $arg (@ARGV) {
-	if ($arg !~ /=/) { die("Bad argument - [$arg] plz check syntax in file."); }
+	next if ($arg !~ /=/);
 	my ($k,$v) = split(/=/,$arg);
 	$params{$k} = $v;
 	}
+use Getopt::Long;
+Getopt::Long::GetOptions (
+	"queue" => \$params{'.queue'},   
+   "user=s"   => \$params{'user'},
+	);
 
 
+my @USERS = ();
+my @USERS = (); 
+if (not defined $params{'user'}) {
+	}
+elsif ($params{'user'}) { 
+	push @USERS, $params{'user'}; 
+	}
+
+if (scalar(@USERS)==0) {
+	@USERS = @{CFG->new()->users()};
+	}
 
 
 if ($params{'queue'}) {
@@ -77,8 +93,20 @@ my ($t) = time();
 
 if (defined $params{'.queue'}) {
 	#my $udbh = &DBINFO::db_user_connect("\@$params{'cluster'}");
-	my $pstmt = "select USERNAME,PRT from EBAY_TOKENS where ERRORS<1000 order by LMS_SOLD_REQGMT";
-	my $ROWS = &DBINFO::fetch_all_into_hashref($params{'cluster'},$pstmt);
+	my $ROWS = [];
+
+	foreach my $USER (@USERS) {
+		my $pstmt = "select USERNAME,PRT from EBAY_TOKENS where ERRORS<1000 order by LMS_SOLD_REQGMT";
+		my ($udbh) = &DBINFO::db_user_connect($USER);
+		my $sth = $udbh->prepare($pstmt);
+		$sth->execute();
+		while ( my ($USER, $PRT) = $sth->fetchrow() ) {
+			push @{$ROWS}, { 'USERNAME'=>$USER, 'PRT'=>$PRT };
+			}
+		$sth->finish();
+		}
+
+	print Dumper(\$ROWS);
 
 	#my $sth = $udbh->prepare($pstmt);
 	#$sth->execute();

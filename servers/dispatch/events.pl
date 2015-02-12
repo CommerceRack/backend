@@ -8,6 +8,7 @@ use Fcntl ':flock';
 use POSIX qw();
 use App::Daemon qw();
 use Elasticsearch::Bulk;
+use Getopt::Long;
 
 # App::Daemon::daemonize();
 
@@ -33,6 +34,7 @@ use AMAZON3;
 use SITE;
 require INVENTORY2;
 require BLAST;
+use CFG;
 
 
 ## make sure we don't accidentally run two!
@@ -119,22 +121,31 @@ foreach my $arg (@ARGV) {
 	$params{$k} = $v;
 	}
 
-my $CLUSTER = lc($params{'cluster'});	# not actually cluster specific at this time.
+Getopt::Long::GetOptions(
+	"user=s" => \$params{'user'},   
+	"type=s" => \$params{'type'},   
+	);
+
+
 my $UNLOCK = $params{'unlock'};		# unlock locked events after 3600 minutes
 if (not defined $UNLOCK) { $UNLOCK++; }
 
-if (defined $params{'user'}) {
-	$CLUSTER = &ZOOVY::resolve_cluster($params{'user'});
+my @USERS = (); 
+if (not defined $params{'user'}) {
+	}
+elsif (uc($params{'user'}) eq '_SELF_') {
+	}
+elsif ($params{'user'}) { 
+	push @USERS, $params{'user'}; 
 	}
 
-if ($CLUSTER eq '') {	
-	die("Cluster is now required");
+my @USERS = ();
+if (scalar(@USERS)==0) {
+	@USERS = @{CFG->new()->users()};
 	}
-print "CLUSTER: $CLUSTER\n";
 
 my $ts = time(); 
 
-my @USERS = ();
 if ($params{'user'}) {
 	push @USERS, $params{'user'};
 	}
@@ -148,31 +159,34 @@ if ($params{'LOCK_ID'}) { $LOCK_ID = int($params{'LOCK_ID'}); }
 sub run_timers {
 
 	# my $limit = 1000; # int($params{'limit'});	# 4/3/2013
-	my $limit = 2500;
-	my $pstmt = "select ID,USERNAME,EVENT,YAML from USER_EVENT_TIMERS where PROCESSED_GMT=0 and DISPATCH_GMT<$ts order by ID limit $limit";
-	print "$pstmt\n";
-	my $ROWS = &DBINFO::fetch_all_into_hashref($params{'user'} || $CLUSTER,$pstmt);
-	foreach my $row (@{$ROWS}) {
-		my ($dbID,$USERNAME,$EVENT,$YAML) = ($row->{'ID'},$row->{'USERNAME'},$row->{'EVENT'},$row->{'YAML'});	
+	foreach my $USERNAME (@USERS) {
+		print Dumper($USERNAME);
+		my $limit = 2500;
+		my $pstmt = "select ID,USERNAME,EVENT,YAML from USER_EVENT_TIMERS where PROCESSED_GMT=0 and DISPATCH_GMT<$ts order by ID limit $limit";
+		print "$pstmt\n";
+		my $ROWS = &DBINFO::fetch_all_into_hashref($USERNAME,$pstmt);
+		foreach my $row (@{$ROWS}) {
+			my ($dbID,$USERNAME,$EVENT,$YAML) = ($row->{'ID'},$row->{'USERNAME'},$row->{'EVENT'},$row->{'YAML'});	
 
-		next if (! -d &ZOOVY::resolve_userpath($row->{'USERNAME'}));
+			next if (! -d &ZOOVY::resolve_userpath($row->{'USERNAME'}));
 
-		my ($udbh) = &DBINFO::db_user_connect($USERNAME);
-		print "DBID: $dbID $USERNAME $EVENT $YAML\n";
-		next if (not &ZOOVY::locklocal("USER_EVENT_TIMERS",$USERNAME));
-		my $YREF = {};
-		my $ID = 0;
-		if ($YAML ne '') {
-			$YREF = YAML::Syck::Load($YAML);
+			my ($udbh) = &DBINFO::db_user_connect($USERNAME);
+			print "DBID: $dbID $USERNAME $EVENT $YAML\n";
+			next if (not &ZOOVY::locklocal("USER_EVENT_TIMERS",$USERNAME));
+			my $YREF = {};
+			my $ID = 0;
+			if ($YAML ne '') {
+				$YREF = YAML::Syck::Load($YAML);
+				}
+			if (scalar(keys %{$YREF})>0) {
+				$YREF->{'#timer'} = $dbID;
+				($ID) = &ZOOVY::add_event($USERNAME,$EVENT,%{$YREF});
+				}
+			$pstmt = "update USER_EVENT_TIMERS set PROCESSED_GMT=$ts,PROCESSED_ID=$ID where ID=$dbID /* $USERNAME $EVENT */";
+			print STDERR $pstmt."\n";
+			$udbh->do($pstmt);
+			&DBINFO::db_user_close();
 			}
-		if (scalar(keys %{$YREF})>0) {
-			$YREF->{'#timer'} = $dbID;
-			($ID) = &ZOOVY::add_event($USERNAME,$EVENT,%{$YREF});
-			}
-		$pstmt = "update USER_EVENT_TIMERS set PROCESSED_GMT=$ts,PROCESSED_ID=$ID where ID=$dbID /* $USERNAME $EVENT */";
-		print STDERR $pstmt."\n";
-		$udbh->do($pstmt);
-		&DBINFO::db_user_close();
 		}
 	print "Done with timers!\n";
 	return();
@@ -221,7 +235,7 @@ sub sync_exit {
 $SIG{'HUP'} = \&sync_exit;
 $SIG{'INT'} = \&sync_exit;
 
-my ($redis) = &ZOOVY::getRedis($CLUSTER,1);
+my ($redis) = &ZOOVY::getRedis('localhost',1);
 while (my ($YAML) = $redis->rpoplpush("EVENTS.PROCESSING","EVENTS")) {
 	if (not defined $YAML) { 
 		last; 

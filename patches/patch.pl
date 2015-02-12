@@ -97,7 +97,7 @@ foreach my $USERNAME (@{$CFG->users()}) {
 	print "$USERNAME\n";
 	print "------------------------------------------------------------------------\n";
 
-	my ($udbh) = &DBINFO::db_user_connect($USERNAME);
+	my ($udbh) = &DBINFO::db_user_connect($USERNAME,'ADMIN'=>$params{'admin'});
 	
 	foreach my $patchid (sort keys %PATCHES) {
 		print "PATCH:$patchid\n";

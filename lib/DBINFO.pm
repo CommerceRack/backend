@@ -18,6 +18,7 @@ if (-S "/var/run/mysql/mysql.sock") {
 elsif (-S "/local/tmp/mysql.sock") {
 	$DBINFO::HAS_SOCKET = "/local/tmp/mysql.sock";
 	}		
+print STDERR "HAS_SOCKET: $DBINFO::HAS_SOCKET\n";
 
 %DBINFO::USER_HANDLES = ();
 
@@ -256,7 +257,7 @@ sub fetch_all_into_hashref {
 ##
 %DBINFO::CREDENTIAL_CACHE = ();
 sub db_user_connect {
-	my ($USERNAME) = @_;
+	my ($USERNAME, %options) = @_;
 
 	# print STDERR Dumper(caller(0))."\n";
 
@@ -271,6 +272,9 @@ sub db_user_connect {
 		if ($DBINFO::HAS_SOCKET) {
 			## this handles _self_ and @cluster .. no specific databases, just local db(s)
 			($dbuser,$dbpass,$dbname,$dbhost,$dbdsn) = ('','',"DBI:mysql:mysql_socket=$DBINFO::HAS_SOCKET",'','');
+			}
+		else {
+			die("_SELF_ is not allowed anymore\n");
 			}
 		}
 
@@ -290,6 +294,14 @@ sub db_user_connect {
 			$dbpass = $ref->{sprintf('%s.dbpass',$THISHOST)} || $ref->{'dbpass'};
 			$dbname = $ref->{sprintf('%s.dbname',$THISHOST)} || $ref->{'dbname'} || uc($USERNAME);
 			$dbhost = $ref->{sprintf('%s.dbhost',$THISHOST)} || $ref->{'dbhost'} || 'localhost';
+
+			if ($options{'ADMIN'}) {
+				$dbuser = $ENV{'DB_USER'};
+				$dbpass = $ENV{'DB_PASS'};
+				if ((not defined $dbuser) || (not defined $dbpass)) {
+					die("please set DB_USER, DB_PASS environment variables (requires ADMIN privileges)");
+					}
+				}
 
 			## print STDERR "DBDSN:$dbdsn\n";
 			if (defined $dbdsn) {

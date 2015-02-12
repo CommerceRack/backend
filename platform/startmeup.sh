@@ -84,22 +84,22 @@ echo "nameserver 8.8.8.8" > /etc/resolv.conf
   
   /etc/init.d/elasticsearch start
     
- # /etc/init.d/mysql start
-  sleep 10;	## give mysql some time to start
-  
-  for USER in `/backend/platform/cfgecho.pl type:user` ; do    
-  		lcUSER=`echo $USER | tr '[:upper:]' '[:lower:]'`;    
-  		DBPASS=`/httpd/platform/cfgecho.pl $USER dbpass`;    
-  		DBUSER=`/httpd/platform/cfgecho.pl $USER dbuser`;    
-  		DBNAME=`/httpd/platform/cfgecho.pl $USER dbname`;    
-  		HOME=`/httpd/platform/cfgecho.pl "$USER" home`;    
-  		ln -sfv "/users/$lcUSER/DATABASE" "/var/lib/mysql/$USER";    
-  		/backend/platform/mysql/grant.pl "$USER" "$DBUSER" "$DBPASS" | mysql;    
-  		chown -R mysql.mysql "/users/$lcUSER/DATABASE"; 
-  	done
-  
-  mysqladmin reload
-  mysql -e 'show databases';
+# # /etc/init.d/mysql start
+#  sleep 10;	## give mysql some time to start
+#  
+#  for USER in `/backend/platform/cfgecho.pl type:user` ; do    
+#  		lcUSER=`echo $USER | tr '[:upper:]' '[:lower:]'`;    
+#  		DBPASS=`/httpd/platform/cfgecho.pl $USER dbpass`;    
+#  		DBUSER=`/httpd/platform/cfgecho.pl $USER dbuser`;    
+#  		DBNAME=`/httpd/platform/cfgecho.pl $USER dbname`;    
+#  		HOME=`/httpd/platform/cfgecho.pl "$USER" home`;    
+#  		ln -sfv "/users/$lcUSER/DATABASE" "/var/lib/mysql/$USER";    
+#  		/backend/platform/mysql/grant.pl "$USER" "$DBUSER" "$DBPASS" | mysql;    
+#  		chown -R mysql.mysql "/users/$lcUSER/DATABASE"; 
+#  	done
+#  
+#  mysqladmin reload
+#  mysql -e 'show databases';
 
  ##  for USER in `/httpd/platform/cfgecho.pl type:user` ; do mysql $USER -A -e "select * from SSL_IPADDRESSES"; done;
 
