@@ -418,6 +418,15 @@ sub call {
 	'providerExecAccountGet'=>[ \&JSONAPI::providerExec, { 'provider'=>1 } ],
 	'providerExecFileRead'=>[ \&JSONAPI::providerExec, { 'provider'=>1 } ],
 	'providerExecFileWrite'=>[ \&JSONAPI::providerExec, { 'provider'=>1 } ],
+	'adminHelpdeskLogin'=>[ \&JSONAPI::adminHelpdeskLogin, { 'admin'=>1 }, 'admin', { 'HELP'=>'L' } ],
+	'adminTicketList'=>[ \&JSONAPI::adminTicket, { 'admin'=>1, }, 'admin', { 'HELP'=>'L' } ],
+	'adminTicketCreate'=>[ \&JSONAPI::adminTicket, { 'admin'=>1, }, 'admin', { 'HELP'=>'C' } ],
+	'adminTicketMacro'=>[ \&JSONAPI::adminTicket, { 'admin'=>1, }, 'admin', { 'HELP'=>'U' } ],
+	'adminTicketDetail'=>[ \&JSONAPI::adminTicket, { 'admin'=>1, }, 'admin', { 'HELP'=>'R' } ],
+	'adminTicketFileAttach'=>[  \&JSONAPI::adminTicket, { 'admin'=>1, }, 'admin', { 'HELP'=>'U'} ],
+	'adminTicketFileRemove'=>[  \&JSONAPI::adminTicket, { 'admin'=>1, }, 'admin', { 'HELP'=>'U'} ],
+	'adminTicketFileList'=>[  \&JSONAPI::adminTicket, { 'admin'=>1, }, 'admin', { 'HELP'=>'L'} ], ## added by jt
+	'adminTicketFileGet'=>[  \&JSONAPI::adminTicket, { 'admin'=>1, }, 'admin', { 'HELP'=>'R'} ],
 	
 	## 
 	## cart
@@ -838,14 +847,6 @@ sub call {
 #	'adminProfileDetail'=>[ \&JSONAPI::adminProfileDetail, { 'admin'=>1, }, 'admin', undef, { 'DOMAIN'=>'D' } ],
 #	'adminProfileUpdate'=>[ \&JSONAPI::adminProfileUpdate, { 'admin'=>1, }, 'admin', undef, { 'DOMAIN'=>'U' } ],
 	
-	'adminTicketList'=>[ \&JSONAPI::adminTicket, { 'admin'=>1, }, 'admin', { 'HELP'=>'L' } ],
-	'adminTicketCreate'=>[ \&JSONAPI::adminTicket, { 'admin'=>1, }, 'admin', { 'HELP'=>'C' } ],
-	'adminTicketMacro'=>[ \&JSONAPI::adminTicket, { 'admin'=>1, }, 'admin', { 'HELP'=>'U' } ],
-	'adminTicketDetail'=>[ \&JSONAPI::adminTicket, { 'admin'=>1, }, 'admin', { 'HELP'=>'R' } ],
-	'adminTicketFileAttach'=>[  \&JSONAPI::adminTicket, { 'admin'=>1, }, 'admin', { 'HELP'=>'U'} ],
-	'adminTicketFileRemove'=>[  \&JSONAPI::adminTicket, { 'admin'=>1, }, 'admin', { 'HELP'=>'U'} ],
-   'adminTicketFileList'=>[  \&JSONAPI::adminTicket, { 'admin'=>1, }, 'admin', { 'HELP'=>'L'} ], ## added by jt
-	'adminTicketFileGet'=>[  \&JSONAPI::adminTicket, { 'admin'=>1, }, 'admin', { 'HELP'=>'R'} ],
 
 	'adminPartnerSet'=>[ \&JSONAPI::adminPartner, { 'admin'=>1, }, 'admin' ],
 	'adminPartnerGet'=>[ \&JSONAPI::adminPartner, { 'admin'=>1, }, 'admin' ],
@@ -1445,6 +1446,40 @@ sub cryptoTool {
    ## generate txt key
    return(\%R);
    }
+
+
+
+
+
+=pod
+@api {POST} /adminHelpdeskLogin adminHelpdeskLogin
+@apiGroup admin
+@apiName adminHelpdeskLogin
+@apiSuccess helpdesk_url {string} the fully qualified url string to redirect the user to.
+@apiDescription
+
+For single signon to support (where available)
+
+@apiExample
+
+
+=cut
+
+sub adminHelpdeskLogin {
+	my ($self,$v) = @_;
+
+	my %R = ();
+	require PLUGIN::FRESHDESK;
+
+	$R{'helpdesk_url'} = PLUGIN::FRESHDESK::create_sso_url( $self->LU );
+
+	#else {
+	#	&JSONAPI::set_error(\%R,'youerr',8382,sprintf('Invalid _cmd:%s (this line should never be reached',$v->{'_cmd'}));
+	#	}
+
+	return(\%R);
+
+
 
 
 =pod

@@ -48,8 +48,10 @@ sub send {
 		}
 
 	## currently, we only send to customer via email.
-	my ($method) = BLAST::RECIPIENT::EMAIL->new($self->blaster(),$C->email(), $self->meta());
-	$method->send( $msg );
+	if (defined $C) {
+		my ($method) = BLAST::RECIPIENT::EMAIL->new($self->blaster(),$C->email(), $self->meta());
+		$method->send( $msg );
+		}
 	
 	return( );
 	}
