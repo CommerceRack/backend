@@ -323,6 +323,11 @@ sub domain {
 	return($_[0]->{'DOMAIN'});
 	}
 
+sub phone {
+	if ($_[1]) { $_[0]->{'PHONE'} = $_[1]; }
+	return($_[0]->{'PHONE'});
+	}
+
 
 sub authinfo {
 	my ($self) = @_;
