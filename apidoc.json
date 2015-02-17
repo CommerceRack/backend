@@ -1,7 +1,0 @@
-{
-  "name": "CommerceRack Backend API",
-  "version": "201408",
-  "description": "Comprehensive REST/JSON interface for all operations.",
-  "title": "CommerceRack API",
-  "url" : "/jsonapi"
-}
