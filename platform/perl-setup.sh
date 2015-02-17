@@ -919,4 +919,5 @@ cpanm HTML::FormatText::Html2text
 cpanm JSON::Path
 cpanm XML::Smart
 
+cpanm XML::RSS::Feed
  

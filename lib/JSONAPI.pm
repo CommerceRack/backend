@@ -28270,17 +28270,49 @@ sub appResource {
 		#	$ref = JSON::XS::decode_json($response->{'content'});
 		#	}
 
-		require PLUGIN::HELPDESK;
-		my ($result) = PLUGIN::HELPDESK::execute($self,{"_cmd"=>"recentNews"});
-		if ($result->{'@NEWS'}) { 
-			$ref = $result->{'@NEWS'}; 
+		#require PLUGIN::HELPDESK;
+		#my ($result) = PLUGIN::HELPDESK::execute($self,{"_cmd"=>"recentNews"});
+		#if ($result->{'@NEWS'}) { 
+		#	$ref = $result->{'@NEWS'}; 
+		#	}
+		#elsif (&JSONAPI::hadError($result)) {
+		#	%R = %{$result};
+		#	}
+		#else {
+		#	&JSONAPI::set_error(\%R,'apierr',18805,"Unknown internal error getting recentNews");
+		#	} 
+
+		require XML::Feed;
+		my $feed = XML::Feed->parse(URI->new('http://blog.commercerack.com/feeds/posts/default')) or 
+			&JSONAPI::set_error(\%R,'apierr',18805,sprintf("Recent News Error: %s",XML::Feed->errstr));
+
+		if (&JSONAPI::hadError(\%R)) {
 			}
-		elsif (&JSONAPI::hadError($result)) {
-			%R = %{$result};
+		elsif (not defined $feed) {
+			&JSONAPI::set_error(\%R,'apierr',18806,sprintf("Recent News Error: feed could not be parsed"));
 			}
 		else {
-			&JSONAPI::set_error(\%R,'apierr',18805,"Unknown internal error getting recentNews");
-			} 
+			my @NEWS = ();
+			for my $entry ($feed->entries) {
+				print sprintf("%s\n%s\n\n",$entry->title, $entry->summary()->body() || $entry->content->body() );
+
+				my $PRIORITY = 0; 			# eventually we might use tags to improve this.
+				my $TOPIC = 'general'; 		# eventually we might use tags to improve this.
+				my $created = $entry->issued() || DateTime->new();
+				my $expires = $created->add( days=>30 );
+
+				push @NEWS, { 
+					'TITLE'=>sprintf("%s",$entry->title()),
+					'CREATED'=>sprintf("%s %s",$created->ymd(),$created->hms()), 
+					'PRIORITY'=>$PRIORITY,
+					'TOPIC'=>$TOPIC,
+					'EXPIRES'=>sprintf("%s %s",$expires->ymd(),$expires->hms()),
+					'SUBTITLE'=>sprintf("<a href=\"%s\">%s</a>", $entry->link(), $entry->link() ),
+					'MESSAGE'=>sprintf("%s",$entry->summary()->body() || $entry->content->body()),
+					};
+				}
+			$ref = \@NEWS;
+			}
 		}
 	elsif ($FILENAME =~ /^quickstats\/(.*?)\.(.*?)$/) {
 		require KPIBI;
