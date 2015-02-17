@@ -28297,9 +28297,22 @@ sub appResource {
 				print sprintf("%s\n%s\n\n",$entry->title, $entry->summary()->body() || $entry->content->body() );
 
 				my $PRIORITY = 0; 			# eventually we might use tags to improve this.
-				my $TOPIC = 'general'; 		# eventually we might use tags to improve this.
+				my $TOPIC = undef; 			# eventually we might use tags to improve this.
 				my $created = $entry->issued() || DateTime->new();
-				my $expires = $created->add( days=>30 );
+
+            #amazon.gif  enhance.gif   feature.gif  general.gif  image.gif  outage.gif  pirateflag.gif  ups.gif    zoovylive.gif
+            #ebay.gif    facebook.gif  fedex.gif    google.gif   mpo.gif    paypal.gif  twitter.gif     zoovy.gif
+				foreach my $tag ($entry->tags()) {
+					if ($tag =~ /(amazon|ebay|enhance|feature|outage|paypal|google|fedex|ups|facebook|twitter)/) {
+						$TOPIC = $tag;
+						last;
+						}
+					}
+				my $DAYS = 30;
+				if (not defined $TOPIC) { $TOPIC = 'general'; }
+				if ($TOPIC eq 'outage') { $DAYS = 7; }
+				if ($TOPIC eq 'feature') { $DAYS = 60; }
+				my $expires = $created->add( days=>$DAYS );
 
 				push @NEWS, { 
 					'TITLE'=>sprintf("%s",$entry->title()),
