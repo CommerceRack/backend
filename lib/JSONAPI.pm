@@ -201,6 +201,8 @@ $JSONAPI::VERSION = "201411";
 $JSONAPI::VERSION_MINIMUM = 201312;
 @JSONAPI::TRACE = ();
 
+$JSONAPI::MAX_FILEDOWNLOAD_SIZE = 100000000;	# files over 100mb in size cannot be downloaded (browser won't handle them)
+
 # http://api-writing.blogspot.com/2008/04/api-template.html
 # https://github.com/blog/1081-instantly-beautiful-project-pages
 
@@ -5888,7 +5890,10 @@ sub adminPrivateFile {
 
 
 	
-	if ($v->{'_cmd'} eq 'adminPrivateFileList') {
+	if (JSONAPI::hadError(\%R)) {
+		# shit already happened.
+		}
+	elsif ($v->{'_cmd'} eq 'adminPrivateFileList') {
 		## doesn't require GUID or FILENAME
 		}
 	elsif ($v->{'_cmd'} eq 'adminPrivateFileRemove') {
@@ -5905,7 +5910,17 @@ sub adminPrivateFile {
 			$R{'MIMETYPE'} = "$mime_type";
 			}
 
-		if ($R{'FILENAME'} ne '') { 
+		if ($R{'FILENAME'} ne '') {
+			my ($ctime,$size) = $lf->file_detail($R{'FILENAME'});
+			if ($size > $JSONAPI::MAX_FILEDOWNLOAD_SIZE) {
+				&JSONAPI::set_error(\%R,'youerr',4904,"File $R{'FILENAME'} is too big ($size bytes, max: $JSONAPI::MAX_FILEDOWNLOAD_SIZE)");
+				}
+			}
+
+		if (&JSONAPI::hadError(\%R)) {
+			}
+		elsif ($R{'FILENAME'} ne '') { 
+			## load + send file.
 			$R{'body'} = $lf->file_contents($R{'FILENAME'}); 
 
 			if ((defined $v->{'base64'}) && ($v->{'base64'})) {
@@ -28725,21 +28740,30 @@ sub adminBatchJob {
 
 		$R{'GUID'} = $GUID;
 		$R{'FILENAME'} = $FILENAME;
-		$R{'body'} = $lf->file_contents($FILENAME);
 
-		my ($mime_type, $encoding) = MIME::Types::by_suffix($R{'FILENAME'});
-		$R{'MIMETYPE'} = 'application/unknown';
-		if ($mime_type eq '') {
-			## NEED MORE?? 
-			MIME::Types::import_mime_types("/httpd/conf/mime.types");
-			($mime_type, $encoding) = MIME::Types::by_suffix($R{'FILENAME'});
+		my ($ctime,$size) = $lf->file_detail($R{'FILENAME'});
+		if ($size > $JSONAPI::MAX_FILEDOWNLOAD_SIZE) {
+			&JSONAPI::set_error(\%R,'youerr',4904,"File $R{'FILENAME'} is too big ($size bytes, max: $JSONAPI::MAX_FILEDOWNLOAD_SIZE)");
 			}
-		if ($mime_type ne '') {
-			$R{'MIMETYPE'} = "$mime_type";
+		else {
+			$R{'body'} = $lf->file_contents($FILENAME);
+			
+			my ($mime_type, $encoding) = MIME::Types::by_suffix($R{'FILENAME'});
+			$R{'MIMETYPE'} = 'application/unknown';
+			if ($mime_type eq '') {
+				## NEED MORE?? 
+				MIME::Types::import_mime_types("/httpd/conf/mime.types");
+				($mime_type, $encoding) = MIME::Types::by_suffix($R{'FILENAME'});
+				}
+			if ($mime_type ne '') {
+				$R{'MIMETYPE'} = "$mime_type";
+				}
 			}
 
 		## open F, ">/httpd/zoovy-htdocs/test.jpg"; print F $R{'body'}; close F;
-		if (not defined $R{'FILENAME'}) {
+		if (&JSONAPI::hadError(\%R)) {
+			}
+		elsif (not defined $R{'FILENAME'}) {
 			&JSONAPI::set_error(\%R,'apperr',23422,'File not found');			
 			}
 		elsif ((defined $v->{'base64'}) && ($v->{'base64'})) {
