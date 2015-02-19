@@ -170,6 +170,7 @@ fi;
 if ($params{'verb'} eq 'run') {
 	foreach my $USERNAME (@USERS) {
 		## /backend/utils/batch.pl user=fkaufmann verb=run exec= jobid=400000
+		my ($udbh) = &DBINFO::db_user_connect(sprintf("%s",$USERNAME));
 		my ($ID) = $params{'jobid'};
 		if ($ID==0) { $ID = $params{'id'}; }	
 
@@ -253,6 +254,7 @@ if ($params{'verb'} eq 'run') {
 			$BJ->finish($status,$statusMsg);	
 			}
 	
+		&DBINFO::db_user_close();
 		if ($status eq 'ERROR') {
 			## failure
 			exit 0;
