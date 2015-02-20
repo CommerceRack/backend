@@ -2001,6 +2001,9 @@ sub configJS {
 			'thirdParty'=>{
 			  "facebook" => {"appId"=>$webdbref->{'facebook_appid'}}
 				},
+			'email'=>{
+				"contact" => $webdbref->{'from_email'}
+				}
 			);
 
 	return(\%zGlobals);
@@ -28298,6 +28301,11 @@ sub appResource {
 
 				my $PRIORITY = 0; 			# eventually we might use tags to improve this.
 				my $TOPIC = 'general'; 		# eventually we might use tags to improve this.
+
+				#amazon.gif  enhance.gif   feature.gif  general.gif  image.gif  outage.gif  pirateflag.gif  ups.gif    zoovylive.gif
+				#ebay.gif    facebook.gif  fedex.gif    google.gif   mpo.gif    paypal.gif  twitter.gif     zoovy.gif
+
+
 				my $created = $entry->issued() || DateTime->new();
 				my $expires = $created->add( days=>30 );
 
