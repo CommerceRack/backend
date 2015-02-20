@@ -12,6 +12,7 @@ use ZSHIP;
 use CFG;
 
 # /httpd/servers/ebay/process.pl user=andreasinc uuid=1425014 reset=1
+use Getopt::Long;
 
 my %params = ();
 foreach my $arg (@ARGV) {
@@ -19,6 +20,14 @@ foreach my $arg (@ARGV) {
 	my ($k,$v) = split(/=/,$arg);
 	$params{lc($k)} = $v;
 	}
+
+Getopt::Long::GetOptions (
+	"user=s" => \$params{'user'},    
+	"uuid=s"   => \$params{'uuid'},  
+	"product=s"   => \$params{'product'},  
+	"verbose"  => \$verbose)   # flag
+	or die("Error in command line arguments\n");
+
 
 
 my @USERS = ();
@@ -36,7 +45,7 @@ else {
 
 
 foreach my $user (@USERS) {
-	&process('user'=>$user,%params);
+	&process($user,%params);
 	}
 
 
@@ -44,14 +53,11 @@ foreach my $user (@USERS) {
 ##
 ##
 sub process {
-	my (%options) = @_;
+	my ($USERNAME,%options) = @_;
 
 	my $ts = time();
 
-	my $CLUSTER = $options{'CLUSTER'};
-
-	print "CLUSTER: $CLUSTER\n";
-	my ($udbh) = &DBINFO::db_user_connect($options{'user'} || $options{'cluster'});
+	my ($udbh) = &DBINFO::db_user_connect($USERNAME);
 
 	## UNLOCK CODE:
 	if (1) {

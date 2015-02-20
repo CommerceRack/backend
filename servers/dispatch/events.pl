@@ -159,9 +159,14 @@ if ($params{'LOCK_ID'}) { $LOCK_ID = int($params{'LOCK_ID'}); }
 sub run_timers {
 
 	# my $limit = 1000; # int($params{'limit'});	# 4/3/2013
+	srand($$*time());
 	foreach my $USERNAME (@USERS) {
 		print Dumper($USERNAME);
 		my $limit = 2500;
+
+		next;
+		next if ((rand()*100%2)==0);
+
 		my $pstmt = "select ID,USERNAME,EVENT,YAML from USER_EVENT_TIMERS where PROCESSED_GMT=0 and DISPATCH_GMT<$ts order by ID limit $limit";
 		print "$pstmt\n";
 		my $ROWS = &DBINFO::fetch_all_into_hashref($USERNAME,$pstmt);

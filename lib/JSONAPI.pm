@@ -2001,6 +2001,9 @@ sub configJS {
 			'thirdParty'=>{
 			  "facebook" => {"appId"=>$webdbref->{'facebook_appid'}}
 				},
+			'email'=>{
+				"contact" => $webdbref->{'from_email'}
+				}
 			);
 
 	return(\%zGlobals);
