@@ -5698,9 +5698,12 @@ sub getDocumentPending {
 		$ERROR = $response->status_line;
 		}
 	else {
+		print "\n\n\n\n ************** CONTENT".Dumper($response->content());
 		my $p = new XML::Parser(Style=>'EasyTree');
 		my $tree=$p->parse($response->content());
+		print "\n\n\n\n ************** TREE".Dumper($tree);
 		foreach my $node (@{$tree->[0]->{'content'}}) {
+			next if ($node->{'type'} eq 't');
 			#### changed on 10-04-2010 - patti
 			####	code was written incorrectly, was only returning one DOCID
 			#my $info = &XMLTOOLS::XMLcollapse($node->{'content'});
@@ -5710,6 +5713,7 @@ sub getDocumentPending {
 			#	}
 	
 			foreach my $subnode (@{$node->{'content'}}) {
+				next if ($subnode->{'type'} eq 't');
 				my $info = &XMLTOOLS::XMLcollapse($subnode->{'content'});
 				print "INFO: ".Dumper($info);
 				if ($info->{'ReportId'} ne '') {
