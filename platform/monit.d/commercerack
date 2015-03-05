@@ -97,6 +97,9 @@ check filesystem ephemeral with path /mnt/ephemeral
 ## ElasticSearch
 check host elastic_health_check with address 0.0.0.0
    if failed url http://0.0.0.0:9200/_cluster/health for 2 cycles then alert
+	if failed url http://0.0.0.0:9200/_cluster/health for 3 cycles then restart
+   start program = "/etc/init.d/elasticsearch start"
+   stop  program = "/etc/init.d/elasticsearch stop"
 
 ##
 ## Mysql
