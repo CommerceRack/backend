@@ -46,51 +46,59 @@ print Dumper(\@USERS,\%params);
 $::REDIS_SERVER = 'localhost';
 
 foreach my $USERNAME (@USERS) {
-	next unless ($params{'verb'} =~ /^(status|list|kill|queue)$/);
+#	next unless ($params{'verb'} =~ /^(status|list|kill|queue)$/);
 
 	my ($udbh) = &DBINFO::db_user_connect(sprintf("%s",$USERNAME));
 	my ($redis) = &ZOOVY::getRedis($::REDIS_SERVER,2);
 	my ($MID) = &ZOOVY::resolve_mid($USERNAME);
 
-	if ($params{'verb'} eq 'status') {
-		my $pstmt = "select ID,USERNAME from BATCH_JOBS where STATUS in ('RUNNING');";
-		my $sth = $udbh->prepare($pstmt);
-		$sth->execute();
-		while ( my ($JOBID,$USERNAME) = $sth->fetchrow() ) {
-			print "/backend/utils/batch.pl user=$USERNAME jobid=$JOBID verb=run\n";
-			}
-		$sth->finish();
-		}
-
-	if ($params{'verb'} eq 'list') {
-		my $pstmt = "select ID,USERNAME,STATUS from BATCH_JOBS where CREATED_TS>date_sub(now(),interval 5 day) and MID=$MID";
-		print "$pstmt\n";
-		my $sth = $udbh->prepare($pstmt);
-		$sth->execute();
-		while ( my ($JOBID,$USERNAME,$STATUS) = $sth->fetchrow() ) {		
-			print "$JOBID\t$USERNAME\t$STATUS\n";
-			}
-		$sth->finish();
-		}
-
-	if ($params{'verb'} eq 'kill') {
-		my ($ID) = int($params{'jobid'});
-		my $pstmt = "update BATCH_JOBS set STATUS='END-CRASHED',STATUS_MSG='Killed by Admin' where ID=$ID and MID=$MID";
-		print "$pstmt\n";
-		$udbh->do($pstmt);
-		}
+#	if ($params{'verb'} eq 'status') {
+#		my $pstmt = "select ID,USERNAME from BATCH_JOBS where STATUS in ('RUNNING');";
+#		my $sth = $udbh->prepare($pstmt);
+#		$sth->execute();
+#		while ( my ($JOBID,$USERNAME) = $sth->fetchrow() ) {
+#			print "/backend/utils/batch.pl user=$USERNAME jobid=$JOBID verb=run\n";
+#			}
+#		$sth->finish();
+#		}
+#
+#	if ($params{'verb'} eq 'list') {
+#		my $pstmt = "select ID,USERNAME,STATUS from BATCH_JOBS where CREATED_TS>date_sub(now(),interval 5 day) and MID=$MID";
+#		print "$pstmt\n";
+#		my $sth = $udbh->prepare($pstmt);
+#		$sth->execute();
+#		while ( my ($JOBID,$USERNAME,$STATUS) = $sth->fetchrow() ) {		
+#			print "$JOBID\t$USERNAME\t$STATUS\n";
+#			}
+#		$sth->finish();
+#		}
+#
+#	if ($params{'verb'} eq 'kill') {
+#		my ($ID) = int($params{'jobid'});
+#		my $pstmt = "update BATCH_JOBS set STATUS='END-CRASHED',STATUS_MSG='Killed by Admin' where ID=$ID and MID=$MID";
+#		print "$pstmt\n";
+#		$udbh->do($pstmt);
+#		}
 
 	if ($params{'verb'} eq 'queue') {
 		my $tmpdir = "/tmp";
 		if (-d "/local/tmp") { $tmpdir = "/local/tmp"; }
 
 		my $pstmt = "select * from BATCH_JOBS where STATUS in ('NEW','HOLD','QUEUED') ";
-		if ($USERNAME) { $pstmt .= " and MID=".&ZOOVY::resolve_mid($USERNAME); }
+		$pstmt .= " and MID=".&ZOOVY::resolve_mid($USERNAME);
+
 		if ($params{'limit'}) { $pstmt .= sprintf(" limit 0,%d",int($params{'limit'})); }
 		$pstmt .= " order by ID";
-		my $ROWS = &DBINFO::fetch_all_into_hashref($USERNAME,$pstmt);
-	
-		foreach my $ref (@{$ROWS}) {
+
+		my @ROWS = ();
+		my $sth = $udbh->prepare($pstmt);
+		$sth->execute();
+		while ( my $ref = $sth->fetchrow_hashref() ) {
+			push @ROWS, $ref;
+			}
+		$sth->finish();
+
+		foreach my $ref (@ROWS) {
 			my ($ID) = $ref->{'ID'};
 			my ($USERNAME) = $ref->{'USERNAME'};
 		
