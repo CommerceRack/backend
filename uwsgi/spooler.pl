@@ -51,7 +51,7 @@ uwsgi::spooler(
 
 		my $DEBUG_FILE = "/dev/shm/spooler.debug";
 		#if (&JSONAPI::hadError($R)) {
-		$DEBUG_FILE = sprintf("/dev/shm/spooler.debug-%s",$v->{'_cartid'});
+		## $DEBUG_FILE = sprintf("/dev/shm/spooler.debug-%s",$v->{'_cartid'});
 		#	print STDERR 'ERROR: '.Dumper($v,$R)."\n";
 		#	}
 		open F, ">$DEBUG_FILE";		
