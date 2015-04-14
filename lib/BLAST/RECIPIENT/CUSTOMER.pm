@@ -1,5 +1,7 @@
 package BLAST::RECIPIENT::CUSTOMER;
 
+use lib "/backend/lib";
+
 use strict;
 use parent 'BLAST::RECIPIENT';
 require BLAST::RECIPIENT::EMAIL;
