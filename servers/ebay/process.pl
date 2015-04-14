@@ -21,6 +21,7 @@ foreach my $arg (@ARGV) {
 	$params{lc($k)} = $v;
 	}
 
+my $verbose = undef;
 Getopt::Long::GetOptions (
 	"user=s" => \$params{'user'},    
 	"uuid=s"   => \$params{'uuid'},  

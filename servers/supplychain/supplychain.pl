@@ -94,8 +94,14 @@ foreach my $USERNAME (@USERS) {
 		}
 
 
-	my $ROWS = &DBINFO::fetch_all_into_hashref($USERNAME,$pstmt);
-	foreach my $hashref ( @{$ROWS} ) {
+	my @ROWS = ();
+	my $sth = $udbh->prepare($pstmt);
+	$sth->execute();
+	while ( my $ref = $sth->fetchrow_hashref() ) {
+		push @ROWS, $ref;
+		}
+	$sth->finish();
+	foreach my $hashref ( @ROWS ) {
 		my ($ID,$USERNAME,$CODE) = ($hashref->{'ID'}, $hashref->{'USERNAME'}, $hashref->{'CODE'});
 
 		next unless (&ZOOVY::locklocal("supplychain.$USERNAME.$CODE"));

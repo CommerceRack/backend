@@ -227,29 +227,6 @@ sub next_in_sequence {
 
 
 
-##
-## executes query on each db that is reacable 
-##	returns an array of hashrefs 
-##
-sub fetch_all_into_hashref {
-	my ($cluster,$pstmt) = @_;
-
-	my (@USERS) = @{CFG->new()->users()};
-	my @RESULTS = ();
-	foreach my $USERNAME (@USERS) {
-		my ($udbh) = &DBINFO::db_user_connect($USERNAME);
-		my $sth = $udbh->prepare($pstmt);
-		$sth->execute();
-		while ( my $ref = $sth->fetchrow_hashref() ) {
-			push @RESULTS, $ref;
-			}
-		$sth->finish();
-		&DBINFO::db_user_close();
-		}
-
-	return(\@RESULTS);
-	}
-
 
 ############################################################################
 ##
@@ -368,7 +345,7 @@ sub db_user_connect {
 
 	while (($HANDLEREF->[1]<=0) && ($i < 5)) {
 		#my ($package,$file,$line,$sub,$args) = caller(0);
-		if ($i>0) { sleep(); }
+		if ($i>0) { sleep($i); }
 		my $failed = 0;
 
 		## NOTE: apache/mod_perl will run this line multiple times... it's fine.. under mod_perl and DBI::Cache
@@ -377,12 +354,12 @@ sub db_user_connect {
 		## print "($dbdsn,$dbuser,$dbpass)\n";
 		## print STDERR join("|",@{$DBINFO::CREDENTIALS{$USERNAME}})."\n";
 
-		## print STDERR "DSN:$dbdsn   USER:$dbuser  PASS$dbpass\n";
+		#print STDERR "DSN:$dbdsn   USER:$dbuser  PASS$dbpass\n";
 		$HANDLEREF->[0] = DBI->connect_cached($dbdsn,$dbuser,$dbpass) || eval { $failed++; warn "failed to connect to database $@ ($dbdsn)"; };
-		$HANDLEREF->[0]->{'mysql_auto_reconnect'} = 1;
 		if (not $failed) {
-			## increment the counter so we know we got a connection!
-			$HANDLEREF->[1]++;
+			## SUCCESS
+			$HANDLEREF->[0]->{'mysql_auto_reconnect'} = 1;
+			$HANDLEREF->[1]++;	## increment the counter so we know we got a connection!
 			$HANDLEREF->[2]=$USERNAME;
 			$HANDLEREF->[3]=time();	# record the time we created the handle.
 
@@ -395,23 +372,14 @@ sub db_user_connect {
 				close F;
 				}
 			}
-		elsif ($i>0) {
-			if ($DBINFO::HANDLE_LOG) {
-				my ($package,$file,$line,$sub,$args) = caller(0);
-				open F, ">>/tmp/db.log";
-				print F "[$$] $HANDLEREF->[2] $HANDLEREF->[3] $HANDLEREF->[4].$HANDLEREF->[1] FAILED $package,$file,$line,$sub,$args\n";
-				close F;
-				}
-			open F, "|/usr/sbin/sendmail -t";
-			print F "To: brianh\@zoovy.com\n";
-			print F "From: nfs1\@zoovy.com\n";
-			print F "Subject: Unable to connect to db $ENV{'SERVER_ADDR'} attempt:$i\n\n";
-			print F "User: $USERNAME\n";
-			print F "Host: ".`hostname`;
-			print F "Time was: ".time()."\n";
-			print F "DSN: $dbdsn\n";
+		else {
+			## FAILURE
+			my ($package,$file,$line,$sub,$args) = caller(0);
+			open F, ">>/tmp/db-errors.log";
+			print F "$USERNAME\t$i\t".time()."\t[$$]\t$HANDLEREF->[2]\t$HANDLEREF->[3]\t$HANDLEREF->[4].$HANDLEREF->[1] FAILED $package,$file,$line,$sub,$args\n";
 			close F;
 			}
+
 		$i++;
 		}
 

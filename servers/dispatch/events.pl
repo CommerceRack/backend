@@ -164,15 +164,22 @@ sub run_timers {
 		print Dumper($USERNAME);
 		my $limit = 2500;
 
-		next;
 		next if ((rand()*100%2)==0);
+
+		my @ROWS = ();
 
 		my $pstmt = "select ID,USERNAME,EVENT,YAML from USER_EVENT_TIMERS where PROCESSED_GMT=0 and DISPATCH_GMT<$ts order by ID limit $limit";
 		print "$pstmt\n";
-		my $ROWS = &DBINFO::fetch_all_into_hashref($USERNAME,$pstmt);
-		foreach my $row (@{$ROWS}) {
-			my ($dbID,$USERNAME,$EVENT,$YAML) = ($row->{'ID'},$row->{'USERNAME'},$row->{'EVENT'},$row->{'YAML'});	
+		my $udbh = &DBINFO::db_user_connect($USERNAME);
+		my $sth = $udbh->prepare($pstmt);
+		$sth->execute();
+		while ( my $ref = $sth->fetchrow_hashref() ) {
+			push @ROWS, $ref;
+			}
+		$sth->finish();
 
+		foreach my $row (@ROWS) {
+			my ($dbID,$USERNAME,$EVENT,$YAML) = ($row->{'ID'},$row->{'USERNAME'},$row->{'EVENT'},$row->{'YAML'});	
 			next if (! -d &ZOOVY::resolve_userpath($row->{'USERNAME'}));
 
 			my ($udbh) = &DBINFO::db_user_connect($USERNAME);
@@ -192,6 +199,8 @@ sub run_timers {
 			$udbh->do($pstmt);
 			&DBINFO::db_user_close();
 			}
+
+		&DBINFO::db_user_close();
 		}
 	print "Done with timers!\n";
 	return();

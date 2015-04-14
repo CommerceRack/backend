@@ -33,6 +33,7 @@ sub test {
 		my ($userref) = &AMAZON3::fetch_userprt($USERNAME,0);
 		$S->set('.our.fba_marketplaceid',$userref->{'AMAZON_MARKETPLACEID'});
 		$S->set('.our.fba_merchantid',$userref->{'AMAZON_MERCHANTID'});
+		$S->set('.our.mwsauthtoken',$userref->{'MWS_AUTH_TOKEN'});
 		}
 
 	return($S);
@@ -51,12 +52,14 @@ sub emulated_userref {
 		my ($userref) = &AMAZON3::fetch_userprt($USERNAME,2);
 		$S->set('.our.fba_marketplaceid',$userref->{'AMAZON_MARKETPLACEID'});
 		$S->set('.our.fba_merchantid',$userref->{'AMAZON_MERCHANTID'});
+		$S->set('.our.mwsauthtoken',$userref->{'MWS_AUTH_TOKEN'});
 		}
 
 	my $userref = {
 		'USERNAME'=>$USERNAME,
 		'AMAZON_MARKETPLACEID'=>$S->get('.our.fba_marketplaceid'),
 		'AMAZON_MERCHANTID'=>$S->get('.our.fba_merchantid'),
+		'MWS_AUTH_TOKEN'=>$S->get('.our.mwsauthtoken'),
 		'INV_LASTSYNC_GMT'=> $S->get('.inv.fba_lastsync_gmt'),
 		};
 
@@ -787,6 +790,7 @@ sub mws_headers {
 	## 1. define credentials
 	my $AMZ_MARKETPLACEID = $userref->{'AMAZON_MARKETPLACEID'};
 	my $AMZ_MERCHANTID = $userref->{'AMAZON_MERCHANTID'};
+	my $MWS_AUTH_TOKEN = $userref->{'MWS_AUTH_TOKEN'};
 
 	my ($CFG) = CFG->new();
 	my $host = $CFG->get("amazon_mws","host");
@@ -800,6 +804,7 @@ sub mws_headers {
 	my %params = (
 		'AWSAccessKeyId'=>$awskey,
 		## NOTE: in repricing this is 'MarketplaceId' not 'Marketplace'
+		'MWSAuthToken'=>$MWS_AUTH_TOKEN,
 		'Marketplace'=>$AMZ_MARKETPLACEID,
 		'SellerId'=>$AMZ_MERCHANTID,
 		'SignatureVersion'=>2,
