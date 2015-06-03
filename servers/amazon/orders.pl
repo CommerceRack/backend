@@ -213,6 +213,9 @@ foreach my $set (@TODO) {
 	if (not $lm->can_proceed()) {
 		## bad shit already happened.
 		}
+   elsif ((int($so->get('.orderpermissions')==0))) {
+      $lm->pooshmsg("STOP|+Amazon Order Processing is disabled");
+      }
 	elsif ($userref->{'AMAZON_MARKETPLACEID'} eq '') {
 		## w/o the marketplaceid, MWS will not function
 		$lm->pooshmsg("STOP|+$USERNAME prt:$PRT is not setup for MWS (missing AMAZON_MARKETPLACEID in userref)");

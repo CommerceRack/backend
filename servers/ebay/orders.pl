@@ -782,6 +782,8 @@ sub processOrders {
 	my @XMLORDERS = ();
 	my @ORDERACKS = ();
 
+	$xml =~ s/K&N/K&amp;N/gs;
+
 	# print "Why yes please, that would be wonderful!!\n";
 	my $parser = XML::LibXML->new();
 	my $tree = $parser->parse_string($xml);

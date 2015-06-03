@@ -5060,7 +5060,6 @@ sub fetch_thesaurus_detail {
 
 
 
-
 ##
 ##
 ## pass this the <Message>....</Message> document.
@@ -5114,6 +5113,7 @@ sub prep_header {
 	my $AMZ_TOKEN = $userref->{'AMAZON_TOKEN'};
 	my $AMZ_MARKETPLACEID = $userref->{'AMAZON_MARKETPLACEID'};
 	my $AMZ_MERCHANTID = $userref->{'AMAZON_MERCHANTID'};
+	my $MWS_AUTH_TOKEN = $userref->{'MWS_AUTH_TOKEN'};
 
 	my ($CFG) = CFG->new();
 	my $host = $CFG->get("amazon_mws","host");
@@ -5126,6 +5126,7 @@ sub prep_header {
 
 	my %params = (
 		'AWSAccessKeyId'=>$awskey,
+		'MWSAuthToken'=>$MWS_AUTH_TOKEN,
 		'Marketplace'=>$AMZ_MARKETPLACEID,
 		'Merchant'=>$AMZ_MERCHANTID,
 		'SignatureVersion'=>2,
@@ -5210,6 +5211,7 @@ sub prep_header2 {
 	my $AMZ_TOKEN = $userref->{'AMAZON_TOKEN'};
 	my $AMZ_MARKETPLACEID = $userref->{'AMAZON_MARKETPLACEID'};
 	my $AMZ_MERCHANTID = $userref->{'AMAZON_MERCHANTID'};
+	my $MWS_AUTH_TOKEN = $userref->{'MWS_AUTH_TOKEN'};
 
 	my ($CFG) = CFG->new();
 	my $host = $CFG->get("amazon_mws","host");
@@ -5222,6 +5224,7 @@ sub prep_header2 {
 
 	my %params = (
 		'AWSAccessKeyId'=>$awskey,
+		'MWSAuthToken'=>$MWS_AUTH_TOKEN,
 		'Marketplace'=>$AMZ_MARKETPLACEID,
 		'Merchant'=>$AMZ_MERCHANTID,
 		'SignatureVersion'=>2,
@@ -5627,6 +5630,7 @@ sub fetch_userprt {
 	## required for MWS
 	$USER{'AMAZON_MARKETPLACEID'} = $so->get('.amz_marketplaceid') || $amz_tokenref->{'marketplaceId'}; 		## us seller central marketplace id
 	$USER{'AMAZON_MERCHANTID'} = $so->get('.amz_merchantid') || $amz_tokenref->{'merchantId'};					## 
+	$USER{'MWS_AUTH_TOKEN'} = $so->get('.mwsauthtoken');					## required as of 04/2015
 
 	## afaik: these are not currently used, but they are the mws public/secret keys
 	$USER{'AMAZON_MWS_ACCESS'} = $so->get('.amz_accesskey');
