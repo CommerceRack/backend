@@ -2104,7 +2104,7 @@ the trace product(s).  But it's all good, so you got nothing to worry about.");
 		my %NCMAP = ();
 		foreach my $safe ($NC->paths()) {
 			my ($pretty,$children,$products) = $NC->get($safe);
-			my $bc = &NAVCAT::FEED::path_breadcrumb($self,$safe);
+			my $bc = &NAVCAT::FEED::path_breadcrumb($NC,$safe);
 			foreach my $pid (split(/,/,$products)) {
 				next if ($pid eq '');
 				if (not defined $NCMAP{$pid}) {
@@ -2115,7 +2115,7 @@ the trace product(s).  But it's all good, so you got nothing to worry about.");
 					}
 				}
 			}
-
+		
 		foreach my $pid (keys %{$enabled}) {
 			if (defined $NCMAP{$pid}) {
 				$LAUNCH_PIDS{$pid} = $NCMAP{$pid};
