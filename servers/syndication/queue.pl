@@ -157,11 +157,10 @@ foreach my $USERNAME (@USERS) {
 	my $udbh = &DBINFO::db_user_connect("$USERNAME");
 
 	foreach my $set (shuffle @DSTCODES) {
-		print Dumper($USERNAME);
 		my ($DSTCODE,$DSTTYPE,$INTERVAL) = @{$set};
-		my $pstmt = "select USERNAME,DOMAIN,ID from SYNDICATION where IS_ACTIVE>0 and DSTCODE='$DSTCODE' and ${DSTTYPE}_NEXTQUEUE_GMT<unix_timestamp(now())";
+		my $pstmt = "select USERNAME,DOMAIN,ID,DSTCODE from SYNDICATION where IS_ACTIVE>0 and DSTCODE='$DSTCODE' and ${DSTTYPE}_NEXTQUEUE_GMT<unix_timestamp(now())";
 		if ($params{'all'}) {
-			$pstmt = "select USERNAME,DOMAIN,ID from SYNDICATION where IS_ACTIVE>0 and DSTCODE='$DSTCODE' ";
+			$pstmt = "select USERNAME,DOMAIN,ID,DSTCODE from SYNDICATION where IS_ACTIVE>0 and DSTCODE='$DSTCODE' ";
 			}
 		if ($params{'user'}) { $pstmt .= " and USERNAME=".$udbh->quote($params{'user'}); }
 		print $pstmt."\n";
@@ -180,6 +179,7 @@ foreach my $USERNAME (@USERS) {
 		foreach my $row (@ROWS) {
 			my ($USERNAME,$DOMAIN,$ID) = ($row->{'USERNAME'},$row->{'DOMAIN'},$row->{'ID'});
 			my $PRT = -1;
+
 			if (substr($DOMAIN,0,1) eq '#') {
 				## we have a PRT defined as "#0" in PROFILE field
 				$PRT = int(substr($DOMAIN,1));
@@ -199,7 +199,6 @@ foreach my $USERNAME (@USERS) {
 		}
 	#$sth->finish();
 	}
-#print Dumper(\@TO_QUEUE);
 
 
 ##

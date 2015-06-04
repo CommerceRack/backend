@@ -192,7 +192,7 @@ sub summary {
 	## print STDERR "/*RUN: ".Carp::cluck()."*/ $pstmt\n";
 	my %SUMMARY = ();
 	if ((defined $pstmt) && ($pstmt ne '')) {
-		## print STDERR "$pstmt $WHERESTMT\n";
+		print STDERR "$pstmt $WHERESTMT\n";
 		# print STDERR Dumper(\%options);
 		my ($sth) = $udbh->prepare("$pstmt $WHERESTMT");
 		$sth->execute();

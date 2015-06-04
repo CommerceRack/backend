@@ -192,7 +192,6 @@ sub msg {
 		$msg->{'FORMAT'} = 'HTML5';
 		}
 
-
 	return($msg);
 	}
 

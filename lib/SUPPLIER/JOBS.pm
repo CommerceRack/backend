@@ -964,7 +964,7 @@ sub PROCESS {
 			if (not $olm->can_proceed()) {
 				}
 			elsif ($SO2->in_get('want/order_notes') eq '') {
-				$SUBS{'%ORDER_NOTES'} = ''; 	
+				$SUBS{'%ORDER_NOTES%'} = ''; 	
 				}
 			elsif ($S->fetch_property('.order.email_body_format') eq 'XML') {
 				$SUBS{'%ORDER_NOTES%'} = "<additional_notes>".$SO2->in_get('want/order_notes')."</additional_notes>";

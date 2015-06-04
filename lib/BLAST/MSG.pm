@@ -54,6 +54,7 @@ sub new {
 			($self->{'BODY'},$self->{'SUBJECT'},$self->{'FORMAT'},$self->{'BCC'}) = $udbh->selectrow_array($pstmt);
 
 			if (($self->{'SUBJECT'} eq '') && (defined $BLAST::DEFAULTS::MSGS{$MSGID})) {
+				
 				$self->{'BODY'} = $BLAST::DEFAULTS::MSGS{$MSGID}->{'MSGBODY'};
 				$self->{'SUBJECT'} = $BLAST::DEFAULTS::MSGS{$MSGID}->{'MSGSUBJECT'};
 				$self->{'FORMAT'} = $BLAST::DEFAULTS::MSGS{$MSGID}->{'MSGFORMAT'};
@@ -66,7 +67,6 @@ sub new {
 
 		&DBINFO::db_user_close();
 		}	
-
 	return($self);	
 	}
 

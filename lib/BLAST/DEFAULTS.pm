@@ -169,7 +169,7 @@ if (is $domain --notblank) {{
 	 	format $link --append='?#verb=orderview&order=' --append=$orderid --append='&softauth=' --append=$softauth;
 		}};
 	if (is $linkstyle --eq='VSTORE') {{
-	 	format $link --append='/customer/order_status?order=' --append=$orderid --append='&softauth=' --append=$softauth;
+	 	format $link --append='/customer/order_status?orderid=' --append=$orderid --append='&softauth=' --append=$softauth;
 		}};
 	apply --attrib='href'; 
 	apply --append; 
@@ -851,9 +851,6 @@ foreach $shipment in $shipments {{
 	transmogrify --templateid='shipmentTemplate' --dataset=$shipment; apply --append; 
 	}};
 ">
-</tbody>
-</table>
-
 <template id="shipmentTemplate">
 <tr>
 	<td>
@@ -950,6 +947,8 @@ bind $var '.notes'; apply --append;
 "></span></td>
 </tr>
 </template>
+</tbody>
+</table>
 
 |,	
 	#[ 'ORDER',

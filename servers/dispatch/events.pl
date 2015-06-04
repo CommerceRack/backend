@@ -1549,7 +1549,12 @@ sub e_ORDER {
 		else {
 			my ($BLAST) = BLAST->new($USERNAME,$O2->prt());
 			my ($rcpt) = $BLAST->recipient('CUSTOMER',$O2->customerid());
+			
+			my %params = ();
+			$params{'%ORDER'} = $O2->TO_JSON();
+	
 			my ($msg) = $BLAST->msg($MSGID);
+			my ($msg) = $BLAST->msg($MSGID,\%params);
 			$BLAST->send($rcpt,$msg);
 			# $se->sendmail($MSGID,'*SITE'=>$SREF,'*CART2'=>$O2,'CID'=>$O2->customerid());
 			}
