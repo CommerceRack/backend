@@ -92,7 +92,8 @@ sub add_products {
 				#print "PAYLOAD: [$i] ".$payload->{'source'}->{'pid'}."\n";
 				print "BOOSTER: ".$payload->{'source'}->{'booster'}."\n";
 				if (int($payload->{'source'}->{'booster'}) ne $payload->{'source'}->{'booster'}) {
-					die();
+					$payload->{'source'}->{'booster'} = int($payload->{'source'}->{'booster'});
+					## die();
 					}
 				}
 
