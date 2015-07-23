@@ -1,5 +1,14 @@
 #!/usr/bin/perl
 
+#
+# how this works:
+# EBAY::SYNDICATION.pm puts entries into LISTING_EVENTS table
+# this processes those, listing events was an attempt to make a generic interface to marketplace listings
+# but in reality ebay has moved away from this and we'll probably be able to remove it and make it work more like amazon
+# where upload products with sku's in one feed, and inventory in another.
+#
+
+
 use strict;
 use Data::Dumper;
 use XML::SAX::Simple;
