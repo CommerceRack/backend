@@ -1897,6 +1897,7 @@ sub event_handler {
 				}
 
 			## this is a little wonky, but it's how we need to format it for ebay
+			## NOTE: not sure if ebay uses ItemSpecifics anymore.
 			my $i = 0;
 			foreach my $k (keys %NameValueList) {
 				## push @{$is}, { 'Name'=>[ &ZTOOLKIT::stripUnicode($k) ], 'Value'=>[ &ZTOOLKIT::stripUnicode($NameValueList{$k}) ] };
@@ -1913,7 +1914,17 @@ sub event_handler {
 					$j++;
 					}
 				$i++;
+
+				## ANDREW UNCOMMENT THIS:
+				#if ($k eq 'UPC') {
+				#	## ProductID, ProductReferenceID, ISBN, UPC, EAN, BrandMPN, and/or TicketListingDetails
+				#	$xml{"Item.ProductListingDetails.UPC"} = $values[0];
+				#	}
+
 				}
+
+
+
 			}
 
 
