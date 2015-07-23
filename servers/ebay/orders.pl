@@ -1,5 +1,33 @@
 #!/usr/bin/perl
 
+#
+# how this works:
+#	run in .queue mode to create a shell script (once per user) which does the following steps:
+#	$ ./orders.pl verb=create type=orders
+# 	** creates an LMS (large merchant services) "SoldReport" batch job requesting all orders, adds to EBAY_JOBS table
+#	$ ./orders.pl verb=download type=orders
+#	** downloads the most recent job, if it's ready, if it's not then the shell script created by .queue will sleep, and retry
+#  ** all output is stored in /tmp/EBAY-$USERNAME-$PRT.running-debug 
+#  ** if a crash occurs then it is moved to /tmp/EBAY-$USERNAME-$PRT.crashed-debug
+#
+# note: 
+#	orders.pl implements lms -- and using lms "ActiveInventoryReport" it is also possible to download inventory (active listings on ebay)
+#	use type=listings
+#
+# it is also possible to do:
+#  $ ./orders.pl verb=jobs type=orders user=xxxx
+#  ** it is possible to process individual jobs using this syntax:
+#  $ ./orders.pl verb=download type=orders jobid=xxxx
+#  ** get the jobid from verb=jobs
+#
+# while perusing this code you may find references to "deleterecurring", in the original design we created a job on ebay to 
+# automatically refresh a file once per hour, sometimes these jobs would break or get stuck requiring me to manually delete the job 
+# i'd put in a ticket, ebay would respond with 'wtf are you using that feature' and tell me to create non-recurring jobs fresh each time 
+# to work around the problem. .. but the 'deleterecurring' command is still in here for posterity.  it is not used. 
+# (the advantage of recurring jobs was never having to wait for a file after requesting ebay create it)
+#
+
+
 
 use strict;
 use lib "/httpd/modules";
@@ -55,6 +83,7 @@ $::LMS_APPVER = "L052";
 
 
 
+
 ##
 ## user=
 ##
@@ -92,7 +121,7 @@ my @TODO = ();
 my ($t) = time();
 
 if (defined $params{'.queue'}) {
-	#my $udbh = &DBINFO::db_user_connect("\@$params{'cluster'}");
+	## queue mode, goes through all users on the server.
 	my $ROWS = [];
 
 	foreach my $USER (@USERS) {
@@ -108,10 +137,7 @@ if (defined $params{'.queue'}) {
 
 	print Dumper(\$ROWS);
 
-	#my $sth = $udbh->prepare($pstmt);
-	#$sth->execute();
 	my $loop = 0;
-	# while ( my ($USERNAME,$PRT) = $sth->fetchrow() ) {
 	foreach my $row (@{$ROWS}) {
 		my ($USERNAME,$PRT) = ($row->{'USERNAME'},$row->{'PRT'});
 		# my $CMD = "/httpd/servers/ebay/orders.pl user=$USERNAME prt=$PRT queue=1";
@@ -124,7 +150,6 @@ if (defined $params{'.queue'}) {
 
 			open H, "|$CMD";			
 			print H "rm -f /tmp/EBAY-$USERNAME-$PRT.running-debug\n";
-			# print H "/httpd/servers/ebay/orders.pl >> /tmp/EBAY-$USERNAME-$PRT.running-debug\n";
 			print H "/httpd/servers/ebay/orders.pl user=$USERNAME prt=$PRT verb=create type=orders >> /tmp/EBAY-$USERNAME-$PRT.running-debug\n";
 			print H "sleep 30;";
 			print H "COUNTER=0; ";
