@@ -873,6 +873,10 @@ sub mktinvcmd {
 	my ($self, $CMD, $MKT, $MKTID, $SKU, %options) = @_;
 
 	# print STDERR Dumper($SKU,\%options);
+	if ($self->username() eq 'tikimaster') {
+		## TODO: make this into a setting to disable all market inventory
+		return(undef);
+		}
 
 	if ($CMD !~ /^(FOLLOW|SOLD|END|NUKE)$/) {
 		warn "mktinvcmd only supports FOLLOW|SOLD|END|NUKE\n";
