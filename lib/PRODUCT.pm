@@ -204,6 +204,8 @@ sub elastic_index {
 	my %prodstore = ();
 	## special fields
 	$prodstore{'pid'} = $PID;
+	$prodstore{'booster'} =  0;
+	$prodstore{'boosterx'} =  1;
 
 	## note: %prodstore becomes $storeref below
 	unshift @{$TODO}, [ $PID, $self->prodref(), \%prodstore ];
@@ -217,24 +219,30 @@ sub elastic_index {
 			next if (ref($dataref) ne 'HASH');
 			my $value = $dataref->{ $ref->{'id'} };
 
-			if (($ref->{'type'} eq 'integer') && (not defined $value) && (defined $ref->{'es_null_value'})) {
-				$value = $ref->{'es_null_value'};
+			if (
+				(($ref->{'type'} eq 'integer') || ($ref->{'type'} eq 'long') || ($ref->{'type'} eq 'number')) 
+					&& (defined $ref->{'es_null_value'})
+					&& ((not defined $value) || ($value eq '') || (sprintf("%s",$value) ne int($value))) 
+				) {
+				$value = int($ref->{'es_null_value'});
 				}
 
 			next if (not defined $value);		## this is key, because we don't want to index a price as zero
 
 			## reference fields
+			#print "**** $ref->{'index'} == $value\n";
 			$storeref->{ $ref->{'index'} } = $value;
 
 
 			## CURRENCY
 			if ($ref->{'type'} eq 'currency') {
 				## currency field - set to integer
-				$storeref->{$ref->{'index'}} = int(sprintf("%0f",$storeref->{$ref->{'index'}}*100));
+				$storeref->{$ref->{'index'}} = int(sprintf("%0f", ($storeref->{$ref->{'index'}} || 0) *100));
 				if ($storeref->{$ref->{'index'}} > (1<<30))  { $storeref->{$ref->{'index'}} = 1<<30; }	## max value?
 				}
 			elsif ($storeref->{$ref->{'index'}} eq '') {
 				## blank string fields (often) cause es to crash and do other wonky things, so we'll not use them.
+				## warn "deleting $PID index:$ref->{'index'} because it's blank\n";
 			 	delete($storeref->{$ref->{'index'}});
 				}
 			elsif ($ref->{'type'} eq 'keywordlist') {
@@ -268,6 +276,8 @@ sub elastic_index {
 		'id'=>"$PID",
 		'source'=>\%prodstore	## was 'data' in elastic 0.xx
 		};
+
+	# print Dumper(\@ES_PAYLOADS);
 
 	my @STORE_IMAGES;
 	## $PRODUCT_PROPERTIES{'@skus'} = { 'type'=>'string', 'prodstore'=>'no', 'include_in_all'=>'no' };

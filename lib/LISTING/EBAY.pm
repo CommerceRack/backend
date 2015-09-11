@@ -1858,6 +1858,7 @@ sub event_handler {
 				'Height'=>'zoovy:prod_height',
 				'Length'=>'zoovy:prod_length',
 				'UPC'=>'zoovy:prod_upc',
+				'EAN'=>'zoovy:prod_ean',
 				'ISBN'=>'zoovy:prod_isbn',
 				'Color'=>'zoovy:prod_color',
 				'Size'=>'zoovy:prod_size',
@@ -1897,6 +1898,7 @@ sub event_handler {
 				}
 
 			## this is a little wonky, but it's how we need to format it for ebay
+			## NOTE: not sure if ebay uses ItemSpecifics anymore.
 			my $i = 0;
 			foreach my $k (keys %NameValueList) {
 				## push @{$is}, { 'Name'=>[ &ZTOOLKIT::stripUnicode($k) ], 'Value'=>[ &ZTOOLKIT::stripUnicode($NameValueList{$k}) ] };
@@ -1913,7 +1915,28 @@ sub event_handler {
 					$j++;
 					}
 				$i++;
+
+
+				if ($k eq 'EAN') {
+					## ProductID, ProductReferenceID, ISBN, UPC, EAN, BrandMPN, and/or TicketListingDetails
+					## UPC must always be sent. When EAN is sent UPC must be sent as 'Does Not Apply' 
+					$xml{"Item.ProductListingDetails.EAN"} = $values[0];
+					$xml{"Item.ProductListingDetails.UPC"} = 'Does Not Apply';
+					}
+				elsif ($k eq 'UPC') {
+					if (length($values[0])==13) {
+						$xml{"Item.ProductListingDetails.EAN"} = $values[0];
+						$xml{"Item.ProductListingDetails.UPC"} = 'Does Not Apply';
+						}
+					else {
+						$xml{"Item.ProductListingDetails.UPC"} = $values[0];
+						}
+					}
+
 				}
+
+
+
 			}
 
 
@@ -2575,6 +2598,7 @@ sub event_handler {
 
 			}
 
+		print Dumper(%xml);
 		my $file = sprintf("/tmp/dump.%s",$le->username());
 		open F, sprintf(">$file");
 		print F Dumper($MSGS,$le->username(),\%xml,$ebref,$ebnsref);

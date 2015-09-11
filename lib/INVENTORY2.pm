@@ -192,7 +192,7 @@ sub summary {
 	## print STDERR "/*RUN: ".Carp::cluck()."*/ $pstmt\n";
 	my %SUMMARY = ();
 	if ((defined $pstmt) && ($pstmt ne '')) {
-		## print STDERR "$pstmt $WHERESTMT\n";
+		print STDERR "$pstmt $WHERESTMT\n";
 		# print STDERR Dumper(\%options);
 		my ($sth) = $udbh->prepare("$pstmt $WHERESTMT");
 		$sth->execute();
@@ -873,6 +873,10 @@ sub mktinvcmd {
 	my ($self, $CMD, $MKT, $MKTID, $SKU, %options) = @_;
 
 	# print STDERR Dumper($SKU,\%options);
+	if ($self->username() eq 'tikimaster') {
+		## TODO: make this into a setting to disable all market inventory
+		return(undef);
+		}
 
 	if ($CMD !~ /^(FOLLOW|SOLD|END|NUKE)$/) {
 		warn "mktinvcmd only supports FOLLOW|SOLD|END|NUKE\n";

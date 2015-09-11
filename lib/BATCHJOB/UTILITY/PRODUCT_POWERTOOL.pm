@@ -215,6 +215,7 @@ sub work {
 
 
 			foreach my $CMDSET (@CMDS) {
+				print "printing dump of cmdset".Dumper($CMDSET);
 				my ($VERB,$CMD,$line,$cmdcount) = @{$CMDSET};
 				$VERB = lc($VERB);
 				print STDERR "VERB:$VERB\n";
@@ -283,7 +284,8 @@ sub work {
 				my ($pretty);
 
 				if ($VERB eq 'set') {
-					$new = $CMD->{'value'}; 
+					$new = $CMD->{'value'};
+					print "printing dumper of cmd value".Dumper($CMD->{'value'});
 					}
 				elsif ($VERB eq 'copy') {
 					## new value is old value

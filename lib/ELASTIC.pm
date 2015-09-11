@@ -81,6 +81,22 @@ sub add_products {
 				$bulk->index($payload)
 				}
 
+			#open F, ">/tmp/payloadx";
+			#print F Dumper($ES_PAYLOADS);
+			#close F;
+
+			#my $i = 0;
+			foreach my $payload (@{$ES_PAYLOADS}) {
+				next if ($payload->{'type'} eq 'sku');
+				#$i++;
+				#print "PAYLOAD: [$i] ".$payload->{'source'}->{'pid'}."\n";
+				print "BOOSTER: ".$payload->{'source'}->{'booster'}."\n";
+				if (int($payload->{'source'}->{'booster'}) ne $payload->{'source'}->{'booster'}) {
+					$payload->{'source'}->{'booster'} = int($payload->{'source'}->{'booster'});
+					## die();
+					}
+				}
+
 			#my $result = $es->bulk({
 			#	index	=> lc("$USERNAME.public"),		## we specify this at the top, so we don't need to in each payload
 			#	actions=>\@ES_BULK_ACTIONS,
@@ -396,6 +412,8 @@ sub rebuild_product_index {
 
 	## Format the user fields.
 	foreach my $fref (@INDEXABLE_FIELDS) {
+		next if ($fref->{'index'} eq '');	## ignore these.
+
 		my %F = ();
 		$F{'type'} =  'string'; 
 		$F{'store'} = 'yes'; 
@@ -427,8 +445,6 @@ sub rebuild_product_index {
 			## asin,profile,upc,etc. are all just keywords (aka fixed values which don't need relevancy)
 			$fref->{'type'} = 'keyword';
 			}
-		
-
 
 		## http://www.elasticsearch.org/guide/reference/mapping/multi-field-type/
 		if ($fref->{'type'} eq 'finder') {
@@ -458,7 +474,6 @@ sub rebuild_product_index {
 					'raw' => {"type" => "string", "index" => "not_analyzed",  "analyzer" => "naturalsort" },
 					};
 				}
-
 			}
 		elsif (($fref->{'type'} eq 'keyword') || ($fref->{'type'} eq 'keywordlist') || ($fref->{'type'} eq 'commalist')) {
 			$F{'type'} =  'string'; 
@@ -483,9 +498,10 @@ sub rebuild_product_index {
 			## $F{'index'} = 'yes';
 			## short,integer,float
 			}
-		elsif (($fref->{'type'} eq 'number') || ($fref->{'type'} eq 'integer')) {
+		elsif (($fref->{'type'} eq 'long') || ($fref->{'type'} eq 'number') || ($fref->{'type'} eq 'integer')) {
 			$F{'type'} = 'integer';
 			if ($fref->{'type'} eq 'number') { $F{'type'} = 'long'; }
+			if ($fref->{'type'} eq 'long') { $F{'type'} = 'long'; }
 			$F{'include_in_all'} = 0;
 			## $F{'index'} = 'not_analyzed';
 			$F{'null_value'} = 0;
@@ -533,9 +549,6 @@ sub rebuild_product_index {
 		#print Dumper($fref,\%P);
 		}
 
-	#print Dumper(\%PRODUCT_PROPERTIES);
-	#print Dumper(\@INDEXABLE_FIELDS);
-	
 	my @SYNONYMS = ();
 	# blank lines and lines starting with pound are comments.
 

@@ -2227,6 +2227,7 @@ var pr_style_sheet="http://cdn.powerreviews.com/aux/$pwrgid/$pwrmid/css/powerrev
 					my $mode = uc($SITE::v->{'mode'});
 					if ((not defined $mode) || ($mode eq '')) { $mode = 'AND'; }
 					my $keywords = $SITE::v->{'keywords'};
+
 					my $bounce = 1;
 					
 					# use Data::Dumper; print STDERR Dumper(\%SITE::OVERRIDES);

@@ -27,6 +27,9 @@ $ZSHIP::USPS::URL      = "http://production.shippingapis.com/ShippingAPI.dll";
 ## 
 ## http://production.shippingapis.com/ShippingAPITest.dll?API=Verify&XML=<AddressValidateRequest USERID="xxxxxxx"><Address ID="0"><Address1></Address1><Address2>6406 Ivy Lane</Address2><City>Greenbelt</City><State>MD</State><Zip5></Zip5><Zip4></Zip4></Address></AddressValidateRequest>
 ##
+##
+## DOCS:
+## https://www.usps.com/business/web-tools-apis/rate-calculator-api.htm#_Toc412108429
 
 
 # This returns two arrays of all of the places that are acknowledged as domestic by USPS
@@ -315,8 +318,7 @@ sub international_compute {
 	my $writer = new XML::Writer(OUTPUT => \$xmlin, NEWLINES => 0);
 
 	$writer->startTag("IntlRateV2Request","USERID" => "$ZSHIP::USPS::USERNAME","PASSWORD"=>"$ZSHIP::USPS::PASSWORD");
-# 	$writer->dataElement("Revision", '2');
-
+ 	$writer->dataElement("Revision", '2');	## required if we're passing OriginZip (not sure what else this will break)
 
 #	$CONTENT .= build_usps_intpackage("Letters or Letter Packages", 0, $DEST_COUNTRY, $WEIGHT);
 	$WEIGHT = &ZSHIP::smart_weight($WEIGHT);
@@ -345,6 +347,18 @@ sub international_compute {
 	$writer->dataElement("Length",1);
 	$writer->dataElement("Height",1);
 	$writer->dataElement("Girth",0);
+
+	## if we include these parameters the call fails
+	my $ORIG_ZIP = defined($WEBDBREF->{'ship_origin_zip'}) ? $WEBDBREF->{'ship_origin_zip'} : '92101';
+	my $DEST_ZIP = $CART2->in_get('ship/postal');
+	$DEST_ZIP =~ s/^(\d\d\d\d\d).*$/$1/;
+	if ($ORIG_ZIP) { $writer->dataElement("OriginZip",$ORIG_ZIP); }
+	if ($DEST_ZIP) { 
+		## DestinationPostalCode requires AcceptanceDateTime
+		# $writer->dataElement("CommercialFlag","Y");
+		$writer->dataElement("AcceptanceDateTime", POSIX::strftime("%Y-%m-%dT%H:%M:%S-00:00",localtime()));
+		$writer->dataElement("DestinationPostalCode",$DEST_ZIP); 
+		}
 
    $writer->endTag("Package");
 	$writer->endTag("IntlRateV2Request");
