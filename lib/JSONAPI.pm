@@ -1963,6 +1963,7 @@ sub configJS {
 			'amazonCheckoutEnable'=>sprintf("%d",$webdbref->{'amzpay_env'}),
 			'paypalCheckoutApiUser'=>sprintf("%s",$webdbref->{'paypal_email'}),
 
+			'chkout_phone'=>$webdbref->{'chkout_phone'},
 			"chkout_order_notes" => $webdbref->{"chkout_order_notes"}, #  //form field id is chkout.order_notes
 			'customer_management'=>$webdbref->{'customer_management'},
 			'preference_request_login'=>(
