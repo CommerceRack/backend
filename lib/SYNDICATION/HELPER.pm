@@ -73,7 +73,6 @@ sub do_product {
 
 	$SPECIALREF->{'%PRODUCTID'} = $SKU;
 
-	# print Dumper($COLUMNSREF);
 
 	foreach my $col (@{$COLUMNSREF}) {
 		next if (not $plm->can_proceed());
@@ -86,7 +85,10 @@ sub do_product {
 			push @LOGIC, "$col->{'header'} START";
 			foreach my $try (@{$col->{'@try'}}) {
 				#next if (defined $RESULT);
-				if (defined $RESULT) {
+				
+				if ( (defined $RESULT) && ($RESULT ne '') ) {
+					# adding a check for the result being blank. a blank value in the product record was causing the script to skip out of the loop.
+					#	- we only want to skip out of the loop if we have a non-blank result
 					push @LOGIC, "$col->{'header'} RESULT ALREADY SET - SKIPPING: $try";
 					next;
 					}
