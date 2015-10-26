@@ -30,10 +30,10 @@ sub test {
 	my ($S) = SUPPLIER->new($USERNAME,"FBA"); 
 	if (not defined $S) {
 		($S) = SUPPLIER->new($USERNAME,"FBA",'create'=>1);
-		my ($userref) = &AMAZON3::fetch_userprt($USERNAME,0);
-		$S->set('.our.fba_marketplaceid',$userref->{'AMAZON_MARKETPLACEID'});
-		$S->set('.our.fba_merchantid',$userref->{'AMAZON_MERCHANTID'});
-		$S->set('.our.mwsauthtoken',$userref->{'MWS_AUTH_TOKEN'});
+#		my ($userref) = &AMAZON3::fetch_userprt($USERNAME,0);
+#		$S->set('.our.fba_marketplaceid',$userref->{'AMAZON_MARKETPLACEID'});
+#		$S->set('.our.fba_merchantid',$userref->{'AMAZON_MERCHANTID'});
+#		$S->set('.our.mwsauthtoken',$userref->{'MWS_AUTH_TOKEN'});
 		}
 
 	return($S);
@@ -86,7 +86,7 @@ sub inventory {
 
 	$lm->pooshmsg("INFO|+Start INVENTORY");
 	my $userref = &SUPPLIER::FBA::emulated_userref($S);	
-	## print STDERR Dumper($userref)."\n";
+	print Dumper($userref)."\n";
 	
 	if (not $lm->can_proceed()) {
 		## bad shit already happened.
@@ -144,10 +144,14 @@ sub inventory {
 
 		my ($request_url, $head) = &SUPPLIER::FBA::mws_headers("/FulfillmentInventory/2010-10-01/",$userref,$headers);
 
+		print Dumper($request_url);
+		print Dumper($head);
+
 		my $request = HTTP::Request->new('POST',$request_url,$head);
 		my $response = $agent->request($request);
 
 		if ($response->code() == 400) {
+			print Dumper($response);
 			## 400 = this definitely means account was suspended or password is wrong.
 			## this is DEFINITELY not a retry condition.
 			$lm->pooshmsg("FAIL-FATAL|+HTTP 400 response code (account was suspended or password is wrong)");
@@ -220,6 +224,7 @@ sub inventory {
 		my ($INV2) = INVENTORY2->new($USERNAME,sprintf("*S!%s",$S->code()));
 		foreach my $SKU (sort keys %SKUS) {
 			my $REF = $SKUS{$SKU};
+			print Dumper($REF);
 			## $REF = {
 			  #'.FNSKU' => 'X0002D20LD',
 				#'.SellerSKU' => 'PB-PMI-DEFENDER',
@@ -797,7 +802,7 @@ sub mws_headers {
 	my $sk = $CFG->get('amazon_mws',"sk");
 	my $awskey = $CFG->get('amazon_mws',"aws_key");
 
-	my $TS = AMAZON3::amztime(time()+(8*3600));
+	my $TS = AMAZON3::amztime(time());
 	my $md5 = &Digest::MD5::md5_base64($XML);
 	$md5 .= "==";		## this is officially duct-tape, run w/o and md5's dont match
 

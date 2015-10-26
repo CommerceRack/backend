@@ -4,7 +4,6 @@ use Data::Dumper;
 use JSON::XS;
 use lib "/httpd/modules";
 use DOMAIN;
-use ZACCOUNT;
 use ZOOVY;
 
 =pod

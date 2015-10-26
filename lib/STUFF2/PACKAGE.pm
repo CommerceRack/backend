@@ -314,6 +314,7 @@ sub calculate_rates {
 				if (defined $amount) {
 					$uspsmethod->{'amount-before-rules'} = $uspsmethod->{'amount'};
 					$uspsmethod->{'amount'} = $amount;
+					$uspsmethod->{'src'} = 'ZSHIP::USPS';
 					push @SHIPMETHODS, $uspsmethod;
 					}
 				}

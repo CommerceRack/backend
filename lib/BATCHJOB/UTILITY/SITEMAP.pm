@@ -199,7 +199,7 @@ sub work {
 		foreach my $url (@URLS) {
 			$xml .= "<url><loc>$base$url->[0]</loc><priority>$url->[1]</priority></url>\n";
 			}
-		$xml .= q~</urlset>\n~;
+		$xml .= qq~</urlset>\n~;
 
 		open F, ">".&BATCHJOB::UTILITY::SITEMAP::sitemap_file($USERNAME,$DOMAINNAME,undef);
 		print F $xml;
