@@ -267,10 +267,13 @@ sub create_inventoryxml {
 	my $pref = $P->prodref();
 
 	## FBA HANDLING
-	my ($detailrows) = $INV2->detail('+'=>'SUPPLIER','@SKUS'=>[$SKU],WHERE=>['SUPPLIER_ID','EQ','FBA']);	
+	my ($detailrows) = $INV2->detail('+'=>'SUPPLIER','@SKUS'=>[$SKU],'@WHERE'=>[['SUPPLIER_ID','EQ','FBA'], ['BASETYPE','EQ','SUPPLIER']]);	
 	my %HAS_FBA = ();
+	
 	foreach my $row (@{$detailrows}) {
-		$HAS_FBA{ $row->{'SKU'} } = $row->{'QTY'};
+		if ($row->{'QTY'}>0) {
+			$HAS_FBA{ $row->{'SKU'} } = $row->{'QTY'};
+			}
 		}
 
 	if ((defined $pref->{'amz:fba'}) && ($pref->{'amz:fba'} == 1)) {

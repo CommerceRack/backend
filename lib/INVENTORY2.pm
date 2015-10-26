@@ -789,6 +789,7 @@ sub pagedetail {
 			'PICK_ROUTE'=>'PICK_ROUTE',
 			'PICK_DONE_GMT'=>'unix_timestamp(PICK_DONE_TS)',
 			'PICK_DONE_TS'=>'PICK_DONE_TS',
+			'BASETYPE'=>'BASETYPE',
 			'MARKET_DST'=>'MARKET_DST',
 			);
 	
