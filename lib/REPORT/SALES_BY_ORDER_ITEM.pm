@@ -116,14 +116,18 @@ sub work {
 
 	$r->progress(0,0,"Loading Orders");
 
+	print "###### Metaref: ".Dumper($metaref);
+	
 	my $odbh =&DBINFO::db_user_connect($USERNAME);
    my $ORDERTB = &DBINFO::resolve_orders_tb($USERNAME,$MID);
 	my @orders = ();
 	my $KEY = '**REPORT_KEY_NOT_SET**';
-	if ($metaref->{'key'}) { $metaref->{"key"} = $metaref->{'.key'}; }	# old jobs
+	if ($metaref->{'.key'}) {$metaref->{'key'} = $metaref->{'.key'}; }	# old jobs
 	if ($metaref->{'key'} eq 'CREATED') { $KEY = 'CREATED_GMT'; }
 	if ($metaref->{'key'} eq 'PAID') { $KEY = 'PAID_GMT'; }
 	if ($metaref->{'key'} eq 'SHIP') { $KEY = 'SHIPPED_GMT'; }
+
+	print "###### KEY: ".Dumper($KEY);
    my $pstmt = "select ORDERID,POOL from $ORDERTB where MID=$MID /* $USERNAME */ and $KEY>=".int($metaref->{'.start_gmt'})." and $KEY<".int($metaref->{'.end_gmt'});
    print STDERR $pstmt."\n";
    my $sth = $odbh->prepare($pstmt);
@@ -159,8 +163,7 @@ sub work {
 				$item->{'qty'}, 
 				$item->{'extended'}, 
 				($O2->in_get('our/order_ts'))?BATCHJOB::REPORT::yyyy_mm_dd_time($O2->in_get('our/order_ts')):'',
-				($O2->in_get('flow/shipped_ts'))?BATCHJOB::REPORT::yyyy_mm_dd_time($O2->in_get('flow/shipped_ts')):'',
-				1 );
+				($O2->in_get('flow/shipped_ts'))?BATCHJOB::REPORT::yyyy_mm_dd_time($O2->in_get('flow/shipped_ts')):'');
 			$SKU_TO_ROW_MAP{$SKU} = scalar(@{$r->{'@BODY'}});	# record row #
 			push @{$r->{'@BODY'}}, \@ROW;
 			}
