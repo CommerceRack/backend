@@ -82,6 +82,7 @@ sub init {
 		{ id=>6, 'name'=>'Dollars Sold', type=>'NUM', sprintf=>'%.2f' },
 		{ id=>7, 'name'=>'Created Date', type=>'CHR', },
 		{ id=>8, 'name'=>'Ship Date', type=>'CHR', },
+		{ id=>9, 'name'=>'Base Cost', type=>'NUM', sprintf=>'%.2f' },
 		];
 
 	#$r->{'@SUMMARY'} = [
@@ -163,7 +164,8 @@ sub work {
 				$item->{'qty'}, 
 				$item->{'extended'}, 
 				($O2->in_get('our/order_ts'))?BATCHJOB::REPORT::yyyy_mm_dd_time($O2->in_get('our/order_ts')):'',
-				($O2->in_get('flow/shipped_ts'))?BATCHJOB::REPORT::yyyy_mm_dd_time($O2->in_get('flow/shipped_ts')):'');
+				($O2->in_get('flow/shipped_ts'))?BATCHJOB::REPORT::yyyy_mm_dd_time($O2->in_get('flow/shipped_ts')):'',
+				$item->{'cost'});
 			$SKU_TO_ROW_MAP{$SKU} = scalar(@{$r->{'@BODY'}});	# record row #
 			push @{$r->{'@BODY'}}, \@ROW;
 			}
