@@ -593,6 +593,11 @@ sub add_options_to_request {
 
 		$v{'Variation.StartPrice*'} = &XMLTOOLS::currency('StartPrice',$totalprice,'USD');
 		$v{'Variation.SKU'} = $SKU;
+
+		if ($P->skufetch($SKU,'sku:upc')) {
+			$v{'Variation.VariationProductListingDetails.UPC'} =  $P->skufetch($SKU,'sku:upc');
+			}
+
 		$v{'Variation.Quantity'} = int($INVSUMMARY->{$SKU}->{'AVAILABLE'});
 		if ($v{'Variation.Quantity'} <= 0) {
 			$v{'Variation.Quantity'} = 0;	# make sure -1 becomes zero.
@@ -1896,6 +1901,9 @@ sub event_handler {
 					$NameValueList{ $key } = $value;
 					}
 				}
+
+
+			## open F, ">/tmp/namevalue"; print F Dumper(\%NameValueList); close F;
 
 			## this is a little wonky, but it's how we need to format it for ebay
 			## NOTE: not sure if ebay uses ItemSpecifics anymore.
